@@ -36,6 +36,32 @@
     </android.support.design.widget.AppBarLayout>
 
     <LinearLayout
+        android:id="@+id/layout_storage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btn_local"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Local" />
+
+        <Button
+            android:id="@+id/btn_sd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SD" />
+
+        <Button
+            android:id="@+id/btn_otg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="OTG" />
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

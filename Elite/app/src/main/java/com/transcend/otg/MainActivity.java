@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
     private NavigationView navigationView;
-    private LinearLayout container;
+    private LinearLayout container, layout_storage;
     private HomeFragment homeFragment;
     private BrowserFragment browserFragment;
 
@@ -67,6 +67,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initFragment(){
+        layout_storage = (LinearLayout) findViewById(R.id.layout_storage);
         container = (LinearLayout) findViewById(R.id.fragment_container);
         homeFragment = new HomeFragment();
         browserFragment = new BrowserFragment();
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.nav_home){
-           replaceFragment(homeFragment);
+            replaceFragment(homeFragment);
         }else if (id == R.id.nav_browser) {
             replaceFragment(browserFragment);
             // Handle the camera action
@@ -122,6 +123,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void replaceFragment(Fragment fragment) {
+        if(fragment instanceof HomeFragment){
+            layout_storage.setVisibility(View.GONE);
+        }else{
+            layout_storage.setVisibility(View.VISIBLE);
+        }
         FragmentManager fragmentManager = getSupportFragmentManager();
         android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.replace(R.id.fragment_container, fragment);
