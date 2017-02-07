@@ -120,4 +120,9 @@ public class BrowserFragment extends Fragment implements
 
         mNumTabs = mTabs.size();
     }
+    @Override
+    public void onDestroy() {
+        mTabs.clear();
+        super.onDestroy();
+    }
 }

@@ -2,12 +2,16 @@ package com.transcend.otg;
 
 import android.app.LoaderManager;
 import android.content.Loader;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,6 +21,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.transcend.otg.Browser.BrowserFragment;
@@ -34,6 +40,13 @@ public class MainActivity extends AppCompatActivity
         LoaderManager.LoaderCallbacks<Boolean> {
 
     private String TAG = MainActivity.class.getSimpleName();
+    public static final String BACK_STACK_PREFS = ":elite:prefs";
+    private SearchView mSearchView;
+    private MenuItem mSearchMenuItem;
+    private boolean mSearchMenuItemExpanded = false;
+    private boolean mShowSearchIcon = false;
+    private SearchResults mSearchResultsFragment;
+
     private Toolbar toolbar;
     private FloatingActionButton fab;
     private DrawerLayout drawer;
@@ -107,7 +120,54 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        mSearchMenuItem = menu.findItem(R.id.search);
+        mSearchMenuItem.setVisible(mShowSearchIcon);
+        mSearchView = (SearchView) mSearchMenuItem.getActionView();
+        initSearch(mSearchView);
+
+        if (mSearchResultsFragment != null) {
+            mSearchResultsFragment.setSearchView(mSearchView);
+        }
+
+        MenuItemCompat.setOnActionExpandListener(mSearchMenuItem,
+                new MenuItemCompat.OnActionExpandListener() {
+                    @Override
+                    public boolean onMenuItemActionExpand(MenuItem item) {
+                        switchToSearchResultsFragmentIfNeeded();
+                        layout_storage.setVisibility(View.GONE);
+                        return true;
+                    }
+                    @Override
+                    public boolean onMenuItemActionCollapse(MenuItem item) {
+                        if (mSearchMenuItemExpanded) {
+                            revertToInitialFragment();
+                            layout_storage.setVisibility(View.VISIBLE);
+                        }
+                        return true;
+                    }
+                });
+
+        if (mSearchMenuItemExpanded) {
+            mSearchMenuItem.expandActionView();
+        }
+
         return true;
+    }
+
+    private void switchToSearchResultsFragmentIfNeeded() {
+        if (mSearchResultsFragment != null) {
+            return;
+        }
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (current != null && current instanceof SearchResults) {
+            mSearchResultsFragment = (SearchResults) current;
+        } else {
+            mSearchResultsFragment = (SearchResults) switchToFragment(
+                    SearchResults.class.getName(), true);
+        }
+        mSearchResultsFragment.setSearchView(mSearchView);
+        mSearchMenuItemExpanded = true;
     }
 
     @Override
@@ -139,8 +199,10 @@ public class MainActivity extends AppCompatActivity
     public void replaceFragment(Fragment fragment) {
         if (fragment instanceof HomeFragment) {
             layout_storage.setVisibility(View.GONE);
+            showSearchIcon(false);
         } else {
-            layout_storage.setVisibility(View.GONE);
+            layout_storage.setVisibility(View.VISIBLE);
+            showSearchIcon(true);
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -151,7 +213,6 @@ public class MainActivity extends AppCompatActivity
     public void setDrawerCheckItem(int id) {
         navigationView.setCheckedItem(id);
     }
-
 
     private void doLoad(String path) {
         mFileActionManager.checkServiceMode(path);
@@ -184,5 +245,56 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Boolean> loader) {
 
+    }
+
+    private Fragment switchToFragment(String fragmentName, boolean addToBackStack) {
+        Fragment f = Fragment.instantiate(this, fragmentName);
+        android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.replace(R.id.fragment_container, f);
+
+        if (addToBackStack) {
+            transaction.addToBackStack(BACK_STACK_PREFS);
+        }
+        transaction.commitAllowingStateLoss();
+        getSupportFragmentManager().executePendingTransactions();
+        return f;
+    }
+
+    private void revertToInitialFragment() {
+        mSearchResultsFragment = null;
+        mSearchMenuItemExpanded = false;
+        getSupportFragmentManager().popBackStackImmediate(BACK_STACK_PREFS,
+                FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (mSearchMenuItem != null) {
+            mSearchMenuItem.collapseActionView();
+        }
+    }
+
+    private void initSearch(SearchView searchview) {
+        (searchview.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setBackgroundResource(R.drawable.search_background);
+        ((EditText)searchview.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setTextColor(Color.BLACK);
+        searchview.setOnQueryTextListener(
+                new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);// close soft keyboard
+                        switchToSearchResultsFragmentIfNeeded();
+                        return mSearchResultsFragment.onQueryTextSubmit(query);
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        if (mSearchResultsFragment == null) {
+                            return false;
+                        }
+                        return mSearchResultsFragment.onQueryTextChange(newText);
+                    }
+                });
+    }
+
+    private void showSearchIcon(boolean show) {
+        mShowSearchIcon = show;
+        invalidateOptionsMenu();
     }
 }
