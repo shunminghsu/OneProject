@@ -1,10 +1,13 @@
 package com.transcend.otg;
 
+import android.app.LoaderManager;
+import android.content.Loader;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,11 +20,20 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 import com.transcend.otg.Browser.BrowserFragment;
+import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Constant.LoaderID;
 import com.transcend.otg.Home.HomeFragment;
+import com.transcend.otg.Loader.FileActionManager;
+import com.transcend.otg.Loader.LocalFileListLoader;
+import com.transcend.otg.Utils.Pref;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        LoaderManager.LoaderCallbacks<Boolean> {
 
+    private String TAG = MainActivity.class.getSimpleName();
     private Toolbar toolbar;
     private FloatingActionButton fab;
     private DrawerLayout drawer;
@@ -30,19 +42,28 @@ public class MainActivity extends AppCompatActivity
     private LinearLayout container, layout_storage;
     private HomeFragment homeFragment;
     private BrowserFragment browserFragment;
+    private int mLoaderID;
+    private FileActionManager mFileActionManager;
+    private String mPath;
+    private ArrayList<FileInfo> mFileList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        init();
         initToolbar();
         initDrawer();
         initFragment();
         replaceFragment(homeFragment);
     }
 
-    private void initToolbar(){
+    private void init() {
+        mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
+        mPath = mFileActionManager.getLocalRootPath();
+    }
+
+    private void initToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -56,7 +77,7 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
-    private void initDrawer(){
+    private void initDrawer() {
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -66,12 +87,13 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    private void initFragment(){
+    private void initFragment() {
         layout_storage = (LinearLayout) findViewById(R.id.layout_storage);
         container = (LinearLayout) findViewById(R.id.fragment_container);
         homeFragment = new HomeFragment();
         browserFragment = new BrowserFragment();
     }
+
     @Override
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
@@ -102,20 +124,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.nav_home){
+        if (id == R.id.nav_home) {
             replaceFragment(homeFragment);
-        }else if (id == R.id.nav_browser) {
+        } else if (id == R.id.nav_browser) {
+            doLoad(Pref.getMainPageLocation(this));
             replaceFragment(browserFragment);
-            // Handle the camera action
         } else if (id == R.id.nav_backup) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
 
         }
         drawer.closeDrawer(GravityCompat.START);
@@ -123,10 +137,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void replaceFragment(Fragment fragment) {
-        if(fragment instanceof HomeFragment){
+        if (fragment instanceof HomeFragment) {
             layout_storage.setVisibility(View.GONE);
-        }else{
-            layout_storage.setVisibility(View.VISIBLE);
+        } else {
+            layout_storage.setVisibility(View.GONE);
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -134,7 +148,39 @@ public class MainActivity extends AppCompatActivity
         transaction.commit();
     }
 
-    public void setDrawerCheckItem(int id){
+    public void setDrawerCheckItem(int id) {
         navigationView.setCheckedItem(id);
+    }
+
+
+    private void doLoad(String path) {
+        mFileActionManager.checkServiceMode(path);
+        mFileActionManager.list(path);
+    }
+
+    @Override
+    public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+        mLoaderID = id;
+        Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
+
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
+        mFileActionManager.onLoadFinished(loader, success);
+        if (success) {
+            if (loader instanceof LocalFileListLoader) {
+                mPath = ((LocalFileListLoader) loader).getPath();
+                mFileList = ((LocalFileListLoader) loader).getFileList();
+                //TO DO
+            }
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Boolean> loader) {
+
     }
 }

@@ -1,0 +1,9 @@
+package com.transcend.otg.Constant;
+
+/**
+ * Created by wangbojie on 2017/2/6.
+ */
+
+public class LoaderID {
+    public static final int LOCAL_FILE_LIST = 1;
+}

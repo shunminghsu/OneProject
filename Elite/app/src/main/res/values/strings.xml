@@ -8,4 +8,14 @@
 
     <string name="empty">Empty</string>
     <string name="loading">Loading\u2026</string>
+
+    <string name="pref_name" translatable="false">PREFERENCE</string>
+    <string name="pref_file_sort_type" translatable="false">FILE SORT TYPE</string>
+    <string name="pref_mainpage_location" translatable="false">MAINPAGE LOCATION</string>
+    <string name="pref_sd_location" translatable="false">SD LOCATION</string>
+    <string name="pref_camera_location" translatable="false">CAMERA LOCATION</string>
+    <string name="pref_download_location" translatable="false">DOWNLOAD LOCATION</string>
+    <string name="pref_pictures_location" translatable="false">PICTURES LOCATION</string>
+    <string name="pref_movies_location" translatable="false">MOVIES LOCATION</string>
+    <string name="pref_musics_location" translatable="false">MUSIC LOCATION</string>
 </resources>

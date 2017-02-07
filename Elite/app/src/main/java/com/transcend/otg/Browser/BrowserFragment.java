@@ -1,21 +1,26 @@
 package com.transcend.otg.Browser;
 
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.Loader;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.PagerTabStrip;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Constant.LoaderID;
+import com.transcend.otg.Loader.LocalFileListLoader;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
@@ -25,9 +30,11 @@ import java.util.List;
  * Created by wangbojie on 2017/2/2.
  */
 
-public class BrowserFragment extends Fragment implements MyPagerAdapter.UpdateCurrentTabListener{
+public class BrowserFragment extends Fragment implements
+        MyPagerAdapter.UpdateCurrentTabListener{
 
-    public BrowserFragment() {    }
+    public BrowserFragment() {
+    }
 
     private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
     private int mNumTabs;
@@ -43,14 +50,12 @@ public class BrowserFragment extends Fragment implements MyPagerAdapter.UpdateCu
     private TabLayout mTabLayout;
     private Context mContext;
 
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setHasOptionsMenu(true);
         mContext = getActivity();
-
         initTabInfos(savedInstanceState);
     }
 
