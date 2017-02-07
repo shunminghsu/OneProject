@@ -49,6 +49,7 @@ public class BrowserFragment extends Fragment implements
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private Context mContext;
+    private ArrayList<FileInfo> mFileList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,10 @@ public class BrowserFragment extends Fragment implements
         setHasOptionsMenu(true);
         mContext = getActivity();
         initTabInfos(savedInstanceState);
+    }
+
+    public void setFileList(ArrayList<FileInfo> FileList){
+        mFileList = FileList;
     }
 
     @Override

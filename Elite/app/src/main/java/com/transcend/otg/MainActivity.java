@@ -128,7 +128,7 @@ public class MainActivity extends AppCompatActivity
             replaceFragment(homeFragment);
         } else if (id == R.id.nav_browser) {
             doLoad(Pref.getMainPageLocation(this));
-            replaceFragment(browserFragment);
+
         } else if (id == R.id.nav_backup) {
 
         }
@@ -173,6 +173,8 @@ public class MainActivity extends AppCompatActivity
             if (loader instanceof LocalFileListLoader) {
                 mPath = ((LocalFileListLoader) loader).getPath();
                 mFileList = ((LocalFileListLoader) loader).getFileList();
+                browserFragment.setFileList(mFileList);
+                replaceFragment(browserFragment);
                 //TO DO
             }
         }
