@@ -31,6 +31,7 @@ import com.transcend.otg.Constant.LoaderID;
 import com.transcend.otg.Home.HomeFragment;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalFileListLoader;
+import com.transcend.otg.Loader.LocalTypeListLoader;
 import com.transcend.otg.Utils.Pref;
 
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity
     private int mLoaderID;
     private FileActionManager mFileActionManager;
     private String mPath;
-    private ArrayList<FileInfo> mFileList;
+    private ArrayList<FileInfo> mFileList, mImgFileList, mMusicFileList, mVideoFileList, mDocFileList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,7 +217,7 @@ public class MainActivity extends AppCompatActivity
 
     private void doLoad(String path) {
         mFileActionManager.checkServiceMode(path);
-        mFileActionManager.list(path);
+        mFileActionManager.listAllType();
     }
 
     @Override
@@ -237,6 +238,16 @@ public class MainActivity extends AppCompatActivity
                 browserFragment.setFileList(mFileList);
                 replaceFragment(browserFragment);
                 //TO DO
+            }else if (loader instanceof LocalTypeListLoader){
+                mImgFileList = ((LocalTypeListLoader) loader).getImageList();
+                mMusicFileList = ((LocalTypeListLoader) loader).getMusicList();
+                mVideoFileList = ((LocalTypeListLoader) loader).getVideoList();
+                mDocFileList = ((LocalTypeListLoader) loader).getDocList();
+                browserFragment.setImgFileList(mImgFileList);
+                browserFragment.setMusicFileList(mMusicFileList);
+                browserFragment.setVideoFileList(mVideoFileList);
+                browserFragment.setDocFileList(mDocFileList);
+                replaceFragment(browserFragment);
             }
         }
 

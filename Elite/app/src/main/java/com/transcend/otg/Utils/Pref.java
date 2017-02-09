@@ -123,14 +123,14 @@ public class Pref {
 //        return buf.toString();
 //    }
 
-//    public static FileManageRecyclerAdapter.LayoutType getFileViewType(Context context) {
+//    public static RecyclerViewAdapter.LayoutType getFileViewType(Context context) {
 //        String name = context.getResources().getString(R.string.pref_name);
 //        String key = context.getResources().getString(R.string.pref_file_view_type);
-//        int def = FileManageRecyclerAdapter.LayoutType.LIST.ordinal();
-//        return FileManageRecyclerAdapter.LayoutType.values()[PrefUtils.read(context, name, key, def)];
+//        int def = RecyclerViewAdapter.LayoutType.LIST.ordinal();
+//        return RecyclerViewAdapter.LayoutType.values()[PrefUtils.read(context, name, key, def)];
 //    }
 //
-//    public static void setFileViewType(Context context, FileManageRecyclerAdapter.LayoutType type) {
+//    public static void setFileViewType(Context context, RecyclerViewAdapter.LayoutType type) {
 //        String name = context.getResources().getString(R.string.pref_name);
 //        String key = context.getResources().getString(R.string.pref_file_view_type);
 //        PrefUtils.write(context, name, key, type.ordinal());

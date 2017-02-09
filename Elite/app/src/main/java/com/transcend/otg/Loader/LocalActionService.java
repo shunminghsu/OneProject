@@ -18,6 +18,7 @@ public class LocalActionService extends FileActionService{
     public LocalActionService(){
         TAG = LocalActionService.class.getSimpleName();
         LIST = LoaderID.LOCAL_FILE_LIST;
+        LIST_ALL_TYPE = LoaderID.LOCAL_ALL_TYPE_LIST;
 //        UPLOAD = LoaderID.LOCAL_FILE_UPLOAD;
 //        CreateFOLDER = LoaderID.LOCAL_NEW_FOLDER;
 //        RENAME = LoaderID.LOCAL_FILE_RENAME;
@@ -43,6 +44,11 @@ public class LocalActionService extends FileActionService{
     @Override
     protected AsyncTaskLoader list(Context context, String path) {
         return new LocalFileListLoader(context, path);
+    }
+
+    @Override
+    protected AsyncTaskLoader listAllType(Context context) {
+        return new LocalTypeListLoader(context);
     }
 
     @Override

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.transcend.otg.Utils.SquareRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/griditem_file_manage"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/griditem_file_manage_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="#80FFFFFF"
+        android:ellipsize="marquee"
+        android:gravity="center"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:singleLine="true"
+        android:textSize="12sp" />
+
+    <ImageView
+        android:id="@+id/griditem_file_manage_icon"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/griditem_file_manage_title"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp"
+        android:scaleType="fitCenter" />
+
+    <ImageView
+        android:id="@+id/griditem_file_manage_mark"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/griditem_file_manage_title"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="8dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:visibility="invisible" />
+
+</com.transcend.otg.Utils.SquareRelativeLayout>

@@ -87,6 +87,10 @@ public class FileActionManager {
         Log.w(TAG, "doLoad: " + path);
     }
 
+    public void listAllType(){
+        createLoader(FileActionService.FileAction.LIST_ALL_TYPE, null, null, null);
+    }
+
     private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths) {
         int id = mFileActionService.getLoaderID(mode);
         Bundle args = new Bundle();

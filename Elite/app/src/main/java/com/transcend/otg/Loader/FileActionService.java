@@ -28,9 +28,10 @@ abstract class FileActionService {
     protected int MOVE;
     protected int DELETE;
     protected int SHARE;
+    protected int LIST_ALL_TYPE;
 
     public enum FileAction {
-        OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, CreateFOLDER, SHARE
+        OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, CreateFOLDER, SHARE, LIST_ALL_TYPE
     }
 
     public String getMode(Context context){
@@ -77,6 +78,8 @@ abstract class FileActionService {
             fileAction = FileAction.CreateFOLDER;
         else if(action == SHARE)
             fileAction = FileAction.SHARE;
+        else if(action == LIST_ALL_TYPE)
+            fileAction = FileAction.LIST_ALL_TYPE;
         return fileAction;
     }
 
@@ -113,6 +116,9 @@ abstract class FileActionService {
             case SHARE:
                 id = SHARE;
                 break;
+            case LIST_ALL_TYPE:
+                id = LIST_ALL_TYPE;
+                break;
         }
 
         return id;
@@ -141,6 +147,8 @@ abstract class FileActionService {
                 return createFolder(context, path);
             case SHARE:
                 return share(context, paths, path);
+            case LIST_ALL_TYPE:
+                return listAllType(context);
         }
 
         return null;
@@ -167,4 +175,6 @@ abstract class FileActionService {
     protected abstract AsyncTaskLoader createFolder(Context context, String path);
 
     protected abstract AsyncTaskLoader share(Context context, ArrayList<String> paths, String dest);
+
+    protected abstract AsyncTaskLoader listAllType(Context context);
 }

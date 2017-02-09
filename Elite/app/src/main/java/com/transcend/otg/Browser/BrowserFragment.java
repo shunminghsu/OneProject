@@ -1,8 +1,8 @@
 package com.transcend.otg.Browser;
 
-import android.app.LoaderManager;
 import android.content.Context;
-import android.content.Loader;
+import android.database.Cursor;
+import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.content.pm.ActivityInfo;
@@ -14,17 +14,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
-import android.widget.TextView;
 
-import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.Constant.LoaderID;
-import com.transcend.otg.Loader.LocalFileListLoader;
 import com.transcend.otg.R;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by wangbojie on 2017/2/2.
@@ -36,6 +31,7 @@ public class BrowserFragment extends Fragment implements
     public BrowserFragment() {
     }
 
+    private String TAG = BrowserFragment.class.getSimpleName();
     private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
     private int mNumTabs;
     TabInfo mCurTab = null;
@@ -49,7 +45,7 @@ public class BrowserFragment extends Fragment implements
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private Context mContext;
-    private ArrayList<FileInfo> mFileList;
+    private ArrayList<FileInfo> mFileListAll, mImgFileList, mMusicFileList, mVideoFileList, mDocFileList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -61,7 +57,23 @@ public class BrowserFragment extends Fragment implements
     }
 
     public void setFileList(ArrayList<FileInfo> FileList){
-        mFileList = FileList;
+        mFileListAll = FileList;
+    }
+
+    public void setImgFileList(ArrayList<FileInfo> FileList){
+        mImgFileList = FileList;
+    }
+
+    public void setMusicFileList(ArrayList<FileInfo> FileList){
+        mMusicFileList = FileList;
+    }
+
+    public void setVideoFileList(ArrayList<FileInfo> FileList){
+        mVideoFileList = FileList;
+    }
+
+    public void setDocFileList(ArrayList<FileInfo> FileList){
+        mDocFileList = FileList;
     }
 
     @Override
@@ -81,7 +93,6 @@ public class BrowserFragment extends Fragment implements
         for (int i = 0; i < mTabLayout.getTabCount(); i++) {
             mTabLayout.getTabAt(i).setIcon(mTabs.get(i).IconId);
         }
-
         LinearLayoutManager manager = new LinearLayoutManager(getContext());
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -99,24 +110,28 @@ public class BrowserFragment extends Fragment implements
 
     private void initTabInfos(Bundle savedInstanceState) {
         TabInfo tab = new TabInfo(
-                LIST_TYPE_IMAGE, R.drawable.test_icon, savedInstanceState);
+                LIST_TYPE_IMAGE, R.drawable.test_icon, savedInstanceState, mContext, mImgFileList);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_VIDEO, R.drawable.test_icon, savedInstanceState);
+                LIST_TYPE_VIDEO, R.drawable.test_icon, savedInstanceState, mContext, mVideoFileList);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_MUSIC, R.drawable.test_icon, savedInstanceState);
+                LIST_TYPE_MUSIC, R.drawable.test_icon, savedInstanceState, mContext, mMusicFileList);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_DOCUMENT, R.drawable.test_icon, savedInstanceState);
+                LIST_TYPE_DOCUMENT, R.drawable.test_icon, savedInstanceState, mContext, mDocFileList);
         mTabs.add(tab);
-
-        tab = new TabInfo(
-                LIST_TYPE_FOLDER, R.drawable.test_icon, savedInstanceState);
-        mTabs.add(tab);
+//
+//        tab = new TabInfo(
+//                LIST_TYPE_FOLDER, R.drawable.test_icon, savedInstanceState, mContext, mImgFileList);
+//        mTabs.add(tab);
+//
+//        tab = new TabInfo(
+//                LIST_TYPE_FOLDER, R.drawable.test_icon, savedInstanceState, mContext, mImgFileList);
+//        mTabs.add(tab);
 
         mNumTabs = mTabs.size();
     }
