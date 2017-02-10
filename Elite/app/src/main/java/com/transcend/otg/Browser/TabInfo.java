@@ -33,16 +33,14 @@ public class TabInfo {
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mRecyclerAdapter;
     private Context mContext;
-    private ArrayList<FileInfo> mFileList;
     private static final int GRID_PORTRAIT = 3;
     private static final int GRID_LANDSCAPE = 5;
 
-    public TabInfo(int type, int icon_id, Bundle savedInstanceState, Context context, ArrayList<FileInfo> fileList) {
+    public TabInfo(int type, int icon_id, Bundle savedInstanceState, Context context) {
         mType = type;
         IconId = icon_id;
         mSavedInstanceState = savedInstanceState;
         mContext = context;
-        mFileList = fileList;
     }
 
     public View build(LayoutInflater inflater) {
@@ -52,7 +50,7 @@ public class TabInfo {
 
         mInflater = inflater;
 
-        mRecyclerAdapter = new RecyclerViewAdapter(mFileList);
+        mRecyclerAdapter = new RecyclerViewAdapter(this);
         mRootView = inflater.inflate(R.layout.pager_layout, null);
 
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view);
@@ -62,7 +60,6 @@ public class TabInfo {
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         mLoadingContainer = mRootView.findViewById(R.id.loading_container);
-        mLoadingContainer.setVisibility(View.GONE);
         mListContainer = mRootView.findViewById(R.id.list_container);
         if (mListContainer != null) {
 
@@ -116,6 +113,20 @@ public class TabInfo {
         @Override
         public int getSpanSize(int position) {
             return mRecyclerAdapter.isFooter(position) ? spanSize : 1;
+        }
+    }
+
+    public RecyclerViewAdapter getAdapter() {
+        return mRecyclerAdapter;
+    }
+
+    public void showLoading(boolean loading) {
+        if (loading) {
+            mListContainer.setVisibility(View.GONE);
+            mLoadingContainer.setVisibility(View.VISIBLE);
+        } else {
+            mLoadingContainer.setVisibility(View.GONE);
+            mListContainer.setVisibility(View.VISIBLE);
         }
     }
 }

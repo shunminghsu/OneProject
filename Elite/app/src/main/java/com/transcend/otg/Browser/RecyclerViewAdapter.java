@@ -1,6 +1,7 @@
 package com.transcend.otg.Browser;
 
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -26,6 +27,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private ArrayList<FileInfo> mList;
     private HashMap<String, ArrayList<String>> mPathMap;
+    private TabInfo mTab;
     private OnRecyclerItemCallbackListener mCallback;
 
     public enum LayoutType {
@@ -38,6 +40,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         void onRecyclerItemLongClick(int position);
 
         void onRecyclerItemInfoClick(int position);
+    }
+
+    public RecyclerViewAdapter(TabInfo tab) {
+        mTab = tab;
     }
 
     public RecyclerViewAdapter(ArrayList<FileInfo> list) {
@@ -57,6 +63,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         mPathMap = pathMap;
     }
 
+    boolean isEmpty() {
+        return mList == null ? true : mList.isEmpty();
+    }
+
+    void update(@Nullable ArrayList<FileInfo> items) {
+        mList = items;
+        mTab.showLoading(isEmpty());
+        notifyDataSetChanged();
+    }
 
     @Override
     public RecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -135,7 +150,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public int getItemCount() {
-        return hasFooter() ? mList.size() + 1 : mList.size();
+        if (mList != null)
+            return hasFooter() ? mList.size() + 1 : mList.size();
+        else
+            return 0;
     }
 
     public boolean isFooter(int position) {
