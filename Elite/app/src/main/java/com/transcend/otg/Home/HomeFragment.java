@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.transcend.otg.Browser.BrowserFragment;
+import com.transcend.otg.Browser.LocalFragment;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
@@ -21,7 +22,7 @@ import com.transcend.otg.R;
 public class HomeFragment extends Fragment {
     private TextView tv_Browser;
     private TextView tv_Backup;
-    private BrowserFragment browserFragment;
+    private LocalFragment localFragment;
     private MainActivity activity;
 
     public HomeFragment() {    }
@@ -29,7 +30,7 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        browserFragment = new BrowserFragment();
+        localFragment = new LocalFragment();
         activity = (MainActivity) getActivity();
         LinearLayout root = (LinearLayout) inflater.inflate(R.layout.fragment_home, container, false);
         tv_Browser = (TextView) root.findViewById(R.id.home_browser);
@@ -37,7 +38,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 activity.setDrawerCheckItem(R.id.nav_browser);
-                activity.replaceFragment(browserFragment);
+                activity.replaceFragment(localFragment);
             }
         });
 

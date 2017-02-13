@@ -11,10 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.R;
-
-import java.util.ArrayList;
 
 /**
  * Created by henry_hsu on 2017/2/3.
@@ -25,6 +22,7 @@ public class TabInfo {
     public LayoutInflater mInflater;
     public final int mType;
     public int IconId;
+    private View mEmpty;
     private View mLoadingContainer;
     private View mListContainer;
     private ViewGroup mPinnedHeader;
@@ -53,6 +51,7 @@ public class TabInfo {
         mRecyclerAdapter = new RecyclerViewAdapter(this);
         mRootView = inflater.inflate(R.layout.pager_layout, null);
 
+        mEmpty = mRootView.findViewById(R.id.empty_view);
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         updateListView(false);
@@ -120,13 +119,14 @@ public class TabInfo {
         return mRecyclerAdapter;
     }
 
-    public void showLoading(boolean loading) {
-        if (loading) {
+    public void showLoadingResult(boolean empty) {
+        mLoadingContainer.setVisibility(View.GONE);
+        if (empty) {
             mListContainer.setVisibility(View.GONE);
-            mLoadingContainer.setVisibility(View.VISIBLE);
+            mEmpty.setVisibility(View.VISIBLE);
         } else {
-            mLoadingContainer.setVisibility(View.GONE);
             mListContainer.setVisibility(View.VISIBLE);
+            mEmpty.setVisibility(View.GONE);
         }
     }
 }

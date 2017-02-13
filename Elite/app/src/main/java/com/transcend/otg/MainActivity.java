@@ -22,10 +22,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import com.transcend.otg.Browser.BrowserFragment;
+import com.transcend.otg.Browser.LocalFragment;
+import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Constant.LoaderID;
 import com.transcend.otg.Home.HomeFragment;
@@ -55,11 +58,13 @@ public class MainActivity extends AppCompatActivity
     private NavigationView navigationView;
     private LinearLayout container, layout_storage;
     private HomeFragment homeFragment;
-    private BrowserFragment browserFragment;
+    private SdFragment sdFragment;
+    private LocalFragment localFragment;
     private int mLoaderID;
     private FileActionManager mFileActionManager;
     private String mPath;
     private ArrayList<FileInfo> mFileList, mImgFileList, mMusicFileList, mVideoFileList, mDocFileList;
+    private Button mLocalButton, mSdButton, mOtgButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +73,7 @@ public class MainActivity extends AppCompatActivity
         init();
         initToolbar();
         initDrawer();
+        initButtons();
         initFragment();
         replaceFragment(homeFragment);
     }
@@ -105,7 +111,39 @@ public class MainActivity extends AppCompatActivity
         layout_storage = (LinearLayout) findViewById(R.id.layout_storage);
         container = (LinearLayout) findViewById(R.id.fragment_container);
         homeFragment = new HomeFragment();
-        browserFragment = new BrowserFragment();
+        sdFragment = new SdFragment();
+        localFragment = new LocalFragment();
+    }
+
+    class ButtonClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            if (view == mLocalButton) {
+                mLocalButton.setTextColor(getResources().getColor(R.color.colorPrimary));
+                mSdButton.setTextColor(getResources().getColor(R.color.colorBlack));
+                replaceFragment(localFragment);
+            } else if (view == mSdButton) {
+                mSdButton.setTextColor(getResources().getColor(R.color.colorPrimary));
+                mLocalButton.setTextColor(getResources().getColor(R.color.colorBlack));
+                replaceFragment(sdFragment);
+            } else if (view == mOtgButton) {
+
+            }
+        }
+    }
+
+    private void initButtons() {
+        mLocalButton = (Button) findViewById(R.id.btn_local);
+        mSdButton = (Button) findViewById(R.id.btn_sd);
+        mOtgButton = (Button) findViewById(R.id.btn_otg);
+
+        ButtonClickListener listener = new ButtonClickListener();
+        mLocalButton.setOnClickListener(listener);
+        mSdButton.setOnClickListener(listener);
+        mOtgButton.setOnClickListener(listener);
+
+        mLocalButton.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
 
     @Override
@@ -232,7 +270,7 @@ public class MainActivity extends AppCompatActivity
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
         mFileActionManager.onLoadFinished(loader, success);
         if (success) {
-            if (loader instanceof LocalFileListLoader) {
+            /*if (loader instanceof LocalFileListLoader) {
                 mPath = ((LocalFileListLoader) loader).getPath();
                 mFileList = ((LocalFileListLoader) loader).getFileList();
                 browserFragment.setFileList(mFileList);
@@ -248,7 +286,7 @@ public class MainActivity extends AppCompatActivity
                 browserFragment.setVideoFileList(mVideoFileList);
                 browserFragment.setDocFileList(mDocFileList);
                 replaceFragment(browserFragment);
-            }
+            }*/
         }
 
     }

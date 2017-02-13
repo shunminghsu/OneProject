@@ -35,22 +35,20 @@ public class BrowserFragment extends Fragment implements
     }
 
     private String TAG = BrowserFragment.class.getSimpleName();
-    private final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
-    private int mNumTabs;
-    TabInfo mCurTab = null;
+    protected final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+    protected TabInfo mCurTab = null;
     private LayoutInflater mInflater;
     public static final int LIST_TYPE_IMAGE = 0;
     public static final int LIST_TYPE_VIDEO = 1;
     public static final int LIST_TYPE_MUSIC = 2;
     public static final int LIST_TYPE_DOCUMENT = 3;
     static final int LIST_TYPE_FOLDER = 5;
-    private int CURRENT_TYPE = LIST_TYPE_VIDEO;
+    private int mCurrentTabPosition = LIST_TYPE_IMAGE;
     private int TAB_LOADER_ID = 168;
 
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
-    private Context mContext;
-    private ArrayList<FileInfo> mFileListAll, mImgFileList, mMusicFileList, mVideoFileList, mDocFileList;
+    protected Context mContext;
     private LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
 
 
@@ -58,30 +56,8 @@ public class BrowserFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
         mContext = getActivity();
-        initTabInfos(savedInstanceState);
-    }
-
-    public void setFileList(ArrayList<FileInfo> FileList){
-        mFileListAll = FileList;
-    }
-
-    public void setImgFileList(ArrayList<FileInfo> FileList){
-        mImgFileList = FileList;
-    }
-
-    public void setMusicFileList(ArrayList<FileInfo> FileList){
-        mMusicFileList = FileList;
-    }
-
-    public void setVideoFileList(ArrayList<FileInfo> FileList){
-        mVideoFileList = FileList;
-    }
-
-    public void setDocFileList(ArrayList<FileInfo> FileList){
-        mDocFileList = FileList;
     }
 
     @Override
@@ -97,7 +73,7 @@ public class BrowserFragment extends Fragment implements
         MyPagerAdapter adapter = new MyPagerAdapter(mTabs, mInflater, this);
         mViewPager.setAdapter(adapter);
         mViewPager.addOnPageChangeListener(adapter);
-        mViewPager.setCurrentItem(CURRENT_TYPE);
+        mViewPager.setCurrentItem(mCurrentTabPosition);
 
         mTabLayout.setupWithViewPager(mViewPager);
         for (int i = 0; i < mTabLayout.getTabCount(); i++) {
@@ -112,13 +88,12 @@ public class BrowserFragment extends Fragment implements
             public Loader<ArrayList<FileInfo>> onCreateLoader(int id, Bundle args) {
                 Log.d("henry","onCreateLoader "+id);
                 ///Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
-                return new TabInfoLoader(context, CURRENT_TYPE);
+                return new TabInfoLoader(context, mCurrentTabPosition);
             }
 
             @Override
             public void onLoadFinished(Loader<ArrayList<FileInfo>> loader, ArrayList<FileInfo> data) {
-                Log.d("henry","onLoadFinished "+data.size());
-                mTabs.get(CURRENT_TYPE).getAdapter().update(data);
+                mTabs.get(mCurrentTabPosition).getAdapter().update(data);
             }
 
             @Override
@@ -134,30 +109,10 @@ public class BrowserFragment extends Fragment implements
         Log.d("henry","updateCurrentTab "+position);
         TabInfo tab = mTabs.get(position);
         mCurTab = tab;
-        CURRENT_TYPE = position;
+        mCurrentTabPosition = position;
         getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
         // Put things in the correct paused/resumed state.
         //TO-DO
-    }
-
-    private void initTabInfos(Bundle savedInstanceState) {
-        TabInfo tab = new TabInfo(
-                LIST_TYPE_IMAGE, R.drawable.test_icon, savedInstanceState, mContext);
-        mTabs.add(tab);
-
-        tab = new TabInfo(
-                LIST_TYPE_VIDEO, R.drawable.test_icon, savedInstanceState, mContext);
-        mTabs.add(tab);
-
-        tab = new TabInfo(
-                LIST_TYPE_MUSIC, R.drawable.test_icon, savedInstanceState, mContext);
-        mTabs.add(tab);
-
-        tab = new TabInfo(
-                LIST_TYPE_DOCUMENT, R.drawable.test_icon, savedInstanceState, mContext);
-        mTabs.add(tab);
-
-        mNumTabs = mTabs.size();
     }
 
     @Override
@@ -170,6 +125,14 @@ public class BrowserFragment extends Fragment implements
     public void onStop() {
         super.onStop();
         getLoaderManager().destroyLoader(TAB_LOADER_ID);
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        for (int i=0; i<mTabs.size(); i++) {
+            mTabs.get(i).detachView();
+        }
     }
 
     @Override
