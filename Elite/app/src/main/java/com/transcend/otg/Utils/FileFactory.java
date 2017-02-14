@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Environment;
 import android.os.StatFs;
 import android.os.storage.StorageManager;
+import android.os.storage.StorageVolume;
+import android.util.Log;
 
 import com.transcend.otg.Constant.FileInfo;
 
@@ -27,6 +29,90 @@ public class FileFactory {
     private List<String> mNotificationList;
     private Map<String, String> mRealPathMap;
     private int RealPathMapLifeCycle = 10;
+
+    //try to return sdcard path, if sdcard not found, return null
+    public static String getSdPath(Context mContext) {
+        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
+        Class<?> storageVolumeClazz = null;
+        try {
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = null;
+            Method getPath = null;
+            Method isRemovable = null;
+            Method getState = null;
+            try {
+                getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+                getPath = storageVolumeClazz.getMethod("getPath");
+                isRemovable = storageVolumeClazz.getMethod("isRemovable");
+                getState = storageVolumeClazz.getMethod("getState");
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+
+            Object result = getVolumeList.invoke(mStorageManager);
+            final int length = Array.getLength(result);
+            for (int i = 0; i < length; i++) {
+                Object storageVolumeElement = Array.get(result, i);
+                String path = (String) getPath.invoke(storageVolumeElement);
+                String state = (String) getState.invoke(storageVolumeElement);
+                Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
+                if (removable) {
+                    if (path != null && path.contains("sdcard")) {
+                        return path;
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    //try to return the state of path, if path not found, return null
+    public static Boolean getMountedState(Context mContext, String _path) {
+        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
+        Class<?> storageVolumeClazz = null;
+        try {
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = null;
+            Method getPath = null;
+            Method isRemovable = null;
+            Method getState = null;
+            try {
+                getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+                getPath = storageVolumeClazz.getMethod("getPath");
+                isRemovable = storageVolumeClazz.getMethod("isRemovable");
+                getState = storageVolumeClazz.getMethod("getState");
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+
+            Object result = getVolumeList.invoke(mStorageManager);
+            final int length = Array.getLength(result);
+            for (int i = 0; i < length; i++) {
+                Object storageVolumeElement = Array.get(result, i);
+                String path = (String) getPath.invoke(storageVolumeElement);
+                String state = (String) getState.invoke(storageVolumeElement);
+                Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
+                if (removable) {
+                    if (path != null && path.equals(_path)) {
+                        return state.equals("mounted");
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static List<File> getStoragePath(Context mContext) {
         List<File> stgList = new ArrayList<File>();

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 
 import java.util.ArrayList;
 
@@ -17,6 +18,7 @@ public class SdFragment extends BrowserFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mOuterStorage = FileFactory.getSdPath(mContext);
         initTabInfos(savedInstanceState);
     }
 

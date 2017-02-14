@@ -7,6 +7,7 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
 
 import com.transcend.otg.Browser.BrowserFragment;
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 
 import java.io.File;
@@ -20,12 +21,14 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     private ArrayList<FileInfo> mFileList;
     private Context mContext;
     private int mType;
+    private String mOuterStoragePath;
 
-    public TabInfoLoader(Context context, int type) {
+    public TabInfoLoader(Context context, int type, String outer_path) {
         super(context);
         mType = type;
         mFileList = new ArrayList<>();
         mContext = context;
+        mOuterStoragePath = outer_path;
     }
 
     @Override
@@ -89,7 +92,13 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.time = picTime;
                         fileInfo.type = FileInfo.TYPE.PHOTO;
                         fileInfo.size = Long.valueOf(picSize);
-                        mFileList.add(fileInfo);
+                        if (mOuterStoragePath == null) {
+                            if (picPath.contains(Constant.ROOT_LOCAL))
+                                mFileList.add(fileInfo);
+                        } else {
+                            if (picPath.contains(mOuterStoragePath))
+                                mFileList.add(fileInfo);
+                        }
                     }
                 }
             }
@@ -131,7 +140,13 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.time = musicTime;
                         fileInfo.type = FileInfo.TYPE.MUSIC;
                         fileInfo.size = Long.valueOf(musicSize);
-                        mFileList.add(fileInfo);
+                        if (mOuterStoragePath == null) {
+                            if (musicPath.contains(Constant.ROOT_LOCAL))
+                                mFileList.add(fileInfo);
+                        } else {
+                            if (musicPath.contains(mOuterStoragePath))
+                                mFileList.add(fileInfo);
+                        }
                     }
                 }
             }
@@ -172,7 +187,13 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.time = videoTime;
                         fileInfo.type = FileInfo.TYPE.VIDEO;
                         fileInfo.size = Long.valueOf(videoSize);
-                        mFileList.add(fileInfo);
+                        if (mOuterStoragePath == null) {
+                            if (videoPath.contains(Constant.ROOT_LOCAL))
+                                mFileList.add(fileInfo);
+                        } else {
+                            if (videoPath.contains(mOuterStoragePath))
+                                mFileList.add(fileInfo);
+                        }
                     }
                 }
             }
@@ -220,7 +241,13 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.time = docTime;
                         fileInfo.type = FileInfo.TYPE.FILE;
                         fileInfo.size = Long.valueOf(docSize);
-                        mFileList.add(fileInfo);
+                        if (mOuterStoragePath == null) {
+                            if (docPath.contains(Constant.ROOT_LOCAL))
+                                mFileList.add(fileInfo);
+                        } else {
+                            if (docPath.contains(mOuterStoragePath))
+                                mFileList.add(fileInfo);
+                        }
                     }
                 }
             }

@@ -17,6 +17,7 @@ public class LocalFragment extends BrowserFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mOuterStorage = null;
         initTabInfos(savedInstanceState);
     }
 

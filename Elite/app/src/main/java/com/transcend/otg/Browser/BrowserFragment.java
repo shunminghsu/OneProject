@@ -50,6 +50,7 @@ public class BrowserFragment extends Fragment implements
     private TabLayout mTabLayout;
     protected Context mContext;
     private LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
+    protected String mOuterStorage;
 
 
 
@@ -88,7 +89,7 @@ public class BrowserFragment extends Fragment implements
             public Loader<ArrayList<FileInfo>> onCreateLoader(int id, Bundle args) {
                 Log.d("henry","onCreateLoader "+id);
                 ///Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
-                return new TabInfoLoader(context, mCurrentTabPosition);
+                return new TabInfoLoader(context, mCurrentTabPosition, mOuterStorage);
             }
 
             @Override

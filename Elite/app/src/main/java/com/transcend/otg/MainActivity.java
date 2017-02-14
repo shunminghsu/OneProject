@@ -21,13 +21,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.LocalFragment;
+import com.transcend.otg.Browser.NoOtgFragment;
+import com.transcend.otg.Browser.NoSdFragment;
 import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Constant.LoaderID;
@@ -35,6 +39,7 @@ import com.transcend.otg.Home.HomeFragment;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalFileListLoader;
 import com.transcend.otg.Loader.LocalTypeListLoader;
+import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.Pref;
 
 import java.util.ArrayList;
@@ -57,7 +62,6 @@ public class MainActivity extends AppCompatActivity
     private ActionBarDrawerToggle toggle;
     private NavigationView navigationView;
     private LinearLayout container, layout_storage;
-    private HomeFragment homeFragment;
     private SdFragment sdFragment;
     private LocalFragment localFragment;
     private int mLoaderID;
@@ -65,6 +69,12 @@ public class MainActivity extends AppCompatActivity
     private String mPath;
     private ArrayList<FileInfo> mFileList, mImgFileList, mMusicFileList, mVideoFileList, mDocFileList;
     private Button mLocalButton, mSdButton, mOtgButton;
+    private Context mContext;
+
+    //home page
+    private LinearLayout home_container;
+    private TextView tv_Browser;
+    private TextView tv_Backup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,13 +84,47 @@ public class MainActivity extends AppCompatActivity
         initToolbar();
         initDrawer();
         initButtons();
+        initHome();
         initFragment();
-        replaceFragment(homeFragment);
+        FileFactory.getStoragePath(this);
     }
 
     private void init() {
+        mContext = this;
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
         mPath = mFileActionManager.getLocalRootPath();
+    }
+
+    private void showHomeOrFragment(boolean home) {
+        if (home) {
+            home_container.setVisibility(View.VISIBLE);
+            container.setVisibility(View.GONE);
+            layout_storage.setVisibility(View.GONE);
+        } else {
+            home_container.setVisibility(View.GONE);
+            container.setVisibility(View.VISIBLE);
+            layout_storage.setVisibility(View.VISIBLE);
+        }
+    }
+    private void initHome() {
+        home_container = (LinearLayout) findViewById(R.id.home_page);
+        tv_Browser = (TextView) findViewById(R.id.home_browser);
+        tv_Browser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setDrawerCheckItem(R.id.nav_browser);
+                showHomeOrFragment(false);
+                replaceFragment(localFragment);
+            }
+        });
+
+        tv_Backup = (TextView) findViewById(R.id.home_backup);
+        tv_Backup.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     private void initToolbar() {
@@ -110,25 +154,39 @@ public class MainActivity extends AppCompatActivity
     private void initFragment() {
         layout_storage = (LinearLayout) findViewById(R.id.layout_storage);
         container = (LinearLayout) findViewById(R.id.fragment_container);
-        homeFragment = new HomeFragment();
         sdFragment = new SdFragment();
         localFragment = new LocalFragment();
     }
 
+
+    private void markSelectedBtn(Button selected) {
+        mLocalButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        mSdButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        mOtgButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        selected.setTextColor(getResources().getColor(R.color.colorPrimary));
+    }
     class ButtonClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View view) {
             if (view == mLocalButton) {
-                mLocalButton.setTextColor(getResources().getColor(R.color.colorPrimary));
-                mSdButton.setTextColor(getResources().getColor(R.color.colorBlack));
+                markSelectedBtn(mLocalButton);
                 replaceFragment(localFragment);
             } else if (view == mSdButton) {
-                mSdButton.setTextColor(getResources().getColor(R.color.colorPrimary));
-                mLocalButton.setTextColor(getResources().getColor(R.color.colorBlack));
-                replaceFragment(sdFragment);
+                markSelectedBtn(mSdButton);
+                String sdpath = FileFactory.getSdPath(mContext);
+                if (sdpath != null) {
+                    if (FileFactory.getMountedState(mContext, sdpath)) {
+                        replaceFragment(sdFragment);
+                    } else {
+                        switchToFragment(NoSdFragment.class.getName(), false);
+                    }
+                } else {
+                    switchToFragment(NoSdFragment.class.getName(), false);
+                }
             } else if (view == mOtgButton) {
-
+                markSelectedBtn(mOtgButton);
+                switchToFragment(NoOtgFragment.class.getName(), false);
             }
         }
     }
@@ -224,10 +282,10 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_home) {
-            replaceFragment(homeFragment);
+            showHomeOrFragment(true);
         } else if (id == R.id.nav_browser) {
-            doLoad(Pref.getMainPageLocation(this));
-
+            //doLoad(Pref.getMainPageLocation(this));
+            showHomeOrFragment(false);
         } else if (id == R.id.nav_backup) {
 
         }
