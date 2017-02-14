@@ -1,14 +1,21 @@
 package com.transcend.otg;
 
 import android.app.LoaderManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.Context;
 import android.graphics.Color;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
@@ -28,11 +35,16 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.github.mjdev.libaums.UsbMassStorageDevice;
+import com.github.mjdev.libaums.fs.FileSystem;
+import com.github.mjdev.libaums.fs.UsbFile;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.LocalFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
 import com.transcend.otg.Browser.NoSdFragment;
+import com.transcend.otg.Browser.OTGFragment;
 import com.transcend.otg.Browser.SdFragment;
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Constant.LoaderID;
 import com.transcend.otg.Home.HomeFragment;
@@ -42,6 +54,7 @@ import com.transcend.otg.Loader.LocalTypeListLoader;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.Pref;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
@@ -63,6 +76,7 @@ public class MainActivity extends AppCompatActivity
     private NavigationView navigationView;
     private LinearLayout container, layout_storage;
     private SdFragment sdFragment;
+    private OTGFragment otgFragment;
     private LocalFragment localFragment;
     private int mLoaderID;
     private FileActionManager mFileActionManager;
@@ -76,12 +90,17 @@ public class MainActivity extends AppCompatActivity
     private TextView tv_Browser;
     private TextView tv_Backup;
 
+    private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
+    private UsbMassStorageDevice device;
+    private FileSystem currentFs;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         init();
         initToolbar();
+        initBroadcast();
         initDrawer();
         initButtons();
         initHome();
@@ -141,6 +160,55 @@ public class MainActivity extends AppCompatActivity
         });
     }
 
+    private void initBroadcast(){
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        registerReceiver(usbReceiver, filter);
+    }
+
+    private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String action = intent.getAction();
+            if (ACTION_USB_PERMISSION.equals(action)) {
+
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+
+                    if (device != null) {
+                        setupDevice();
+                    }
+                }
+
+            } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+//                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+//
+//                Log.d(TAG, "USB device attached");
+//
+//                if (device != null) {
+//                    discoverDevice();
+//                }
+            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+
+                Log.d(TAG, "USB device detached");
+
+                // determine if connected device is a mass storage devuce
+                if (device != null) {
+                    if (MainActivity.this.device != null) {
+                        MainActivity.this.device.close();
+                    }
+                    // check if there are other devices or set action bar title
+                    // to no device if not
+                    discoverDevice();
+                }
+            }
+
+        }
+    };
+
     private void initDrawer() {
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         toggle = new ActionBarDrawerToggle(
@@ -156,6 +224,7 @@ public class MainActivity extends AppCompatActivity
         container = (LinearLayout) findViewById(R.id.fragment_container);
         sdFragment = new SdFragment();
         localFragment = new LocalFragment();
+        otgFragment = new OTGFragment();
     }
 
 
@@ -170,9 +239,11 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onClick(View view) {
             if (view == mLocalButton) {
+                Constant.nowMODE = Constant.MODE.LOCAL;
                 markSelectedBtn(mLocalButton);
                 replaceFragment(localFragment);
             } else if (view == mSdButton) {
+                Constant.nowMODE = Constant.MODE.SD;
                 markSelectedBtn(mSdButton);
                 String sdpath = FileFactory.getSdPath(mContext);
                 if (sdpath != null) {
@@ -186,7 +257,7 @@ public class MainActivity extends AppCompatActivity
                 }
             } else if (view == mOtgButton) {
                 markSelectedBtn(mOtgButton);
-                switchToFragment(NoOtgFragment.class.getName(), false);
+                discoverDevice();
             }
         }
     }
@@ -310,6 +381,54 @@ public class MainActivity extends AppCompatActivity
     public void setDrawerCheckItem(int id) {
         navigationView.setCheckedItem(id);
     }
+
+    private void discoverDevice() {
+        UsbManager usbManager = (UsbManager) getSystemService(Context.USB_SERVICE);
+        UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(this);
+
+        if (devices.length == 0) {
+            Log.w(TAG, "no device found!");
+            switchToFragment(NoOtgFragment.class.getName(), false);
+            return;
+        }
+        device = devices[0];
+
+        UsbDevice usbDevice = (UsbDevice) getIntent().getParcelableExtra(UsbManager.EXTRA_DEVICE);
+
+        if (!(usbDevice != null && usbManager.hasPermission(usbDevice))) {
+            PendingIntent permissionIntent = PendingIntent.getBroadcast(this, 0, new Intent(
+                    ACTION_USB_PERMISSION), 0);
+            usbManager.requestPermission(device.getUsbDevice(), permissionIntent);
+        }
+    }
+
+    /**
+     * Sets the device up and shows the contents of the root directory.
+     */
+    private void setupDevice() {
+
+        try {
+            device.init();
+            Constant.nowMODE = Constant.MODE.OTG;
+            Constant.nowDevice = device;
+            replaceFragment(otgFragment);
+            // we always use the first partition of the device
+//            currentFs = device.getPartitions().get(0).getFileSystem();
+//            Log.d(TAG, "Capacity: " + currentFs.getCapacity());
+//            Log.d(TAG, "Occupied Space: " + currentFs.getOccupiedSpace());
+//            Log.d(TAG, "Free Space: " + currentFs.getFreeSpace());
+//            Log.d(TAG, "Chunk size: " + currentFs.getChunkSize());
+//            UsbFile root = currentFs.getRootDirectory();
+//
+//            ActionBar actionBar = getSupportActionBar();
+//            actionBar.setTitle(currentFs.getVolumeLabel());
+
+        } catch (IOException e) {
+            Log.e(TAG, "error setting up device", e);
+        }
+
+    }
+
 
     private void doLoad(String path) {
         mFileActionManager.checkServiceMode(path);

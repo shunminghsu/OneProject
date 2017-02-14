@@ -17,7 +17,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Loader.OTGFileListLoader;
 import com.transcend.otg.Loader.TabInfoLoader;
 import com.transcend.otg.R;
 
@@ -45,6 +47,7 @@ public class BrowserFragment extends Fragment implements
     static final int LIST_TYPE_FOLDER = 5;
     private int mCurrentTabPosition = LIST_TYPE_IMAGE;
     private int TAB_LOADER_ID = 168;
+    private int OTG_LOADER_ID = 87;
 
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
@@ -89,7 +92,11 @@ public class BrowserFragment extends Fragment implements
             public Loader<ArrayList<FileInfo>> onCreateLoader(int id, Bundle args) {
                 Log.d("henry","onCreateLoader "+id);
                 ///Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
-                return new TabInfoLoader(context, mCurrentTabPosition, mOuterStorage);
+                if(id == TAB_LOADER_ID)
+                    return new TabInfoLoader(context, mCurrentTabPosition, mOuterStorage);
+                else if(id == OTG_LOADER_ID)
+                    return new OTGFileListLoader(context, mCurrentTabPosition);
+                return null;
             }
 
             @Override
@@ -111,7 +118,10 @@ public class BrowserFragment extends Fragment implements
         TabInfo tab = mTabs.get(position);
         mCurTab = tab;
         mCurrentTabPosition = position;
-        getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
+        if(Constant.nowMODE == Constant.MODE.OTG)
+            getLoaderManager().restartLoader(OTG_LOADER_ID, getArguments(), mCallbacks);
+        else
+            getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
         // Put things in the correct paused/resumed state.
         //TO-DO
     }
@@ -119,13 +129,19 @@ public class BrowserFragment extends Fragment implements
     @Override
     public void onStart() {
         super.onStart();
-        getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
+        if(Constant.nowMODE == Constant.MODE.OTG)
+            getLoaderManager().restartLoader(OTG_LOADER_ID, getArguments(), mCallbacks);
+        else
+            getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        getLoaderManager().destroyLoader(TAB_LOADER_ID);
+        if(Constant.nowMODE == Constant.MODE.OTG)
+            getLoaderManager().restartLoader(OTG_LOADER_ID, getArguments(), mCallbacks);
+        else
+            getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
     }
 
     @Override
