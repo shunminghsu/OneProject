@@ -37,5 +37,9 @@ public class LocalFragment extends BrowserFragment {
         tab = new TabInfo(
                 LIST_TYPE_DOCUMENT, R.drawable.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
+
+        tab = new TabInfo(
+                LIST_TYPE_FOLDER, R.drawable.test_icon, savedInstanceState, mContext);
+        mTabs.add(tab);
     }
 }

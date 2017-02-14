@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.R;
 
@@ -31,6 +32,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private TabInfo mTab;
     private OnRecyclerItemCallbackListener mCallback;
 
+    IconHelper mIconHelper;
+
     public enum LayoutType {
         LIST, GRID
     }
@@ -43,8 +46,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         void onRecyclerItemInfoClick(int position);
     }
 
-    public RecyclerViewAdapter(TabInfo tab) {
+    public RecyclerViewAdapter(TabInfo tab, IconHelper iconHelper) {
         mTab = tab;
+        mIconHelper = iconHelper;
     }
 
     public RecyclerViewAdapter(ArrayList<FileInfo> list) {
@@ -121,13 +125,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 holder.subtitle.setText(time);
 
             if (holder.icon != null)
-                holder.icon.setImageResource(resId);
+                holder.icon.setImageDrawable(mIconHelper.getIcon());
             if (holder.info != null) {
                 if (fileInfo.type.equals(FileInfo.TYPE.DIR)) {
-                    holder.info.setImageResource(R.drawable.ic_menu_camera);
+                    holder.info.setImageDrawable(mIconHelper.getIcon());
                     holder.info.setRotation(180);
                 } else {
-                    holder.info.setImageResource(R.drawable.ic_menu_camera);
+                    holder.info.setImageDrawable(mIconHelper.getIcon());
                     holder.info.setRotation(0);
                 }
             }

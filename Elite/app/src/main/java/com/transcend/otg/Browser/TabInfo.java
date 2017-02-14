@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.R;
 
 /**
@@ -34,6 +35,8 @@ public class TabInfo {
     private static final int GRID_PORTRAIT = 3;
     private static final int GRID_LANDSCAPE = 5;
 
+    IconHelper mIconHelper;
+
     public TabInfo(int type, int icon_id, Bundle savedInstanceState, Context context) {
         mType = type;
         IconId = icon_id;
@@ -48,7 +51,8 @@ public class TabInfo {
 
         mInflater = inflater;
 
-        mRecyclerAdapter = new RecyclerViewAdapter(this);
+        mIconHelper = new IconHelper(mContext, 0);
+        mRecyclerAdapter = new RecyclerViewAdapter(this, mIconHelper);
         mRootView = inflater.inflate(R.layout.pager_layout, null);
 
         mEmpty = mRootView.findViewById(R.id.empty_view);

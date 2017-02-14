@@ -9,9 +9,12 @@ import android.util.Log;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.FileInfoSort;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by henry_hsu on 2017/2/10.
@@ -44,6 +47,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 return getAllMusics();
             case BrowserFragment.LIST_TYPE_DOCUMENT:
                 return getAllDocs();
+            case BrowserFragment.LIST_TYPE_FOLDER:
+                return updateFileList();
             default:
                 return getAllImages();
         }
@@ -256,6 +261,34 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             e.printStackTrace();
             return mFileList;
         }
+        return mFileList;
+    }
+
+    private ArrayList<FileInfo> updateFileList() {
+        String path;
+        if (mOuterStoragePath == null)
+            path = Constant.ROOT_LOCAL;
+        else
+            path = FileFactory.getSdPath(mContext);
+        File dir = new File(path);
+        if (!dir.exists())
+            return mFileList;
+        File files[] = dir.listFiles();
+        for (File file : files) {
+            if (file.isHidden())
+                continue;
+            FileInfo fileInfo = new FileInfo();
+            fileInfo.path = file.getPath();
+            fileInfo.name = file.getName();
+            fileInfo.time = FileInfo.getTime(file.lastModified());
+            fileInfo.type = file.isFile() ? FileInfo.getType(file.getPath()) : FileInfo.TYPE.DIR;
+            fileInfo.size = file.length();
+            mFileList.add(fileInfo);
+        }
+        Collections.sort(mFileList, FileInfoSort.comparator(mContext));
+        FileFactory.getInstance().addFolderFilterRule(path, mFileList);
+        FileFactory.getInstance().addFileTypeSortRule(mFileList);
+
         return mFileList;
     }
 }

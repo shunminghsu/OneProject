@@ -38,5 +38,9 @@ public class SdFragment extends BrowserFragment {
         tab = new TabInfo(
                 LIST_TYPE_DOCUMENT, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
+
+        tab = new TabInfo(
+                LIST_TYPE_FOLDER, R.drawable.ic_menu_manage, savedInstanceState, mContext);
+        mTabs.add(tab);
     }
 }

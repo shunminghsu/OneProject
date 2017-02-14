@@ -44,7 +44,7 @@ public class BrowserFragment extends Fragment implements
     public static final int LIST_TYPE_VIDEO = 1;
     public static final int LIST_TYPE_MUSIC = 2;
     public static final int LIST_TYPE_DOCUMENT = 3;
-    static final int LIST_TYPE_FOLDER = 5;
+    public static final int LIST_TYPE_FOLDER = 4;
     private int mCurrentTabPosition = LIST_TYPE_IMAGE;
     private int TAB_LOADER_ID = 168;
     private int OTG_LOADER_ID = 87;
@@ -54,7 +54,6 @@ public class BrowserFragment extends Fragment implements
     protected Context mContext;
     private LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
     protected String mOuterStorage;
-
 
 
     @Override
@@ -157,7 +156,5 @@ public class BrowserFragment extends Fragment implements
         mTabs.clear();
         super.onDestroy();
     }
-
-
 
 }
