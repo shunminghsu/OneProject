@@ -1,6 +1,8 @@
 package com.transcend.otg.Constant;
 
+import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.provider.DocumentFile;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 
@@ -13,6 +15,7 @@ public class Constant {
         LOCAL, SD, OTG, ARRANGE, DROPBOX, GOOGLEDRIVE, SSD
     }
     public static MODE nowMODE;
-    public static UsbMassStorageDevice nowDevice;
+    public static DocumentFile pickedDir, rootDir;
+    public static Uri rootUri;
     public static final String ROOT_LOCAL = Environment.getExternalStorageDirectory().getAbsolutePath();
 }

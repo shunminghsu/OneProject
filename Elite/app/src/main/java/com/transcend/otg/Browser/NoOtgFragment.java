@@ -88,7 +88,7 @@ public class NoOtgFragment extends Fragment {
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
                     if (device != null) {
-                        setupDevice();
+//                        setupDevice();
                     }
                 }
 
@@ -119,18 +119,6 @@ public class NoOtgFragment extends Fragment {
         }
     };
 
-    private void setupDevice() {
-        try {
-            device.init();
-            Constant.nowMODE = Constant.MODE.OTG;
-            Constant.nowDevice = device;
-            replaceFragment(otgFragment);
-        } catch (IOException e) {
-            Log.e(TAG, "error setting up device", e);
-        }
-
-    }
-
     private void discoverDevice() {
         UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
@@ -156,4 +144,6 @@ public class NoOtgFragment extends Fragment {
         transaction.replace(R.id.fragment_container, fragment);
         transaction.commit();
     }
+
+
 }

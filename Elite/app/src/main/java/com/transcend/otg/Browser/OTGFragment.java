@@ -65,5 +65,9 @@ public class OTGFragment extends BrowserFragment {
         tab = new TabInfo(
                 LIST_TYPE_DOCUMENT, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
         mTabs.add(tab);
+
+        tab = new TabInfo(
+                LIST_TYPE_FOLDER, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+        mTabs.add(tab);
     }
 }
