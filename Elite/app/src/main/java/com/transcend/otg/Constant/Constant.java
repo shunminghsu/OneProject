@@ -18,4 +18,8 @@ public class Constant {
     public static DocumentFile pickedDir, rootDir;
     public static Uri rootUri;
     public static final String ROOT_LOCAL = Environment.getExternalStorageDirectory().getAbsolutePath();
+
+    public static final int ITEM_LIST = 0;
+    public static final int ITEM_GRID = 1;
+    public static final int ITEM_FOOTER = 2;
 }

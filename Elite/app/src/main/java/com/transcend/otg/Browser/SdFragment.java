@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.TabInfoLoader;
-import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 
@@ -55,23 +54,23 @@ public class SdFragment extends BrowserFragment {
 
     private void initTabInfos(Bundle savedInstanceState) {
         TabInfo tab = new TabInfo(
-                LIST_TYPE_IMAGE, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_IMAGE, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_VIDEO, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_VIDEO, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_MUSIC, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_MUSIC, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_DOCUMENT, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_DOCUMENT, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_FOLDER, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_FOLDER, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
     }
 }

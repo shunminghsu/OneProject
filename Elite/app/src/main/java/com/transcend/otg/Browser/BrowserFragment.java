@@ -39,7 +39,7 @@ public class BrowserFragment extends Fragment implements
 
     private String TAG = BrowserFragment.class.getSimpleName();
     protected final ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
-    protected TabInfo mCurTab = null;
+    public TabInfo mCurTab = null;
     private LayoutInflater mInflater;
     public static final int LIST_TYPE_IMAGE = 0;
     public static final int LIST_TYPE_VIDEO = 1;
@@ -86,6 +86,7 @@ public class BrowserFragment extends Fragment implements
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        mCurTab = mTabs.get(mCurrentTabPosition);
         return root;
     }
 

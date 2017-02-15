@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.OTGFileListLoader;
-import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
@@ -51,23 +50,23 @@ public class OTGFragment extends BrowserFragment {
 
     private void initTabInfos(Bundle savedInstanceState) {
         TabInfo tab = new TabInfo(
-                LIST_TYPE_IMAGE, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_IMAGE, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_VIDEO, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_VIDEO, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_MUSIC, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_MUSIC, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_DOCUMENT, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_DOCUMENT, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_FOLDER, R.drawable.ic_menu_manage, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_FOLDER, R.drawable.ic_menu_manage, savedInstanceState, mContext);
         mTabs.add(tab);
     }
 }

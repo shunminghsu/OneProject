@@ -96,15 +96,15 @@ public class MainActivity extends AppCompatActivity
     private LinearLayout home_container;
     private TextView tv_Browser;
     private TextView tv_Backup;
+
+    //USB
     private Toast mToast;
     private DocumentFile rootDir, otgDir;
-
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
+    private UsbMassStorageDevice device;
 
     public static int mScreenW;
-    public static final int MODE_GRID = 10;
-    public static final int MODE_LIST = 11;
-    private UsbMassStorageDevice device;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -134,12 +134,13 @@ public class MainActivity extends AppCompatActivity
             home_container.setVisibility(View.VISIBLE);
             container.setVisibility(View.GONE);
             layout_storage.setVisibility(View.GONE);
+            showSearchIcon(false);
         } else {
             home_container.setVisibility(View.GONE);
             container.setVisibility(View.VISIBLE);
             layout_storage.setVisibility(View.VISIBLE);
+            showSearchIcon(getBrowserFragment() != null);
         }
-        showSearchIcon(!home);
     }
     private void initHome() {
         home_container = (LinearLayout) findViewById(R.id.home_page);
@@ -149,6 +150,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 setDrawerCheckItem(R.id.nav_browser);
                 showHomeOrFragment(false);
+                markSelectedBtn(mLocalButton);
                 replaceFragment(localFragment);
             }
         });
@@ -283,6 +285,7 @@ public class MainActivity extends AppCompatActivity
 
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
+            showSearchIcon(false);
             switchToFragment(NoOtgFragment.class.getName(), false);
             return;
         }
@@ -362,14 +365,19 @@ public class MainActivity extends AppCompatActivity
         super.onPrepareOptionsMenu(menu);
 
         final MenuItem sort = menu.findItem(R.id.menu_sort);
-        final MenuItem sortSize = menu.findItem(R.id.menu_sort_size);
         final MenuItem grid = menu.findItem(R.id.menu_grid);
         final MenuItem list = menu.findItem(R.id.menu_list);
 
-        sort.setEnabled(true);
-        sortSize.setVisible(true);
-        grid.setVisible(BrowserFragmentShowing());
-        list.setVisible(BrowserFragmentShowing());
+        BrowserFragment fragment = getBrowserFragment();
+        if (fragment != null && fragment.mCurTab != null) {
+            grid.setVisible(fragment.mCurTab.mMode == Constant.ITEM_LIST);
+            list.setVisible(fragment.mCurTab.mMode == Constant.ITEM_GRID);
+            sort.setVisible(true);
+        } else {
+            grid.setVisible(false);
+            list.setVisible(false);
+            sort.setVisible(false);
+        }
 
         return true;
     }
@@ -390,10 +398,10 @@ public class MainActivity extends AppCompatActivity
                 //setUserSortOrder(State.SORT_ORDER_SIZE);
                 return true;
             case R.id.menu_grid:
-                setViewMode(MODE_GRID);
+                setViewMode(Constant.ITEM_GRID);
                 return true;
             case R.id.menu_list:
-                setViewMode(MODE_LIST);
+                setViewMode(Constant.ITEM_LIST);
                 return true;
             case R.id.menu_paste_from_clipboard:
                // DirectoryFragment dir = getDirectoryFragment();
@@ -418,6 +426,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_browser) {
             //doLoad(Pref.getMainPageLocation(this));
             showHomeOrFragment(false);
+
         } else if (id == R.id.nav_backup) {
 
         }
@@ -550,23 +559,16 @@ public class MainActivity extends AppCompatActivity
         invalidateOptionsMenu();
     }
 
-    private boolean BrowserFragmentShowing() {
+    private BrowserFragment getBrowserFragment() {
         if (container != null && container.getVisibility() == View.GONE)
-            return false;
+            return null;
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (fragment == null)
-            return false;
-        return fragment instanceof BrowserFragment;
+            return null;
+        return fragment instanceof BrowserFragment? (BrowserFragment)fragment : null;
     }
 
     private void setViewMode(int mode) {
-        if (mode == MODE_GRID) {
-
-        } else if (mode == MODE_LIST) {
-
-        }
-
-        //LocalPreferences.setViewMode(this, getCurrentRoot(), mode);
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (fragment != null) {
             ((BrowserFragment) fragment).onViewModeChanged(mode);

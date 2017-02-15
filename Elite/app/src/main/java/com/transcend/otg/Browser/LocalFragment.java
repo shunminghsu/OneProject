@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.TabInfoLoader;
-import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
@@ -54,23 +53,23 @@ public class LocalFragment extends BrowserFragment {
 
     private void initTabInfos(Bundle savedInstanceState) {
         TabInfo tab = new TabInfo(
-                LIST_TYPE_IMAGE, R.drawable.test_icon, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_IMAGE, R.drawable.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_VIDEO, R.drawable.test_icon, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_VIDEO, R.drawable.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_MUSIC, R.drawable.test_icon, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_MUSIC, R.drawable.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_DOCUMENT, R.drawable.test_icon, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_DOCUMENT, R.drawable.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_FOLDER, R.drawable.test_icon, savedInstanceState, mContext, MainActivity.MODE_LIST);
+                LIST_TYPE_FOLDER, R.drawable.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
     }
 }

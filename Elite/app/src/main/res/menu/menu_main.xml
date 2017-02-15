@@ -43,7 +43,8 @@
                     android:title="@string/sort_date" />
                 <item
                     android:id="@+id/menu_sort_size"
-                    android:title="@string/sort_size" />
+                    android:title="@string/sort_size"
+                    android:visible="false"/>
             </menu>
         </item>
         <item

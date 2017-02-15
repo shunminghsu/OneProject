@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.transcend.otg.Bitmap.IconHelper;
+import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
@@ -40,12 +42,12 @@ public class TabInfo {
 
     IconHelper mIconHelper;
 
-    public TabInfo(int type, int icon_id, Bundle savedInstanceState, Context context, int mode) {
+    public TabInfo(int type, int icon_id, Bundle savedInstanceState, Context context) {
         mType = type;
         IconId = icon_id;
         mSavedInstanceState = savedInstanceState;
         mContext = context;
-        mMode = mode;
+        mMode = LocalPreferences.getBrowserViewMode(mContext, mType, Constant.ITEM_LIST);
     }
 
     public View build(LayoutInflater inflater) {
@@ -65,9 +67,11 @@ public class TabInfo {
 
         mLayout = new GridLayoutManager(mContext, mColumnCount);
         mLayout.setSpanSizeLookup(new SpanSizeLookup(mLayout.getSpanCount()));
-        mRecyclerView.setLayoutManager(mLayout);
-        initLayout();
 
+        mColumnCount = calculateColumnCount(mMode);
+        mLayout.setSpanCount(mColumnCount);
+        mRecyclerView.setLayoutManager(mLayout);
+        mRecyclerView.setAdapter(mRecyclerAdapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         mLoadingContainer = mRootView.findViewById(R.id.loading_container);
@@ -82,18 +86,6 @@ public class TabInfo {
         return mRootView;
     }
 
-    private void initLayout() {
-        mColumnCount = calculateColumnCount(mMode);
-        if (mLayout != null) {
-            mLayout.setSpanCount(mColumnCount);
-        }
-
-        //mRecyclerView.requestLayout();
-        mRecyclerView.setAdapter(mRecyclerAdapter);
-        //mSelectionManager.handleLayoutChanged();  // RecyclerView doesn't do this for us
-        //mIconHelper.setViewMode(mode);
-    }
-
     public void updateLayout(int mode) {
         mMode = mode;
         mColumnCount = calculateColumnCount(mode);
@@ -102,9 +94,10 @@ public class TabInfo {
         }
 
         mRecyclerView.requestLayout();
-        mRecyclerView.setAdapter(mRecyclerAdapter);
+        //mRecyclerView.setAdapter(mRecyclerAdapter);
         //mSelectionManager.handleLayoutChanged();  // RecyclerView doesn't do this for us
         //mIconHelper.setViewMode(mode);
+        LocalPreferences.setBrowserViewMode(mContext, mType, mode);
     }
 
     public void detachView() {
@@ -146,7 +139,7 @@ public class TabInfo {
     }
 
     private int calculateColumnCount(int mode) {
-        if (mode == MainActivity.MODE_LIST) {
+        if (mode == Constant.ITEM_LIST) {
             // List mode is a "grid" with 1 column.
             return 1;
         }
