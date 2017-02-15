@@ -2,14 +2,54 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/search"
-        android:title="@string/search_menu"
+        android:title="@string/menu_search"
         android:icon="@android:drawable/ic_menu_search"
         app:showAsAction="collapseActionView|always"
         app:actionViewClass="android.support.v7.widget.SearchView" />
+    <!-- This group is being hidden when searching is in full bar mode-->
+    <group android:id="@+id/group_hide_when_searching">
+        <item
+            android:id="@+id/menu_grid"
+            android:title="@string/menu_grid"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_list"
+            android:title="@string/menu_list"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_create_dir"
+            android:title="@string/menu_create_dir"
+            android:icon="@drawable/ic_menu_send"
+            app:showAsAction="never"
+            android:visible="false" />
+        <item
+            android:id="@+id/menu_paste_from_clipboard"
+            android:title="@string/menu_paste_from_clipboard"
+            android:alphabeticShortcut="v"
+            app:showAsAction="never"
+            android:visible="false" />
+        <!-- Copy action is defined in mode_directory.xml -->
+        <item
+            android:id="@+id/menu_sort"
+            android:title="@string/menu_sort"
+            app:showAsAction="never">
+            <menu>
+                <item
+                    android:id="@+id/menu_sort_name"
+                    android:title="@string/sort_name" />
+                <item
+                    android:id="@+id/menu_sort_date"
+                    android:title="@string/sort_date" />
+                <item
+                    android:id="@+id/menu_sort_size"
+                    android:title="@string/sort_size" />
+            </menu>
+        </item>
+        <item
+            android:id="@+id/menu_settings"
+            android:title="@string/menu_settings"
+            app:showAsAction="never"
+            android:visible="false" />
+    </group>
 </menu>

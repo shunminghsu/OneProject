@@ -16,6 +16,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
@@ -94,6 +95,9 @@ public class MainActivity extends AppCompatActivity
     private UsbMassStorageDevice device;
     private FileSystem currentFs;
 
+    public static int mScreenW;
+    public static final int MODE_GRID = 10;
+    public static final int MODE_LIST = 11;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -112,6 +116,9 @@ public class MainActivity extends AppCompatActivity
         mContext = this;
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
         mPath = mFileActionManager.getLocalRootPath();
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        mScreenW = displaymetrics.widthPixels;
     }
 
     private void showHomeOrFragment(boolean home) {
@@ -124,6 +131,7 @@ public class MainActivity extends AppCompatActivity
             container.setVisibility(View.VISIBLE);
             layout_storage.setVisibility(View.VISIBLE);
         }
+        showSearchIcon(!home);
     }
     private void initHome() {
         home_container = (LinearLayout) findViewById(R.id.home_page);
@@ -250,9 +258,11 @@ public class MainActivity extends AppCompatActivity
                     if (FileFactory.getMountedState(mContext, sdpath)) {
                         replaceFragment(sdFragment);
                     } else {
+                        showSearchIcon(false);
                         switchToFragment(NoSdFragment.class.getName(), false);
                     }
                 } else {
+                    showSearchIcon(false);
                     switchToFragment(NoSdFragment.class.getName(), false);
                 }
             } else if (view == mOtgButton) {
@@ -286,7 +296,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         mSearchMenuItem = menu.findItem(R.id.search);
@@ -323,30 +332,57 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void switchToSearchResultsFragmentIfNeeded() {
-        if (mSearchResultsFragment != null) {
-            return;
-        }
-        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        if (current != null && current instanceof SearchResults) {
-            mSearchResultsFragment = (SearchResults) current;
-        } else {
-            mSearchResultsFragment = (SearchResults) switchToFragment(
-                    SearchResults.class.getName(), true);
-        }
-        mSearchResultsFragment.setSearchView(mSearchView);
-        mSearchMenuItemExpanded = true;
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) { // called every time the menu opens
+        super.onPrepareOptionsMenu(menu);
+
+        final MenuItem sort = menu.findItem(R.id.menu_sort);
+        final MenuItem sortSize = menu.findItem(R.id.menu_sort_size);
+        final MenuItem grid = menu.findItem(R.id.menu_grid);
+        final MenuItem list = menu.findItem(R.id.menu_list);
+
+        sort.setEnabled(true);
+        sortSize.setVisible(true);
+        grid.setVisible(BrowserFragmentShowing());
+        list.setVisible(BrowserFragmentShowing());
+
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menu_create_dir:
+                //showCreateDirectoryDialog();
+                return true;
+            case R.id.menu_sort_name:
+                //setUserSortOrder(State.SORT_ORDER_DISPLAY_NAME);
+                return true;
+            case R.id.menu_sort_date:
+                //setUserSortOrder(State.SORT_ORDER_LAST_MODIFIED);
+                return true;
+            case R.id.menu_sort_size:
+                //setUserSortOrder(State.SORT_ORDER_SIZE);
+                return true;
+            case R.id.menu_grid:
+                setViewMode(MODE_GRID);
+                return true;
+            case R.id.menu_list:
+                setViewMode(MODE_LIST);
+                return true;
+            case R.id.menu_paste_from_clipboard:
+               // DirectoryFragment dir = getDirectoryFragment();
+                //if (dir != null) {
+                //    dir.pasteFromClipboard();
+                //}
+                return true;
+            case R.id.menu_settings:
+                //final Intent intent = new Intent();
+                //startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -365,12 +401,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void replaceFragment(Fragment fragment) {
-        if (fragment instanceof HomeFragment) {
-            layout_storage.setVisibility(View.GONE);
-            showSearchIcon(false);
-        } else {
-            layout_storage.setVisibility(View.VISIBLE);
+        if (fragment instanceof BrowserFragment) {
             showSearchIcon(true);
+        } else {
+            showSearchIcon(false);
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -388,6 +422,7 @@ public class MainActivity extends AppCompatActivity
 
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
+            showSearchIcon(false);
             switchToFragment(NoOtgFragment.class.getName(), false);
             return;
         }
@@ -486,6 +521,21 @@ public class MainActivity extends AppCompatActivity
         return f;
     }
 
+    private void switchToSearchResultsFragmentIfNeeded() {
+        if (mSearchResultsFragment != null) {
+            return;
+        }
+        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (current != null && current instanceof SearchResults) {
+            mSearchResultsFragment = (SearchResults) current;
+        } else {
+            mSearchResultsFragment = (SearchResults) switchToFragment(
+                    SearchResults.class.getName(), true);
+        }
+        mSearchResultsFragment.setSearchView(mSearchView);
+        mSearchMenuItemExpanded = true;
+    }
+
     private void revertToInitialFragment() {
         mSearchResultsFragment = null;
         mSearchMenuItemExpanded = false;
@@ -522,5 +572,28 @@ public class MainActivity extends AppCompatActivity
     private void showSearchIcon(boolean show) {
         mShowSearchIcon = show;
         invalidateOptionsMenu();
+    }
+
+    private boolean BrowserFragmentShowing() {
+        if (container != null && container.getVisibility() == View.GONE)
+            return false;
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment == null)
+            return false;
+        return fragment instanceof BrowserFragment;
+    }
+
+    private void setViewMode(int mode) {
+        if (mode == MODE_GRID) {
+
+        } else if (mode == MODE_LIST) {
+
+        }
+
+        //LocalPreferences.setViewMode(this, getCurrentRoot(), mode);
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment != null) {
+            ((BrowserFragment)fragment).onViewModeChanged(mode);
+        }
     }
 }

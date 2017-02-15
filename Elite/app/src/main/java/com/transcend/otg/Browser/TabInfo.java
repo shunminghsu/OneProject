@@ -7,11 +7,13 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.transcend.otg.Bitmap.IconHelper;
+import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
 /**
@@ -32,16 +34,18 @@ public class TabInfo {
     private RecyclerView mRecyclerView;
     private RecyclerViewAdapter mRecyclerAdapter;
     private Context mContext;
-    private static final int GRID_PORTRAIT = 3;
-    private static final int GRID_LANDSCAPE = 5;
+    private GridLayoutManager mLayout;
+    private int mColumnCount = 1;  // This will get updated when layout changes.
+    public int mMode;
 
     IconHelper mIconHelper;
 
-    public TabInfo(int type, int icon_id, Bundle savedInstanceState, Context context) {
+    public TabInfo(int type, int icon_id, Bundle savedInstanceState, Context context, int mode) {
         mType = type;
         IconId = icon_id;
         mSavedInstanceState = savedInstanceState;
         mContext = context;
+        mMode = mode;
     }
 
     public View build(LayoutInflater inflater) {
@@ -58,8 +62,12 @@ public class TabInfo {
         mEmpty = mRootView.findViewById(R.id.empty_view);
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        updateListView(false);
-        mRecyclerView.setAdapter(mRecyclerAdapter);
+
+        mLayout = new GridLayoutManager(mContext, mColumnCount);
+        mLayout.setSpanSizeLookup(new SpanSizeLookup(mLayout.getSpanCount()));
+        mRecyclerView.setLayoutManager(mLayout);
+        initLayout();
+
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         mLoadingContainer = mRootView.findViewById(R.id.loading_container);
@@ -74,26 +82,29 @@ public class TabInfo {
         return mRootView;
     }
 
-    private void updateListView(boolean update) {
-        LinearLayoutManager list = new LinearLayoutManager(mContext);
-        mRecyclerView.setLayoutManager(list);
-        if (update) {
-            mRecyclerView.getRecycledViewPool().clear();
-            mRecyclerAdapter.notifyDataSetChanged();
+    private void initLayout() {
+        mColumnCount = calculateColumnCount(mMode);
+        if (mLayout != null) {
+            mLayout.setSpanCount(mColumnCount);
         }
+
+        //mRecyclerView.requestLayout();
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+        //mSelectionManager.handleLayoutChanged();  // RecyclerView doesn't do this for us
+        //mIconHelper.setViewMode(mode);
     }
 
-    private void updateGridView(boolean update) {
-        int orientation = mContext.getResources().getConfiguration().orientation;
-        int spanCount = (orientation == Configuration.ORIENTATION_PORTRAIT)
-                ? GRID_PORTRAIT : GRID_LANDSCAPE;
-        GridLayoutManager grid = new GridLayoutManager(mContext, spanCount);
-        grid.setSpanSizeLookup(new SpanSizeLookup(grid.getSpanCount()));
-        mRecyclerView.setLayoutManager(grid);
-        if (update) {
-            mRecyclerView.getRecycledViewPool().clear();
-            mRecyclerAdapter.notifyDataSetChanged();
+    public void updateLayout(int mode) {
+        mMode = mode;
+        mColumnCount = calculateColumnCount(mode);
+        if (mLayout != null) {
+            mLayout.setSpanCount(mColumnCount);
         }
+
+        mRecyclerView.requestLayout();
+        mRecyclerView.setAdapter(mRecyclerAdapter);
+        //mSelectionManager.handleLayoutChanged();  // RecyclerView doesn't do this for us
+        //mIconHelper.setViewMode(mode);
     }
 
     public void detachView() {
@@ -132,5 +143,25 @@ public class TabInfo {
             mListContainer.setVisibility(View.VISIBLE);
             mEmpty.setVisibility(View.GONE);
         }
+    }
+
+    private int calculateColumnCount(int mode) {
+        if (mode == MainActivity.MODE_LIST) {
+            // List mode is a "grid" with 1 column.
+            return 1;
+        }
+
+        int cellWidth = mContext.getResources().getDimensionPixelSize(R.dimen.grid_width);
+        //int cellMargin = 2 * mContext.getResources().getDimensionPixelSize(R.dimen.grid_item_margin);
+        //int viewPadding = mRecView.getPaddingLeft() + mRecView.getPaddingRight();
+        int viewPadding = 0;
+        int cellMargin = 0;
+
+        // RecyclerView sometimes gets a width of 0 (see b/27150284).  Clamp so that we always lay
+        // out the grid with at least 2 columns.
+        int columnCount = Math.max(2,
+                (MainActivity.mScreenW - viewPadding) / (cellWidth + cellMargin));
+
+        return columnCount;
     }
 }

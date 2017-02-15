@@ -1,0 +1,22 @@
+<resources>
+    <string name="menu_settings">Settings</string>
+    <string name="menu_create_dir">New folder</string>
+    <string name="menu_grid">Grid view</string>
+    <string name="menu_list">List view</string>
+    <string name="menu_sort">Sort by</string>
+    <string name="menu_search">Search</string>
+
+    <string name="menu_open">Open</string>
+    <string name="menu_save">Save</string>
+    <string name="menu_share">Share</string>
+    <string name="menu_delete">Delete</string>
+    <string name="menu_select_all">Select all</string>
+    <string name="menu_copy">Copy to\u2026</string>
+    <string name="menu_move">Move to\u2026</string>
+    <string name="menu_copy_to_clipboard">Copy</string>
+    <string name="menu_paste_from_clipboard">Paste</string>
+
+    <string name="sort_name">By name</string>
+    <string name="sort_date">By date modified</string>
+    <string name="sort_size">By size</string>
+</resources>

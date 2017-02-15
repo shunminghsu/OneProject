@@ -14,6 +14,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -45,14 +46,14 @@ public class BrowserFragment extends Fragment implements
     public static final int LIST_TYPE_MUSIC = 2;
     public static final int LIST_TYPE_DOCUMENT = 3;
     public static final int LIST_TYPE_FOLDER = 4;
-    private int mCurrentTabPosition = LIST_TYPE_IMAGE;
+    protected int mCurrentTabPosition = LIST_TYPE_IMAGE;
     private int TAB_LOADER_ID = 168;
     private int OTG_LOADER_ID = 87;
 
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     protected Context mContext;
-    private LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
+    protected LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
     protected String mOuterStorage;
 
 
@@ -66,7 +67,6 @@ public class BrowserFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final Context context = inflater.getContext();
         mInflater = inflater;
         CoordinatorLayout root = (CoordinatorLayout) inflater.inflate(R.layout.fragment_browser, container, false);
 
@@ -86,28 +86,6 @@ public class BrowserFragment extends Fragment implements
         manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        mCallbacks = new LoaderManager.LoaderCallbacks<ArrayList<FileInfo>>() {
-            @Override
-            public Loader<ArrayList<FileInfo>> onCreateLoader(int id, Bundle args) {
-                Log.d("henry","onCreateLoader "+id);
-                ///Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
-                if(id == TAB_LOADER_ID)
-                    return new TabInfoLoader(context, mCurrentTabPosition, mOuterStorage);
-                else if(id == OTG_LOADER_ID)
-                    return new OTGFileListLoader(context, mCurrentTabPosition);
-                return null;
-            }
-
-            @Override
-            public void onLoadFinished(Loader<ArrayList<FileInfo>> loader, ArrayList<FileInfo> data) {
-                mTabs.get(mCurrentTabPosition).getAdapter().update(data);
-            }
-
-            @Override
-            public void onLoaderReset(Loader<ArrayList<FileInfo>> loader) {
-                //mAdapter.update(null);
-            }
-        };
         return root;
     }
 
@@ -157,4 +135,7 @@ public class BrowserFragment extends Fragment implements
         super.onDestroy();
     }
 
+    public void onViewModeChanged(int mode) {
+        mTabs.get(mCurrentTabPosition).updateLayout(mode);
+    }
 }

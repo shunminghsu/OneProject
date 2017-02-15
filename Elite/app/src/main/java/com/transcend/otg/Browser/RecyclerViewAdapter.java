@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
@@ -34,9 +35,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     IconHelper mIconHelper;
 
-    public enum LayoutType {
-        LIST, GRID
-    }
 
     public interface OnRecyclerItemCallbackListener {
         void onRecyclerItemClick(int position);
@@ -51,23 +49,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         mIconHelper = iconHelper;
     }
 
-    public RecyclerViewAdapter(ArrayList<FileInfo> list) {
-        updateList(list);
-    }
-
-    public void setOnRecyclerItemCallbackListener(OnRecyclerItemCallbackListener l) {
-        mCallback = l;
-    }
-
-    public void updateList(ArrayList<FileInfo> list) {
-        mList = list;
-    }
-
-    public void updateList(ArrayList<FileInfo> list, HashMap<String, ArrayList<String>> pathMap) {
-        mList = list;
-        mPathMap = pathMap;
-    }
-
     boolean isEmpty() {
         return mList == null ? true : mList.isEmpty();
     }
@@ -80,16 +61,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public RecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        if (viewType == ITEM_VIEW_TYPE_CONTENT) {
-            int resource = R.layout.listitem_recyclerview;
-            if (((RecyclerView) parent).getLayoutManager() instanceof GridLayoutManager)
-                resource = R.layout.griditem_recyclerview;
-            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-            View view = layoutInflater.inflate(resource, parent, false);
-            return new ViewHolder(view, viewType);
+
+        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+        if (viewType == MainActivity.MODE_LIST) {
+            return new ViewHolder(layoutInflater.inflate(R.layout.listitem_recyclerview, parent, false), viewType);
+        }
+        if (viewType == MainActivity.MODE_GRID) {
+            return new ViewHolder(layoutInflater.inflate(R.layout.griditem_recyclerview, parent, false), viewType);
         }
         if (viewType == ITEM_VIEW_TYPE_FOOTER) {
-            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
             View view = layoutInflater.inflate(R.layout.footitem_file_manage, parent, false);
             return new ViewHolder(view, viewType);
         }
@@ -99,7 +79,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(RecyclerViewAdapter.ViewHolder holder, int position) {
 
-        if (holder.viewType == ITEM_VIEW_TYPE_CONTENT) {
+        if (holder.viewType == MainActivity.MODE_GRID || holder.viewType == MainActivity.MODE_LIST) {
             FileInfo fileInfo = mList.get(position);
             String name = fileInfo.name;
             String time = fileInfo.time;
@@ -150,7 +130,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public int getItemViewType(int position) {
         if (isFooter(position))
             return ITEM_VIEW_TYPE_FOOTER;
-        return ITEM_VIEW_TYPE_CONTENT;
+        return mTab.mMode;
     }
 
     @Override
@@ -184,23 +164,24 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             super(itemView);
             this.viewType = viewType;
             this.itemView = itemView;
-            if (viewType == ITEM_VIEW_TYPE_CONTENT) {
-                if (itemView.getId() == R.id.listitem_file_manage) {
+            if (viewType == MainActivity.MODE_LIST) {
                     mark = (ImageView) itemView.findViewById(R.id.listitem_file_manage_mark);
                     icon = (ImageView) itemView.findViewById(R.id.listitem_file_manage_icon);
                     info = (ImageView) itemView.findViewById(R.id.listitem_file_manage_info);
                     title = (TextView) itemView.findViewById(R.id.listitem_file_manage_title);
                     subtitle = (TextView) itemView.findViewById(R.id.listitem_file_manage_subtitle);
                     setOnItemInfoClickListener();
-                }
-                if (itemView.getId() == R.id.griditem_file_manage) {
-                    mark = (ImageView) itemView.findViewById(R.id.griditem_file_manage_mark);
-                    icon = (ImageView) itemView.findViewById(R.id.griditem_file_manage_icon);
-                    title = (TextView) itemView.findViewById(R.id.griditem_file_manage_title);
-                }
+                    itemView.setOnClickListener(this);
+                    itemView.setOnLongClickListener(this);
+            }
+            if (viewType == MainActivity.MODE_GRID) {
+                mark = (ImageView) itemView.findViewById(R.id.griditem_file_manage_mark);
+                icon = (ImageView) itemView.findViewById(R.id.griditem_file_manage_icon);
+                title = (TextView) itemView.findViewById(R.id.griditem_file_manage_title);
                 itemView.setOnClickListener(this);
                 itemView.setOnLongClickListener(this);
             }
+
             if (viewType == ITEM_VIEW_TYPE_FOOTER) {
                 // do nothing
             }
