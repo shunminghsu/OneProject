@@ -219,36 +219,34 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     private ArrayList<FileInfo> getAllDocs() {
         try {
             String[] proj = {MediaStore.Files.FileColumns.DATA,
-                    MediaStore.Files.FileColumns.TITLE,
                     MediaStore.Files.FileColumns.DATE_ADDED,
                     MediaStore.Files.FileColumns.SIZE};
 
             final String orderBy = MediaStore.Files.FileColumns.DATE_ADDED;
-            String selection = MediaStore.Files.FileColumns.MIME_TYPE + "= ? "
-                    + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
-                    + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
-                    + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? "
-                    + " or " + MediaStore.Files.FileColumns.MIME_TYPE + " = ? ";
-            String[] selectionArgs = new String[]{"text/plain", "application/msword", "application/pdf", "application/vnd.ms-powerpoint", "application/vnd.ms-excel"};
+
+            String select = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.doc'" + " or "
+                                + MediaStore.Files.FileColumns.DATA + " LIKE '%.docx'" + " or "
+                                + MediaStore.Files.FileColumns.DATA + " LIKE '%.xls'" + " or "
+                                + MediaStore.Files.FileColumns.DATA + " LIKE '%.ppt'" + " or "
+                                + MediaStore.Files.FileColumns.DATA + " LIKE '%.pdf'" + " or "
+                                + MediaStore.Files.FileColumns.DATA + " LIKE '%.txt'" + ")";
 
             Cursor docscursor = mContext.getContentResolver().query(
-                    MediaStore.Files.getContentUri("external"), proj, selection, selectionArgs, orderBy + " DESC");
+                    MediaStore.Files.getContentUri("external"), proj, select, null, orderBy + " DESC");
             if (docscursor != null) {
                 while (docscursor.moveToNext()) {
                     int pathColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-                    int nameColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.TITLE);
                     int timeColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED);
                     int sizeColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
 
                     String docPath = docscursor.getString(pathColumnIndex);
-                    String docName = docscursor.getString(nameColumnIndex);
                     String docTime = docscursor.getString(timeColumnIndex);
                     String docSize = docscursor.getString(sizeColumnIndex);
                     File docFile = new File(docPath);
                     if (docFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = docPath;
-                        fileInfo.name = docName;
+                        fileInfo.name = docFile.getName();
                         fileInfo.time = docTime;
                         fileInfo.type = FileInfo.TYPE.FILE;
                         fileInfo.size = Long.valueOf(docSize);
