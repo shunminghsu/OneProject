@@ -7,19 +7,26 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.provider.DocumentFile;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
+import com.github.mjdev.libaums.fs.FileSystem;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Dialog.OTGFileActionGuideDialog;
 import com.transcend.otg.Home.HomeFragment;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
@@ -36,6 +43,11 @@ public class NoOtgFragment extends Fragment {
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.Browser.USB_PERMISSION";
     private UsbMassStorageDevice device;
     private OTGFragment otgFragment;
+    private int mOTGDocumentTreeID = 1000;
+    private Toast mToast;
+    private DocumentFile rootDir, otgDir;
+    private FileSystem currentFs;
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -84,12 +96,9 @@ public class NoOtgFragment extends Fragment {
 
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
-
-                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-                    if (device != null) {
-//                        setupDevice();
-                    }
+
+                    intentDocumentTree();
                 }
 
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
@@ -101,19 +110,13 @@ public class NoOtgFragment extends Fragment {
 //                    discoverDevice();
 //                }
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-//                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
-//
-//                Log.d(TAG, "USB device detached");
-//
-//                // determine if connected device is a mass storage devuce
-//                if (device != null) {
-//                    if (MainActivity.this.device != null) {
-//                        MainActivity.this.device.close();
-//                    }
-//                    // check if there are other devices or set action bar title
-//                    // to no device if not
-//                    discoverDevice();
-//                }
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+
+                Log.d(TAG, "USB device detached");
+
+                if (device != null && Constant.nowMODE == Constant.MODE.OTG) {
+                    discoverDevice();
+                }
             }
 
         }
@@ -125,17 +128,34 @@ public class NoOtgFragment extends Fragment {
 
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
+            Constant.pickedDir = Constant.rootDir = null;
+            Constant.rootUri = null;
             return;
         }
         device = devices[0];
-
-        UsbDevice usbDevice = (UsbDevice) getActivity().getIntent().getParcelableExtra(UsbManager.EXTRA_DEVICE);
-
-        if (!(usbDevice != null && usbManager.hasPermission(usbDevice))) {
-            PendingIntent permissionIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(
-                    ACTION_USB_PERMISSION), 0);
-            usbManager.requestPermission(device.getUsbDevice(), permissionIntent);
+        String otgKey = LocalPreferences.getOTGKey(mContext, device.getUsbDevice().getSerialNumber());
+        if(otgKey != "" || otgKey == null){
+            Uri uriTree = Uri.parse(otgKey);
+            if(checkStorage(uriTree)){
+                replaceFragment(otgFragment);
+            }
+        }else{
+            intentDocumentTree();
         }
+    }
+
+    private void intentDocumentTree() {
+        new OTGFileActionGuideDialog(mContext) {
+            @Override
+            public void onConfirm(Boolean isClick) {
+                if (isClick) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, mOTGDocumentTreeID);
+                } else{
+                    //                    toggleDrawerCheckedItem();
+                }
+            }
+        };
     }
 
     public void replaceFragment(Fragment fragment) {
@@ -146,4 +166,48 @@ public class NoOtgFragment extends Fragment {
     }
 
 
+    @Override
+    public void onActivityResult(int reqCode, int resCode, Intent data) {
+        super.onActivityResult(reqCode, resCode, data);
+        if(reqCode == mOTGDocumentTreeID && resCode == getActivity().RESULT_OK){
+            Uri uriTree = data.getData();
+            if(checkStorage(uriTree)){
+                replaceFragment(otgFragment);
+            }
+        }
+    }
+
+    private boolean checkStorage(Uri uri){
+        if (!uri.toString().contains("primary")) {
+            if (uri != null) {
+                if(uri.getPath().toString().split(":").length > 1){
+                    toast(R.string.toast_plz_select_top);
+                    intentDocumentTree();
+                }else{
+                    rootDir = DocumentFile.fromTreeUri(mContext, uri);//OTG root path
+                    mContext.getContentResolver().takePersistableUriPermission(uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    LocalPreferences.setOTGKey(mContext, device.getUsbDevice().getSerialNumber(), uri.toString());
+                    Constant.pickedDir = Constant.rootDir = otgDir = rootDir;
+                    Constant.nowMODE = Constant.MODE.OTG;
+                    Constant.rootUri = uri;
+                    return true;
+                }
+
+            }
+
+        }else {
+            toast(R.string.toast_plz_select_otg);
+            intentDocumentTree();
+        }
+        return false;
+    }
+
+    private void toast(int resId) {
+        if (mToast != null)
+            mToast.cancel();
+        mToast = Toast.makeText(mContext, resId, Toast.LENGTH_LONG);
+        mToast.setGravity(Gravity.CENTER, 0, 0);
+        mToast.show();
+    }
 }

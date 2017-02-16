@@ -111,7 +111,6 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         init();
         initToolbar();
-        initBroadcast();
         initDrawer();
         initImageLoader();
         initButtons();
@@ -204,9 +203,8 @@ public class MainActivity extends AppCompatActivity
 
                 Log.d(TAG, "USB device detached");
 
-                if (device != null) {
-
-
+                if (device != null && Constant.nowMODE == Constant.MODE.OTG) {
+                    discoverDevice();
                 }
             }
 
@@ -242,6 +240,17 @@ public class MainActivity extends AppCompatActivity
         otgFragment = new OTGFragment();
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initBroadcast();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(usbReceiver);
+    }
 
     private void markSelectedBtn(Button selected) {
         mLocalButton.setTextColor(getResources().getColor(R.color.colorBlack));
@@ -249,6 +258,7 @@ public class MainActivity extends AppCompatActivity
         mOtgButton.setTextColor(getResources().getColor(R.color.colorBlack));
         selected.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
+
     class ButtonClickListener implements View.OnClickListener {
 
         @Override
@@ -286,18 +296,21 @@ public class MainActivity extends AppCompatActivity
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
             showSearchIcon(false);
+            Constant.pickedDir = Constant.rootDir = null;
+            Constant.rootUri = null;
             switchToFragment(NoOtgFragment.class.getName(), false);
             return;
         }
         device = devices[0];
-        intentDocumentTree();
-//        UsbDevice usbDevice = (UsbDevice) getIntent().getParcelableExtra(UsbManager.EXTRA_DEVICE);
-//
-//        if (!(usbDevice != null && usbManager.hasPermission(usbDevice))) {
-//            PendingIntent permissionIntent = PendingIntent.getBroadcast(mContext, 0, new Intent(
-//                    ACTION_USB_PERMISSION), 0);
-//            usbManager.requestPermission(device.getUsbDevice(), permissionIntent);
-//        }
+        String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
+        if(otgKey != "" || otgKey == null){
+            Uri uriTree = Uri.parse(otgKey);
+            if(checkStorage(uriTree)){
+                replaceFragment(otgFragment);
+            }
+        }else{
+            intentDocumentTree();
+        }
     }
 
     private void initButtons() {
@@ -621,6 +634,7 @@ public class MainActivity extends AppCompatActivity
                     rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
                     getContentResolver().takePersistableUriPermission(uri,
                             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    LocalPreferences.setOTGKey(this, device.getUsbDevice().getSerialNumber(), uri.toString());
                     Constant.pickedDir = Constant.rootDir = otgDir = rootDir;
                     Constant.nowMODE = Constant.MODE.OTG;
                     Constant.rootUri = uri;
