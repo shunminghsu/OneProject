@@ -26,7 +26,19 @@
         android:layout_marginRight="16dp"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="4dp"
-        android:scaleType="fitCenter" />
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/icon_mime"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/griditem_file_manage_title"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp"
+        android:scaleType="centerInside" />
 
     <ImageView
         android:id="@+id/griditem_file_manage_mark"

@@ -12,13 +12,9 @@ public class MainApplication extends Application {
     private ThumbnailCache mThumbnails;
 
 
-    public static ThumbnailCache getThumbnailsCache(Context context, Point size) {
+    public static ThumbnailCache getThumbnailsCache(Context context) {
         final MainApplication app = (MainApplication) context.getApplicationContext();
         final ThumbnailCache thumbnails = app.mThumbnails;
-        if (!size.equals(app.mThumbnailsSize)) {
-            thumbnails.evictAll();
-            app.mThumbnailsSize = size;
-        }
         return thumbnails;
     }
 

@@ -14,7 +14,6 @@ import android.widget.TextView;
 import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
@@ -76,52 +75,38 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     @Override
     public void onBindViewHolder(RecyclerViewAdapter.ViewHolder holder, int position) {
+        if (holder.viewType == Constant.ITEM_FOOTER)
+            return;
 
-        if (holder.viewType == Constant.ITEM_LIST || holder.viewType == Constant.ITEM_GRID) {
-            FileInfo fileInfo = mList.get(position);
-            String name = fileInfo.name;
-            String time = fileInfo.time;
-            String path = fileInfo.path;
-            Uri uri = null;
-            if (fileInfo.uri != null)
-                uri = Uri.parse(fileInfo.uri);
+        FileInfo fileInfo = mList.get(position);
+        String name = fileInfo.name;
+        String time = fileInfo.time;
+        String path = fileInfo.path;
+        Uri uri = null;
+        if (fileInfo.uri != null)
+            uri = Uri.parse(fileInfo.uri);
 
+        if (holder.title != null)
+            holder.title.setText(name);
+        if (holder.subtitle != null)
+            holder.subtitle.setText(time);
+
+        if (holder.icon != null) {
+            if (mTab.mType == BrowserFragment.LIST_TYPE_FOLDER)
+                setIconForAllType();
+            else
+                mIconHelper.loadThumbnail(fileInfo.path, mTab.mType, holder.icon, holder.iconMime);
+        }
+
+        if (holder.viewType == Constant.ITEM_GRID) {
             int resId = R.drawable.ic_menu_camera;
-            if (fileInfo.type.equals(FileInfo.TYPE.DIR))
-                resId = R.drawable.ic_menu_camera;
-            else if (fileInfo.type.equals(FileInfo.TYPE.PHOTO))
-                resId = R.drawable.ic_menu_camera;
-            else if (fileInfo.type.equals(FileInfo.TYPE.VIDEO))
-                resId = R.drawable.ic_menu_camera;
-            else if (fileInfo.type.equals(FileInfo.TYPE.MUSIC))
-                resId = R.drawable.ic_menu_camera;
-            else if (fileInfo.type.equals(FileInfo.TYPE.ENCRYPT))
-                resId = R.drawable.ic_menu_camera;
-            if (holder.title != null)
-                holder.title.setText(name);
-            if (holder.subtitle != null)
-                holder.subtitle.setText(time);
 
-            if (holder.icon != null)
-                holder.icon.setImageDrawable(mIconHelper.getIcon());
-            if (holder.info != null) {
-                if (fileInfo.type.equals(FileInfo.TYPE.DIR)) {
-                    holder.info.setImageDrawable(mIconHelper.getIcon());
-                    holder.info.setRotation(180);
-                } else {
-                    holder.info.setImageDrawable(mIconHelper.getIcon());
-                    holder.info.setRotation(0);
-                }
-            }
+        } else { //holder.viewType == Constant.ITEM_LIST
 
-
-            holder.itemView.setSelected(fileInfo.checked);
-            holder.mark.setVisibility(fileInfo.checked ? View.VISIBLE : View.INVISIBLE);
-        }
-        if (holder.viewType == Constant.ITEM_FOOTER) {
-            // do nothing
         }
 
+        holder.itemView.setSelected(fileInfo.checked);
+        holder.mark.setVisibility(fileInfo.checked ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override
@@ -147,6 +132,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return mList.size() > 0;
     }
 
+    private void setIconForAllType() {
+
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         int viewType;
@@ -154,6 +143,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         View itemView;
         ImageView mark;
         ImageView icon;
+        ImageView iconMime;
         ImageView info;
         TextView title;
         TextView subtitle;
@@ -163,18 +153,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             this.viewType = viewType;
             this.itemView = itemView;
             if (viewType == Constant.ITEM_LIST) {
-                    mark = (ImageView) itemView.findViewById(R.id.listitem_file_manage_mark);
-                    icon = (ImageView) itemView.findViewById(R.id.listitem_file_manage_icon);
-                    info = (ImageView) itemView.findViewById(R.id.listitem_file_manage_info);
-                    title = (TextView) itemView.findViewById(R.id.listitem_file_manage_title);
-                    subtitle = (TextView) itemView.findViewById(R.id.listitem_file_manage_subtitle);
-                    setOnItemInfoClickListener();
-                    itemView.setOnClickListener(this);
-                    itemView.setOnLongClickListener(this);
+                mark = (ImageView) itemView.findViewById(R.id.listitem_file_manage_mark);
+                icon = (ImageView) itemView.findViewById(R.id.listitem_file_manage_icon);
+                iconMime = (ImageView) itemView.findViewById(R.id.icon_mime);
+                info = (ImageView) itemView.findViewById(R.id.listitem_file_manage_info);
+                title = (TextView) itemView.findViewById(R.id.listitem_file_manage_title);
+                subtitle = (TextView) itemView.findViewById(R.id.listitem_file_manage_subtitle);
+                setOnItemInfoClickListener();
+                itemView.setOnClickListener(this);
+                itemView.setOnLongClickListener(this);
             }
             if (viewType == Constant.ITEM_GRID) {
                 mark = (ImageView) itemView.findViewById(R.id.griditem_file_manage_mark);
                 icon = (ImageView) itemView.findViewById(R.id.griditem_file_manage_icon);
+                iconMime = (ImageView) itemView.findViewById(R.id.icon_mime);
                 title = (TextView) itemView.findViewById(R.id.griditem_file_manage_title);
                 itemView.setOnClickListener(this);
                 itemView.setOnLongClickListener(this);

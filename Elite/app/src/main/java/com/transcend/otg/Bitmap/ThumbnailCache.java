@@ -17,16 +17,15 @@
 package com.transcend.otg.Bitmap;
 
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.util.LruCache;
 
-public class ThumbnailCache extends LruCache<Uri, Bitmap> {
+public class ThumbnailCache extends LruCache<String, Bitmap> {
     public ThumbnailCache(int maxSizeBytes) {
         super(maxSizeBytes);
     }
 
     @Override
-    protected int sizeOf(Uri key, Bitmap value) {
+    protected int sizeOf(String key, Bitmap value) {
         return value.getByteCount();
     }
 }

@@ -16,8 +16,15 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
              />
+
+        <ImageView
+            android:id="@+id/icon_mime"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            android:scaleType="fitCenter" />
 
         <ImageView
             android:id="@+id/listitem_file_manage_mark"
@@ -40,6 +47,7 @@
             android:layout_height="match_parent"
             android:clickable="true"
             android:padding="20dp"
+            android:src="@drawable/test_info"
             android:visibility="visible"/>
 
     </FrameLayout>

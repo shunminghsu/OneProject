@@ -19,6 +19,8 @@ package com.transcend.otg.Utils;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.provider.DocumentsContract.Document;
 import android.util.TypedValue;
@@ -46,5 +48,60 @@ public class IconUtils {
 
     public static Drawable loadIcon(Context context, int mode) {
         return context.getDrawable(R.drawable.ic_menu_camera);
+    }
+
+    public static Drawable loadImageTypeIcon(Context context, boolean large) {
+        return large ? context.getDrawable(R.drawable.test_ic_image_l) : context.getDrawable(R.drawable.test_ic_image_s);
+    }
+    public static Drawable loadVideoTypeIcon(Context context, boolean large) {
+        return large ? context.getDrawable(R.drawable.test_ic_movies_l) : context.getDrawable(R.drawable.test_ic_movies_s);
+    }
+    public static Drawable loadMusicTypeIcon(Context context, boolean large) {
+        return large ? context.getDrawable(R.drawable.test_ic_audio_l) : context.getDrawable(R.drawable.test_ic_audio_s);
+    }
+    public static Drawable loadFileTypeIcon(Context context, boolean large) {
+        return large ? context.getDrawable(R.drawable.test_ic_file_l) : context.getDrawable(R.drawable.test_ic_file_s);
+    }
+    public static Drawable loadFolderTypeIcon(Context context, boolean large) {
+        return large ? context.getDrawable(R.drawable.test_ic_folder_l) : context.getDrawable(R.drawable.test_ic_folder_s);
+    }
+
+    public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(path, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(path, options);
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            final int halfHeight = height / 2;
+            final int halfWidth = width / 2;
+
+            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+            // height and width larger than the requested height and width.
+            while ((halfHeight / inSampleSize) >= reqHeight
+                    && (halfWidth / inSampleSize) >= reqWidth) {
+                inSampleSize *= 2;
+            }
+        }
+
+        return inSampleSize;
+
     }
 }

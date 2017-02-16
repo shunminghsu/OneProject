@@ -57,7 +57,7 @@ public class TabInfo {
 
         mInflater = inflater;
 
-        mIconHelper = new IconHelper(mContext, 0);
+        mIconHelper = new IconHelper(mContext, mMode);
         mRecyclerAdapter = new RecyclerViewAdapter(this, mIconHelper);
         mRootView = inflater.inflate(R.layout.pager_layout, null);
 
@@ -96,7 +96,7 @@ public class TabInfo {
         mRecyclerView.requestLayout();
         //mRecyclerView.setAdapter(mRecyclerAdapter);
         //mSelectionManager.handleLayoutChanged();  // RecyclerView doesn't do this for us
-        //mIconHelper.setViewMode(mode);
+        mIconHelper.setViewMode(mode);
         LocalPreferences.setBrowserViewMode(mContext, mType, mode);
     }
 
