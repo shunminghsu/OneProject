@@ -341,6 +341,7 @@ public class MainActivity extends AppCompatActivity
                     public boolean onMenuItemActionExpand(MenuItem item) {
                         switchToSearchResultsFragmentIfNeeded();
                         layout_storage.setVisibility(View.GONE);
+                        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                         return true;
                     }
                     @Override
@@ -348,6 +349,7 @@ public class MainActivity extends AppCompatActivity
                         if (mSearchMenuItemExpanded) {
                             revertToInitialFragment();
                             layout_storage.setVisibility(View.VISIBLE);
+                            drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                         }
                         return true;
                     }

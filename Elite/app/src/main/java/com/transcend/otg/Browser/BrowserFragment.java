@@ -117,9 +117,9 @@ public class BrowserFragment extends Fragment implements
     public void onStop() {
         super.onStop();
         if(Constant.nowMODE == Constant.MODE.OTG)
-            getLoaderManager().restartLoader(OTG_LOADER_ID, getArguments(), mCallbacks);
+            getLoaderManager().destroyLoader(OTG_LOADER_ID);
         else
-            getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
+            getLoaderManager().destroyLoader(TAB_LOADER_ID);
     }
 
     @Override

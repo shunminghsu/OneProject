@@ -67,6 +67,12 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         cancelLoad();
     }
 
+    @Override
+    protected void onReset() {
+        super.onReset();
+        cancelLoad();
+    }
+
     private ArrayList<FileInfo> getAllImages() {
         try {
             String[] proj = {MediaStore.Images.Media.SIZE,

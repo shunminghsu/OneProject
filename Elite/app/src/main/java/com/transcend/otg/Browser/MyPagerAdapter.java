@@ -16,7 +16,7 @@ import java.util.ArrayList;
 class MyPagerAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
     private ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
     private LayoutInflater mInflater;
-    int mCurPos = 0;
+
     interface UpdateCurrentTabListener {
         void updateCurrentTab(int cur_pos);
     }
@@ -58,13 +58,13 @@ class MyPagerAdapter extends PagerAdapter implements ViewPager.OnPageChangeListe
 
     @Override
     public void onPageSelected(int position) {
-        mCurPos = position;
+        mListener.updateCurrentTab(position);
     }
 
     @Override
     public void onPageScrollStateChanged(int state) {
         if (state == ViewPager.SCROLL_STATE_IDLE) {
-            mListener.updateCurrentTab(mCurPos);
+            //mListener.updateCurrentTab(mCurPos);
         }
     }
 }
