@@ -1,7 +1,9 @@
 package com.transcend.otg.Loader;
 
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
 import android.util.Log;
@@ -36,7 +38,6 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
     @Override
     public ArrayList<FileInfo> loadInBackground() {
-        Log.d("henry" ,"loadInBackground" );
         mFileList.clear();
         switch(mType) {
             case BrowserFragment.LIST_TYPE_IMAGE:
@@ -56,14 +57,12 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
     @Override
     protected void onStartLoading() {
-        Log.d("henry" ,"onStartLoading" );
         if (takeContentChanged() || mFileList.size() == 0)
             forceLoad();
     }
 
     @Override
     protected void onStopLoading() {
-        Log.d("henry" ,"onStopLoading" );
         cancelLoad();
     }
 
@@ -77,6 +76,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         try {
             String[] proj = {MediaStore.Images.Media.SIZE,
                     MediaStore.Images.Media.DATA,
+                    MediaStore.Images.ImageColumns._ID,
                     MediaStore.Images.Media.DISPLAY_NAME,
                     MediaStore.Images.Media.DATE_ADDED};
 
@@ -91,6 +91,9 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     int timeColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
                     int sizeColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.SIZE);
 
+                    Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                            imagecursor.getInt(imagecursor.getColumnIndex(MediaStore.Images.ImageColumns._ID)));
+
                     String picPath = imagecursor.getString(pathColumnIndex);
                     String picName = imagecursor.getString(nameColumnIndex);
                     String picTime = imagecursor.getString(timeColumnIndex);
@@ -103,6 +106,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.time = picTime;
                         fileInfo.type = FileInfo.TYPE.PHOTO;
                         fileInfo.size = Long.valueOf(picSize);
+                        fileInfo.uri = imageUri;
                         if (mOuterStoragePath == null) {
                             if (picPath.contains(Constant.ROOT_LOCAL))
                                 mFileList.add(fileInfo);

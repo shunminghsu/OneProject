@@ -82,9 +82,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         String name = fileInfo.name;
         String time = fileInfo.time;
         String path = fileInfo.path;
-        Uri uri = null;
-        if (fileInfo.uri != null)
-            uri = Uri.parse(fileInfo.uri);
 
         if (holder.title != null)
             holder.title.setText(name);
@@ -94,7 +91,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         if (holder.icon != null) {
             if (mTab.mType == BrowserFragment.LIST_TYPE_FOLDER)
                 setIconForAllType();
-            else
+            else if (fileInfo.uri != null) {
+                mIconHelper.loadThumbnail(fileInfo.uri, mTab.mType, holder.icon, holder.iconMime);
+            } else
                 mIconHelper.loadThumbnail(fileInfo.path, mTab.mType, holder.icon, holder.iconMime);
         }
 

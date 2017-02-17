@@ -1,5 +1,6 @@
 package com.transcend.otg.Constant;
 
+import android.net.Uri;
 import com.transcend.otg.Utils.MimeUtil;
 
 import java.io.File;
@@ -29,7 +30,7 @@ public class FileInfo implements Serializable {
     public String name;
     public String time;
     public TYPE type;
-    public String uri;
+    public Uri uri;
     public long size;
     public boolean checked;
 

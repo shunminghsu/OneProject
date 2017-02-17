@@ -1,11 +1,15 @@
 package com.transcend.otg.Bitmap;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.CancellationSignal;
+import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.os.OperationCanceledException;
 import android.util.Log;
@@ -192,6 +196,93 @@ public class IconHelper {
         @Override
         protected void onPostExecute(Bitmap result) {
             //Log.d(TAG, "Loader task for " + mPath + " completed");
+            if (mIconThumb.getTag() == this && result != null) {
+                mIconThumb.setTag(null);
+                mIconThumb.setImageBitmap(result);
+
+                float alpha = mIconMime.getAlpha();
+                mIconMime.animate().alpha(0f).start();
+                mIconThumb.setAlpha(0f);
+                mIconThumb.animate().alpha(alpha).start();
+            }
+        }
+    }
+
+    public void loadThumbnail(Uri uri, int thumbnailType,
+                              ImageView iconThumb, ImageView iconMime) {
+        boolean cacheHit = false;
+
+        final boolean showThumbnail = true;
+        if (showThumbnail) {
+            final Bitmap cachedResult = mCache.get(uri.toString()+mThumbSize);
+            if (cachedResult != null) {
+                iconThumb.setImageBitmap(cachedResult);
+                cacheHit = true;
+            } else {
+                iconThumb.setImageDrawable(null);
+                final LoaderTaskUri task = new LoaderTaskUri(uri, iconMime, iconThumb, mThumbSize, mContext);
+                iconThumb.setTag(task);
+                task.execute();
+            }
+        }
+
+        //final Drawable icon = getDocumentIcon(mContext, docAuthority,
+                //DocumentsContract.getDocumentId(uri), mimeType, docIcon);
+        final Drawable icon = getIconMime(thumbnailType);
+        if (cacheHit) {
+            iconMime.setImageDrawable(null);
+            iconMime.setAlpha(0f);
+            iconThumb.setAlpha(1f);
+        } else {
+            iconThumb.setImageDrawable(null);
+            iconMime.setImageDrawable(icon);
+            iconMime.setAlpha(1f);
+            iconThumb.setAlpha(0f);
+        }
+    }
+
+    private static class LoaderTaskUri
+            extends AsyncTask<Uri, Void, Bitmap>{
+        private final Uri mUri;
+        private final ImageView mIconMime;
+        private final ImageView mIconThumb;
+        private final Point mThumbSize;
+        private final CancellationSignal mSignal;
+        private Context mContext;
+        public LoaderTaskUri(Uri uri, ImageView iconMime, ImageView iconThumb,
+                          Point thumbSize, Context context) {
+            mUri = uri;
+            mIconMime = iconMime;
+            mIconThumb = iconThumb;
+            mThumbSize = thumbSize;
+            mSignal = new CancellationSignal();
+            mContext = context;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Uri... params) {
+            if (isCancelled())
+                return null;
+
+            final ContentResolver resolver = mContext.getContentResolver();
+
+            Bitmap result = null;
+            try {
+                result = DocumentsContract.getDocumentThumbnail(resolver, mUri, mThumbSize, mSignal);
+                if (result != null) {
+                    final ThumbnailCache thumbs = MainApplication.getThumbnailsCache(mContext);
+                    thumbs.put(mUri.toString()+mThumbSize, result);
+                }
+            } catch (Exception e) {
+                if (!(e instanceof OperationCanceledException)) {
+                    Log.w(TAG, "Failed to load thumbnail for " + mUri + ": " + e);
+                }
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
             if (mIconThumb.getTag() == this && result != null) {
                 mIconThumb.setTag(null);
                 mIconThumb.setImageBitmap(result);
