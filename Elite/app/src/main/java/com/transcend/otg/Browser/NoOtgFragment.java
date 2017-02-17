@@ -1,6 +1,5 @@
 package com.transcend.otg.Browser;
 
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -24,13 +23,9 @@ import android.widget.Toast;
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.github.mjdev.libaums.fs.FileSystem;
 import com.transcend.otg.Constant.Constant;
-import com.transcend.otg.Dialog.OTGFileActionGuideDialog;
-import com.transcend.otg.Home.HomeFragment;
+import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.LocalPreferences;
-import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
-
-import java.io.IOException;
 
 /**
  * Created by henry_hsu on 2017/2/14.
@@ -98,7 +93,6 @@ public class NoOtgFragment extends Fragment {
             if (ACTION_USB_PERMISSION.equals(action)) {
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 
-                    intentDocumentTree();
                 }
 
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
@@ -145,14 +139,12 @@ public class NoOtgFragment extends Fragment {
     }
 
     private void intentDocumentTree() {
-        new OTGFileActionGuideDialog(mContext) {
+        new OTGPermissionGuideDialog(mContext) {
             @Override
             public void onConfirm(Boolean isClick) {
                 if (isClick) {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                     startActivityForResult(intent, mOTGDocumentTreeID);
-                } else{
-                    //                    toggleDrawerCheckedItem();
                 }
             }
         };
@@ -189,7 +181,6 @@ public class NoOtgFragment extends Fragment {
                             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     LocalPreferences.setOTGKey(mContext, device.getUsbDevice().getSerialNumber(), uri.toString());
                     Constant.pickedDir = Constant.rootDir = otgDir = rootDir;
-                    Constant.nowMODE = Constant.MODE.OTG;
                     Constant.rootUri = uri;
                     return true;
                 }

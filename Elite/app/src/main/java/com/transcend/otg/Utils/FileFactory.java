@@ -57,7 +57,7 @@ public class FileFactory {
                 String state = (String) getState.invoke(storageVolumeElement);
                 Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
                 if (removable) {
-                    if (path != null && path.contains("sdcard")) {
+                    if (path != null && path.contains("sd")) {
                         return path;
                     }
                 }

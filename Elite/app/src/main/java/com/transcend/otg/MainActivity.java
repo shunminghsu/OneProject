@@ -53,7 +53,7 @@ import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Constant.LoaderID;
-import com.transcend.otg.Dialog.OTGFileActionGuideDialog;
+import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Home.HomeFragment;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalFileListLoader;
@@ -599,7 +599,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void intentDocumentTree() {
-        new OTGFileActionGuideDialog(this) {
+        new OTGPermissionGuideDialog(this) {
             @Override
             public void onConfirm(Boolean isClick) {
                 if (isClick) {

@@ -19,10 +19,11 @@
     <string name="pref_movies_location" translatable="false">MOVIES LOCATION</string>
     <string name="pref_musics_location" translatable="false">MUSIC LOCATION</string>
 
-
-
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
+
+    <!-- SD -->
+    <string name="sdcard_name">SD Card</string>
 
     <!-- OTG -->
     <string name="nav_otg" translatable="false">OTG</string>

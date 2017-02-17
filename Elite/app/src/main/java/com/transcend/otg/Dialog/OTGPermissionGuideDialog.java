@@ -14,7 +14,7 @@ import com.transcend.otg.Viewer.ViewerPager;
  * Created by wangbojie on 2017/2/15.
  */
 
-public abstract class OTGFileActionGuideDialog implements View.OnClickListener {
+public abstract class OTGPermissionGuideDialog implements View.OnClickListener {
 
     public abstract void onConfirm(Boolean isClick);
 
@@ -24,7 +24,7 @@ public abstract class OTGFileActionGuideDialog implements View.OnClickListener {
     private ViewerPager viewerPager;
     private OTGGuideAdapter mPagerAdapter;
 
-    public OTGFileActionGuideDialog(Context context) {
+    public OTGPermissionGuideDialog(Context context) {
         mContext = context;
         initDialog();
     }
