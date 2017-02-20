@@ -53,23 +53,23 @@ public class LocalFragment extends BrowserFragment {
 
     private void initTabInfos(Bundle savedInstanceState) {
         TabInfo tab = new TabInfo(
-                LIST_TYPE_IMAGE, R.drawable.test_icon, savedInstanceState, mContext);
+                LIST_TYPE_IMAGE, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_VIDEO, R.drawable.test_icon, savedInstanceState, mContext);
+                LIST_TYPE_VIDEO, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_MUSIC, R.drawable.test_icon, savedInstanceState, mContext);
+                LIST_TYPE_MUSIC, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_DOCUMENT, R.drawable.test_icon, savedInstanceState, mContext);
+                LIST_TYPE_DOCUMENT, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_FOLDER, R.drawable.test_icon, savedInstanceState, mContext);
+                LIST_TYPE_FOLDER, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
     }
 }

@@ -9,22 +9,14 @@ import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 
-import com.github.mjdev.libaums.UsbMassStorageDevice;
-import com.github.mjdev.libaums.fs.FileSystem;
-import com.github.mjdev.libaums.fs.UsbFile;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.FileInfoSort;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
 
 /**
  * Created by wangbojie on 2017/2/13.
@@ -47,6 +39,17 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     String VIDEO = "video";
     String AUDIO = "audio";
     String ENCRYPT = "";
+    String DIR = "directory";
+    String PNG = "png";
+    String JPG = "jpg";
+    String ENC = "enc";
+    String[] proj = {DocumentsContract.Document.COLUMN_SIZE,
+            DocumentsContract.Document.COLUMN_DOCUMENT_ID,
+            DocumentsContract.Document.COLUMN_DISPLAY_NAME,
+            DocumentsContract.Document.COLUMN_LAST_MODIFIED,
+            DocumentsContract.Document.COLUMN_MIME_TYPE};
+
+    final String orderBy = DocumentsContract.Document.COLUMN_DISPLAY_NAME;
 
 
     public OTGFileListLoader(Context context, int type) {
@@ -71,6 +74,8 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 return getAllMusics();
             case BrowserFragment.LIST_TYPE_DOCUMENT:
                 return getAllDocs();
+            case BrowserFragment.LIST_TYPE_ENCRYPTION:
+                return getAllEncs();
             case BrowserFragment.LIST_TYPE_FOLDER:
                 return getFileList();
             default:
@@ -90,111 +95,240 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     }
 
     private ArrayList<FileInfo> getAllImages() {
-        Uri rootUri2 = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, DocumentsContract.getTreeDocumentId(rootUri));
-        String[] proj = {DocumentsContract.Document.COLUMN_SIZE,
-                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                DocumentsContract.Document.COLUMN_LAST_MODIFIED,
-                DocumentsContract.Document.COLUMN_MIME_TYPE};
 
-        final String orderBy = DocumentsContract.Document.COLUMN_LAST_MODIFIED;
-        Cursor imagecursor = mContext.getContentResolver().query(rootUri2, proj, null, null, orderBy + " DESC");
-        while (imagecursor.moveToNext()) {
-            String type = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
-            if (type.contains(IMAGE)) {
-                FileInfo item = new FileInfo();
-                item.name = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
-                item.time = FileInfo.getTime(imagecursor.getLong(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
-                item.size = imagecursor.getLong(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
-                item.path = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-//                item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri2, imagecursor.getString(0)).toString();
-                item.type = FileInfo.TYPE.PHOTO;
-                mFileList.add(item);
+        Uri rootImageUri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, DocumentsContract.getTreeDocumentId(rootUri));
+
+        Cursor imageCursor = mContext.getContentResolver().query(rootImageUri, proj, null, null, orderBy + " DESC");
+        while (imageCursor.moveToNext()) {
+            if (!imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                if (type.contains(DIR)) {
+                    getAllImagesDIR(DocumentsContract.buildChildDocumentsUriUsingTree(rootImageUri, imageCursor.getString(1)));
+                } else if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {
+                    FileInfo item = new FileInfo();
+                    item.name = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.time = FileInfo.getTime(imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(rootImageUri, imageCursor.getString(1));
+                    item.type = FileInfo.TYPE.PHOTO;
+                    mFileList.add(item);
+                }
             }
         }
-        imagecursor.close();
+        imageCursor.close();
         return mFileList;
+    }
+
+    private void getAllImagesDIR(Uri uriDIR) {
+        final String orderBy = DocumentsContract.Document.COLUMN_LAST_MODIFIED;
+        Cursor imageDIRCursor = mContext.getContentResolver().query(uriDIR, proj, null, null, orderBy + " DESC");
+        while (imageDIRCursor.moveToNext()) {
+            if (!imageDIRCursor.getString(imageDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = imageDIRCursor.getString(imageDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                if (type.contains(DIR)) {
+                    getAllImagesDIR(DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, imageDIRCursor.getString(1)));
+                } else if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {
+                    FileInfo item = new FileInfo();
+                    item.name = imageDIRCursor.getString(imageDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.time = FileInfo.getTime(imageDIRCursor.getLong(imageDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = imageDIRCursor.getLong(imageDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = imageDIRCursor.getString(imageDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, imageDIRCursor.getString(1));
+                    item.type = FileInfo.TYPE.PHOTO;
+                    mFileList.add(item);
+                }
+            }
+        }
+        imageDIRCursor.close();
     }
 
     private ArrayList<FileInfo> getAllVideos() {
         Uri rootUri2 = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, DocumentsContract.getTreeDocumentId(rootUri));
-        String[] proj = {DocumentsContract.Document.COLUMN_SIZE,
-                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                DocumentsContract.Document.COLUMN_LAST_MODIFIED,
-                DocumentsContract.Document.COLUMN_MIME_TYPE};
 
-        final String orderBy = DocumentsContract.Document.COLUMN_LAST_MODIFIED;
-        Cursor imagecursor = mContext.getContentResolver().query(rootUri2, proj, null, null, orderBy + " DESC");
-        while (imagecursor.moveToNext()) {
-            String type = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
-            if (type.contains(VIDEO)) {
-                FileInfo item = new FileInfo();
-                item.name = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
-                item.time = FileInfo.getTime(imagecursor.getLong(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
-                item.size = imagecursor.getLong(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
-                item.path = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-//                item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri2, imagecursor.getString(0)).toString();
-                item.type = FileInfo.TYPE.VIDEO;
-                mFileList.add(item);
+        Cursor videoCursor = mContext.getContentResolver().query(rootUri2, proj, null, null, orderBy + " DESC");
+        while (videoCursor.moveToNext()) {
+            if (!videoCursor.getString(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = videoCursor.getString(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                if (type.contains(DIR)) {
+                    getAllVideosDIR(DocumentsContract.buildChildDocumentsUriUsingTree(rootUri2, videoCursor.getString(1)));
+                } else if (type.contains(VIDEO)) {
+                    FileInfo item = new FileInfo();
+                    item.name = videoCursor.getString(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.time = FileInfo.getTime(videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = videoCursor.getString(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri2, videoCursor.getString(1));
+                    item.type = FileInfo.TYPE.VIDEO;
+                    mFileList.add(item);
+                }
             }
         }
-        imagecursor.close();
+        videoCursor.close();
         return mFileList;
+    }
+
+    private void getAllVideosDIR(Uri uriDIR) {
+        Cursor videoDIRCursor = mContext.getContentResolver().query(uriDIR, proj, null, null, orderBy + " DESC");
+        while (videoDIRCursor.moveToNext()) {
+            if (!videoDIRCursor.getString(videoDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = videoDIRCursor.getString(videoDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                if (type.contains(DIR)) {
+                    getAllVideosDIR(DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, videoDIRCursor.getString(1)));
+                } else if (type.contains(VIDEO)) {
+                    FileInfo item = new FileInfo();
+                    item.name = videoDIRCursor.getString(videoDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.time = FileInfo.getTime(videoDIRCursor.getLong(videoDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = videoDIRCursor.getLong(videoDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = videoDIRCursor.getString(videoDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, videoDIRCursor.getString(1));
+                    item.type = FileInfo.TYPE.VIDEO;
+                    mFileList.add(item);
+                }
+            }
+        }
+        videoDIRCursor.close();
     }
 
     private ArrayList<FileInfo> getAllMusics() {
-        Uri rootUri2 = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, DocumentsContract.getTreeDocumentId(rootUri));
-        String[] proj = {DocumentsContract.Document.COLUMN_SIZE,
-                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                DocumentsContract.Document.COLUMN_LAST_MODIFIED,
-                DocumentsContract.Document.COLUMN_MIME_TYPE};
-
-        final String orderBy = DocumentsContract.Document.COLUMN_LAST_MODIFIED;
-        Cursor imagecursor = mContext.getContentResolver().query(rootUri2, proj, null, null, orderBy + " DESC");
-        while (imagecursor.moveToNext()) {
-            String type = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
-            if (type.contains(AUDIO)) {
-                FileInfo item = new FileInfo();
-                item.name = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
-                item.time = FileInfo.getTime(imagecursor.getLong(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
-                item.size = imagecursor.getLong(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
-                item.path = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-//                item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri2, imagecursor.getString(0)).toString();
-                item.type = FileInfo.TYPE.MUSIC;
-                mFileList.add(item);
+        Uri musicUri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, DocumentsContract.getTreeDocumentId(rootUri));
+        Cursor musicCursor = mContext.getContentResolver().query(musicUri, proj, null, null, orderBy + " DESC");
+        while (musicCursor.moveToNext()) {
+            if (!musicCursor.getString(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = musicCursor.getString(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                if (type.contains(DIR)) {
+                    getAllMusicsDIR(DocumentsContract.buildChildDocumentsUriUsingTree(musicUri, musicCursor.getString(1)));
+                } else if (type.contains(AUDIO)) {
+                    FileInfo item = new FileInfo();
+                    item.name = musicCursor.getString(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.time = FileInfo.getTime(musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = musicCursor.getString(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(musicUri, musicCursor.getString(1));
+                    item.type = FileInfo.TYPE.MUSIC;
+                    mFileList.add(item);
+                }
             }
         }
-        imagecursor.close();
+        musicCursor.close();
         return mFileList;
     }
 
-    private ArrayList<FileInfo> getAllDocs() {
-        Uri rootUri2 = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, DocumentsContract.getTreeDocumentId(rootUri));
-        String[] proj = {DocumentsContract.Document.COLUMN_SIZE,
-                DocumentsContract.Document.COLUMN_DOCUMENT_ID,
-                DocumentsContract.Document.COLUMN_DISPLAY_NAME,
-                DocumentsContract.Document.COLUMN_LAST_MODIFIED,
-                DocumentsContract.Document.COLUMN_MIME_TYPE};
+    private void getAllMusicsDIR(Uri uriDIR) {
+        Cursor musicDIRCursor = mContext.getContentResolver().query(uriDIR, proj, null, null, orderBy + " DESC");
+        while (musicDIRCursor.moveToNext()) {
+            if (!musicDIRCursor.getString(musicDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = musicDIRCursor.getString(musicDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                if (type.contains(DIR)) {
+                    getAllMusicsDIR(DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, musicDIRCursor.getString(1)));
+                } else if (type.contains(AUDIO)) {
+                    FileInfo item = new FileInfo();
+                    item.name = musicDIRCursor.getString(musicDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.time = FileInfo.getTime(musicDIRCursor.getLong(musicDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = musicDIRCursor.getLong(musicDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = musicDIRCursor.getString(musicDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, musicDIRCursor.getString(1));
+                    item.type = FileInfo.TYPE.MUSIC;
+                    mFileList.add(item);
+                }
+            }
 
-        final String orderBy = DocumentsContract.Document.COLUMN_LAST_MODIFIED;
-        Cursor imagecursor = mContext.getContentResolver().query(rootUri2, proj, null, null, orderBy + " DESC");
-        while (imagecursor.moveToNext()) {
-            String type = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
-            if (type.contains(TEXT) || type.contains(PDF) || type.contains(WORD) || type.contains(PPT) || type.contains(EXCEL)) {
-                FileInfo item = new FileInfo();
-                item.name = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
-                item.time = FileInfo.getTime(imagecursor.getLong(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
-                item.size = imagecursor.getLong(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
-                item.path = imagecursor.getString(imagecursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-//                item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri2, imagecursor.getString(0)).toString();
-                item.type = FileInfo.TYPE.FILE;
-                mFileList.add(item);
+        }
+        musicDIRCursor.close();
+    }
+
+    private ArrayList<FileInfo> getAllDocs() {
+        Uri docUri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, DocumentsContract.getTreeDocumentId(rootUri));
+        Cursor docCursor = mContext.getContentResolver().query(docUri, proj, null, null, orderBy + " DESC");
+        while (docCursor.moveToNext()) {
+            if (!docCursor.getString(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = docCursor.getString(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                if (type.contains(DIR)) {
+                    getAllDocsDIR(DocumentsContract.buildChildDocumentsUriUsingTree(docUri, docCursor.getString(1)));
+                } else if (type.contains(TEXT) || type.contains(PDF) || type.contains(WORD) || type.contains(PPT) || type.contains(EXCEL)) {
+                    FileInfo item = new FileInfo();
+                    item.name = docCursor.getString(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.time = FileInfo.getTime(docCursor.getLong(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = docCursor.getLong(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = docCursor.getString(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(docUri, docCursor.getString(1));
+                    item.type = FileInfo.TYPE.FILE;
+                    mFileList.add(item);
+                }
             }
         }
-        imagecursor.close();
+        docCursor.close();
         return mFileList;
+    }
+
+    private void getAllDocsDIR(Uri uriDIR) {
+        Cursor docDIRCursor = mContext.getContentResolver().query(uriDIR, proj, null, null, orderBy + " DESC");
+        while (docDIRCursor.moveToNext()) {
+            if (!docDIRCursor.getString(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = docDIRCursor.getString(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                if (type.contains(DIR)) {
+                    getAllDocsDIR(DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, docDIRCursor.getString(1)));
+                } else if (type.contains(TEXT) || type.contains(PDF) || type.contains(WORD) || type.contains(PPT) || type.contains(EXCEL)) {
+                    FileInfo item = new FileInfo();
+                    item.name = docDIRCursor.getString(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.time = FileInfo.getTime(docDIRCursor.getLong(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = docDIRCursor.getLong(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = docDIRCursor.getString(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, docDIRCursor.getString(1));
+                    item.type = FileInfo.TYPE.MUSIC;
+                    mFileList.add(item);
+                }
+            }
+        }
+        docDIRCursor.close();
+    }
+
+    private ArrayList<FileInfo> getAllEncs() {
+        Uri encUri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, DocumentsContract.getTreeDocumentId(rootUri));
+        Cursor encCursor = mContext.getContentResolver().query(encUri, proj, null, null, orderBy + " DESC");
+        while (encCursor.moveToNext()) {
+            if (!encCursor.getString(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = encCursor.getString(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                String name = encCursor.getString(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                if (type.contains(DIR)) {
+                    getAllEncsDIR(DocumentsContract.buildChildDocumentsUriUsingTree(encUri, encCursor.getString(1)));
+                } else if (name.contains(".enc")) {
+                    FileInfo item = new FileInfo();
+                    item.name = name;
+                    item.time = FileInfo.getTime(encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = encCursor.getString(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(encUri, encCursor.getString(1));
+                    item.type = FileInfo.TYPE.ENCRYPT;
+                    mFileList.add(item);
+                }
+            }
+        }
+        encCursor.close();
+        return mFileList;
+    }
+
+    private void getAllEncsDIR(Uri uriDIR) {
+        Cursor encDIRCursor = mContext.getContentResolver().query(uriDIR, proj, null, null, orderBy + " DESC");
+        while (encDIRCursor.moveToNext()) {
+            if (!encDIRCursor.getString(encDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = encDIRCursor.getString(encDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                String name = encDIRCursor.getString(encDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                if (type.contains(DIR)) {
+                    getAllEncsDIR(DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, encDIRCursor.getString(1)));
+                } else if (name.contains(".enc")) {
+                    FileInfo item = new FileInfo();
+                    item.name = name;
+                    item.time = FileInfo.getTime(encDIRCursor.getLong(encDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = encDIRCursor.getLong(encDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.path = encDIRCursor.getString(encDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
+                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, encDIRCursor.getString(1));
+                    item.type = FileInfo.TYPE.ENCRYPT;
+                    mFileList.add(item);
+                }
+            }
+        }
+        encDIRCursor.close();
     }
 
     private ArrayList<FileInfo> getFileList() {
@@ -204,7 +338,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             tmpFileInfo.name = ddFile.getName();
             tmpFileInfo.path = ddFile.getUri().getPath();
             tmpFileInfo.time = FileInfo.getTime(ddFile.lastModified());
-//            tmpFileInfo.uri = ddFile.getUri().toString();
+            tmpFileInfo.uri = ddFile.getUri();
             tmpFileInfo.size = ddFile.length();
             String type = ddFile.getType();
             if (type != null) {

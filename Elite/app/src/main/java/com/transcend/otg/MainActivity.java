@@ -1,7 +1,6 @@
 package com.transcend.otg;
 
 import android.app.LoaderManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -17,12 +16,10 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.provider.DocumentFile;
-import android.support.v7.app.ActionBar;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
-import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -32,18 +29,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.LocalFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
@@ -52,16 +44,9 @@ import com.transcend.otg.Browser.OTGFragment;
 import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.Constant.LoaderID;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
-import com.transcend.otg.Home.HomeFragment;
 import com.transcend.otg.Loader.FileActionManager;
-import com.transcend.otg.Loader.LocalFileListLoader;
-import com.transcend.otg.Loader.LocalTypeListLoader;
 import com.transcend.otg.Utils.FileFactory;
-import com.transcend.otg.Utils.Pref;
-
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
@@ -81,7 +66,7 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
     private NavigationView navigationView;
-    private LinearLayout container, layout_storage;
+    private LinearLayout container, layout_storage, main_linearlayout;
     private SdFragment sdFragment;
     private OTGFragment otgFragment;
     private LocalFragment localFragment;
@@ -98,7 +83,6 @@ public class MainActivity extends AppCompatActivity
     private TextView tv_Backup;
 
     //USB
-    private Toast mToast;
     private DocumentFile rootDir, otgDir;
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
     private UsbMassStorageDevice device;
@@ -112,7 +96,6 @@ public class MainActivity extends AppCompatActivity
         init();
         initToolbar();
         initDrawer();
-        initImageLoader();
         initButtons();
         initHome();
         initFragment();
@@ -121,6 +104,7 @@ public class MainActivity extends AppCompatActivity
 
     private void init() {
         mContext = this;
+        main_linearlayout = (LinearLayout) findViewById(R.id.main_linearlayout);
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
         mPath = mFileActionManager.getLocalRootPath();
         DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -143,6 +127,7 @@ public class MainActivity extends AppCompatActivity
     }
     private void initHome() {
         home_container = (LinearLayout) findViewById(R.id.home_page);
+        setDrawerCheckItem(R.id.nav_home);
         tv_Browser = (TextView) findViewById(R.id.home_browser);
         tv_Browser.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -219,17 +204,6 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-    }
-
-    private void initImageLoader() {
-        DisplayImageOptions options = new DisplayImageOptions.Builder()
-                .cacheInMemory(true)
-                .cacheOnDisk(true)
-                .build();
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(getApplicationContext())
-                .defaultDisplayImageOptions(options)
-                .build();
-        ImageLoader.getInstance().init(config);
     }
 
     private void initFragment() {
@@ -590,12 +564,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void toast(int resId) {
-        if (mToast != null)
-            mToast.cancel();
-        mToast = Toast.makeText(this, resId, Toast.LENGTH_LONG);
-        mToast.setGravity(Gravity.CENTER, 0, 0);
-        mToast.show();
+    private void snackBarShow(int resId) {
+        Snackbar.make(main_linearlayout, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
     private void intentDocumentTree() {
@@ -628,7 +598,7 @@ public class MainActivity extends AppCompatActivity
         if (!uri.toString().contains("primary")) {
             if (uri != null) {
                 if(uri.getPath().toString().split(":").length > 1){
-                    toast(R.string.toast_plz_select_top);
+                    snackBarShow(R.string.snackbar_plz_select_top);
                     intentDocumentTree();
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
@@ -644,7 +614,7 @@ public class MainActivity extends AppCompatActivity
             }
 
         }else {
-            toast(R.string.toast_plz_select_otg);
+            snackBarShow(R.string.snackbar_plz_select_otg);
             intentDocumentTree();
         }
         return false;

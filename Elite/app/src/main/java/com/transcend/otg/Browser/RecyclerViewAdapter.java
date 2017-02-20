@@ -24,7 +24,7 @@ import java.util.HashMap;
  */
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
 
-
+    private String TAG = RecyclerViewAdapter.class.getSimpleName();
     private ArrayList<FileInfo> mList;
     private HashMap<String, ArrayList<String>> mPathMap;
     private TabInfo mTab;
@@ -44,6 +44,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public RecyclerViewAdapter(TabInfo tab, IconHelper iconHelper) {
         mTab = tab;
         mIconHelper = iconHelper;
+        mCallback = tab;
     }
 
     boolean isEmpty() {
@@ -178,6 +179,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public void onClick(View v) {
+            Log.d(TAG, "onClick");
             if (mCallback != null) {
                 int position = getAdapterPosition();
                 mCallback.onRecyclerItemClick(position);
@@ -186,6 +188,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public boolean onLongClick(View v) {
+            Log.d(TAG, "onLongClick");
             if (mCallback != null) {
                 int position = getAdapterPosition();
                 mCallback.onRecyclerItemLongClick(position);

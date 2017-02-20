@@ -22,7 +22,7 @@ import com.transcend.otg.R;
  * Created by henry_hsu on 2017/2/3.
  */
 
-public class TabInfo {
+public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListener{
     public View mRootView;
     public LayoutInflater mInflater;
     public final int mType;
@@ -39,6 +39,7 @@ public class TabInfo {
     private GridLayoutManager mLayout;
     private int mColumnCount = 1;  // This will get updated when layout changes.
     public int mMode;
+    private RecyclerViewAdapter.OnRecyclerItemCallbackListener mCallback;
 
     IconHelper mIconHelper;
 
@@ -107,6 +108,21 @@ public class TabInfo {
                 group.removeView(mRootView);
             }
         }
+    }
+
+    @Override
+    public void onRecyclerItemClick(int position) {
+
+    }
+
+    @Override
+    public void onRecyclerItemLongClick(int position) {
+
+    }
+
+    @Override
+    public void onRecyclerItemInfoClick(int position) {
+
     }
 
     private class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {

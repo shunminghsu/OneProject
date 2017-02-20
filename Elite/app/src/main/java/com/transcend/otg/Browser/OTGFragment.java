@@ -50,23 +50,27 @@ public class OTGFragment extends BrowserFragment {
 
     private void initTabInfos(Bundle savedInstanceState) {
         TabInfo tab = new TabInfo(
-                LIST_TYPE_IMAGE, R.drawable.ic_menu_manage, savedInstanceState, mContext);
+                LIST_TYPE_IMAGE, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_VIDEO, R.drawable.ic_menu_manage, savedInstanceState, mContext);
+                LIST_TYPE_VIDEO, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_MUSIC, R.drawable.ic_menu_manage, savedInstanceState, mContext);
+                LIST_TYPE_MUSIC, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_DOCUMENT, R.drawable.ic_menu_manage, savedInstanceState, mContext);
+                LIST_TYPE_DOCUMENT, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_FOLDER, R.drawable.ic_menu_manage, savedInstanceState, mContext);
+                LIST_TYPE_ENCRYPTION, R.mipmap.test_icon, savedInstanceState, mContext);
+        mTabs.add(tab);
+
+        tab = new TabInfo(
+                LIST_TYPE_FOLDER, R.mipmap.test_icon, savedInstanceState, mContext);
         mTabs.add(tab);
     }
 }

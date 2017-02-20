@@ -7,23 +7,15 @@
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Home"/>
+            android:title="@string/drawer_home"/>
         <item
             android:id="@+id/nav_browser"
             android:icon="@drawable/ic_menu_camera"
-            android:title="Browser" />
+            android:title="@string/drawer_browser" />
         <item
             android:id="@+id/nav_backup"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Backup" />
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:title="@string/drawer_backup" />
     </group>
 
     <group
@@ -32,7 +24,7 @@
         <item
             android:id="@+id/nav_share"
             android:icon="@drawable/ic_menu_share"
-            android:title="Share" />
+            android:title="@string/drawer_help" />
     </group>
 
     <group
@@ -41,7 +33,7 @@
         <item
             android:id="@+id/nav_send"
             android:icon="@drawable/ic_menu_send"
-            android:title="Send" />
+            android:title="@string/drawer_feedback" />
     </group>
 
 

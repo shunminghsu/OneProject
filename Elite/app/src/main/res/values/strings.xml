@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">Transcend Elite</string>
 
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
 
@@ -22,12 +22,25 @@
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
 
+    <!-- Drawer -->
+    <string name="drawer_home">Home</string>
+    <string name="drawer_browser">Browser</string>
+    <string name="drawer_backup">Backup</string>
+    <string name="drawer_help">Help</string>
+    <string name="drawer_feedback">Feedback</string>
+
+    <!-- Local -->
+    <string name="nav_local">Local</string>
+
     <!-- SD -->
+    <string name="nav_sd">SD</string>
     <string name="sdcard_name">SD Card</string>
+    <string name="no_sd">SD card is not found.</string>
 
     <!-- OTG -->
     <string name="nav_otg" translatable="false">OTG</string>
     <string name="documenttree_guide">Please follow the guide to select right disk</string>
-    <string name="toast_plz_select_otg">Please select OTG device</string>
-    <string name="toast_plz_select_top">Please select the root folder</string>
+    <string name="snackbar_plz_select_otg">Please select OTG device</string>
+    <string name="snackbar_plz_select_top">Please select the root folder</string>
+    <string name="no_otg">Device is not found.</string>
 </resources>

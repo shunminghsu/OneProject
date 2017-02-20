@@ -9,19 +9,19 @@ import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.provider.DocumentFile;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
-import com.github.mjdev.libaums.fs.FileSystem;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.LocalPreferences;
@@ -41,7 +41,8 @@ public class NoOtgFragment extends Fragment {
     private int mOTGDocumentTreeID = 1000;
     private Toast mToast;
     private DocumentFile rootDir, otgDir;
-    private FileSystem currentFs;
+    private UsbMassStorageDevice[] devices;
+    private View view = null;
 
 
     @Override
@@ -55,12 +56,14 @@ public class NoOtgFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View view = inflater.inflate(R.layout.no_outer_storage_layout, container, false);
-        ((TextView)view.findViewById(R.id.no_outer_storage)).setText("Otg not found");
+        view = inflater.inflate(R.layout.no_outer_storage_layout, container, false);
+        ((TextView)view.findViewById(R.id.no_outer_storage)).setText(getResources().getText(R.string.no_otg));
         (view.findViewById(R.id.check_btn)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 discoverDevice();
+                if(devices.length == 0)
+                    snackBarShow(R.string.no_otg);
             }
         });
         return view;
@@ -117,8 +120,7 @@ public class NoOtgFragment extends Fragment {
     };
 
     private void discoverDevice() {
-        UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
-        UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
+        devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
 
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
@@ -173,7 +175,7 @@ public class NoOtgFragment extends Fragment {
         if (!uri.toString().contains("primary")) {
             if (uri != null) {
                 if(uri.getPath().toString().split(":").length > 1){
-                    toast(R.string.toast_plz_select_top);
+                    snackBarShow(R.string.snackbar_plz_select_top);
                     intentDocumentTree();
                 }else{
                     rootDir = DocumentFile.fromTreeUri(mContext, uri);//OTG root path
@@ -188,17 +190,13 @@ public class NoOtgFragment extends Fragment {
             }
 
         }else {
-            toast(R.string.toast_plz_select_otg);
+            snackBarShow(R.string.snackbar_plz_select_otg);
             intentDocumentTree();
         }
         return false;
     }
 
-    private void toast(int resId) {
-        if (mToast != null)
-            mToast.cancel();
-        mToast = Toast.makeText(mContext, resId, Toast.LENGTH_LONG);
-        mToast.setGravity(Gravity.CENTER, 0, 0);
-        mToast.show();
+    private void snackBarShow(int resId) {
+        Snackbar.make(view, resId, Snackbar.LENGTH_SHORT).setAction("Action", null).show();
     }
 }

@@ -20,7 +20,7 @@ public class NoSdFragment extends Fragment{
                              Bundle savedInstanceState) {
 
         final View view = inflater.inflate(R.layout.no_outer_storage_layout, container, false);
-        ((TextView)view.findViewById(R.id.no_outer_storage)).setText("sd card not found");
+        ((TextView)view.findViewById(R.id.no_outer_storage)).setText(R.string.no_sd);
         (view.findViewById(R.id.check_btn)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

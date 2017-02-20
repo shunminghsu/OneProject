@@ -45,7 +45,8 @@ public class BrowserFragment extends Fragment implements
     public static final int LIST_TYPE_VIDEO = 1;
     public static final int LIST_TYPE_MUSIC = 2;
     public static final int LIST_TYPE_DOCUMENT = 3;
-    public static final int LIST_TYPE_FOLDER = 4;
+    public static final int LIST_TYPE_ENCRYPTION = 4;
+    public static final int LIST_TYPE_FOLDER = 5;
     protected int mCurrentTabPosition = LIST_TYPE_IMAGE;
     private int TAB_LOADER_ID = 168;
     private int OTG_LOADER_ID = 87;

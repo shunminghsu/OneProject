@@ -38,7 +38,8 @@ public class IconHelper {
     private static final int THUMBNAIL_TYPE_VIDEO = 1;
     private static final int THUMBNAIL_TYPE_MUSIC = 2;
     private static final int THUMBNAIL_TYPE_FILE = 3;
-    private static final int THUMBNAIL_TYPE_FOLDER = 4;
+    private static final int THUMBNAIL_TYPE_ENCRYPTION = 4;
+    private static final int THUMBNAIL_TYPE_FOLDER = 5;
 
     /**
      * @param context
@@ -93,6 +94,8 @@ public class IconHelper {
                 return IconUtils.loadMusicTypeIcon(mContext, mMode==Constant.ITEM_GRID);
             case THUMBNAIL_TYPE_FILE:
                 return IconUtils.loadFileTypeIcon(mContext, mMode==Constant.ITEM_GRID);
+            case THUMBNAIL_TYPE_ENCRYPTION:
+                return IconUtils.loadEncryptTypeIcon(mContext, mMode==Constant.ITEM_GRID);
             case THUMBNAIL_TYPE_FOLDER:
                 return IconUtils.loadFolderTypeIcon(mContext, mMode==Constant.ITEM_GRID);
             default:
