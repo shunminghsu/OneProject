@@ -4,10 +4,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.provider.DocumentFile;
-import android.util.Log;
 
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
@@ -24,25 +22,24 @@ import java.util.Collections;
 
 public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     private String TAG = OTGFileListLoader.class.getSimpleName();
-    private ArrayList<FileInfo> mFileList;
+    private ArrayList<FileInfo> mFileList, mImageList;
     private Context mContext;
     private int mType;
     private DocumentFile dFile = null, rootDFile = null;
     private Uri rootUri = null;
     String APPLICATION = "application";
     String IMAGE = "image";
-    String WORD = "msword";
+    String WORD = "word";
     String PDF = "pdf";
     String PPT = "powerpoint";
     String EXCEL = "excel";
     String TEXT = "text";
     String VIDEO = "video";
     String AUDIO = "audio";
-    String ENCRYPT = "";
+    String ENCRYPT = "enc";
     String DIR = "directory";
     String PNG = "png";
     String JPG = "jpg";
-    String ENC = "enc";
     String[] proj = {DocumentsContract.Document.COLUMN_SIZE,
             DocumentsContract.Document.COLUMN_DOCUMENT_ID,
             DocumentsContract.Document.COLUMN_DISPLAY_NAME,
@@ -117,6 +114,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             }
         }
         imageCursor.close();
+        mImageList = mFileList;
         return mFileList;
     }
 
@@ -158,7 +156,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.time = FileInfo.getTime(videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.path = videoCursor.getString(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri2, videoCursor.getString(1));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(rootUri2, videoCursor.getString(1));
                     item.type = FileInfo.TYPE.VIDEO;
                     mFileList.add(item);
                 }
@@ -181,7 +179,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.time = FileInfo.getTime(videoDIRCursor.getLong(videoDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = videoDIRCursor.getLong(videoDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.path = videoDIRCursor.getString(videoDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, videoDIRCursor.getString(1));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(uriDIR, videoDIRCursor.getString(1));
                     item.type = FileInfo.TYPE.VIDEO;
                     mFileList.add(item);
                 }
@@ -204,7 +202,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.time = FileInfo.getTime(musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.path = musicCursor.getString(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(musicUri, musicCursor.getString(1));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(musicUri, musicCursor.getString(1));
                     item.type = FileInfo.TYPE.MUSIC;
                     mFileList.add(item);
                 }
@@ -227,7 +225,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.time = FileInfo.getTime(musicDIRCursor.getLong(musicDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = musicDIRCursor.getLong(musicDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.path = musicDIRCursor.getString(musicDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, musicDIRCursor.getString(1));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(uriDIR, musicDIRCursor.getString(1));
                     item.type = FileInfo.TYPE.MUSIC;
                     mFileList.add(item);
                 }
@@ -251,7 +249,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.time = FileInfo.getTime(docCursor.getLong(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = docCursor.getLong(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.path = docCursor.getString(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(docUri, docCursor.getString(1));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(docUri, docCursor.getString(1));
                     item.type = FileInfo.TYPE.FILE;
                     mFileList.add(item);
                 }
@@ -274,7 +272,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.time = FileInfo.getTime(docDIRCursor.getLong(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = docDIRCursor.getLong(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.path = docDIRCursor.getString(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, docDIRCursor.getString(1));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(uriDIR, docDIRCursor.getString(1));
                     item.type = FileInfo.TYPE.MUSIC;
                     mFileList.add(item);
                 }
@@ -298,7 +296,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.time = FileInfo.getTime(encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.path = encCursor.getString(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(encUri, encCursor.getString(1));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(encUri, encCursor.getString(1));
                     item.type = FileInfo.TYPE.ENCRYPT;
                     mFileList.add(item);
                 }
@@ -322,7 +320,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.time = FileInfo.getTime(encDIRCursor.getLong(encDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = encDIRCursor.getLong(encDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.path = encDIRCursor.getString(encDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
-                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(uriDIR, encDIRCursor.getString(1));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(uriDIR, encDIRCursor.getString(1));
                     item.type = FileInfo.TYPE.ENCRYPT;
                     mFileList.add(item);
                 }
@@ -368,6 +366,5 @@ public class OTGFileListLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         FileFactory.getInstance().addFileTypeSortRule(mFileList);
         return mFileList;
     }
-
 
 }

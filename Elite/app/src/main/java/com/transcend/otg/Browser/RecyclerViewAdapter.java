@@ -34,11 +34,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     public interface OnRecyclerItemCallbackListener {
-        void onRecyclerItemClick(int position);
+        void onRecyclerItemClick(String path);
 
-        void onRecyclerItemLongClick(int position);
+        void onRecyclerItemLongClick(String path);
 
-        void onRecyclerItemInfoClick(int position);
+        void onRecyclerItemInfoClick(String path);
     }
 
     public RecyclerViewAdapter(TabInfo tab, IconHelper iconHelper) {
@@ -181,8 +181,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public void onClick(View v) {
             Log.d(TAG, "onClick");
             if (mCallback != null) {
-                int position = getAdapterPosition();
-                mCallback.onRecyclerItemClick(position);
+                if(Constant.nowMODE == Constant.MODE.OTG){
+                    mCallback.onRecyclerItemClick(mList.get(getAdapterPosition()).uri.toString());
+                }else{
+                    mCallback.onRecyclerItemClick(mList.get(getAdapterPosition()).path);
+                }
             }
         }
 
@@ -190,8 +193,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         public boolean onLongClick(View v) {
             Log.d(TAG, "onLongClick");
             if (mCallback != null) {
-                int position = getAdapterPosition();
-                mCallback.onRecyclerItemLongClick(position);
+                if(Constant.nowMODE == Constant.MODE.OTG){
+                    mCallback.onRecyclerItemLongClick(mList.get(getAdapterPosition()).uri.toString());
+                }else{
+                    mCallback.onRecyclerItemLongClick(mList.get(getAdapterPosition()).path);
+                }
             }
             return true;
         }
@@ -201,8 +207,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 @Override
                 public void onClick(View v) {
                     if (mCallback == null) return;
-                    int position = getAdapterPosition();
-                    mCallback.onRecyclerItemInfoClick(position);
+                    if(Constant.nowMODE == Constant.MODE.OTG){
+                        mCallback.onRecyclerItemInfoClick(mList.get(getAdapterPosition()).uri.toString());
+                    }else{
+                        mCallback.onRecyclerItemInfoClick(mList.get(getAdapterPosition()).path);
+                    }
                 }
             });
         }

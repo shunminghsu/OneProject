@@ -1,7 +1,6 @@
 package com.transcend.otg.Browser;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -17,12 +16,15 @@ import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.MediaUtils;
+
 
 /**
  * Created by henry_hsu on 2017/2/3.
  */
 
 public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListener{
+    private String TAG = TabInfo.class.getSimpleName();
     public View mRootView;
     public LayoutInflater mInflater;
     public final int mType;
@@ -39,9 +41,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     private GridLayoutManager mLayout;
     private int mColumnCount = 1;  // This will get updated when layout changes.
     public int mMode;
-    private RecyclerViewAdapter.OnRecyclerItemCallbackListener mCallback;
-
-    IconHelper mIconHelper;
+    private IconHelper mIconHelper;
 
     public TabInfo(int type, int icon_id, Bundle savedInstanceState, Context context) {
         mType = type;
@@ -61,7 +61,6 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         mIconHelper = new IconHelper(mContext, mMode);
         mRecyclerAdapter = new RecyclerViewAdapter(this, mIconHelper);
         mRootView = inflater.inflate(R.layout.pager_layout, null);
-
         mEmpty = mRootView.findViewById(R.id.empty_view);
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
@@ -111,17 +110,26 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     }
 
     @Override
-    public void onRecyclerItemClick(int position) {
+    public void onRecyclerItemClick(String path) {
+        Log.d(TAG, "mType = " + mType);
+        if(mType == 0){
+            Log.d(TAG, "it is image, go to viewer");//go to viewer
+        }else{
+            if(Constant.nowMODE == Constant.MODE.OTG){
+                MediaUtils.executeUri(mContext, path, mContext.getResources().getString(R.string.openin_title));
+            }else{
+                MediaUtils.execute(mContext, path, mContext.getResources().getString(R.string.openin_title));
+            }
+        }
+    }
+
+    @Override
+    public void onRecyclerItemLongClick(String path) {
 
     }
 
     @Override
-    public void onRecyclerItemLongClick(int position) {
-
-    }
-
-    @Override
-    public void onRecyclerItemInfoClick(int position) {
+    public void onRecyclerItemInfoClick(String path) {
 
     }
 

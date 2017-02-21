@@ -22,6 +22,8 @@
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
 
+    <string name="openin_title">Please Choose App</string>
+
     <!-- Drawer -->
     <string name="drawer_home">Home</string>
     <string name="drawer_browser">Browser</string>
