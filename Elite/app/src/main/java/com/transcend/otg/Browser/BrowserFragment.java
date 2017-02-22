@@ -2,29 +2,23 @@ package com.transcend.otg.Browser;
 
 import android.support.v4.app.LoaderManager;
 import android.content.Context;
-import android.support.v4.content.Loader;
-import android.database.Cursor;
-import android.provider.MediaStore;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.content.Loader;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.Loader.OTGFileListLoader;
 import com.transcend.otg.Loader.TabInfoLoader;
 import com.transcend.otg.R;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -55,7 +49,8 @@ public class BrowserFragment extends Fragment implements
     private TabLayout mTabLayout;
     protected Context mContext;
     protected LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
-    protected String mOuterStorage;
+    protected String mSDCardPath = null;
+    protected boolean mIsOtg = false;
 
 
     @Override
@@ -68,6 +63,23 @@ public class BrowserFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        final Context context = inflater.getContext();
+        mCallbacks = new LoaderManager.LoaderCallbacks<ArrayList<FileInfo>>() {
+            @Override
+            public Loader<ArrayList<FileInfo>> onCreateLoader(int id, Bundle args) {
+                return new TabInfoLoader(context, mCurrentTabPosition, mSDCardPath, mIsOtg);
+            }
+
+            @Override
+            public void onLoadFinished(Loader<ArrayList<FileInfo>> loader, ArrayList<FileInfo> data) {
+                mTabs.get(mCurrentTabPosition).getAdapter().update(data);
+            }
+
+            @Override
+            public void onLoaderReset(Loader<ArrayList<FileInfo>> loader) {
+                //mAdapter.update(null);
+            }
+        };
         mInflater = inflater;
         CoordinatorLayout root = (CoordinatorLayout) inflater.inflate(R.layout.fragment_browser, container, false);
 
@@ -97,10 +109,7 @@ public class BrowserFragment extends Fragment implements
         TabInfo tab = mTabs.get(position);
         mCurTab = tab;
         mCurrentTabPosition = position;
-        if(Constant.nowMODE == Constant.MODE.OTG)
-            getLoaderManager().restartLoader(OTG_LOADER_ID, getArguments(), mCallbacks);
-        else
-            getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
+        getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
         // Put things in the correct paused/resumed state.
         //TO-DO
     }
@@ -108,19 +117,13 @@ public class BrowserFragment extends Fragment implements
     @Override
     public void onStart() {
         super.onStart();
-        if(Constant.nowMODE == Constant.MODE.OTG)
-            getLoaderManager().restartLoader(OTG_LOADER_ID, getArguments(), mCallbacks);
-        else
-            getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
+        getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        if(Constant.nowMODE == Constant.MODE.OTG)
-            getLoaderManager().destroyLoader(OTG_LOADER_ID);
-        else
-            getLoaderManager().destroyLoader(TAB_LOADER_ID);
+        getLoaderManager().destroyLoader(TAB_LOADER_ID);
     }
 
     @Override
