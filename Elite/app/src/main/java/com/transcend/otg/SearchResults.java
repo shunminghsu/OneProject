@@ -4,16 +4,30 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.transcend.otg.Bitmap.IconHelper;
+import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Loader.SearchLoader;
+
+import java.util.ArrayList;
 
 /**
  * Created by henry_hsu on 2017/2/6.
@@ -26,9 +40,9 @@ public class SearchResults extends Fragment {
 
     private SearchView mSearchView;
 
-    private ListView mResultsListView;
+    private TextView mEmptyView;
+    private RecyclerView mResultsListView;
     private SearchResultsAdapter mResultsAdapter;
-    private UpdateSearchResultsTask mUpdateSearchResultsTask;
 
     private ListView mSuggestionsListView;
     private SuggestionsAdapter mSuggestionsAdapter;
@@ -41,12 +55,21 @@ public class SearchResults extends Fragment {
 
     private boolean mShowResults;
 
+    private LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
+    IconHelper mIconHelper;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mResultsAdapter = new SearchResultsAdapter(getActivity());
         mSuggestionsAdapter = new SuggestionsAdapter(getActivity());
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mIconHelper = new IconHelper(getActivity(), Constant.ITEM_LIST);
     }
 
     @Override
@@ -61,25 +84,21 @@ public class SearchResults extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (mUpdateSearchResultsTask != null) {
-            mUpdateSearchResultsTask.cancel(false);
-            mUpdateSearchResultsTask = null;
-        }
+        getLoaderManager().destroyLoader(477);
         clearSuggestions();
     }
 
     @Override
     public void onDestroy() {
+        mEmptyView = null;
         mResultsListView = null;
         mResultsAdapter = null;
-        mUpdateSearchResultsTask = null;
 
         mSuggestionsListView = null;
         mSuggestionsAdapter = null;
         mUpdateSuggestionsTask = null;
 
         mSearchView = null;
-
         super.onDestroy();
     }
 
@@ -87,19 +106,33 @@ public class SearchResults extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+        final Context context = inflater.getContext();
+        mCallbacks = new LoaderManager.LoaderCallbacks<ArrayList<FileInfo>>() {
+            @Override
+            public Loader<ArrayList<FileInfo>> onCreateLoader(int id, Bundle args) {
+                return new SearchLoader(context, mQuery);
+            }
+
+            @Override
+            public void onLoadFinished(Loader<ArrayList<FileInfo>> loader, ArrayList<FileInfo> data) {
+                setResultsVisibility(true);
+                mResultsAdapter.update(data);
+            }
+
+            @Override
+            public void onLoaderReset(Loader<ArrayList<FileInfo>> loader) {
+
+            }
+        };
+
         final View view = inflater.inflate(R.layout.search_panel, container, false);
         mLayoutSuggestions = (ViewGroup) view.findViewById(R.id.layout_suggestions);
         mLayoutResults = (ViewGroup) view.findViewById(R.id.layout_results);
 
-        mResultsListView = (ListView) view.findViewById(R.id.list_results);
+        mEmptyView = (TextView) view.findViewById(R.id.empty_view);
+        mResultsListView = (RecyclerView) view.findViewById(R.id.list_results);
+        mResultsListView.setLayoutManager(new LinearLayoutManager(context));
         mResultsListView.setAdapter(mResultsAdapter);
-        mResultsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                saveQueryToDatabase();
-            }
-        });
 
         mSuggestionsListView = (ListView) view.findViewById(R.id.list_suggestions);
         mSuggestionsListView.setAdapter(mSuggestionsAdapter);
@@ -118,19 +151,6 @@ public class SearchResults extends Fragment {
             }
         });
         return view;
-    }
-
-    private class UpdateSearchResultsTask extends AsyncTask<String, String, String> {
-        @Override
-        protected String doInBackground(String... params) {
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-
-        }
     }
 
     private class UpdateSuggestionsTask extends AsyncTask<String, Void, Cursor> {
@@ -237,35 +257,113 @@ public class SearchResults extends Fragment {
         }
     }
 
-    private static class SearchResultsAdapter extends BaseAdapter {
+    private class SearchResultsAdapter extends RecyclerView.Adapter<SearchResults.ViewHolder> {
         private Context mContext;
-        private LayoutInflater mInflater;
+        private ArrayList<FileInfo> mList;
 
         public SearchResultsAdapter(Context context) {
             mContext = context;
-            mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        }
+
+        void update(@Nullable ArrayList<FileInfo> items) {
+            mList = items;
+            showLoadingResult(items.isEmpty());
+            notifyDataSetChanged();
         }
 
         @Override
-        public int getCount() {
-            return 0;
+        public SearchResults.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
+            return new ViewHolder(layoutInflater.inflate(R.layout.listitem_recyclerview, parent, false), viewType);
+
         }
 
         @Override
-        public Object getItem(int i) {
-            return null;
+        public void onBindViewHolder(ViewHolder holder, int position) {
+            FileInfo fileInfo = mList.get(position);
+
+            if (holder.title != null)
+                holder.title.setText(fileInfo.name);
+
+            int type = 3;
+            if (fileInfo.type ==  FileInfo.TYPE.PHOTO)
+                type = 0;
+            else if (fileInfo.type ==  FileInfo.TYPE.VIDEO)
+                type = 1;
+            else if (fileInfo.type ==  FileInfo.TYPE.MUSIC)
+                type = 2;
+            else if (fileInfo.type ==  FileInfo.TYPE.FILE)
+                type = 3;
+            else if (fileInfo.type ==  FileInfo.TYPE.DIR) {
+                type = 5;
+                holder.info.setVisibility(View.GONE);
+            }
+            if (holder.icon != null) {
+                if (fileInfo.uri != null) {
+                    mIconHelper.loadThumbnail(fileInfo.uri, type, holder.icon, holder.iconMime);
+                } else
+                    mIconHelper.loadThumbnail(fileInfo.path, type, holder.icon, holder.iconMime);
+            }
         }
 
         @Override
-        public long getItemId(int i) {
-            return 0;
-        }
-
-        @Override
-        public View getView(int i, View view, ViewGroup viewGroup) {
-            return null;
+        public int getItemCount() {
+            if (mList != null)
+                return mList.size();
+            else
+                return 0;
         }
     }
+
+
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+
+        int viewType;
+
+        View itemView;
+        ImageView mark;
+        ImageView icon;
+        ImageView iconMime;
+        ImageView info;
+        TextView title;
+        TextView subtitle;
+
+        public ViewHolder(View itemView, int viewType) {
+            super(itemView);
+            this.viewType = viewType;
+            this.itemView = itemView;
+            if (viewType == Constant.ITEM_LIST) {
+                mark = (ImageView) itemView.findViewById(R.id.listitem_file_manage_mark);
+                icon = (ImageView) itemView.findViewById(R.id.listitem_file_manage_icon);
+                iconMime = (ImageView) itemView.findViewById(R.id.icon_mime);
+                info = (ImageView) itemView.findViewById(R.id.listitem_file_manage_info);
+                title = (TextView) itemView.findViewById(R.id.listitem_file_manage_title);
+                subtitle = (TextView) itemView.findViewById(R.id.listitem_file_manage_subtitle);
+                setOnItemInfoClickListener();
+                itemView.setOnClickListener(this);
+                itemView.setOnLongClickListener(this);
+            }
+        }
+
+        @Override
+        public void onClick(View v) {
+            Log.d(TAG, "onClick");
+
+        }
+
+        @Override
+        public boolean onLongClick(View v) {
+            Log.d(TAG, "onLongClick");
+
+            return true;
+        }
+
+        private void setOnItemInfoClickListener() {
+
+        }
+
+    }
+
 
     public void setSearchView(SearchView searchView) {
         mSearchView = searchView;
@@ -291,7 +389,7 @@ public class SearchResults extends Fragment {
         mQuery = getFilteredQueryString(query);
         mShowResults = true;
         setSuggestionsVisibility(false);
-        //updateSearchResults();
+        updateSearchResults();
         saveQueryToDatabase();
         return true;
     }
@@ -302,15 +400,19 @@ public class SearchResults extends Fragment {
         mQuery = newQuery;
         if (TextUtils.isEmpty(mQuery)) {
             mShowResults = false;
-            //setResultsVisibility(false);
+            setResultsVisibility(false);
             updateSuggestions();
         } else {
             mShowResults = true;
             setSuggestionsVisibility(false);
-            //updateSearchResults();
+            updateSearchResults();
         }
 
         return true;
+    }
+
+    private void updateSearchResults() {
+        getLoaderManager().restartLoader(477, getArguments(), mCallbacks);
     }
 
     public void showSomeSuggestions() {
@@ -367,5 +469,12 @@ public class SearchResults extends Fragment {
             filtered.append(c);
         }
         return filtered.toString();
+    }
+
+    public void showLoadingResult(boolean empty) {
+        if (empty)
+            mEmptyView.setVisibility(View.VISIBLE);
+        else
+            mEmptyView.setVisibility(View.GONE);
     }
 }

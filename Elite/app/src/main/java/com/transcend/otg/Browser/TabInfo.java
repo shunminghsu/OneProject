@@ -63,7 +63,6 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         mRootView = inflater.inflate(R.layout.pager_layout, null);
         mEmpty = mRootView.findViewById(R.id.empty_view);
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
 
         mLayout = new GridLayoutManager(mContext, mColumnCount);
         mLayout.setSpanSizeLookup(new SpanSizeLookup(mLayout.getSpanCount()));

@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity
     private SearchView mSearchView;
     private MenuItem mSearchMenuItem;
     private boolean mSearchMenuItemExpanded = false;
-    private boolean mShowSearchIcon = false;
+    //private boolean mShowSearchIcon = false;
     private SearchResults mSearchResultsFragment;
 
     private Toolbar toolbar;
@@ -117,12 +117,12 @@ public class MainActivity extends AppCompatActivity
             home_container.setVisibility(View.VISIBLE);
             container.setVisibility(View.GONE);
             layout_storage.setVisibility(View.GONE);
-            showSearchIcon(false);
+            //showSearchIcon(false);
         } else {
             home_container.setVisibility(View.GONE);
             container.setVisibility(View.VISIBLE);
             layout_storage.setVisibility(View.VISIBLE);
-            showSearchIcon(getBrowserFragment() != null);
+            //showSearchIcon(getBrowserFragment() != null);
         }
     }
     private void initHome() {
@@ -249,11 +249,11 @@ public class MainActivity extends AppCompatActivity
                     if (FileFactory.getMountedState(mContext, sdpath)) {
                         replaceFragment(sdFragment);
                     } else {
-                        showSearchIcon(false);
+                        //showSearchIcon(false);
                         switchToFragment(NoSdFragment.class.getName(), false);
                     }
                 } else {
-                    showSearchIcon(false);
+                    //showSearchIcon(false);
                     switchToFragment(NoSdFragment.class.getName(), false);
                 }
             } else if (view == mOtgButton) {
@@ -269,7 +269,7 @@ public class MainActivity extends AppCompatActivity
 
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
-            showSearchIcon(false);
+            //showSearchIcon(false);
             Constant.pickedDir = Constant.rootDir = null;
             Constant.rootUri = null;
             switchToFragment(NoOtgFragment.class.getName(), false);
@@ -314,7 +314,7 @@ public class MainActivity extends AppCompatActivity
         getMenuInflater().inflate(R.menu.menu_main, menu);
 
         mSearchMenuItem = menu.findItem(R.id.search);
-        mSearchMenuItem.setVisible(mShowSearchIcon);
+        //mSearchMenuItem.setVisible(mShowSearchIcon);
         mSearchView = (SearchView) mSearchMenuItem.getActionView();
         initSearch(mSearchView);
 
@@ -353,6 +353,7 @@ public class MainActivity extends AppCompatActivity
     public boolean onPrepareOptionsMenu(Menu menu) { // called every time the menu opens
         super.onPrepareOptionsMenu(menu);
 
+        final MenuItem search = menu.findItem(R.id.search);
         final MenuItem sort = menu.findItem(R.id.menu_sort);
         final MenuItem grid = menu.findItem(R.id.menu_grid);
         final MenuItem list = menu.findItem(R.id.menu_list);
@@ -362,10 +363,12 @@ public class MainActivity extends AppCompatActivity
             grid.setVisible(fragment.mCurTab.mMode == Constant.ITEM_LIST);
             list.setVisible(fragment.mCurTab.mMode == Constant.ITEM_GRID);
             sort.setVisible(true);
+            search.setVisible(true);
         } else {
             grid.setVisible(false);
             list.setVisible(false);
             sort.setVisible(false);
+            search.setVisible(false);
         }
 
         return true;
@@ -425,9 +428,9 @@ public class MainActivity extends AppCompatActivity
 
     public void replaceFragment(Fragment fragment) {
         if (fragment instanceof BrowserFragment) {
-            showSearchIcon(true);
+            //showSearchIcon(true);
         } else {
-            showSearchIcon(false);
+            //showSearchIcon(false);
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -543,10 +546,10 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
-    private void showSearchIcon(boolean show) {
+    /*private void showSearchIcon(boolean show) {
         mShowSearchIcon = show;
         invalidateOptionsMenu();
-    }
+    }*/
 
     private BrowserFragment getBrowserFragment() {
         if (container != null && container.getVisibility() == View.GONE)

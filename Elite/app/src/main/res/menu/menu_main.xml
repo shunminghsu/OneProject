@@ -5,7 +5,8 @@
         android:id="@+id/search"
         android:title="@string/menu_search"
         android:icon="@android:drawable/ic_menu_search"
-        app:showAsAction="collapseActionView|always"
+        android:visible="false"
+        app:showAsAction="collapseActionView|never"
         app:actionViewClass="android.support.v7.widget.SearchView" />
     <!-- This group is being hidden when searching is in full bar mode-->
     <group android:id="@+id/group_hide_when_searching">
