@@ -1,5 +1,6 @@
 package com.transcend.otg.Browser;
 
+import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.content.Context;
 import android.support.design.widget.TabLayout;
@@ -8,7 +9,9 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.Loader;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,8 +28,7 @@ import java.util.ArrayList;
  * Created by wangbojie on 2017/2/2.
  */
 
-public class BrowserFragment extends Fragment implements
-        MyPagerAdapter.UpdateCurrentTabListener{
+public class BrowserFragment extends Fragment {
 
     public BrowserFragment() {
     }
@@ -45,6 +47,7 @@ public class BrowserFragment extends Fragment implements
     private int TAB_LOADER_ID = 168;
     private int OTG_LOADER_ID = 87;
 
+    private SwipeRefreshLayout mSwipeRefreshLayout;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     protected Context mContext;
@@ -73,6 +76,7 @@ public class BrowserFragment extends Fragment implements
             @Override
             public void onLoadFinished(Loader<ArrayList<FileInfo>> loader, ArrayList<FileInfo> data) {
                 mTabs.get(mCurrentTabPosition).getAdapter().update(data);
+                mSwipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -83,10 +87,13 @@ public class BrowserFragment extends Fragment implements
         mInflater = inflater;
         CoordinatorLayout root = (CoordinatorLayout) inflater.inflate(R.layout.fragment_browser, container, false);
 
+        mSwipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+
         mViewPager = (ViewPager) root.findViewById(R.id.viewPager);
         mTabLayout = (TabLayout) root.findViewById(R.id.tabLayout);
 
-        MyPagerAdapter adapter = new MyPagerAdapter(mTabs, mInflater, this);
+        MyPagerAdapter adapter = new MyPagerAdapter(mTabs, mInflater);
         mViewPager.setAdapter(adapter);
         mViewPager.addOnPageChangeListener(adapter);
         mViewPager.setCurrentItem(mCurrentTabPosition);
@@ -104,6 +111,18 @@ public class BrowserFragment extends Fragment implements
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
+            }
+        });
+    }
+
+
     public void updateCurrentTab(int position) {
         Log.d("henry","updateCurrentTab "+position);
         TabInfo tab = mTabs.get(position);
@@ -143,4 +162,60 @@ public class BrowserFragment extends Fragment implements
     public void onViewModeChanged(int mode) {
         mTabs.get(mCurrentTabPosition).updateLayout(mode);
     }
+
+    class MyPagerAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {
+        private ArrayList<TabInfo> mTabs = new ArrayList<TabInfo>();
+        private LayoutInflater mInflater;
+
+
+        MyPagerAdapter(ArrayList<TabInfo> tabs, LayoutInflater inflater) {
+            mTabs = tabs;
+            mInflater = inflater;
+        }
+
+        @Override
+        public int getCount() {
+            return mTabs.size();
+        }
+
+        @Override
+        public Object instantiateItem(ViewGroup container, int position) {
+            TabInfo tab = mTabs.get(position);
+            View root = tab.build(mInflater);
+            container.addView(root);
+
+            return root;
+        }
+
+        @Override
+        public void destroyItem(ViewGroup container, int position, Object object) {
+            container.removeView((View)object);
+        }
+
+        @Override
+        public boolean isViewFromObject(View view, Object object) {
+            return view == object;
+        }
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            updateCurrentTab(position);
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+            enableDisableSwipeRefresh( state == ViewPager.SCROLL_STATE_IDLE );
+        }
+    }
+
+    private void enableDisableSwipeRefresh(boolean enable) {
+        if (mSwipeRefreshLayout != null) {
+            mSwipeRefreshLayout.setEnabled(enable);
+        }
+    }
+
 }
