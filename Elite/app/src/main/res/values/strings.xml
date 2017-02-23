@@ -23,6 +23,7 @@
     <string name="confirm">Confirm</string>
 
     <string name="openin_title">Please Choose App</string>
+    <string name="conj_selected">%1$d file selected</string>
 
     <!-- Drawer -->
     <string name="drawer_home">Home</string>

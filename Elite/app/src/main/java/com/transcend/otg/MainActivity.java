@@ -16,10 +16,12 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.provider.DocumentFile;
+import android.support.v7.view.ActionMode;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -33,6 +35,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
@@ -41,17 +44,20 @@ import com.transcend.otg.Browser.LocalFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
 import com.transcend.otg.Browser.NoSdFragment;
 import com.transcend.otg.Browser.OTGFragment;
+import com.transcend.otg.Browser.RecyclerViewAdapter;
 import com.transcend.otg.Browser.SdFragment;
+import com.transcend.otg.Browser.TabInfo;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Utils.FileFactory;
-import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
-        LoaderManager.LoaderCallbacks<Boolean> {
+        LoaderManager.LoaderCallbacks<Boolean>,
+        ActionMode.Callback,
+        TabInfo.OnItemCallbackListener{
 
     private String TAG = MainActivity.class.getSimpleName();
     public static final String BACK_STACK_PREFS = ":elite:prefs";
@@ -62,20 +68,23 @@ public class MainActivity extends AppCompatActivity
     private SearchResults mSearchResultsFragment;
 
     private Toolbar toolbar;
-    private FloatingActionButton fab;
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
     private NavigationView navigationView;
-    private LinearLayout container, layout_storage, main_linearlayout;
+    private LinearLayout container, layout_storage;
+    private RelativeLayout main_relativeLayout;
     private SdFragment sdFragment;
     private OTGFragment otgFragment;
     private LocalFragment localFragment;
     private int mLoaderID, mOTGDocumentTreeID = 1000;
     private FileActionManager mFileActionManager;
     private String mPath;
-    private ArrayList<FileInfo> mFileList, mImgFileList, mMusicFileList, mVideoFileList, mDocFileList;
     private Button mLocalButton, mSdButton, mOtgButton;
     private Context mContext;
+    private FloatingActionButton mFab;
+    private ActionMode mEditorMode;
+    private RelativeLayout mEditorModeView;
+    private TextView mEditorModeTitle;
 
     //home page
     private LinearLayout home_container;
@@ -88,7 +97,7 @@ public class MainActivity extends AppCompatActivity
     private UsbMassStorageDevice device;
 
     public static int mScreenW;
-
+    public int i= 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,12 +108,13 @@ public class MainActivity extends AppCompatActivity
         initButtons();
         initHome();
         initFragment();
+        initActionModeView();
         FileFactory.getStoragePath(this);
     }
 
     private void init() {
         mContext = this;
-        main_linearlayout = (LinearLayout) findViewById(R.id.main_linearlayout);
+        main_relativeLayout = (RelativeLayout) findViewById(R.id.main_relativelayout);
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
         mPath = mFileActionManager.getLocalRootPath();
         DisplayMetrics displaymetrics = new DisplayMetrics();
@@ -117,11 +127,14 @@ public class MainActivity extends AppCompatActivity
             home_container.setVisibility(View.VISIBLE);
             container.setVisibility(View.GONE);
             layout_storage.setVisibility(View.GONE);
+            mFab.setVisibility(View.GONE);
             //showSearchIcon(false);
         } else {
             home_container.setVisibility(View.GONE);
             container.setVisibility(View.VISIBLE);
             layout_storage.setVisibility(View.VISIBLE);
+            mFab.setVisibility(View.VISIBLE);
+            replaceFragment(localFragment);
             //showSearchIcon(getBrowserFragment() != null);
         }
     }
@@ -152,14 +165,6 @@ public class MainActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
     }
 
     private void initBroadcast(){
@@ -214,6 +219,11 @@ public class MainActivity extends AppCompatActivity
         otgFragment = new OTGFragment();
     }
 
+    private void initActionModeView() {
+        mEditorModeView = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.action_mode_custom, null);
+        mEditorModeTitle = (TextView) mEditorModeView.findViewById(R.id.action_mode_custom_title);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -231,6 +241,61 @@ public class MainActivity extends AppCompatActivity
         mSdButton.setTextColor(getResources().getColor(R.color.colorBlack));
         mOtgButton.setTextColor(getResources().getColor(R.color.colorBlack));
         selected.setTextColor(getResources().getColor(R.color.colorPrimary));
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        initView(mode);
+        initMenu(menu);
+        updateEditorModeTitle(0);
+//        toggleEditorModeAction(0);
+        toggleFabSelectAll(false);
+        return true;
+    }
+
+    private void initView(ActionMode mode) {
+        mEditorMode = mode;
+        mEditorMode.setCustomView(mEditorModeView);
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    private void initMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.fab_editor, menu);
+        MenuItem item = menu.findItem(R.id.file_manage_editor_action_transmission);
+    }
+
+    public void updateEditorModeTitle(int count) {
+        String format = getResources().getString(R.string.conj_selected);
+        mEditorModeTitle.setText(String.format(format, count));
+    }
+
+    private void toggleFabSelectAll(boolean selectAll) {
+        int resId = selectAll
+                ? R.drawable.ic_menu_camera
+                : R.drawable.ic_menu_gallery;
+        mFab.setImageResource(resId);
+        mFab.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        mEditorMode = null;
+    }
+
+    @Override
+    public void onItemClick(String path) {
+        updateEditorModeTitle(i++);
     }
 
     class ButtonClickListener implements View.OnClickListener {
@@ -259,8 +324,15 @@ public class MainActivity extends AppCompatActivity
             } else if (view == mOtgButton) {
                 markSelectedBtn(mOtgButton);
                 discoverDevice();
-            }
+            } else if (view == mFab)
+                if (mEditorMode == null)
+                    startEditorMode();
         }
+    }
+
+    private void startEditorMode() {
+        if (mEditorMode == null)
+            startSupportActionMode(this);
     }
 
     private void discoverDevice() {
@@ -296,6 +368,8 @@ public class MainActivity extends AppCompatActivity
         mLocalButton.setOnClickListener(listener);
         mSdButton.setOnClickListener(listener);
         mOtgButton.setOnClickListener(listener);
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mFab.setOnClickListener(listener);
 
         mLocalButton.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
@@ -428,8 +502,10 @@ public class MainActivity extends AppCompatActivity
 
     public void replaceFragment(Fragment fragment) {
         if (fragment instanceof BrowserFragment) {
+            mFab.setVisibility(View.VISIBLE);
             //showSearchIcon(true);
         } else {
+            mFab.setVisibility(View.GONE);
             //showSearchIcon(false);
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -568,7 +644,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void snackBarShow(int resId) {
-        Snackbar.make(main_linearlayout, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(main_relativeLayout, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
     private void intentDocumentTree() {

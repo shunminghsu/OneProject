@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/file_manage_editor_action_transmission"
+        android:icon="@drawable/ic_menu_camera"
+        android:visible="false"
+        android:title="@string/menu_share"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/file_manage_editor_action_more"
+        android:icon="@drawable/ic_menu_camera"
+        android:title="@string/menu_share"
+        app:showAsAction="always">
+
+        <menu>
+
+            <item
+                android:id="@+id/file_manage_editor_action_rename"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="@string/menu_share"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/file_manage_editor_action_share"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="@string/menu_share"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/file_manage_editor_action_copy"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="@string/menu_share"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/file_manage_editor_action_move"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="@string/menu_share"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/file_manage_editor_action_delete"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="@string/menu_share"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/file_manage_editor_action_new_folder"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="@string/menu_share"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/file_manage_editor_action_encrypt"
+                android:icon="@drawable/ic_menu_camera"
+                android:title="@string/menu_share"
+                app:showAsAction="never" />
+
+        </menu>
+
+    </item>
+
+</menu>

@@ -42,6 +42,12 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     private int mColumnCount = 1;  // This will get updated when layout changes.
     public int mMode;
     private IconHelper mIconHelper;
+    private OnItemCallbackListener mCallback;
+
+    public interface OnItemCallbackListener {
+        void onItemClick(String path);
+    }
+
 
     public TabInfo(int type, int icon_id, Bundle savedInstanceState, Context context) {
         mType = type;
@@ -49,6 +55,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         mSavedInstanceState = savedInstanceState;
         mContext = context;
         mMode = LocalPreferences.getBrowserViewMode(mContext, mType, Constant.ITEM_LIST);
+        mCallback = (OnItemCallbackListener) context;
     }
 
     public View build(LayoutInflater inflater) {
@@ -111,6 +118,8 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     @Override
     public void onRecyclerItemClick(String path) {
         Log.d(TAG, "mType = " + mType);
+        if(mCallback!=null)
+            mCallback.onItemClick(path);
         if(mType == 0){
             Log.d(TAG, "it is image, go to viewer");//go to viewer
         }else{
