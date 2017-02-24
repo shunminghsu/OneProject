@@ -16,20 +16,55 @@
 
 package com.transcend.otg.Utils;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract.Document;
+import android.util.Log;
 import android.util.TypedValue;
 
 import com.transcend.otg.R;
 
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 
 public class IconUtils {
+    private static final Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
+    private static final BitmapFactory.Options sBitmapOptions = new BitmapFactory.Options();
+
+    public static Bitmap loadAlbumThumbnail(Context context, long album_id) {
+        ContentResolver res = context.getContentResolver();
+        Uri uri = ContentUris.withAppendedId(sArtworkUri, album_id);
+        if (uri != null) {
+            InputStream in = null;
+            try {
+                in = res.openInputStream(uri);
+                return BitmapFactory.decodeStream(in, null, sBitmapOptions);
+            } catch (FileNotFoundException ex) {
+                Log.d("henry", ex.getMessage());
+                // The album art thumbnail does not actually exist. Maybe the user deleted it, or
+                // maybe it never existed to begin with.
+            } finally {
+                try {
+                    if (in != null) {
+                        in.close();
+                    }
+                } catch (IOException ex) {
+                }
+            }
+        }
+        return null;
+    }
 
     public static Drawable loadPackageIcon(Context context, String authority, int icon) {
         if (icon != 0) {

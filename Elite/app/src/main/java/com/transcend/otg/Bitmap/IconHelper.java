@@ -16,6 +16,7 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.MainApplication;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.IconUtils;
@@ -34,30 +35,13 @@ public class IconHelper {
     private Point mThumbSize;
 
     private int mMode;
-    private static final int THUMBNAIL_TYPE_IMAGE = 0;
-    private static final int THUMBNAIL_TYPE_VIDEO = 1;
-    private static final int THUMBNAIL_TYPE_MUSIC = 2;
-    private static final int THUMBNAIL_TYPE_FILE = 3;
-    private static final int THUMBNAIL_TYPE_ENCRYPTION = 4;
-    private static final int THUMBNAIL_TYPE_FOLDER = 5;
 
-    /**
-     * @param context
-     * @param mode MODE_GRID or MODE_LIST
-     */
     public IconHelper(Context context, int mode) {
         mContext = context;
         setViewMode(mode);
         mCache = MainApplication.getThumbnailsCache(context);
     }
 
-    private String createKey(String path) {
-        return path+mThumbSize;
-    }
-
-    /**
-     * Sets the current display mode.  This affects the thumbnail sizes that are loaded.
-     */
     public void setViewMode(int mode) {
         mMode = mode;
         int thumbSize = getThumbSize(mode);
@@ -84,31 +68,31 @@ public class IconHelper {
         return IconUtils.loadIcon(mContext, mMode);
     }
 
-    public Drawable getIconMime(int type) {
+    public Drawable getIconMime(FileInfo.TYPE type) {
         switch (type) {
-            case THUMBNAIL_TYPE_IMAGE:
-                return IconUtils.loadImageTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case THUMBNAIL_TYPE_VIDEO:
-                return IconUtils.loadVideoTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case THUMBNAIL_TYPE_MUSIC:
-                return IconUtils.loadMusicTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case THUMBNAIL_TYPE_FILE:
-                return IconUtils.loadFileTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case THUMBNAIL_TYPE_ENCRYPTION:
-                return IconUtils.loadEncryptTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case THUMBNAIL_TYPE_FOLDER:
+            case DIR:
                 return IconUtils.loadFolderTypeIcon(mContext, mMode==Constant.ITEM_GRID);
+            case PHOTO:
+                return IconUtils.loadImageTypeIcon(mContext, mMode==Constant.ITEM_GRID);
+            case VIDEO:
+                return IconUtils.loadVideoTypeIcon(mContext, mMode==Constant.ITEM_GRID);
+            case MUSIC:
+                return IconUtils.loadMusicTypeIcon(mContext, mMode==Constant.ITEM_GRID);
+            case FILE:
+                return IconUtils.loadFileTypeIcon(mContext, mMode==Constant.ITEM_GRID);
+            case ENCRYPT:
+                return IconUtils.loadEncryptTypeIcon(mContext, mMode==Constant.ITEM_GRID);
             default:
                 return IconUtils.loadImageTypeIcon(mContext, mMode==Constant.ITEM_GRID);
         }
     }
 
-    public void loadThumbnail(String path, int thumbnailType,
+    public void loadThumbnail(String path, FileInfo.TYPE thumbnailType,
                               ImageView iconThumb, ImageView iconMime) {
         boolean cacheHit = false;
         boolean showThumbnail = true;
         if (showThumbnail) {
-            final Bitmap cachedResult = mCache.get(createKey(path));
+            final Bitmap cachedResult = mCache.get((path + ":ts" + mThumbSize));
             if (cachedResult != null) {
                 iconThumb.setImageBitmap(cachedResult);
                 cacheHit = true;
@@ -144,12 +128,12 @@ public class IconHelper {
         private final ImageView mIconMime;
         private final ImageView mIconThumb;
         private final Point mThumbSize;
-        private final int mThumbType;
+        private final FileInfo.TYPE mThumbType;
         //private final CancellationSignal mSignal;
 
         private Context mContext;
         public LoaderTask(String filePath, ImageView iconMime, ImageView iconThumb,
-                          int thumbType, Point thumbSize, Context context) {
+                          FileInfo.TYPE thumbType, Point thumbSize, Context context) {
             mPath = filePath;
             mIconMime = iconMime;
             mIconThumb = iconThumb;
@@ -175,16 +159,16 @@ public class IconHelper {
             //final Context context = mIconThumb.getContext();
             Bitmap result = null;
             try {
-                if (mThumbType == THUMBNAIL_TYPE_IMAGE)
-                    result = IconUtils.decodeSampledBitmapFromPath(mPath, mThumbSize.x, mThumbSize.y);
-                else if (mThumbType == THUMBNAIL_TYPE_VIDEO)
+                if (mThumbType == FileInfo.TYPE.PHOTO) {
+                    //result = IconUtils.decodeSampledBitmapFromPath(mPath, mThumbSize.x, mThumbSize.y);
+                } else if (mThumbType == FileInfo.TYPE.VIDEO)
                     result = ThumbnailUtils.createVideoThumbnail(mPath, MediaStore.Video.Thumbnails.MINI_KIND);
                 else {
-                    //music
+
                 }
                 if (result != null) {
                     final ThumbnailCache thumbs = MainApplication.getThumbnailsCache(mContext);
-                    thumbs.put(mPath+mThumbSize, result);
+                    thumbs.put(mPath + ":ts" + mThumbSize, result);
                 }
             } catch (Exception e) {
                 if (!(e instanceof OperationCanceledException)) {
@@ -211,13 +195,13 @@ public class IconHelper {
         }
     }
 
-    public void loadThumbnail(Uri uri, int thumbnailType,
+    public void loadThumbnail(Uri uri, FileInfo.TYPE thumbnailType,
                               ImageView iconThumb, ImageView iconMime) {
         boolean cacheHit = false;
 
         final boolean showThumbnail = true;
         if (showThumbnail) {
-            final Bitmap cachedResult = mCache.get(uri.toString()+mThumbSize);
+            final Bitmap cachedResult = mCache.get((uri + ":ts" + mThumbSize));
             if (cachedResult != null) {
                 iconThumb.setImageBitmap(cachedResult);
                 cacheHit = true;
@@ -274,11 +258,96 @@ public class IconHelper {
                 result = DocumentsContract.getDocumentThumbnail(resolver, mUri, mThumbSize, mSignal);
                 if (result != null) {
                     final ThumbnailCache thumbs = MainApplication.getThumbnailsCache(mContext);
-                    thumbs.put(mUri.toString()+mThumbSize, result);
+                    thumbs.put(mUri + ":ts" + mThumbSize, result);
                 }
             } catch (Exception e) {
                 if (!(e instanceof OperationCanceledException)) {
                     Log.w(TAG, "Failed to load thumbnail for " + mUri + ": " + e);
+                }
+            }
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap result) {
+            if (mIconThumb.getTag() == this && result != null) {
+                mIconThumb.setTag(null);
+                mIconThumb.setImageBitmap(result);
+
+                float alpha = mIconMime.getAlpha();
+                mIconMime.animate().alpha(0f).start();
+                mIconThumb.setAlpha(0f);
+                mIconThumb.animate().alpha(alpha).start();
+            }
+        }
+    }
+
+    public void loadMusicThumbnail(String path, long song_id, long album_id,
+                              ImageView iconThumb, ImageView iconMime) {
+        boolean cacheHit = false;
+        boolean showThumbnail = true;
+        if (showThumbnail) {
+            final Bitmap cachedResult = mCache.get((path + ":ts" + mThumbSize));
+            if (cachedResult != null) {
+                iconThumb.setImageBitmap(cachedResult);
+                cacheHit = true;
+            } else {
+                iconThumb.setImageDrawable(null);
+                final LoaderTaskMusic task = new LoaderTaskMusic(path, song_id, album_id, iconMime, iconThumb, mThumbSize, mContext);
+                iconThumb.setTag(task);
+                task.execute();
+            }
+        }
+
+        final Drawable icon = getIconMime(FileInfo.TYPE.MUSIC);
+        if (cacheHit) {
+            iconMime.setImageDrawable(null);
+            iconMime.setAlpha(0f);
+            iconThumb.setAlpha(1f);
+        } else {
+            // Add a mime icon if the thumbnail is being loaded in the background.
+            iconThumb.setImageDrawable(null);
+            iconMime.setImageDrawable(icon);
+            iconMime.setAlpha(1f);
+            iconThumb.setAlpha(0f);
+        }
+    }
+
+    private static class LoaderTaskMusic
+            extends AsyncTask<Uri, Void, Bitmap>{
+        private final String mPath;
+        private final ImageView mIconMime;
+        private final ImageView mIconThumb;
+        private final Point mThumbSize;
+        private final long mAlbumId;
+        private final long mSongId;
+        private Context mContext;
+        public LoaderTaskMusic(String filePath, long song_id, long album_id, ImageView iconMime, ImageView iconThumb,
+                             Point thumbSize, Context context) {
+            mPath = filePath;
+            mIconMime = iconMime;
+            mIconThumb = iconThumb;
+            mThumbSize = thumbSize;
+            mAlbumId = album_id;
+            mSongId = song_id;
+            mContext = context;
+        }
+
+        @Override
+        protected Bitmap doInBackground(Uri... params) {
+            if (isCancelled())
+                return null;
+
+            Bitmap result = null;
+            try {
+                result = IconUtils.loadAlbumThumbnail(mContext, mAlbumId);
+                if (result != null) {
+                    final ThumbnailCache thumbs = MainApplication.getThumbnailsCache(mContext);
+                    thumbs.put(mPath + ":ts" + mThumbSize, result);
+                }
+            } catch (Exception e) {
+                if (!(e instanceof OperationCanceledException)) {
+                    Log.w(TAG, "Failed to load thumbnail for " + mPath + ": " + e);
                 }
             }
             return result;

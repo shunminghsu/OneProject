@@ -32,6 +32,8 @@ public class FileInfo implements Serializable {
     public TYPE type;
     public Uri uri;
     public long size;
+    public String format_size;
+    public long album_id;
     public boolean checked;
 
     public FileInfo() {

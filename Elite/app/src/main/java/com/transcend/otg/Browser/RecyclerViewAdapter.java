@@ -65,7 +65,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             return new ViewHolder(layoutInflater.inflate(R.layout.listitem_recyclerview, parent, false), viewType);
         }
         if (viewType == Constant.ITEM_GRID) {
-            return new ViewHolder(layoutInflater.inflate(R.layout.griditem_recyclerview, parent, false), viewType);
+                return new ViewHolder(layoutInflater.inflate(
+                        (mTab.mType > BrowserFragment.LIST_TYPE_MUSIC) ? R.layout.griditem_recyclerview_simple : R.layout.griditem_recyclerview
+                        , parent, false), viewType);
         }
         if (viewType == Constant.ITEM_FOOTER) {
             View view = layoutInflater.inflate(R.layout.footitem_file_manage, parent, false);
@@ -80,23 +82,24 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             return;
 
         FileInfo fileInfo = mList.get(position);
-        String name = fileInfo.name;
-        String time = fileInfo.time;
-        String path = fileInfo.path;
 
-        if (holder.title != null)
-            holder.title.setText(name);
+        holder.title.setText(fileInfo.name);
         if (holder.subtitle != null)
-            holder.subtitle.setText(time);
+            holder.subtitle.setText(fileInfo.time);
+        //if (holder.subtitle2 != null)
+            //holder.subtitle2.setText(fileInfo.format_size);
 
-        if (holder.icon != null) {
-            if (mTab.mType == BrowserFragment.LIST_TYPE_FOLDER)
-                setIconForAllType();
-            else if (fileInfo.uri != null) {
-                mIconHelper.loadThumbnail(fileInfo.uri, mTab.mType, holder.icon, holder.iconMime);
-            } else
-                mIconHelper.loadThumbnail(fileInfo.path, mTab.mType, holder.icon, holder.iconMime);
+        if (fileInfo.type ==  FileInfo.TYPE.DIR && holder.info != null) {
+            holder.info.setVisibility(View.GONE);
         }
+
+        if (fileInfo.album_id != 0) {
+            mIconHelper.loadMusicThumbnail(fileInfo.path, fileInfo.album_id, fileInfo.album_id, holder.icon, holder.iconMime);
+        } else if (fileInfo.uri != null) {
+            mIconHelper.loadThumbnail(fileInfo.uri, fileInfo.type, holder.icon, holder.iconMime);
+        } else
+            mIconHelper.loadThumbnail(fileInfo.path, fileInfo.type, holder.icon, holder.iconMime);
+
 
         if (holder.viewType == Constant.ITEM_GRID) {
             int resId = R.drawable.ic_menu_camera;
@@ -152,25 +155,17 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             super(itemView);
             this.viewType = viewType;
             this.itemView = itemView;
-            if (viewType == Constant.ITEM_LIST) {
-                mark = (ImageView) itemView.findViewById(R.id.listitem_file_manage_mark);
-                icon = (ImageView) itemView.findViewById(R.id.listitem_file_manage_icon);
-                iconMime = (ImageView) itemView.findViewById(R.id.icon_mime);
-                info = (ImageView) itemView.findViewById(R.id.listitem_file_manage_info);
-                title = (TextView) itemView.findViewById(R.id.listitem_file_manage_title);
-                subtitle = (TextView) itemView.findViewById(R.id.listitem_file_manage_subtitle);
+
+            mark = (ImageView) itemView.findViewById(R.id.item_mark);
+            icon = (ImageView) itemView.findViewById(R.id.item_icon);
+            iconMime = (ImageView) itemView.findViewById(R.id.item_mime);
+            title = (TextView) itemView.findViewById(R.id.item_title);
+            info = (ImageView) itemView.findViewById(R.id.item_info); //be null when using simple grid layout
+            subtitle = (TextView) itemView.findViewById(R.id.item_subtitle);//be null when using grid layout
+            if (info != null)
                 setOnItemInfoClickListener();
-                itemView.setOnClickListener(this);
-                itemView.setOnLongClickListener(this);
-            }
-            if (viewType == Constant.ITEM_GRID) {
-                mark = (ImageView) itemView.findViewById(R.id.griditem_file_manage_mark);
-                icon = (ImageView) itemView.findViewById(R.id.griditem_file_manage_icon);
-                iconMime = (ImageView) itemView.findViewById(R.id.icon_mime);
-                title = (TextView) itemView.findViewById(R.id.griditem_file_manage_title);
-                itemView.setOnClickListener(this);
-                itemView.setOnLongClickListener(this);
-            }
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
 
             if (viewType == Constant.ITEM_FOOTER) {
                 // do nothing

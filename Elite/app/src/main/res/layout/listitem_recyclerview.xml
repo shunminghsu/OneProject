@@ -12,7 +12,7 @@
         android:padding="8dp">
 
         <ImageView
-            android:id="@+id/listitem_file_manage_icon"
+            android:id="@+id/item_icon"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
@@ -20,14 +20,14 @@
              />
 
         <ImageView
-            android:id="@+id/icon_mime"
+            android:id="@+id/item_mime"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
             android:scaleType="fitCenter" />
 
         <ImageView
-            android:id="@+id/listitem_file_manage_mark"
+            android:id="@+id/item_mark"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="8dp"
@@ -42,7 +42,7 @@
         android:layout_alignParentRight="true">
 
         <ImageView
-            android:id="@+id/listitem_file_manage_info"
+            android:id="@+id/item_info"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="true"
@@ -60,7 +60,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/listitem_file_manage_title"
+            android:id="@+id/item_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -71,7 +71,7 @@
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/listitem_file_manage_subtitle"
+            android:id="@+id/item_subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"

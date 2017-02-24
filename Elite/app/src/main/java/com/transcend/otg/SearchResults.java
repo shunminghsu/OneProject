@@ -285,25 +285,15 @@ public class SearchResults extends Fragment {
             if (holder.title != null)
                 holder.title.setText(fileInfo.name);
 
-            int type = 3;
-            if (fileInfo.type ==  FileInfo.TYPE.PHOTO)
-                type = 0;
-            else if (fileInfo.type ==  FileInfo.TYPE.VIDEO)
-                type = 1;
-            else if (fileInfo.type ==  FileInfo.TYPE.MUSIC)
-                type = 2;
-            else if (fileInfo.type ==  FileInfo.TYPE.FILE)
-                type = 3;
-            else if (fileInfo.type ==  FileInfo.TYPE.DIR) {
-                type = 5;
+            if (fileInfo.type ==  FileInfo.TYPE.DIR) {
                 holder.info.setVisibility(View.GONE);
             }
-            if (holder.icon != null) {
-                if (fileInfo.uri != null) {
-                    mIconHelper.loadThumbnail(fileInfo.uri, type, holder.icon, holder.iconMime);
-                } else
-                    mIconHelper.loadThumbnail(fileInfo.path, type, holder.icon, holder.iconMime);
-            }
+
+            if (fileInfo.uri != null)
+                mIconHelper.loadThumbnail(fileInfo.uri, fileInfo.type, holder.icon, holder.iconMime);
+            else
+                mIconHelper.loadThumbnail(fileInfo.path, fileInfo.type, holder.icon, holder.iconMime);
+
         }
 
         @Override
@@ -332,17 +322,17 @@ public class SearchResults extends Fragment {
             super(itemView);
             this.viewType = viewType;
             this.itemView = itemView;
-            if (viewType == Constant.ITEM_LIST) {
-                mark = (ImageView) itemView.findViewById(R.id.listitem_file_manage_mark);
-                icon = (ImageView) itemView.findViewById(R.id.listitem_file_manage_icon);
-                iconMime = (ImageView) itemView.findViewById(R.id.icon_mime);
-                info = (ImageView) itemView.findViewById(R.id.listitem_file_manage_info);
-                title = (TextView) itemView.findViewById(R.id.listitem_file_manage_title);
-                subtitle = (TextView) itemView.findViewById(R.id.listitem_file_manage_subtitle);
+
+            mark = (ImageView) itemView.findViewById(R.id.item_mark);
+            icon = (ImageView) itemView.findViewById(R.id.item_icon);
+            iconMime = (ImageView) itemView.findViewById(R.id.item_mime);
+            info = (ImageView) itemView.findViewById(R.id.item_info);
+            title = (TextView) itemView.findViewById(R.id.item_title);
+            subtitle = (TextView) itemView.findViewById(R.id.item_subtitle);
+            if (info != null)
                 setOnItemInfoClickListener();
-                itemView.setOnClickListener(this);
-                itemView.setOnLongClickListener(this);
-            }
+            itemView.setOnClickListener(this);
+            itemView.setOnLongClickListener(this);
         }
 
         @Override

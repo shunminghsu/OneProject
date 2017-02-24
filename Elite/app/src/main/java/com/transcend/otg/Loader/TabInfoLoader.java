@@ -8,6 +8,7 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.provider.DocumentFile;
+import android.text.format.Formatter;
 
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
@@ -382,9 +383,9 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Images.Media.DATA,
                     MediaStore.Images.ImageColumns._ID,
                     MediaStore.Images.Media.DISPLAY_NAME,
-                    MediaStore.Images.Media.DATE_ADDED};
+                    MediaStore.Images.Media.DATE_MODIFIED};
 
-            final String orderBy = MediaStore.Images.Media.DATE_ADDED;
+            final String orderBy = MediaStore.Images.Media.DATE_MODIFIED;
             Cursor imagecursor = mContext.getContentResolver().query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj,
                     null, null, orderBy + " DESC");
@@ -392,7 +393,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 while (imagecursor.moveToNext()) {
                     int pathColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.DATA);
                     int nameColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.DISPLAY_NAME);
-                    int timeColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.DATE_ADDED);
+                    int timeColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.DATE_MODIFIED);
                     int sizeColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.SIZE);
 
                     Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -400,16 +401,17 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
                     String picPath = imagecursor.getString(pathColumnIndex);
                     String picName = imagecursor.getString(nameColumnIndex);
-                    String picTime = imagecursor.getString(timeColumnIndex);
-                    String picSize = imagecursor.getString(sizeColumnIndex);
+                    Long picTime = 1000 * imagecursor.getLong(timeColumnIndex);
+                    Long picSize = imagecursor.getLong(sizeColumnIndex);
                     File picFile = new File(picPath);
                     if (picFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = picPath;
                         fileInfo.name = picName;
-                        fileInfo.time = picTime;
+                        fileInfo.time = FileInfo.getTime(picTime);
                         fileInfo.type = FileInfo.TYPE.PHOTO;
-                        fileInfo.size = Long.valueOf(picSize);
+                        fileInfo.size = picSize;
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, picSize);
                         fileInfo.uri = imageUri;
                         if (mSDCardPath == null) {
                             if (picPath.contains(Constant.ROOT_LOCAL))
@@ -434,31 +436,37 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             String[] proj = {MediaStore.Audio.Media.SIZE,
                     MediaStore.Audio.Media.DATA,
                     MediaStore.Audio.Media.DISPLAY_NAME,
-                    MediaStore.Audio.Media.DATE_ADDED};
-
-            final String orderBy = MediaStore.Audio.Media.DATE_ADDED;
+                    MediaStore.Audio.Media.ALBUM_ID,
+                    MediaStore.Audio.Media.DATE_MODIFIED};
+            String select = "(" + MediaStore.Audio.Media.DURATION + " > 10000)";
+            final String orderBy = MediaStore.Audio.Media.DATE_MODIFIED;
             Cursor musiccursor = mContext.getContentResolver().query(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, proj,
-                    null, null, orderBy + " DESC");
+                    select, null, orderBy + " DESC");
             if (musiccursor != null) {
                 while (musiccursor.moveToNext()) {
                     int pathColumnIndex = musiccursor.getColumnIndex(MediaStore.Audio.Media.DATA);
                     int nameColumnIndex = musiccursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME);
-                    int timeColumnIndex = musiccursor.getColumnIndex(MediaStore.Audio.Media.DATE_ADDED);
+                    int timeColumnIndex = musiccursor.getColumnIndex(MediaStore.Audio.Media.DATE_MODIFIED);
                     int sizeColumnIndex = musiccursor.getColumnIndex(MediaStore.Audio.Media.SIZE);
 
                     String musicPath = musiccursor.getString(pathColumnIndex);
                     String musicName = musiccursor.getString(nameColumnIndex);
-                    String musicTime = musiccursor.getString(timeColumnIndex);
-                    String musicSize = musiccursor.getString(sizeColumnIndex);
+                    Long musicTime = 1000 * musiccursor.getLong(timeColumnIndex);
+                    Long musicSize = musiccursor.getLong(sizeColumnIndex);
+
+                    long albumId = musiccursor.getInt(musiccursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+
                     File musicFile = new File(musicPath);
                     if (musicFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = musicPath;
                         fileInfo.name = musicName;
-                        fileInfo.time = musicTime;
+                        fileInfo.time = FileInfo.getTime(musicTime);
                         fileInfo.type = FileInfo.TYPE.MUSIC;
-                        fileInfo.size = Long.valueOf(musicSize);
+                        fileInfo.album_id = albumId;
+                        fileInfo.size = musicSize;
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, musicSize);
                         if (mSDCardPath == null) {
                             if (musicPath.contains(Constant.ROOT_LOCAL))
                                 mFileList.add(fileInfo);
@@ -482,30 +490,31 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             String[] videoTypes = {MediaStore.Video.Media.SIZE,
                     MediaStore.Video.Media.DATA,
                     MediaStore.Video.Media.DISPLAY_NAME,
-                    MediaStore.Video.Media.DATE_ADDED};
-            final String orderBy = MediaStore.Video.Media.DATE_ADDED;
-            Cursor videocursor = mContext. getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+                    MediaStore.Video.Media.DATE_MODIFIED};
+            final String orderBy = MediaStore.Video.Media.DATE_MODIFIED;
+            Cursor videocursor = mContext.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     videoTypes, null, null, orderBy + " DESC");
 
             if (videocursor != null) {
                 while (videocursor.moveToNext()) {
                     int pathColumnIndex = videocursor.getColumnIndex(MediaStore.Video.Media.DATA);
                     int nameColumnIndex = videocursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME);
-                    int timeColumnIndex = videocursor.getColumnIndex(MediaStore.Video.Media.DATE_ADDED);
+                    int timeColumnIndex = videocursor.getColumnIndex(MediaStore.Video.Media.DATE_MODIFIED);
                     int sizeColumnIndex = videocursor.getColumnIndex(MediaStore.Video.Media.SIZE);
 
                     String videoPath = videocursor.getString(pathColumnIndex);
                     String videoName = videocursor.getString(nameColumnIndex);
-                    String videoTime = videocursor.getString(timeColumnIndex);
-                    String videoSize = videocursor.getString(sizeColumnIndex);
+                    Long videoTime = 1000 * videocursor.getLong(timeColumnIndex);
+                    Long videoSize = videocursor.getLong(sizeColumnIndex);
+
                     File videoFile = new File(videoPath);
                     if (videoFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = videoPath;
                         fileInfo.name = videoName;
-                        fileInfo.time = videoTime;
+                        fileInfo.time = FileInfo.getTime(videoTime);
                         fileInfo.type = FileInfo.TYPE.VIDEO;
-                        fileInfo.size = Long.valueOf(videoSize);
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, videoSize);
                         if (mSDCardPath == null) {
                             if (videoPath.contains(Constant.ROOT_LOCAL))
                                 mFileList.add(fileInfo);
@@ -527,10 +536,10 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     private ArrayList<FileInfo> getAllDocs() {
         try {
             String[] proj = {MediaStore.Files.FileColumns.DATA,
-                    MediaStore.Files.FileColumns.DATE_ADDED,
+                    MediaStore.Files.FileColumns.DATE_MODIFIED,
                     MediaStore.Files.FileColumns.SIZE};
 
-            final String orderBy = MediaStore.Files.FileColumns.DATE_ADDED;
+            final String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
 
             String select = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.doc'" + " or "
                     + MediaStore.Files.FileColumns.DATA + " LIKE '%.docx'" + " or "
@@ -544,20 +553,21 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             if (docscursor != null) {
                 while (docscursor.moveToNext()) {
                     int pathColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-                    int timeColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED);
+                    int timeColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED);
                     int sizeColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
 
                     String docPath = docscursor.getString(pathColumnIndex);
-                    String docTime = docscursor.getString(timeColumnIndex);
-                    String docSize = docscursor.getString(sizeColumnIndex);
+                    Long docTime = 1000 * docscursor.getLong(timeColumnIndex);
+                    Long docSize = docscursor.getLong(sizeColumnIndex);
                     File docFile = new File(docPath);
                     if (docFile.exists() && !docFile.isDirectory()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = docPath;
                         fileInfo.name = docFile.getName();
-                        fileInfo.time = docTime;
+                        fileInfo.time = FileInfo.getTime(docTime);
                         fileInfo.type = FileInfo.TYPE.FILE;
-                        fileInfo.size = Long.valueOf(docSize);
+                        fileInfo.size = docSize;
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, docSize);
                         if (mSDCardPath == null) {
                             if (docPath.contains(Constant.ROOT_LOCAL))
                                 mFileList.add(fileInfo);
@@ -580,23 +590,25 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
         try {
             String[] proj = {
-                    MediaStore.Files.FileColumns.DATE_ADDED,
+                    MediaStore.Files.FileColumns.DATE_MODIFIED,
                     MediaStore.Files.FileColumns.DATA,
                     MediaStore.Files.FileColumns.SIZE};
             Uri contextUri = MediaStore.Files.getContentUri("external");
 
-            final String orderBy = MediaStore.Files.FileColumns.DATE_ADDED;
+            final String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
             Cursor encCursor = mContext.getContentResolver().query(
                     contextUri, proj,
                     null, null, orderBy + " DESC");
             if (encCursor != null) {
                 int pathColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-                int timeColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_ADDED);
+                int timeColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED);
                 int sizeColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
                 while (encCursor.moveToNext()) {
                     String path = encCursor.getString(pathColumnIndex);
                     String name = path.substring(path.lastIndexOf('/')+1);
                     String ext = name.substring(name.lastIndexOf('.'));
+                    Long encTime = 1000 * encCursor.getLong(timeColumnIndex);
+                    Long encSize = encCursor.getLong(sizeColumnIndex);
 
                     if (!path.contains("/.") && ".enc".equals(ext)) {
                         File file = new File(path);
@@ -604,8 +616,9 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                             FileInfo fileInfo = new FileInfo();
                             fileInfo.path = path;
                             fileInfo.name = name;
-                            fileInfo.time = encCursor.getString(timeColumnIndex);
-                            fileInfo.size = Long.valueOf(encCursor.getString(sizeColumnIndex));
+                            fileInfo.time = FileInfo.getTime(encTime);
+                            fileInfo.size = encSize;
+                            fileInfo.format_size = Formatter.formatFileSize(mContext, encSize);
                             fileInfo.type = FileInfo.TYPE.ENCRYPT;
                             mFileList.add(fileInfo);
                         }
@@ -639,6 +652,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             fileInfo.time = FileInfo.getTime(file.lastModified());
             fileInfo.type = file.isFile() ? FileInfo.getType(file.getPath()) : FileInfo.TYPE.DIR;
             fileInfo.size = file.length();
+            fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
             mFileList.add(fileInfo);
         }
         Collections.sort(mFileList, FileInfoSort.comparator(mContext));

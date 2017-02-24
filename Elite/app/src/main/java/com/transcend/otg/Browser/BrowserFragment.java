@@ -47,7 +47,7 @@ public class BrowserFragment extends Fragment {
     private int TAB_LOADER_ID = 168;
     private int OTG_LOADER_ID = 87;
 
-    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private PagerSwipeRefreshLayout mSwipeRefreshLayout;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     protected Context mContext;
@@ -87,7 +87,7 @@ public class BrowserFragment extends Fragment {
         mInflater = inflater;
         CoordinatorLayout root = (CoordinatorLayout) inflater.inflate(R.layout.fragment_browser, container, false);
 
-        mSwipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout = (PagerSwipeRefreshLayout) root.findViewById(R.id.swiperefresh);
         mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
 
         mViewPager = (ViewPager) root.findViewById(R.id.viewPager);
