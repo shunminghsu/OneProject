@@ -2,7 +2,9 @@ package com.transcend.otg.Utils;
 
 import android.content.Context;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.LocalPreferences;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -14,17 +16,17 @@ import java.util.Comparator;
 
 public class FileInfoSort {
     public static Comparator<FileInfo> comparator(Context context) {
-        Pref.Sort sort = Pref.getFileSortType(context);
-        if (sort.equals(Pref.Sort.DATE))
-            return new FileInfoSort.byDate();
-        else if (sort.equals(Pref.Sort.NAME))
-            return new FileInfoSort.byName();
-        else if (sort.equals(Pref.Sort.REVERSEDATE))
-            return new FileInfoSort.byReverseDate();
-        else if (sort.equals(Pref.Sort.REVERSENAME))
-            return new FileInfoSort.byReverseName();
+        int sort = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+        boolean sortAsc = LocalPreferences.getPref(context,
+                LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS) == Constant.SORT_ORDER_AS;
+        if (sort == Constant.SORT_BY_DATE)
+            return sortAsc ? new FileInfoSort.byDate() : new FileInfoSort.byReverseDate();
+        else if (sort == Constant.SORT_BY_NAME)
+            return sortAsc ? new FileInfoSort.byName() : new FileInfoSort.byReverseName();
+        else if (sort == Constant.SORT_BY_SIZE)
+            return sortAsc ? new FileInfoSort.bySize() : new FileInfoSort.byReverseSize();
         else
-            return new FileInfoSort.byType();
+            return sortAsc ? new FileInfoSort.byDate() : new FileInfoSort.byReverseDate();
     }
 
     public static class byType implements Comparator<FileInfo> {
@@ -70,6 +72,24 @@ public class FileInfoSort {
                 result = -compareByDate(lhs, rhs);
             }
             return result;
+        }
+
+    }
+
+    public static class bySize implements Comparator<FileInfo> {
+
+        @Override
+        public int compare(FileInfo lhs, FileInfo rhs) {
+            return (int) (lhs.size - rhs.size);
+        }
+
+    }
+
+    public static class byReverseSize implements Comparator<FileInfo> {
+
+        @Override
+        public int compare(FileInfo lhs, FileInfo rhs) {
+            return (int) (rhs.size - lhs.size);
         }
 
     }

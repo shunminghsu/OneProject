@@ -1,5 +1,6 @@
 package com.transcend.otg.Browser;
 
+import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
@@ -29,7 +31,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private HashMap<String, ArrayList<String>> mPathMap;
     private TabInfo mTab;
     private OnRecyclerItemCallbackListener mCallback;
-
+    public Boolean mShowSize = false;
+    private Context mContext;
     IconHelper mIconHelper;
 
 
@@ -41,10 +44,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         void onRecyclerItemInfoClick(String path);
     }
 
-    public RecyclerViewAdapter(TabInfo tab, IconHelper iconHelper) {
+    public RecyclerViewAdapter(TabInfo tab, IconHelper iconHelper, Context context) {
         mTab = tab;
+        mContext = context;
         mIconHelper = iconHelper;
         mCallback = tab;
+        mShowSize = LocalPreferences.getPref(mContext,
+                LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
     }
 
     boolean isEmpty() {
@@ -53,6 +59,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     void update(@Nullable ArrayList<FileInfo> items) {
         mList = items;
+        mShowSize = LocalPreferences.getPref(mContext,
+                LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
         mTab.showLoadingResult(isEmpty());
         notifyDataSetChanged();
     }
@@ -85,9 +93,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         holder.title.setText(fileInfo.name);
         if (holder.subtitle != null)
-            holder.subtitle.setText(fileInfo.time);
-        //if (holder.subtitle2 != null)
-            //holder.subtitle2.setText(fileInfo.format_size);
+            holder.subtitle.setText(mShowSize ? fileInfo.format_size : fileInfo.time);
 
         if (fileInfo.type ==  FileInfo.TYPE.DIR && holder.info != null) {
             holder.info.setVisibility(View.GONE);

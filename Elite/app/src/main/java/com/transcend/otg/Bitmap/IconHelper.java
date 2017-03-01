@@ -160,7 +160,7 @@ public class IconHelper {
             Bitmap result = null;
             try {
                 if (mThumbType == FileInfo.TYPE.PHOTO) {
-                    //result = IconUtils.decodeSampledBitmapFromPath(mPath, mThumbSize.x, mThumbSize.y);
+                    result = IconUtils.decodeSampledBitmapFromPath(mPath, mThumbSize.x, mThumbSize.y);
                 } else if (mThumbType == FileInfo.TYPE.VIDEO)
                     result = ThumbnailUtils.createVideoThumbnail(mPath, MediaStore.Video.Thumbnails.MINI_KIND);
                 else {

@@ -44,8 +44,20 @@
                     android:title="@string/sort_date" />
                 <item
                     android:id="@+id/menu_sort_size"
-                    android:title="@string/sort_size"
-                    android:visible="false"/>
+                    android:title="@string/sort_size" />
+            </menu>
+        </item>
+        <item
+            android:id="@+id/menu_sort_order"
+            android:title="@string/menu_sort_order"
+            app:showAsAction="never">
+            <menu>
+                <item
+                    android:id="@+id/menu_sort_order_as"
+                    android:title="@string/sort_order_as" />
+                <item
+                    android:id="@+id/menu_sort_order_des"
+                    android:title="@string/sort_order_des" />
             </menu>
         </item>
         <item

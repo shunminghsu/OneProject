@@ -124,7 +124,6 @@ public class BrowserFragment extends Fragment {
 
 
     public void updateCurrentTab(int position) {
-        Log.d("henry","updateCurrentTab "+position);
         TabInfo tab = mTabs.get(position);
         mCurTab = tab;
         mCurrentTabPosition = position;
@@ -161,6 +160,10 @@ public class BrowserFragment extends Fragment {
 
     public void onViewModeChanged(int mode) {
         mTabs.get(mCurrentTabPosition).updateLayout(mode);
+    }
+
+    public void onSortChanged() {
+        getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
     }
 
     class MyPagerAdapter extends PagerAdapter implements ViewPager.OnPageChangeListener {

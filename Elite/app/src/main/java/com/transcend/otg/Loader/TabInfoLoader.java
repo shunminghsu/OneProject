@@ -13,6 +13,7 @@ import android.text.format.Formatter;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.FileInfoSort;
 
@@ -29,6 +30,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     private ArrayList<FileInfo> mFileList, mImageList;
     private Context mContext;
     private int mType;
+    private int mSortBy;
+    private Boolean mSortOrderAsc = false;
     private String mSDCardPath;
     private boolean mIsOtg;
     private DocumentFile dFile = null, rootDFile = null;
@@ -69,6 +72,9 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
     @Override
     public ArrayList<FileInfo> loadInBackground() {
+        mSortBy = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+        mSortOrderAsc = LocalPreferences.getPref(mContext,
+                LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS) == Constant.SORT_ORDER_AS;
         mFileList.clear();
         switch (mType) {
             case BrowserFragment.LIST_TYPE_IMAGE:
@@ -385,10 +391,15 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Images.Media.DISPLAY_NAME,
                     MediaStore.Images.Media.DATE_MODIFIED};
 
-            final String orderBy = MediaStore.Images.Media.DATE_MODIFIED;
+            String orderBy = MediaStore.Images.Media.DATE_MODIFIED;
+            if (mSortBy == Constant.SORT_BY_NAME)
+                orderBy = MediaStore.Images.Media.DISPLAY_NAME;
+            else if (mSortBy == Constant.SORT_BY_SIZE)
+                orderBy = MediaStore.Images.Media.SIZE;
+            String order = mSortOrderAsc ? " ASC" : " DESC";
             Cursor imagecursor = mContext.getContentResolver().query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj,
-                    null, null, orderBy + " DESC");
+                    null, null, orderBy + order);
             if (imagecursor != null) {
                 while (imagecursor.moveToNext()) {
                     int pathColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.DATA);
@@ -439,10 +450,15 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Audio.Media.ALBUM_ID,
                     MediaStore.Audio.Media.DATE_MODIFIED};
             String select = "(" + MediaStore.Audio.Media.DURATION + " > 10000)";
-            final String orderBy = MediaStore.Audio.Media.DATE_MODIFIED;
+            String orderBy = MediaStore.Audio.Media.DATE_MODIFIED;
+            if (mSortBy == Constant.SORT_BY_NAME)
+                orderBy = MediaStore.Audio.Media.DISPLAY_NAME;
+            else if (mSortBy == Constant.SORT_BY_SIZE)
+                orderBy = MediaStore.Audio.Media.SIZE;
+            String order = mSortOrderAsc ? " ASC" : " DESC";
             Cursor musiccursor = mContext.getContentResolver().query(
                     MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, proj,
-                    select, null, orderBy + " DESC");
+                    select, null, orderBy + order);
             if (musiccursor != null) {
                 while (musiccursor.moveToNext()) {
                     int pathColumnIndex = musiccursor.getColumnIndex(MediaStore.Audio.Media.DATA);
@@ -491,9 +507,14 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Video.Media.DATA,
                     MediaStore.Video.Media.DISPLAY_NAME,
                     MediaStore.Video.Media.DATE_MODIFIED};
-            final String orderBy = MediaStore.Video.Media.DATE_MODIFIED;
+            String orderBy = MediaStore.Video.Media.DATE_MODIFIED;
+            if (mSortBy == Constant.SORT_BY_NAME)
+                orderBy = MediaStore.Video.Media.DISPLAY_NAME;
+            else if (mSortBy == Constant.SORT_BY_SIZE)
+                orderBy = MediaStore.Video.Media.SIZE;
+            String order = mSortOrderAsc ? " ASC" : " DESC";
             Cursor videocursor = mContext.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    videoTypes, null, null, orderBy + " DESC");
+                    videoTypes, null, null, orderBy + order);
 
             if (videocursor != null) {
                 while (videocursor.moveToNext()) {
@@ -539,8 +560,12 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Files.FileColumns.DATE_MODIFIED,
                     MediaStore.Files.FileColumns.SIZE};
 
-            final String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
-
+            String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
+            if (mSortBy == Constant.SORT_BY_NAME)
+                orderBy = MediaStore.Files.FileColumns.DISPLAY_NAME;
+            else if (mSortBy == Constant.SORT_BY_SIZE)
+                orderBy = MediaStore.Files.FileColumns.SIZE;
+            String order = mSortOrderAsc ? " ASC" : " DESC";
             String select = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.doc'" + " or "
                     + MediaStore.Files.FileColumns.DATA + " LIKE '%.docx'" + " or "
                     + MediaStore.Files.FileColumns.DATA + " LIKE '%.xls'" + " or "
@@ -549,7 +574,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     + MediaStore.Files.FileColumns.DATA + " LIKE '%.txt'" + ")";
 
             Cursor docscursor = mContext.getContentResolver().query(
-                    MediaStore.Files.getContentUri("external"), proj, select, null, orderBy + " DESC");
+                    MediaStore.Files.getContentUri("external"), proj, select, null, orderBy + order);
             if (docscursor != null) {
                 while (docscursor.moveToNext()) {
                     int pathColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
@@ -595,10 +620,15 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Files.FileColumns.SIZE};
             Uri contextUri = MediaStore.Files.getContentUri("external");
 
-            final String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
+            String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
+            if (mSortBy == Constant.SORT_BY_NAME)
+                orderBy = MediaStore.Files.FileColumns.DISPLAY_NAME;
+            else if (mSortBy == Constant.SORT_BY_SIZE)
+                orderBy = MediaStore.Files.FileColumns.SIZE;
+            String order = mSortOrderAsc ? " ASC" : " DESC";
             Cursor encCursor = mContext.getContentResolver().query(
                     contextUri, proj,
-                    null, null, orderBy + " DESC");
+                    null, null, orderBy + order);
             if (encCursor != null) {
                 int pathColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                 int timeColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED);
@@ -662,5 +692,4 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         return mFileList;
     }
 //////local & sd card function end//////
-
 }

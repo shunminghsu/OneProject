@@ -4,6 +4,7 @@
     <string name="menu_grid">Grid view</string>
     <string name="menu_list">List view</string>
     <string name="menu_sort">Sort by</string>
+    <string name="menu_sort_order">Sort order</string>
     <string name="menu_search">Search</string>
 
     <string name="menu_open">Open</string>
@@ -19,4 +20,6 @@
     <string name="sort_name">By name</string>
     <string name="sort_date">By date modified</string>
     <string name="sort_size">By size</string>
+    <string name="sort_order_as">Ascending</string>
+    <string name="sort_order_des">Descending</string>
 </resources>

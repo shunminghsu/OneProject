@@ -128,14 +128,14 @@ public class MainActivity extends AppCompatActivity
             container.setVisibility(View.GONE);
             layout_storage.setVisibility(View.GONE);
             mFab.setVisibility(View.GONE);
-            //showSearchIcon(false);
+            invalidateOptionsMenu(); //all menu item should be disabled, and the empty menu will be hided after invalidated
         } else {
             home_container.setVisibility(View.GONE);
             container.setVisibility(View.VISIBLE);
             layout_storage.setVisibility(View.VISIBLE);
             mFab.setVisibility(View.VISIBLE);
             replaceFragment(localFragment);
-            //showSearchIcon(getBrowserFragment() != null);
+            invalidateOptionsMenu();
         }
     }
     private void initHome() {
@@ -429,6 +429,7 @@ public class MainActivity extends AppCompatActivity
 
         final MenuItem search = menu.findItem(R.id.search);
         final MenuItem sort = menu.findItem(R.id.menu_sort);
+        final MenuItem sort_order = menu.findItem(R.id.menu_sort_order);
         final MenuItem grid = menu.findItem(R.id.menu_grid);
         final MenuItem list = menu.findItem(R.id.menu_list);
 
@@ -437,11 +438,13 @@ public class MainActivity extends AppCompatActivity
             grid.setVisible(fragment.mCurTab.mMode == Constant.ITEM_LIST);
             list.setVisible(fragment.mCurTab.mMode == Constant.ITEM_GRID);
             sort.setVisible(true);
+            sort_order.setVisible(true);
             search.setVisible(true);
         } else {
             grid.setVisible(false);
             list.setVisible(false);
             sort.setVisible(false);
+            sort_order.setVisible(false);
             search.setVisible(false);
         }
 
@@ -455,13 +458,19 @@ public class MainActivity extends AppCompatActivity
                 //showCreateDirectoryDialog();
                 return true;
             case R.id.menu_sort_name:
-                //setUserSortOrder(State.SORT_ORDER_DISPLAY_NAME);
+                setSortBy(Constant.SORT_BY_NAME);
                 return true;
             case R.id.menu_sort_date:
-                //setUserSortOrder(State.SORT_ORDER_LAST_MODIFIED);
+                setSortBy(Constant.SORT_BY_DATE);
                 return true;
             case R.id.menu_sort_size:
-                //setUserSortOrder(State.SORT_ORDER_SIZE);
+                setSortBy(Constant.SORT_BY_SIZE);
+                return true;
+            case R.id.menu_sort_order_as:
+                setSortOrder(Constant.SORT_ORDER_AS);
+                return true;
+            case R.id.menu_sort_order_des:
+                setSortOrder(Constant.SORT_ORDER_DES);
                 return true;
             case R.id.menu_grid:
                 setViewMode(Constant.ITEM_GRID);
@@ -640,6 +649,22 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (fragment != null) {
             ((BrowserFragment) fragment).onViewModeChanged(mode);
+        }
+    }
+
+    private void setSortBy(int sort_by) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment != null) {
+            LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, sort_by);
+            ((BrowserFragment) fragment).onSortChanged();
+        }
+    }
+
+    private void setSortOrder(int sort_order) {
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment != null) {
+            LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, sort_order);
+            ((BrowserFragment) fragment).onSortChanged();
         }
     }
 

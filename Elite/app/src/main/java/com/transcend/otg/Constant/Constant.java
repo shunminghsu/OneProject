@@ -22,4 +22,10 @@ public class Constant {
     public static final int ITEM_LIST = 0;
     public static final int ITEM_GRID = 1;
     public static final int ITEM_FOOTER = 2;
+
+    public static final int SORT_BY_DATE = 0;
+    public static final int SORT_BY_NAME = 1;
+    public static final int SORT_BY_SIZE = 2;
+    public static final int SORT_ORDER_AS = 0;
+    public static final int SORT_ORDER_DES = 1;
 }

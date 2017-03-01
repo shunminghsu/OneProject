@@ -8,6 +8,8 @@ import android.preference.PreferenceManager;
 public class LocalPreferences {
     private static final String ELITE_PREFIX = "elite2-";
     private static final String BROWSER_MODE_PREFIX = "browserMode-";
+    public static final String BROWSER_SORT_PREFIX = "browserSort-";
+    public static final String BROWSER_SORT_ORDER_PREFIX = "browserSortOrder-";
     private static final String OTG_KEY = "otgKey-";
 
     public static int getBrowserViewMode(Context context, int type, int default_value) {
@@ -18,6 +20,14 @@ public class LocalPreferences {
     public static void setBrowserViewMode(Context context, int type, int viewMode) {
         String key = BROWSER_MODE_PREFIX + type;
         getPrefs(context).edit().putInt(createKey(key), viewMode).apply();
+    }
+
+    public static int getPref(Context context, String key, int default_value) {
+        return getPrefs(context).getInt(createKey(key), default_value);
+    }
+
+    public static void setPref(Context context, String key, int value) {
+        getPrefs(context).edit().putInt(createKey(key), value).apply();
     }
 
     public static String getOTGKey(Context context, String serialNumber) {

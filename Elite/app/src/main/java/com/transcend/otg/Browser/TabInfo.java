@@ -66,7 +66,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         mInflater = inflater;
 
         mIconHelper = new IconHelper(mContext, mMode);
-        mRecyclerAdapter = new RecyclerViewAdapter(this, mIconHelper);
+        mRecyclerAdapter = new RecyclerViewAdapter(this, mIconHelper, mContext);
         mRootView = inflater.inflate(R.layout.pager_layout, null);
         mEmpty = mRootView.findViewById(R.id.empty_view);
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view);
