@@ -23,7 +23,7 @@
     <string name="confirm">Confirm</string>
 
     <string name="openin_title">Please Choose App</string>
-    <string name="conj_selected">%1$d file selected</string>
+    <string name="conj_selected">%1$d files selected</string>
 
     <!-- Drawer -->
     <string name="drawer_home">Home</string>
@@ -46,4 +46,15 @@
     <string name="snackbar_plz_select_otg">Please select OTG device</string>
     <string name="snackbar_plz_select_top">Please select the root folder</string>
     <string name="no_otg">Device is not found.</string>
+
+    <!-- Fab -->
+    <string name="more">More</string>
+    <string name="rename">Rename</string>
+    <string name="share">Share</string>
+    <string name="copy">Copy</string>
+    <string name="move">Move</string>
+    <string name="delete">Delete</string>
+    <string name="newfolder">New Folder</string>
+    <string name="encrypt">Encrypt</string>
+
 </resources>

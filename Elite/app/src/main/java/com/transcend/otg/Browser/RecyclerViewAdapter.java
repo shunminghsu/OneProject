@@ -1,11 +1,8 @@
 package com.transcend.otg.Browser;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,15 +30,22 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     private OnRecyclerItemCallbackListener mCallback;
     public Boolean mShowSize = false;
     private Context mContext;
+    private OnActionModeItemCallbackListener mActionModeCallback;
+
     IconHelper mIconHelper;
 
 
     public interface OnRecyclerItemCallbackListener {
-        void onRecyclerItemClick(String path);
+        void onRecyclerItemClick(FileInfo file);
 
-        void onRecyclerItemLongClick(String path);
+        void onRecyclerItemLongClick(FileInfo file);
 
         void onRecyclerItemInfoClick(String path);
+    }
+
+    public interface OnActionModeItemCallbackListener{
+        void onItemClick(int count);
+        void onItemLongClick();
     }
 
     public RecyclerViewAdapter(TabInfo tab, IconHelper iconHelper, Context context) {
@@ -51,6 +55,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         mCallback = tab;
         mShowSize = LocalPreferences.getPref(mContext,
                 LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
+        mActionModeCallback = tab;
     }
 
     boolean isEmpty() {
@@ -128,7 +133,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public int getItemCount() {
         if (mList != null)
-            return hasFooter() ? mList.size() + 1 : mList.size();
+            return mList.size();
+//            return hasFooter() ? mList.size() + 1 : mList.size();
         else
             return 0;
     }
@@ -143,6 +149,27 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private void setIconForAllType() {
 
+    }
+
+    public void setAllSelection(){
+        for (FileInfo file : mList)
+            file.checked = true;
+        notifyDataSetChanged();
+    }
+
+
+    public void clearAllSelection(){
+        for (FileInfo file : mList)
+            file.checked = false;
+        notifyDataSetChanged();
+    }
+
+    public boolean getSelectedAllorNot() {
+        for (FileInfo file : mList) {
+            if (!file.checked)
+                return false;
+        }
+        return true;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -180,25 +207,33 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "onClick");
-            if (mCallback != null) {
-                if(Constant.nowMODE == Constant.MODE.OTG){
-                    mCallback.onRecyclerItemClick(mList.get(getAdapterPosition()).uri.toString());
-                }else{
-                    mCallback.onRecyclerItemClick(mList.get(getAdapterPosition()).path);
+            if (mCallback != null && Constant.mActionMode == null) {
+                mCallback.onRecyclerItemClick(mList.get(getAdapterPosition()));
+            }else{
+                selectAtPosition(getAdapterPosition());
+                if(mActionModeCallback!=null){
+                    mActionModeCallback.onItemClick(getSelectedCount());
                 }
             }
         }
 
+        private void selectAtPosition(int position) {
+            mList.get(position).checked = !(mList.get(position).checked);
+            notifyItemChanged(position);
+        }
+
+        private int getSelectedCount() {
+            int count = 0;
+            for (FileInfo file : mList) {
+                if (file.checked) count++;
+            }
+            return count;
+        }
+
         @Override
         public boolean onLongClick(View v) {
-            Log.d(TAG, "onLongClick");
-            if (mCallback != null) {
-                if(Constant.nowMODE == Constant.MODE.OTG){
-                    mCallback.onRecyclerItemLongClick(mList.get(getAdapterPosition()).uri.toString());
-                }else{
-                    mCallback.onRecyclerItemLongClick(mList.get(getAdapterPosition()).path);
-                }
+            if(mActionModeCallback != null){
+                mActionModeCallback.onItemLongClick();
             }
             return true;
         }
@@ -208,9 +243,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 @Override
                 public void onClick(View v) {
                     if (mCallback == null) return;
-                    if(Constant.nowMODE == Constant.MODE.OTG){
+                    if (Constant.nowMODE == Constant.MODE.OTG) {
                         mCallback.onRecyclerItemInfoClick(mList.get(getAdapterPosition()).uri.toString());
-                    }else{
+                    } else {
                         mCallback.onRecyclerItemInfoClick(mList.get(getAdapterPosition()).path);
                     }
                 }

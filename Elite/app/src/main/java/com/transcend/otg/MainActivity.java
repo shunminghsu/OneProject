@@ -44,11 +44,9 @@ import com.transcend.otg.Browser.LocalFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
 import com.transcend.otg.Browser.NoSdFragment;
 import com.transcend.otg.Browser.OTGFragment;
-import com.transcend.otg.Browser.RecyclerViewAdapter;
 import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Browser.TabInfo;
 import com.transcend.otg.Constant.Constant;
-import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Utils.FileFactory;
@@ -82,9 +80,9 @@ public class MainActivity extends AppCompatActivity
     private Button mLocalButton, mSdButton, mOtgButton;
     private Context mContext;
     private FloatingActionButton mFab;
-    private ActionMode mEditorMode;
-    private RelativeLayout mEditorModeView;
-    private TextView mEditorModeTitle;
+    private ActionMode mActionMode;
+    private RelativeLayout mActionModeView;
+    private TextView mActionModeTitle;
 
     //home page
     private LinearLayout home_container;
@@ -97,7 +95,6 @@ public class MainActivity extends AppCompatActivity
     private UsbMassStorageDevice device;
 
     public static int mScreenW;
-    public int i= 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -220,8 +217,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initActionModeView() {
-        mEditorModeView = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.action_mode_custom, null);
-        mEditorModeTitle = (TextView) mEditorModeView.findViewById(R.id.action_mode_custom_title);
+        mActionModeView = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.action_mode_custom, null);
+        mActionModeTitle = (TextView) mActionModeView.findViewById(R.id.action_mode_custom_title);
     }
 
     @Override
@@ -247,34 +244,62 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateActionMode(ActionMode mode, Menu menu) {
         initView(mode);
         initMenu(menu);
-        updateEditorModeTitle(0);
-//        toggleEditorModeAction(0);
+        updateActionModeTitle(0);
+        toggleActionModeAction(0);
         toggleFabSelectAll(false);
         return true;
     }
 
     private void initView(ActionMode mode) {
-        mEditorMode = mode;
-        mEditorMode.setCustomView(mEditorModeView);
+        Constant.mActionMode = mActionMode = mode;
+        mActionMode.setCustomView(mActionModeView);
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
     }
 
     private void initMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.fab_editor, menu);
-        MenuItem item = menu.findItem(R.id.file_manage_editor_action_transmission);
     }
 
-    public void updateEditorModeTitle(int count) {
+    public void updateActionModeTitle(int count) {
         String format = getResources().getString(R.string.conj_selected);
-        mEditorModeTitle.setText(String.format(format, count));
+        mActionModeTitle.setText(String.format(format, count));
     }
 
     private void toggleFabSelectAll(boolean selectAll) {
         int resId = selectAll
-                ? R.drawable.ic_menu_camera
-                : R.drawable.ic_menu_gallery;
+                ? R.drawable.ic_menu_manage
+                : R.drawable.ic_menu_camera;
         mFab.setImageResource(resId);
         mFab.setVisibility(View.VISIBLE);
+    }
+
+    private void toggleActionModeAction(int count) {
+        boolean visible = false;
+        if (count == 0) {
+            mActionMode.getMenu().findItem(R.id.action_rename).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_share).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_copy).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_move).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_delete).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(visible);
+        } else if (count == 1) {
+            mActionMode.getMenu().findItem(R.id.action_rename).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_share).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_copy).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_move).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_delete).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(!visible);
+        } else if (count > 1) {
+            mActionMode.getMenu().findItem(R.id.action_rename).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_share).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_copy).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_move).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_delete).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(!visible);
+        }
     }
 
     @Override
@@ -290,23 +315,42 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        mEditorMode = null;
+        Constant.mActionMode = mActionMode = null;
+        getBrowserFragment().clearAllSelect();//TODO
+        toggleFabSelectAll(false);
     }
 
     @Override
-    public void onItemClick(String path) {
-        updateEditorModeTitle(i++);
+    public void onItemClick(int count) {
+        updateActionModeTitle(count);
+        toggleActionModeAction(count);
+        int totalCount = getBrowserFragment().getItemsCount();
+        if(totalCount == count)
+            toggleFabSelectAll(true);
+        else
+            toggleFabSelectAll(false);
+
     }
+
+    @Override
+    public void onItemLongClick() {
+        startActionMode();
+    }
+
 
     class ButtonClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View view) {
             if (view == mLocalButton) {
+                if(mActionMode != null)
+                    mActionMode.finish();
                 Constant.nowMODE = Constant.MODE.LOCAL;
                 markSelectedBtn(mLocalButton);
                 replaceFragment(localFragment);
             } else if (view == mSdButton) {
+                if(mActionMode != null)
+                    mActionMode.finish();
                 Constant.nowMODE = Constant.MODE.SD;
                 markSelectedBtn(mSdButton);
                 String sdpath = FileFactory.getSdPath(mContext);
@@ -319,20 +363,39 @@ public class MainActivity extends AppCompatActivity
                     }
                 } else {
                     //showSearchIcon(false);
+                    if(mActionMode != null)
+                        mActionMode.finish();
                     switchToFragment(NoSdFragment.class.getName(), false);
                 }
             } else if (view == mOtgButton) {
                 markSelectedBtn(mOtgButton);
                 discoverDevice();
             } else if (view == mFab)
-                if (mEditorMode == null)
-                    startEditorMode();
+                if (mActionMode == null)
+                    startActionMode();
+                else
+                    toggleSelectAll();
         }
     }
 
-    private void startEditorMode() {
-        if (mEditorMode == null)
+    private void startActionMode() {
+        if (mActionMode == null)
             startSupportActionMode(this);
+    }
+
+    private void toggleSelectAll() {
+        boolean b_SelectAll = getBrowserFragment().getSelectedAllorNot();
+        if(b_SelectAll){
+            getBrowserFragment().clearAllSelect();
+            updateActionModeTitle(0);
+            toggleActionModeAction(0);
+        }else{
+            getBrowserFragment().selectAll();
+            updateActionModeTitle(getBrowserFragment().getItemsCount());
+            toggleActionModeAction(getBrowserFragment().getItemsCount());
+        }
+
+        toggleFabSelectAll(!b_SelectAll);
     }
 
     private void discoverDevice() {
@@ -571,6 +634,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private Fragment switchToFragment(String fragmentName, boolean addToBackStack) {
+        mFab.setVisibility(View.GONE);
         Fragment f = Fragment.instantiate(this, fragmentName);
         android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.replace(R.id.fragment_container, f);

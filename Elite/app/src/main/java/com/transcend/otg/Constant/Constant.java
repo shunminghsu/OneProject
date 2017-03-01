@@ -3,6 +3,7 @@ package com.transcend.otg.Constant;
 import android.net.Uri;
 import android.os.Environment;
 import android.support.v4.provider.DocumentFile;
+import android.support.v7.view.ActionMode;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 
@@ -18,6 +19,7 @@ public class Constant {
     public static DocumentFile pickedDir, rootDir;
     public static Uri rootUri;
     public static final String ROOT_LOCAL = Environment.getExternalStorageDirectory().getAbsolutePath();
+    public static ActionMode mActionMode;
 
     public static final int ITEM_LIST = 0;
     public static final int ITEM_GRID = 1;

@@ -287,7 +287,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.size = docDIRCursor.getLong(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.path = docDIRCursor.getString(docDIRCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID));
                     item.uri = DocumentsContract.buildDocumentUriUsingTree(uriDIR, docDIRCursor.getString(1));
-                    item.type = FileInfo.TYPE.MUSIC;
+                    item.type = FileInfo.TYPE.FILE;
                     mFileList.add(item);
                 }
             }
@@ -419,7 +419,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = picPath;
                         fileInfo.name = picName;
-                        fileInfo.time = FileInfo.getTime(picTime);
+                        fileInfo.time = FileInfo.getTime(Long.valueOf(picTime));
                         fileInfo.type = FileInfo.TYPE.PHOTO;
                         fileInfo.size = picSize;
                         fileInfo.format_size = Formatter.formatFileSize(mContext, picSize);
@@ -478,7 +478,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = musicPath;
                         fileInfo.name = musicName;
-                        fileInfo.time = FileInfo.getTime(musicTime);
+                        fileInfo.time = FileInfo.getTime(Long.valueOf(musicTime));
                         fileInfo.type = FileInfo.TYPE.MUSIC;
                         fileInfo.album_id = albumId;
                         fileInfo.size = musicSize;
@@ -533,7 +533,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = videoPath;
                         fileInfo.name = videoName;
-                        fileInfo.time = FileInfo.getTime(videoTime);
+                        fileInfo.time = FileInfo.getTime(Long.valueOf(videoTime));
                         fileInfo.type = FileInfo.TYPE.VIDEO;
                         fileInfo.format_size = Formatter.formatFileSize(mContext, videoSize);
                         if (mSDCardPath == null) {
@@ -589,7 +589,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = docPath;
                         fileInfo.name = docFile.getName();
-                        fileInfo.time = FileInfo.getTime(docTime);
+                        fileInfo.time = FileInfo.getTime(Long.valueOf(docTime));
                         fileInfo.type = FileInfo.TYPE.FILE;
                         fileInfo.size = docSize;
                         fileInfo.format_size = Formatter.formatFileSize(mContext, docSize);
@@ -646,7 +646,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                             FileInfo fileInfo = new FileInfo();
                             fileInfo.path = path;
                             fileInfo.name = name;
-                            fileInfo.time = FileInfo.getTime(encTime);
+                            fileInfo.time = FileInfo.getTime(Long.valueOf(encCursor.getString(timeColumnIndex)));
                             fileInfo.size = encSize;
                             fileInfo.format_size = Formatter.formatFileSize(mContext, encSize);
                             fileInfo.type = FileInfo.TYPE.ENCRYPT;

@@ -3,60 +3,60 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/file_manage_editor_action_transmission"
+        android:id="@+id/action_transmission"
         android:icon="@drawable/ic_menu_camera"
         android:visible="false"
-        android:title="@string/menu_share"
+        android:title="@string/more"
         app:showAsAction="always" />
 
     <item
-        android:id="@+id/file_manage_editor_action_more"
+        android:id="@+id/action_more"
         android:icon="@drawable/ic_menu_camera"
-        android:title="@string/menu_share"
+        android:title="@string/more"
         app:showAsAction="always">
 
         <menu>
 
             <item
-                android:id="@+id/file_manage_editor_action_rename"
+                android:id="@+id/action_rename"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="@string/menu_share"
+                android:title="@string/rename"
                 app:showAsAction="never" />
 
             <item
-                android:id="@+id/file_manage_editor_action_share"
+                android:id="@+id/action_share"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="@string/menu_share"
+                android:title="@string/share"
                 app:showAsAction="never" />
 
             <item
-                android:id="@+id/file_manage_editor_action_copy"
+                android:id="@+id/action_copy"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="@string/menu_share"
+                android:title="@string/copy"
                 app:showAsAction="never" />
 
             <item
-                android:id="@+id/file_manage_editor_action_move"
+                android:id="@+id/action_move"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="@string/menu_share"
+                android:title="@string/move"
                 app:showAsAction="never" />
 
             <item
-                android:id="@+id/file_manage_editor_action_delete"
+                android:id="@+id/action_delete"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="@string/menu_share"
+                android:title="@string/delete"
                 app:showAsAction="never" />
 
             <item
-                android:id="@+id/file_manage_editor_action_new_folder"
+                android:id="@+id/action_new_folder"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="@string/menu_share"
+                android:title="@string/newfolder"
                 app:showAsAction="never" />
 
             <item
-                android:id="@+id/file_manage_editor_action_encrypt"
+                android:id="@+id/action_encrypt"
                 android:icon="@drawable/ic_menu_camera"
-                android:title="@string/menu_share"
+                android:title="@string/encrypt"
                 app:showAsAction="never" />
 
         </menu>

@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 
 import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
@@ -23,7 +24,7 @@ import com.transcend.otg.Utils.MediaUtils;
  * Created by henry_hsu on 2017/2/3.
  */
 
-public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListener{
+public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListener, RecyclerViewAdapter.OnActionModeItemCallbackListener {
     private String TAG = TabInfo.class.getSimpleName();
     public View mRootView;
     public LayoutInflater mInflater;
@@ -44,8 +45,19 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     private IconHelper mIconHelper;
     private OnItemCallbackListener mCallback;
 
+    @Override
+    public void onItemClick(int count) {
+        mCallback.onItemClick(count);
+    }
+
+    @Override
+    public void onItemLongClick() {
+        mCallback.onItemLongClick();
+    }
+
     public interface OnItemCallbackListener {
-        void onItemClick(String path);
+        void onItemClick(int count);
+        void onItemLongClick();
     }
 
 
@@ -116,23 +128,21 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     }
 
     @Override
-    public void onRecyclerItemClick(String path) {
+    public void onRecyclerItemClick(FileInfo file) {
         Log.d(TAG, "mType = " + mType);
-        if(mCallback!=null)
-            mCallback.onItemClick(path);
         if(mType == 0){
             Log.d(TAG, "it is image, go to viewer");//go to viewer
         }else{
             if(Constant.nowMODE == Constant.MODE.OTG){
-                MediaUtils.executeUri(mContext, path, mContext.getResources().getString(R.string.openin_title));
+                MediaUtils.executeUri(mContext, file.uri.toString(), mContext.getResources().getString(R.string.openin_title));
             }else{
-                MediaUtils.execute(mContext, path, mContext.getResources().getString(R.string.openin_title));
+                MediaUtils.execute(mContext, file.path, mContext.getResources().getString(R.string.openin_title));
             }
         }
     }
 
     @Override
-    public void onRecyclerItemLongClick(String path) {
+    public void onRecyclerItemLongClick(FileInfo file) {
 
     }
 
@@ -157,6 +167,22 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
 
     public RecyclerViewAdapter getAdapter() {
         return mRecyclerAdapter;
+    }
+
+    public void selectAllFile(){
+        mRecyclerAdapter.setAllSelection();
+    }
+
+    public void clearAll(){
+        mRecyclerAdapter.clearAllSelection();
+    }
+
+    public int getItemsCount(){
+        return mRecyclerAdapter.getItemCount();
+    }
+
+    public boolean getSelectedAllorNot(){
+        return mRecyclerAdapter.getSelectedAllorNot();
     }
 
     public void showLoadingResult(boolean empty) {

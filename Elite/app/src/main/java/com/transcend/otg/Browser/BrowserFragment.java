@@ -13,11 +13,11 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.TabInfoLoader;
 import com.transcend.otg.R;
@@ -116,12 +116,28 @@ public class BrowserFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
+                if(Constant.mActionMode != null)
+                    Constant.mActionMode.finish();
                 getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
             }
         });
     }
 
+    public int getItemsCount(){
+       return mTabs.get(mCurrentTabPosition).getItemsCount();
+    }
+
+    public boolean getSelectedAllorNot(){
+        return mTabs.get(mCurrentTabPosition).getSelectedAllorNot();
+    }
+
+    public void clearAllSelect(){
+        mTabs.get(mCurrentTabPosition).clearAll();
+    }
+
+    public void selectAll(){
+        mTabs.get(mCurrentTabPosition).selectAllFile();
+    }
 
     public void updateCurrentTab(int position) {
         TabInfo tab = mTabs.get(position);
@@ -206,6 +222,8 @@ public class BrowserFragment extends Fragment {
 
         @Override
         public void onPageSelected(int position) {
+            if(Constant.mActionMode != null)
+               Constant.mActionMode.finish();
             updateCurrentTab(position);
         }
 
