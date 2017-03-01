@@ -30,4 +30,7 @@ public class Constant {
     public static final int SORT_BY_SIZE = 2;
     public static final int SORT_ORDER_AS = 0;
     public static final int SORT_ORDER_DES = 1;
+
+    public static final String sd_key_path = "sd";
+    public static final String otg_key_path = "usb";
 }

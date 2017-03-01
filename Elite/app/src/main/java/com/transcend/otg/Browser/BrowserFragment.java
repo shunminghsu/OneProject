@@ -45,14 +45,13 @@ public class BrowserFragment extends Fragment {
     public static final int LIST_TYPE_FOLDER = 5;
     protected int mCurrentTabPosition = LIST_TYPE_IMAGE;
     private int TAB_LOADER_ID = 168;
-    private int OTG_LOADER_ID = 87;
 
     private PagerSwipeRefreshLayout mSwipeRefreshLayout;
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     protected Context mContext;
     protected LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
-    protected String mSDCardPath = null;
+    protected String mOuterStoragePath = null;
     protected boolean mIsOtg = false;
 
 
@@ -70,7 +69,7 @@ public class BrowserFragment extends Fragment {
         mCallbacks = new LoaderManager.LoaderCallbacks<ArrayList<FileInfo>>() {
             @Override
             public Loader<ArrayList<FileInfo>> onCreateLoader(int id, Bundle args) {
-                return new TabInfoLoader(context, mCurrentTabPosition, mSDCardPath, mIsOtg);
+                return new TabInfoLoader(context, mCurrentTabPosition, mOuterStoragePath, mIsOtg);
             }
 
             @Override

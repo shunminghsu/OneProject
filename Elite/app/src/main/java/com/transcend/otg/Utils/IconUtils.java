@@ -24,6 +24,7 @@ import android.content.pm.ProviderInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract.Document;
@@ -39,9 +40,19 @@ import java.io.InputStream;
 import java.util.HashMap;
 
 public class IconUtils {
+    public static Bitmap loadAlbumThumbnail(String path) {
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+        mmr.setDataSource(path);
+        byte[] artBytes =  mmr.getEmbeddedPicture();
+        if (artBytes != null) {
+            return BitmapFactory.decodeByteArray(artBytes, 0, artBytes.length);
+        }
+
+        return null;
+    }
+
     private static final Uri sArtworkUri = Uri.parse("content://media/external/audio/albumart");
     private static final BitmapFactory.Options sBitmapOptions = new BitmapFactory.Options();
-
     public static Bitmap loadAlbumThumbnail(Context context, long album_id) {
         ContentResolver res = context.getContentResolver();
         Uri uri = ContentUris.withAppendedId(sArtworkUri, album_id);

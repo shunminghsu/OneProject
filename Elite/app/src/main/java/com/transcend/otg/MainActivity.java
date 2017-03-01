@@ -355,7 +355,7 @@ public class MainActivity extends AppCompatActivity
                     mActionMode.finish();
                 Constant.nowMODE = Constant.MODE.SD;
                 markSelectedBtn(mSdButton);
-                String sdpath = FileFactory.getSdPath(mContext);
+                String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 if (sdpath != null) {
                     if (FileFactory.getMountedState(mContext, sdpath)) {
                         replaceFragment(sdFragment);

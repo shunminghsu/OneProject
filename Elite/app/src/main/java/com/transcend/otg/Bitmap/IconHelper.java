@@ -282,7 +282,7 @@ public class IconHelper {
         }
     }
 
-    public void loadMusicThumbnail(String path, long song_id, long album_id,
+    public void loadMusicThumbnail(String path, long album_id,
                               ImageView iconThumb, ImageView iconMime) {
         boolean cacheHit = false;
         boolean showThumbnail = true;
@@ -293,7 +293,7 @@ public class IconHelper {
                 cacheHit = true;
             } else {
                 iconThumb.setImageDrawable(null);
-                final LoaderTaskMusic task = new LoaderTaskMusic(path, song_id, album_id, iconMime, iconThumb, mThumbSize, mContext);
+                final LoaderTaskMusic task = new LoaderTaskMusic(path, album_id, iconMime, iconThumb, mThumbSize, mContext);
                 iconThumb.setTag(task);
                 task.execute();
             }
@@ -320,16 +320,14 @@ public class IconHelper {
         private final ImageView mIconThumb;
         private final Point mThumbSize;
         private final long mAlbumId;
-        private final long mSongId;
         private Context mContext;
-        public LoaderTaskMusic(String filePath, long song_id, long album_id, ImageView iconMime, ImageView iconThumb,
+        public LoaderTaskMusic(String filePath, long album_id, ImageView iconMime, ImageView iconThumb,
                              Point thumbSize, Context context) {
             mPath = filePath;
             mIconMime = iconMime;
             mIconThumb = iconThumb;
             mThumbSize = thumbSize;
             mAlbumId = album_id;
-            mSongId = song_id;
             mContext = context;
         }
 
@@ -340,7 +338,11 @@ public class IconHelper {
 
             Bitmap result = null;
             try {
-                result = IconUtils.loadAlbumThumbnail(mContext, mAlbumId);
+                if (mAlbumId > 0)
+                    result = IconUtils.loadAlbumThumbnail(mContext, mAlbumId);
+                else
+                    result = IconUtils.loadAlbumThumbnail(mPath);
+
                 if (result != null) {
                     final ThumbnailCache thumbs = MainApplication.getThumbnailsCache(mContext);
                     thumbs.put(mPath + ":ts" + mThumbSize, result);

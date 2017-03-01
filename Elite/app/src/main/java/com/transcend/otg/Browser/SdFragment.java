@@ -3,6 +3,7 @@ package com.transcend.otg.Browser;
 
 import android.os.Bundle;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 
@@ -16,7 +17,7 @@ public class SdFragment extends BrowserFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSDCardPath = FileFactory.getSdPath(mContext);
+        mOuterStoragePath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
         initTabInfos(savedInstanceState);
     }
 

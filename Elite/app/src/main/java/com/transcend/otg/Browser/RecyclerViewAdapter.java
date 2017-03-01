@@ -104,9 +104,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             holder.info.setVisibility(View.GONE);
         }
 
-        if (fileInfo.album_id != 0) {
-            mIconHelper.loadMusicThumbnail(fileInfo.path, fileInfo.album_id, fileInfo.album_id, holder.icon, holder.iconMime);
-        } else if (fileInfo.uri != null) {
+        if (fileInfo.type == FileInfo.TYPE.MUSIC) {
+            mIconHelper.loadMusicThumbnail(fileInfo.path, fileInfo.album_id, holder.icon, holder.iconMime);
+        } else if (fileInfo.type == FileInfo.TYPE.PHOTO && fileInfo.uri != null) {
             mIconHelper.loadThumbnail(fileInfo.uri, fileInfo.type, holder.icon, holder.iconMime);
         } else
             mIconHelper.loadThumbnail(fileInfo.path, fileInfo.type, holder.icon, holder.iconMime);

@@ -31,7 +31,7 @@ public class FileFactory {
     private int RealPathMapLifeCycle = 10;
 
     //try to return sdcard path, if sdcard not found, return null
-    public static String getSdPath(Context mContext) {
+    public static String getOuterStoragePath(Context mContext, String key_word) {
         StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
         Class<?> storageVolumeClazz = null;
         try {
@@ -57,7 +57,7 @@ public class FileFactory {
                 String state = (String) getState.invoke(storageVolumeElement);
                 Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
                 if (removable) {
-                    if (path != null && path.contains("sd")) {
+                    if (path != null && path.contains(key_word)) {
                         return path;
                     }
                 }
