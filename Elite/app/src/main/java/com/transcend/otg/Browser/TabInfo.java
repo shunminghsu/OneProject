@@ -51,13 +51,13 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     }
 
     @Override
-    public void onItemLongClick() {
-        mCallback.onItemLongClick();
+    public void onItemLongClick(int count) {
+        mCallback.onItemLongClick(count);
     }
 
     public interface OnItemCallbackListener {
         void onItemClick(int count);
-        void onItemLongClick();
+        void onItemLongClick(int count);
     }
 
 

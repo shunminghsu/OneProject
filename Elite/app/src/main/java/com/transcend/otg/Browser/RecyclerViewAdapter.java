@@ -45,7 +45,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     public interface OnActionModeItemCallbackListener{
         void onItemClick(int count);
-        void onItemLongClick();
+        void onItemLongClick(int count);
     }
 
     public RecyclerViewAdapter(TabInfo tab, IconHelper iconHelper, Context context) {
@@ -232,8 +232,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         @Override
         public boolean onLongClick(View v) {
+            selectAtPosition(getAdapterPosition());
             if(mActionModeCallback != null){
-                mActionModeCallback.onItemLongClick();
+                mActionModeCallback.onItemLongClick(getSelectedCount());
             }
             return true;
         }

@@ -333,8 +333,10 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onItemLongClick() {
+    public void onItemLongClick(int count) {
         startActionMode();
+        updateActionModeTitle(count);
+        toggleActionModeAction(count);
     }
 
 
