@@ -3,8 +3,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorGray"
-    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:background="@color/colorWhite"
+    android:minHeight="?attr/actionBarSize"
     android:gravity="center_vertical"
     android:orientation="horizontal">
 
@@ -12,7 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/colorBlack"
-            android:layout_marginStart="40dp"
+            android:layout_marginStart="8dp"
             android:maxLines="1"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:ellipsize="marquee"

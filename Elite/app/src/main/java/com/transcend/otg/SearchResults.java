@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
@@ -16,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -28,6 +30,8 @@ import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.SearchLoader;
 
 import java.util.ArrayList;
+
+import static com.transcend.otg.MainActivity.mScreenW;
 
 /**
  * Created by henry_hsu on 2017/2/6.
@@ -44,11 +48,10 @@ public class SearchResults extends Fragment {
     private RecyclerView mResultsListView;
     private SearchResultsAdapter mResultsAdapter;
 
-    private ListView mSuggestionsListView;
+    private ListPopupWindow mSuggestionsListView;
     private SuggestionsAdapter mSuggestionsAdapter;
     private UpdateSuggestionsTask mUpdateSuggestionsTask;
 
-    private ViewGroup mLayoutSuggestions;
     private ViewGroup mLayoutResults;
 
     private String mQuery;
@@ -126,7 +129,6 @@ public class SearchResults extends Fragment {
         };
 
         final View view = inflater.inflate(R.layout.search_panel, container, false);
-        mLayoutSuggestions = (ViewGroup) view.findViewById(R.id.layout_suggestions);
         mLayoutResults = (ViewGroup) view.findViewById(R.id.layout_results);
 
         mEmptyView = (TextView) view.findViewById(R.id.empty_view);
@@ -134,7 +136,7 @@ public class SearchResults extends Fragment {
         mResultsListView.setLayoutManager(new LinearLayoutManager(context));
         mResultsListView.setAdapter(mResultsAdapter);
 
-        mSuggestionsListView = (ListView) view.findViewById(R.id.list_suggestions);
+        mSuggestionsListView = new ListPopupWindow(context);
         mSuggestionsListView.setAdapter(mSuggestionsAdapter);
         mSuggestionsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -148,9 +150,17 @@ public class SearchResults extends Fragment {
                 mShowResults = true;
                 mQuery = cursor.getString(0);
                 mSearchView.setQuery(mQuery, false);
+                InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);// close soft keyboard
             }
         });
         return view;
+    }
+
+    public void onExpand(View edit_view) {
+        mSuggestionsListView.setAnchorView(edit_view);
+        mSuggestionsListView.setWidth(2*mScreenW/3);
+        mSuggestionsListView.show();
     }
 
     private class UpdateSuggestionsTask extends AsyncTask<String, Void, Cursor> {
@@ -282,16 +292,19 @@ public class SearchResults extends Fragment {
         public void onBindViewHolder(ViewHolder holder, int position) {
             FileInfo fileInfo = mList.get(position);
 
-            if (holder.title != null)
-                holder.title.setText(fileInfo.name);
+            holder.title.setText(fileInfo.name);
+            if (holder.subtitle != null)
+                holder.subtitle.setText(fileInfo.time);
 
-            if (fileInfo.type ==  FileInfo.TYPE.DIR) {
-                holder.info.setVisibility(View.GONE);
+            if (holder.info != null) {
+                holder.info.setVisibility(fileInfo.type == FileInfo.TYPE.DIR ? View.GONE : View.VISIBLE);
             }
 
-            if (fileInfo.uri != null)
+            if (fileInfo.type == FileInfo.TYPE.MUSIC) {
+                mIconHelper.loadMusicThumbnail(fileInfo.path, fileInfo.album_id, holder.icon, holder.iconMime);
+            } else if (fileInfo.type == FileInfo.TYPE.PHOTO && fileInfo.uri != null) {
                 mIconHelper.loadThumbnail(fileInfo.uri, fileInfo.type, holder.icon, holder.iconMime);
-            else
+            } else
                 mIconHelper.loadThumbnail(fileInfo.path, fileInfo.type, holder.icon, holder.iconMime);
 
         }
@@ -360,9 +373,10 @@ public class SearchResults extends Fragment {
     }
 
     private void setSuggestionsVisibility(boolean visible) {
-        if (mLayoutSuggestions != null) {
-            mLayoutSuggestions.setVisibility(visible ? View.VISIBLE : View.GONE);
-        }
+        if (visible)
+            mSuggestionsListView.show();
+        else
+            mSuggestionsListView.dismiss();
     }
 
     private void setResultsVisibility(boolean visible) {

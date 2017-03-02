@@ -231,7 +231,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 String name = encCursor.getString(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
                 if (type.contains(DIR)) {
                     getOtgAllEncs(DocumentsContract.buildChildDocumentsUriUsingTree(_rootUri, encCursor.getString(cursor_index_ID)));
-                } else if (name.contains(".enc")) {
+                } else if (name.contains(ENCRYPT)) {
                     FileInfo item = new FileInfo();
                     item.name = name;
                     item.time = FileInfo.getTime(encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));

@@ -100,8 +100,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         if (holder.subtitle != null)
             holder.subtitle.setText(mShowSize ? fileInfo.format_size : fileInfo.time);
 
-        if (fileInfo.type ==  FileInfo.TYPE.DIR && holder.info != null) {
-            holder.info.setVisibility(View.GONE);
+        if (holder.info != null) {
+            holder.info.setVisibility(fileInfo.type == FileInfo.TYPE.DIR ? View.GONE : View.VISIBLE);
         }
 
         if (fileInfo.type == FileInfo.TYPE.MUSIC) {

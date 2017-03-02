@@ -9,21 +9,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:orientation="vertical">
-        <LinearLayout android:id="@+id/layout_suggestions"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:orientation="vertical">
-
-            <!-- Padding is included in the background -->
-            <ListView android:id="@+id/list_suggestions"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbarStyle="outsideOverlay"
-                android:headerDividersEnabled="false"
-                />
-
-        </LinearLayout>
 
         <LinearLayout android:id="@+id/layout_results"
             android:layout_width="match_parent"

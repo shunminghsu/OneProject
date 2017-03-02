@@ -468,6 +468,10 @@ public class MainActivity extends AppCompatActivity
                         switchToSearchResultsFragmentIfNeeded();
                         layout_storage.setVisibility(View.GONE);
                         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                        EditText et = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
+                        if (mSearchResultsFragment != null)
+                            mSearchResultsFragment.onExpand(et);
+
                         return true;
                     }
                     @Override

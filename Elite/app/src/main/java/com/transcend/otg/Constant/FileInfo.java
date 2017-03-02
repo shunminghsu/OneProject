@@ -22,7 +22,8 @@ public class FileInfo implements Serializable {
         VIDEO,
         MUSIC,
         FILE,
-        ENCRYPT
+        ENCRYPT,
+        OTHERS
     }
 
     public enum STORAGETYPE{
