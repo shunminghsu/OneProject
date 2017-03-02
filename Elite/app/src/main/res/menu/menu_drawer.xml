@@ -6,7 +6,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@mipmap/ic_home"
             android:title="@string/drawer_home"/>
         <item
             android:id="@+id/nav_browser"
@@ -14,7 +14,7 @@
             android:title="@string/drawer_browser" />
         <item
             android:id="@+id/nav_backup"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/ic_menu_camera"
             android:title="@string/drawer_backup" />
     </group>
 
@@ -22,8 +22,8 @@
         android:id="@+id/grp2"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_share"
-            android:icon="@drawable/ic_menu_share"
+            android:id="@+id/nav_help"
+            android:icon="@mipmap/ic_help"
             android:title="@string/drawer_help" />
     </group>
 
@@ -31,8 +31,8 @@
         android:id="@+id/grp3"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_send"
-            android:icon="@drawable/ic_menu_send"
+            android:id="@+id/nav_feedback"
+            android:icon="@mipmap/ic_userfeedback"
             android:title="@string/drawer_feedback" />
     </group>
 

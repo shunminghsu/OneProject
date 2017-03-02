@@ -25,6 +25,12 @@ public class FileInfo implements Serializable {
         ENCRYPT
     }
 
+    public enum STORAGETYPE{
+        LOCAL,
+        SD,
+        OTG
+    }
+
     public String path;
 
     public String name;
@@ -35,6 +41,7 @@ public class FileInfo implements Serializable {
     public String format_size;
     public long album_id;
     public boolean checked;
+    public STORAGETYPE storagetype;
 
     public FileInfo() {
 
