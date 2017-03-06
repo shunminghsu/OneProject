@@ -26,7 +26,7 @@ public class FileInfo implements Serializable {
         OTHERS
     }
 
-    public enum STORAGETYPE{
+    public enum STORAGEMODE{
         LOCAL,
         SD,
         OTG
@@ -42,7 +42,7 @@ public class FileInfo implements Serializable {
     public String format_size;
     public long album_id;
     public boolean checked;
-    public STORAGETYPE storagetype;
+    public STORAGEMODE storagemode;
 
     public FileInfo() {
 

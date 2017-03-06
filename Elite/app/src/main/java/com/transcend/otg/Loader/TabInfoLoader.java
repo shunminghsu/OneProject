@@ -9,7 +9,6 @@ import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.provider.DocumentFile;
 import android.text.format.Formatter;
-import android.util.Log;
 
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
@@ -126,7 +125,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(_rootUri, imageCursor.getString(cursor_index_ID));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
                     item.type = FileInfo.TYPE.PHOTO;
-                    item.storagetype = FileInfo.STORAGETYPE.OTG;
+                    item.storagemode = FileInfo.STORAGEMODE.OTG;
                     mFileList.add(item);
                 }
             }
@@ -155,7 +154,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, videoCursor.getString(cursor_index_ID));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
                     item.type = FileInfo.TYPE.VIDEO;
-                    item.storagetype = FileInfo.STORAGETYPE.OTG;
+                    item.storagemode = FileInfo.STORAGEMODE.OTG;
                     mFileList.add(item);
                 }
             }
@@ -184,7 +183,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, musicCursor.getString(cursor_index_ID));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
                     item.type = FileInfo.TYPE.MUSIC;
-                    item.storagetype = FileInfo.STORAGETYPE.OTG;
+                    item.storagemode = FileInfo.STORAGEMODE.OTG;
                     mFileList.add(item);
                 }
             }
@@ -212,7 +211,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, docCursor.getString(cursor_index_ID));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
                     item.type = FileInfo.TYPE.FILE;
-                    item.storagetype = FileInfo.STORAGETYPE.OTG;
+                    item.storagemode = FileInfo.STORAGEMODE.OTG;
                     mFileList.add(item);
                 }
             }
@@ -241,7 +240,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, encCursor.getString(cursor_index_ID));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
                     item.type = FileInfo.TYPE.ENCRYPT;
-                    item.storagetype = FileInfo.STORAGETYPE.OTG;
+                    item.storagemode = FileInfo.STORAGEMODE.OTG;
                     mFileList.add(item);
                 }
             }
@@ -266,7 +265,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             tmpFileInfo.time = FileInfo.getTime(ddFile.lastModified());
             tmpFileInfo.uri = ddFile.getUri();
             tmpFileInfo.size = ddFile.length();
-            tmpFileInfo.storagetype = FileInfo.STORAGETYPE.OTG;
+            tmpFileInfo.storagemode = FileInfo.STORAGEMODE.OTG;
             String type = ddFile.getType();
             if (type != null) {
                 if (type.contains(IMAGE))
@@ -341,13 +340,13 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.uri = imageUri;
                         if (mOuterStoragePath == null) {
                             if (picPath.contains(Constant.ROOT_LOCAL)){
-                                fileInfo.storagetype = FileInfo.STORAGETYPE.LOCAL;
+                                fileInfo.storagemode = FileInfo.STORAGEMODE.LOCAL;
                                 mFileList.add(fileInfo);
                             }
 
                         } else {
                             if (picPath.contains(mOuterStoragePath)){
-                                fileInfo.storagetype = FileInfo.STORAGETYPE.SD;
+                                fileInfo.storagemode = FileInfo.STORAGEMODE.SD;
                                 mFileList.add(fileInfo);
                             }
                         }
@@ -405,12 +404,12 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.format_size = Formatter.formatFileSize(mContext, musicSize);
                         if (mOuterStoragePath == null) {
                             if (musicPath.contains(Constant.ROOT_LOCAL)) {
-                                fileInfo.storagetype = FileInfo.STORAGETYPE.LOCAL;
+                                fileInfo.storagemode = FileInfo.STORAGEMODE.LOCAL;
                                 mFileList.add(fileInfo);
                             }
                         } else {
                             if (musicPath.contains(mOuterStoragePath)) {
-                                fileInfo.storagetype = FileInfo.STORAGETYPE.SD;
+                                fileInfo.storagemode = FileInfo.STORAGEMODE.SD;
                                 mFileList.add(fileInfo);
                             }
                         }
@@ -462,12 +461,12 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.format_size = Formatter.formatFileSize(mContext, videoSize);
                         if (mOuterStoragePath == null) {
                             if (videoPath.contains(Constant.ROOT_LOCAL)) {
-                                fileInfo.storagetype = FileInfo.STORAGETYPE.LOCAL;
+                                fileInfo.storagemode = FileInfo.STORAGEMODE.LOCAL;
                                 mFileList.add(fileInfo);
                             }
                         } else {
                             if (videoPath.contains(mOuterStoragePath)) {
-                                fileInfo.storagetype = FileInfo.STORAGETYPE.SD;
+                                fileInfo.storagemode = FileInfo.STORAGEMODE.SD;
                                 mFileList.add(fileInfo);
                             }
                         }
@@ -523,12 +522,12 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.format_size = Formatter.formatFileSize(mContext, docSize);
                         if (mOuterStoragePath == null) {
                             if (docPath.contains(Constant.ROOT_LOCAL)) {
-                                fileInfo.storagetype = FileInfo.STORAGETYPE.LOCAL;
+                                fileInfo.storagemode = FileInfo.STORAGEMODE.LOCAL;
                                 mFileList.add(fileInfo);
                             }
                         } else {
                             if (docPath.contains(mOuterStoragePath)) {
-                                fileInfo.storagetype = FileInfo.STORAGETYPE.SD;
+                                fileInfo.storagemode = FileInfo.STORAGEMODE.SD;
                                 mFileList.add(fileInfo);
                             }
                         }
@@ -585,12 +584,12 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                                     fileInfo.type = FileInfo.TYPE.ENCRYPT;
                                     if (mOuterStoragePath == null) {
                                         if (path.contains(Constant.ROOT_LOCAL)) {
-                                            fileInfo.storagetype = FileInfo.STORAGETYPE.LOCAL;
+                                            fileInfo.storagemode = FileInfo.STORAGEMODE.LOCAL;
                                             mFileList.add(fileInfo);
                                         }
                                     } else {
                                         if (path.contains(mOuterStoragePath)) {
-                                            fileInfo.storagetype = FileInfo.STORAGETYPE.SD;
+                                            fileInfo.storagemode = FileInfo.STORAGEMODE.SD;
                                             mFileList.add(fileInfo);
                                         }
                                     }
@@ -629,9 +628,9 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             fileInfo.size = file.length();
             fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
             if (mOuterStoragePath == null)
-                fileInfo.storagetype = FileInfo.STORAGETYPE.LOCAL;
+                fileInfo.storagemode = FileInfo.STORAGEMODE.LOCAL;
             else
-                fileInfo.storagetype = FileInfo.STORAGETYPE.SD;
+                fileInfo.storagemode = FileInfo.STORAGEMODE.SD;
             mFileList.add(fileInfo);
         }
         Collections.sort(mFileList, FileInfoSort.comparator(mContext));

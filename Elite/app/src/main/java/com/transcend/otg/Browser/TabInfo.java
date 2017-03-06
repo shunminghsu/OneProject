@@ -56,6 +56,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     }
 
     public interface OnItemCallbackListener {
+        void onItemClick(FileInfo file);
         void onItemClick(int count);
         void onItemLongClick(int count);
     }
@@ -129,10 +130,13 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
 
     @Override
     public void onRecyclerItemClick(FileInfo file) {
-        Log.d(TAG, "mType = " + mType);
-        if(mType == 0){
-            Log.d(TAG, "it is image, go to viewer");//go to viewer
-        }else{
+        if(mType == 0){//photo
+            Log.d(TAG, "it is image, go to viewer");
+        }else if(mType == 4){//encrypted file
+
+        }else if(mType == 5){
+            mCallback.onItemClick(file);
+        }else{//video / music / document
             if(Constant.nowMODE == Constant.MODE.OTG){
                 MediaUtils.executeUri(mContext, file.uri.toString(), mContext.getResources().getString(R.string.openin_title));
             }else{

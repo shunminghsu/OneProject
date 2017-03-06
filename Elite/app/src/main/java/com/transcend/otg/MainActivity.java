@@ -47,6 +47,7 @@ import com.transcend.otg.Browser.OTGFragment;
 import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Browser.TabInfo;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Utils.FileFactory;
@@ -321,6 +322,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void onItemClick(FileInfo file) {
+        if(file.type == FileInfo.TYPE.DIR)
+            startFolderExploreActivity(file);
+    }
+
+    @Override
     public void onItemClick(int count) {
         updateActionModeTitle(count);
         toggleActionModeAction(count);
@@ -573,9 +580,21 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_backup) {
 
+        } else if (id == R.id.nav_help){
+
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void startFolderExploreActivity(FileInfo file){
+//        Bundle args = new Bundle();
+//        args.putSerializable("file", file);
+        Constant.mCurrentFile = file;
+        Intent intent = new Intent();
+        intent.setClass(MainActivity.this, FolderExploreActivity.class);
+//        intent.putExtras(args);
+        startActivityForResult(intent, FolderExploreActivity.REQUEST_CODE);
     }
 
     public void replaceFragment(Fragment fragment) {

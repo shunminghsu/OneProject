@@ -3,10 +3,16 @@ package com.transcend.otg.Loader;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Loader;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.provider.DocumentFile;
+
+import com.transcend.otg.Constant.FileInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.transcend.otg.Loader.FileActionService.FileAction.OTGLIST;
 
 /**
  * Created by wangbojie on 2017/2/7.
@@ -29,9 +35,10 @@ abstract class FileActionService {
     protected int DELETE;
     protected int SHARE;
     protected int LIST_ALL_TYPE;
+    protected int OTGLIST;
 
     public enum FileAction {
-        OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, CreateFOLDER, SHARE, LIST_ALL_TYPE
+        OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, CreateFOLDER, SHARE, LIST_ALL_TYPE, OTGLIST
     }
 
     public String getMode(Context context){
@@ -80,6 +87,8 @@ abstract class FileActionService {
             fileAction = FileAction.SHARE;
         else if(action == LIST_ALL_TYPE)
             fileAction = FileAction.LIST_ALL_TYPE;
+        else if(action == OTGLIST)
+            fileAction = FileAction.OTGLIST;
         return fileAction;
     }
 
@@ -119,6 +128,9 @@ abstract class FileActionService {
             case LIST_ALL_TYPE:
                 id = LIST_ALL_TYPE;
                 break;
+            case OTGLIST:
+                id = OTGLIST;
+                break;
         }
 
         return id;
@@ -128,6 +140,7 @@ abstract class FileActionService {
         ArrayList<String> paths = args.getStringArrayList("paths");
         String path = args.getString("path");
         String name = args.getString("name");
+        Uri uri = args.getParcelable("uri");
         switch (id) {
             case LIST:
                 return list(context, path);
@@ -149,6 +162,8 @@ abstract class FileActionService {
                 return share(context, paths, path);
             case LIST_ALL_TYPE:
                 return listAllType(context);
+            case OTGLIST:
+                return otglist(context, uri, name);
         }
 
         return null;
@@ -177,4 +192,6 @@ abstract class FileActionService {
     protected abstract AsyncTaskLoader share(Context context, ArrayList<String> paths, String dest);
 
     protected abstract AsyncTaskLoader listAllType(Context context);
+
+    protected abstract AsyncTaskLoader otglist(Context context, Uri uri, String na);
 }

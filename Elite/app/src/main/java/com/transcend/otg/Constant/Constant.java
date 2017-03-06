@@ -20,6 +20,8 @@ public class Constant {
     public static Uri rootUri;
     public static final String ROOT_LOCAL = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static ActionMode mActionMode;
+    public static FileInfo mCurrentFile;
+    public static DocumentFile mCurrentDocumentFile;
 
     public static final int ITEM_LIST = 0;
     public static final int ITEM_GRID = 1;

@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Loader;
 import android.os.Bundle;
+import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Utils.FileFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,10 +60,10 @@ public class FileActionManager {
                     service = new LocalActionService();
                     break;
                 case SD:
-
+                    service = new SDActionService();
                     break;
                 case OTG:
-
+                    service = new OTGActionService();
                     break;
             }
             mFileActionServicePool.put(mode, service);
@@ -71,8 +74,10 @@ public class FileActionManager {
     }
 
     public void checkServiceMode(String path) {
-        if (path.startsWith("/storage")) {
+        if (path.contains(Constant.ROOT_LOCAL)) {
             setMode(MODE.LOCAL);
+        } else if(path.contains(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path))){
+            setMode(MODE.SD);
         }
     }
 
@@ -83,15 +88,22 @@ public class FileActionManager {
     }
 
     public void list(String path) {
-        createLoader(FileActionService.FileAction.LIST, null, path, null);
+        createLoader(FileActionService.FileAction.LIST, null, path, null, null);
         Log.w(TAG, "doLoad: " + path);
     }
 
-    public void listAllType(){
-        createLoader(FileActionService.FileAction.LIST_ALL_TYPE, null, null, null);
+    public void otgList(FileInfo file){
+        if(file != null)
+            createLoader(FileActionService.FileAction.OTGLIST, file.name, null, null, file);
+        else
+            createLoader(FileActionService.FileAction.OTGLIST, null, null, null, file);
     }
 
-    private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths) {
+    public void listAllType(){
+        createLoader(FileActionService.FileAction.LIST_ALL_TYPE, null, null, null, null);
+    }
+
+    private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths, FileInfo file) {
         int id = mFileActionService.getLoaderID(mode);
         Bundle args = new Bundle();
         if (name != null)
@@ -102,6 +114,9 @@ public class FileActionManager {
             args.putStringArrayList("paths", paths);
         if (mode != null)
             args.putInt("actionMode", id);
+        if(file!=null){
+            args.putParcelable("uri", file.uri);
+        }
 
         ((Activity) mContext).getLoaderManager().restartLoader(id, args, mCallbacks).forceLoad();
     }

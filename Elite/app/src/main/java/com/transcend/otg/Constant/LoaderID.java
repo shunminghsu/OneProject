@@ -7,4 +7,6 @@ package com.transcend.otg.Constant;
 public class LoaderID {
     public static final int LOCAL_FILE_LIST = 1;
     public static final int LOCAL_ALL_TYPE_LIST = 2;
+
+    public static final int OTG_FILE_LIST = 21;
 }
