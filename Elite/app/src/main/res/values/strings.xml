@@ -57,4 +57,10 @@
     <string name="newfolder">New Folder</string>
     <string name="encrypt">Encrypt</string>
 
+    <!-- Photo information -->
+    <string name="name">Name</string>
+    <string name="photo_size">Size</string>
+    <string name="photo_time">Last Modified</string>
+    <string name="photo_location">Located in</string>
+    <string name="photo_path">Path</string>
 </resources>

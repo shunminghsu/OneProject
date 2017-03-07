@@ -1,6 +1,7 @@
 package com.transcend.otg.Browser;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
@@ -16,6 +17,7 @@ import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
+import com.transcend.otg.Photo.PhotoActivity;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.MediaUtils;
 
@@ -129,9 +131,13 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     }
 
     @Override
-    public void onRecyclerItemClick(FileInfo file) {
+    public void onRecyclerItemClick(FileInfo file, int position) {
         if(mType == 0){//photo
-            Log.d(TAG, "it is image, go to viewer");
+            Intent intent = new Intent(mContext, PhotoActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            intent.putParcelableArrayListExtra("photo_list", getAdapter().getList());
+            intent.putExtra("list_index", position);
+            mContext.startActivity(intent);
         }else if(mType == 4){//encrypted file
 
         }else if(mType == 5){

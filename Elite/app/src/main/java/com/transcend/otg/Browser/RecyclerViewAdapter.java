@@ -36,7 +36,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     public interface OnRecyclerItemCallbackListener {
-        void onRecyclerItemClick(FileInfo file);
+        void onRecyclerItemClick(FileInfo file, int position);
 
         void onRecyclerItemLongClick(FileInfo file);
 
@@ -68,6 +68,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                 LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
         mTab.showLoadingResult(isEmpty());
         notifyDataSetChanged();
+    }
+
+    public ArrayList<FileInfo> getList() {
+        return mList;
     }
 
     @Override
@@ -208,7 +212,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         @Override
         public void onClick(View v) {
             if (mCallback != null && Constant.mActionMode == null) {
-                mCallback.onRecyclerItemClick(mList.get(getAdapterPosition()));
+                mCallback.onRecyclerItemClick(mList.get(getAdapterPosition()), getAdapterPosition());
             }else{
                 selectAtPosition(getAdapterPosition());
                 if(mActionModeCallback!=null){

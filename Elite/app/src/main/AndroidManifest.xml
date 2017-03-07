@@ -28,6 +28,12 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+       </activity>
+        <activity
+            android:name=".Photo.PhotoActivity"
+            android:label="@string/app_name"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <activity android:name=".FolderExploreActivity"
             android:theme = "@style/AppTheme.NoActionBar"
