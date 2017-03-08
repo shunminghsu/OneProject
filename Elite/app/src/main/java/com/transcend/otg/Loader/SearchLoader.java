@@ -42,7 +42,7 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         mFileList.clear();
         if (baseRootUri != null) {
             mOTGPath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
-            if (mOTGPath != null && FileFactory.getMountedState(mContext, mOTGPath)) {
+            if (mOTGPath != null) {
                 searchAllOtg(baseRootUri);
             }
         }

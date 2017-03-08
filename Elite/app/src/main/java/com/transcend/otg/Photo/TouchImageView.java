@@ -731,6 +731,20 @@ public class TouchImageView extends ImageView {
      * @author Ortiz
      *
      */
+    public interface onPhotoClickListener {
+        void onPhotoClick();
+    }
+    onPhotoClickListener mCallback;
+    public void setPhotoClickListener(onPhotoClickListener l) {
+        mCallback = l;
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        mCallback = null;
+        super.onDetachedFromWindow();
+    }
+
     private class GestureListener extends GestureDetector.SimpleOnGestureListener {
 
         @Override
@@ -739,6 +753,7 @@ public class TouchImageView extends ImageView {
             if(doubleTapListener != null) {
                 return doubleTapListener.onSingleTapConfirmed(e);
             }
+            if (mCallback != null) mCallback.onPhotoClick();
             return performClick();
         }
 

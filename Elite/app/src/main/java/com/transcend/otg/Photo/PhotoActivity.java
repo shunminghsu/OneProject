@@ -1,13 +1,9 @@
 package com.transcend.otg.Photo;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -16,16 +12,17 @@ import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.R;
 
@@ -44,6 +41,9 @@ public class PhotoActivity extends AppCompatActivity {
     int mScreenW, mScreenH;
     private Toolbar toolbar;
     private ActionMenuView mActionMenuView;
+    private boolean mHideAllUI = false;
+    PhotoClickListener mPhotoClickListener;
+    private static final int EDIT_REQUEST_CODE = 101;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,7 +55,11 @@ public class PhotoActivity extends AppCompatActivity {
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mScreenW = displaymetrics.widthPixels;
         mScreenH = displaymetrics.heightPixels;
-
+        if (displaymetrics.widthPixels < displaymetrics.heightPixels) {
+            findViewById(R.id.view_for_ui).setVisibility(View.GONE);
+        } else {
+            findViewById(R.id.view_for_ui).setVisibility(View.VISIBLE);
+        }
 
 
         mPhotoHelper = new PhotoHelper(this);
@@ -63,6 +67,7 @@ public class PhotoActivity extends AppCompatActivity {
         mPosition = getIntent().getIntExtra("list_index", 0);
         initPager();
         initToolbar();
+        mPhotoClickListener = new PhotoClickListener();
     }
 
     @Override
@@ -73,6 +78,11 @@ public class PhotoActivity extends AppCompatActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            findViewById(R.id.view_for_ui).setVisibility(View.VISIBLE);
+        } else {
+            findViewById(R.id.view_for_ui).setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -93,6 +103,25 @@ public class PhotoActivity extends AppCompatActivity {
 
 
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.edit:
+                Intent intent = new Intent(Intent.ACTION_EDIT);
+                intent.setDataAndType(mPhotoList.get(mPager.getCurrentItem()).uri, "image/jpeg");
+                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                startActivityForResult(intent, EDIT_REQUEST_CODE);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void initToolbar() {
@@ -135,8 +164,30 @@ public class PhotoActivity extends AppCompatActivity {
         });
     }
 
-    public class CustomPagerAdapter extends PagerAdapter {
+    private class PhotoClickListener implements TouchImageView.onPhotoClickListener {
 
+        @Override
+        public void onPhotoClick() {
+            SparseArray<ViewGroup> photoInfo = mAdapter.getPhotoInfo();
+
+            if (mHideAllUI) {
+                toolbar.setVisibility(View.VISIBLE);
+                for (int i=0;i<photoInfo.size();i++) {
+                    photoInfo.get(photoInfo.keyAt(i)).setVisibility(View.VISIBLE);
+                }
+                mHideAllUI = false;
+            } else {
+                toolbar.setVisibility(View.GONE);
+                for (int i=0;i<photoInfo.size();i++) {
+                    photoInfo.get(photoInfo.keyAt(i)).setVisibility(View.GONE);
+                }
+                mHideAllUI = true;
+            }
+        }
+    }
+
+    public class CustomPagerAdapter extends PagerAdapter {
+        private SparseArray<ViewGroup> photoInfo = new SparseArray<ViewGroup>();
         Context mContext;
         LayoutInflater mLayoutInflater;
 
@@ -163,13 +214,25 @@ public class PhotoActivity extends AppCompatActivity {
             String time = ((TextView) itemView.findViewById(R.id.time)).getText().toString();
             String path = ((TextView) itemView.findViewById(R.id.path)).getText().toString();
 
-            ImageView imageView = (ImageView) itemView.findViewById(R.id.photo);
+            TouchImageView imageView = (TouchImageView) itemView.findViewById(R.id.photo);
+            imageView.setPhotoClickListener(mPhotoClickListener);
             ViewGroup loading = (ViewGroup) itemView.findViewById(R.id.loading);
             mPhotoHelper.loadThumbnail(mPhotoList.get(position).path, imageView, loading, mScreenW, mScreenH);
 
+            ViewGroup viewGroup = (ViewGroup)itemView.findViewById(R.id.info);
+            viewGroup.setVisibility(mHideAllUI ? View.GONE : View.VISIBLE);
+            photoInfo.put(position, viewGroup);
+
             ((TextView) itemView.findViewById(R.id.name)).setText(mPhotoList.get(position).name);
             ((TextView) itemView.findViewById(R.id.size)).setText(size+": "+mPhotoList.get(position).format_size);
-            ((TextView) itemView.findViewById(R.id.location)).setText(location+": ");
+
+            if (mPhotoList.get(position).storagemode == Constant.STORAGEMODE_LOCAL)
+                ((TextView) itemView.findViewById(R.id.location)).setText(getResources().getString(R.string.photo_location_phone));
+            else if (mPhotoList.get(position).storagemode == Constant.STORAGEMODE_SD)
+                ((TextView) itemView.findViewById(R.id.location)).setText(getResources().getString(R.string.photo_location_sd));
+            else
+                ((TextView) itemView.findViewById(R.id.location)).setText(getResources().getString(R.string.photo_location_otg));
+
             ((TextView) itemView.findViewById(R.id.time)).setText(time+": "+mPhotoList.get(position).time);
             ((TextView) itemView.findViewById(R.id.path)).setText(path+": "+mPhotoList.get(position).path);
 
@@ -180,7 +243,12 @@ public class PhotoActivity extends AppCompatActivity {
 
         @Override
         public void destroyItem(ViewGroup container, int position, Object object) {
+            photoInfo.remove(position);
             container.removeView((RelativeLayout) object);
+        }
+
+        public SparseArray<ViewGroup> getPhotoInfo() {
+            return photoInfo;
         }
     }
 

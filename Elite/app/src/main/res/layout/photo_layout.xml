@@ -18,10 +18,20 @@
         android:gravity="top|start"
         app:layout_scrollFlags="scroll|enterAlways"
         app:theme="@style/AppTheme.PhotoActionBar">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/view_for_ui"
+            android:layout_width="0dp"
+            android:layout_weight="0.35"
+            android:layout_height="match_parent" />
         <android.support.v7.widget.ActionMenuView
             android:id="@+id/amvMenu"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="0.65"
             android:layout_height="match_parent"
             android:theme="@style/ThemeOverlay.PhotoMenu"/>
+        </LinearLayout>
     </android.support.v7.widget.Toolbar>
 </RelativeLayout>

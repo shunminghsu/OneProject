@@ -393,12 +393,7 @@ public class MainActivity extends AppCompatActivity
                 markSelectedBtn(mSdButton);
                 String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 if (sdpath != null) {
-                    if (FileFactory.getMountedState(mContext, sdpath)) {
                         replaceFragment(sdFragment);
-                    } else {
-                        //showSearchIcon(false);
-                        switchToFragment(NoSdFragment.class.getName(), false);
-                    }
                 } else {
                     //showSearchIcon(false);
                     if(mActionMode != null)
@@ -849,7 +844,7 @@ public class MainActivity extends AppCompatActivity
         }
         final String path = target.path;
         final String name = target.name;
-        boolean ignoreType = target.type.equals(FileInfo.TYPE.DIR);
+        boolean ignoreType = target.type == Constant.TYPE_DIR;
         new LocalRenameDialog(this,ignoreType, name, names) {
             @Override
             public void onConfirm(String newName) {

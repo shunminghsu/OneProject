@@ -64,7 +64,9 @@
     <string name="name">Name</string>
     <string name="photo_size">Size</string>
     <string name="photo_time">Last Modified</string>
-    <string name="photo_location">Located in</string>
+    <string name="photo_location_phone">Located in Phone</string>
+    <string name="photo_location_sd">Located in SD Card</string>
+    <string name="photo_location_otg">Located in OTG</string>
     <string name="photo_path">Path</string>
 
     <string name="no_item_selected">No item selected</string>
