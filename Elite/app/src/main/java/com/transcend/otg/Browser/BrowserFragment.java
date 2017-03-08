@@ -138,6 +138,14 @@ public class BrowserFragment extends Fragment {
         mTabs.get(mCurrentTabPosition).selectAllFile();
     }
 
+    public ArrayList<FileInfo> getSelectedFiles(){
+        return mTabs.get(mCurrentTabPosition).getSelectedFile();
+    }
+
+    public ArrayList<FileInfo> getAllFiles(){
+        return mTabs.get(mCurrentTabPosition).getAllFiles();
+    }
+
     public void updateCurrentTab(int position) {
         TabInfo tab = mTabs.get(position);
         mCurTab = tab;
@@ -145,6 +153,10 @@ public class BrowserFragment extends Fragment {
         getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
         // Put things in the correct paused/resumed state.
         //TO-DO
+    }
+
+    public int getCurrentTabPosition(){
+        return mCurrentTabPosition;
     }
 
     @Override
@@ -177,7 +189,7 @@ public class BrowserFragment extends Fragment {
         mTabs.get(mCurrentTabPosition).updateLayout(mode);
     }
 
-    public void onSortChanged() {
+    public void restartLoaderforCurrentTab() {
         getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
     }
 

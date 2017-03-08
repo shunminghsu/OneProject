@@ -11,6 +11,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -48,9 +49,15 @@ import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Browser.TabInfo;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Dialog.LocalDeleteDialog;
+import com.transcend.otg.Dialog.LocalRenameDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.MediaUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -147,6 +154,7 @@ public class MainActivity extends AppCompatActivity
                 showHomeOrFragment(false);
                 markSelectedBtn(mLocalButton);
                 replaceFragment(localFragment);
+                Constant.nowMODE = Constant.MODE.LOCAL;
             }
         });
 
@@ -310,6 +318,27 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        boolean isEmpty = getBrowserFragment().getSelectedFiles().size() == 0;
+        switch (item.getItemId()) {
+            case R.id.action_rename:
+                if (Constant.nowMODE == Constant.MODE.LOCAL) {
+                    doLocalRename();
+                }else if(Constant.nowMODE == Constant.MODE.SD) {
+
+                }else if (Constant.nowMODE == Constant.MODE.OTG) {
+                    doOTGRename();
+                }
+                break;
+            case R.id.action_delete:
+                if (Constant.nowMODE == Constant.MODE.LOCAL) {
+                    doLocalDelete();
+                }
+                break;
+            case R.id.action_share:
+                if(Constant.nowMODE == Constant.MODE.LOCAL || Constant.nowMODE == Constant.MODE.SD){
+                    doLocalShare();
+                }
+        }
         return false;
     }
 
@@ -414,7 +443,7 @@ public class MainActivity extends AppCompatActivity
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
             //showSearchIcon(false);
-            Constant.pickedDir = Constant.rootDir = null;
+            Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = null;
             Constant.rootUri = null;
             switchToFragment(NoOtgFragment.class.getName(), false);
             return;
@@ -632,23 +661,10 @@ public class MainActivity extends AppCompatActivity
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
         mFileActionManager.onLoadFinished(loader, success);
         if (success) {
-            /*if (loader instanceof LocalFileListLoader) {
-                mPath = ((LocalFileListLoader) loader).getPath();
-                mFileList = ((LocalFileListLoader) loader).getFileList();
-                browserFragment.setFileList(mFileList);
-                replaceFragment(browserFragment);
-                //TO DO
-            }else if (loader instanceof LocalTypeListLoader){
-                mImgFileList = ((LocalTypeListLoader) loader).getImageList();
-                mMusicFileList = ((LocalTypeListLoader) loader).getMusicList();
-                mVideoFileList = ((LocalTypeListLoader) loader).getVideoList();
-                mDocFileList = ((LocalTypeListLoader) loader).getDocList();
-                browserFragment.setImgFileList(mImgFileList);
-                browserFragment.setMusicFileList(mMusicFileList);
-                browserFragment.setVideoFileList(mVideoFileList);
-                browserFragment.setDocFileList(mDocFileList);
-                replaceFragment(browserFragment);
-            }*/
+            mActionMode.finish();
+            Constant.mActionMode = mActionMode = null;
+            getBrowserFragment().restartLoaderforCurrentTab();
+            Log.d(TAG, "rename ok");
         }
 
     }
@@ -745,7 +761,7 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (fragment != null) {
             LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, sort_by);
-            ((BrowserFragment) fragment).onSortChanged();
+            ((BrowserFragment) fragment).restartLoaderforCurrentTab();
         }
     }
 
@@ -753,7 +769,7 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (fragment != null) {
             LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, sort_order);
-            ((BrowserFragment) fragment).onSortChanged();
+            ((BrowserFragment) fragment).restartLoaderforCurrentTab();
         }
     }
 
@@ -798,7 +814,7 @@ public class MainActivity extends AppCompatActivity
                     getContentResolver().takePersistableUriPermission(uri,
                             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     LocalPreferences.setOTGKey(this, device.getUsbDevice().getSerialNumber(), uri.toString());
-                    Constant.pickedDir = Constant.rootDir = otgDir = rootDir;
+                    Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = otgDir = rootDir;
                     Constant.nowMODE = Constant.MODE.OTG;
                     Constant.rootUri = uri;
                     return true;
@@ -811,5 +827,78 @@ public class MainActivity extends AppCompatActivity
             intentDocumentTree();
         }
         return false;
+    }
+
+    private void doLocalRename(){
+        List<String> names = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
+        FileInfo target = new FileInfo();
+        for (FileInfo file : allFiles) {
+            if (file.checked)
+                target = file;
+            else
+                names.add(file.name.toLowerCase());
+        }
+        final String path = target.path;
+        final String name = target.name;
+        boolean ignoreType = target.type.equals(FileInfo.TYPE.DIR);
+        new LocalRenameDialog(this,ignoreType, name, names) {
+            @Override
+            public void onConfirm(String newName) {
+                if (newName.equals(name))
+                    return;
+                mFileActionManager.rename(path, newName);
+            }
+        };
+    }
+
+    private void doOTGRename() {
+        ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+
+//        Uri uri = target.uri;
+//        uri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri));
+//        DocumentFile a = DocumentFile.fromTreeUri(this, uri);
+//        DocumentsContract.renameDocument(getContentResolver(), uri, "wangjaja.avi");
+//        DocumentFile.fromSingleUri()
+//        String parentId = DocumentsContract.get.getTreeDocumentId(uri);
+//        parentUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, parentId);
+//
+//        DocumentFile pickedDir = DocumentFile.fromTreeUri(this, path);
+//        pickedDir.renameTo("aa.jpg");
+//        final String name = target.name;
+//
+//        final String name = getSelectedDocumentFile().get(0).getName();
+//        DocumentFile[] pickDirArray = pickedDir.listFiles();
+//        for (DocumentFile file : pickDirArray) {
+//            names.add(file.getName().toLowerCase());
+//        }
+//        new OTGFileActionRenameDialog(this, name, names) {
+//            @Override
+//            public void onConfirm(String newName) {
+//                if (newName.equals(name))
+//                    return;
+//
+//            }
+//        };
+    }
+
+    private void doLocalDelete(){
+        ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+        new LocalDeleteDialog(this, selectedFiles) {
+            @Override
+            public void onConfirm(ArrayList<FileInfo> selectedFiles) {
+                mFileActionManager.delete(selectedFiles);
+            }
+        };
+    }
+
+    private void doLocalShare() {
+        String selectPath = getBrowserFragment().getSelectedFiles().get(0).path;
+        boolean shareSuccess = MediaUtils.localShare(this, selectPath);
+        if(!shareSuccess)
+            snackBarShow(R.string.snackbar_not_support_share);
+        mActionMode.finish();
+        Constant.mActionMode = null;
+
     }
 }

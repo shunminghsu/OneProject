@@ -76,13 +76,13 @@ public class FileActionManager {
     public void checkServiceMode(String path) {
         if (path.contains(Constant.ROOT_LOCAL)) {
             setMode(MODE.LOCAL);
-        } else if(path.contains(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path))){
+        } else if (path.contains(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path))) {
             setMode(MODE.SD);
         }
     }
 
 
-    public String getLocalRootPath(){
+    public String getLocalRootPath() {
         String root = Constant.ROOT_LOCAL;
         return root;
     }
@@ -92,14 +92,27 @@ public class FileActionManager {
         Log.w(TAG, "doLoad: " + path);
     }
 
-    public void otgList(FileInfo file){
-        if(file != null)
+    public void otgList(FileInfo file) {
+        if (file != null)
             createLoader(FileActionService.FileAction.OTGLIST, file.name, null, null, file);
         else
             createLoader(FileActionService.FileAction.OTGLIST, null, null, null, file);
     }
 
-    public void listAllType(){
+    public void rename(String path, String newName) {
+        createLoader(FileActionService.FileAction.RENAME, newName, path, null, null);
+    }
+
+    public void delete(ArrayList<FileInfo> selectFiles) {
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectFiles) {
+            paths.add(info.path);
+        }
+
+        createLoader(FileActionService.FileAction.DELETE, null, null, paths, null);
+    }
+
+    public void listAllType() {
         createLoader(FileActionService.FileAction.LIST_ALL_TYPE, null, null, null, null);
     }
 
@@ -114,7 +127,7 @@ public class FileActionManager {
             args.putStringArrayList("paths", paths);
         if (mode != null)
             args.putInt("actionMode", id);
-        if(file!=null){
+        if (file != null) {
             args.putParcelable("uri", file.uri);
         }
 

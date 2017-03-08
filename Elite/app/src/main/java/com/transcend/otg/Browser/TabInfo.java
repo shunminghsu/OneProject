@@ -21,6 +21,8 @@ import com.transcend.otg.Photo.PhotoActivity;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.MediaUtils;
 
+import java.util.ArrayList;
+
 
 /**
  * Created by henry_hsu on 2017/2/3.
@@ -189,6 +191,14 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
 
     public int getItemsCount(){
         return mRecyclerAdapter.getItemCount();
+    }
+
+    public ArrayList<FileInfo> getSelectedFile(){
+        return mRecyclerAdapter.getSelectedFiles();
+    }
+
+    public ArrayList<FileInfo> getAllFiles(){
+        return mRecyclerAdapter.getAllFiles();
     }
 
     public boolean getSelectedAllorNot(){

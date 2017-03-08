@@ -23,12 +23,15 @@
     <string name="confirm">Confirm</string>
 
     <string name="openin_title">Please Choose App</string>
-    <string name="conj_selected">%1$d files selected</string>
+    <string name="conj_selected">%1$d file(s) selected</string>
+    <string name="conj_deleted">%1$d item(s) will be deleted.</string>
+    <string name="snackbar_not_support_share">This File does not support Share function</string>"
 
     <!-- Drawer -->
     <string name="drawer_home">Home</string>
     <string name="drawer_browser">Browser</string>
     <string name="drawer_backup">Backup</string>
+    <string name="drawer_setting">Settings</string>
     <string name="drawer_help">Help</string>
     <string name="drawer_feedback">Feedback</string>
 
@@ -63,4 +66,11 @@
     <string name="photo_time">Last Modified</string>
     <string name="photo_location">Located in</string>
     <string name="photo_path">Path</string>
+
+    <string name="no_item_selected">No item selected</string>
+
+    <string name="invalid_name">Invalid name</string>
+    <string name="duplicate_name">Duplicate name</string>
+    <string name="illegal_name">Incorrect characters</string>
+
 </resources>

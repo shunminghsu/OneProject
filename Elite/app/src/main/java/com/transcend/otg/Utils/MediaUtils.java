@@ -4,7 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.design.widget.Snackbar;
 import android.widget.Toast;
+
+import com.transcend.otg.R;
 
 import java.io.File;
 
@@ -63,4 +66,36 @@ public class MediaUtils {
             e.printStackTrace();
         }
     }
+
+    public static boolean localShare(Activity act, String path) {
+        Uri uri = createUri(path);
+        String name = parseName(path);
+        String type = MimeUtil.getMimeType(path);
+        if(type != null && !type.equals("enc")){
+            shareIn(act, uri, type, name);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    private static void shareIn(Activity act, Uri uri, String type, String title) {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.setType(type);
+        act.startActivity(intent);
+    }
+
+    public static String parseName(String path){
+        String[] paths = path.split("/");
+        String name = paths.length >= 1 ? paths[paths.length-1] : "";
+        return name;
+    }
+
+    public static Uri createUri(String path){
+        Uri uri;
+        uri = Uri.fromFile(new File(path));
+        return uri;
+    }
+
 }

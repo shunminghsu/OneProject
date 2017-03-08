@@ -109,7 +109,7 @@ public class FolderExploreActivity extends AppCompatActivity
             resetDropDownMapAndList();
             mFileActionManager.otgList(file);
         }else{
-            Constant.mCurrentDocumentFile = mCurrentDocumentFile;
+            Constant.mCurrentDocumentFileExplore = mCurrentDocumentFile;
             mFileActionManager.otgList(null);
         }
 
@@ -181,7 +181,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 doLoadOTG(null, false);
             }
         }else{
-            Constant.mCurrentDocumentFile = null;
+            Constant.mCurrentDocumentFileExplore = null;
             this.finish();
         }
 

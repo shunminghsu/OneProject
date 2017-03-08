@@ -22,19 +22,27 @@
         android:id="@+id/grp2"
         android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_help"
+            android:id="@+id/nav_setting"
             android:icon="@mipmap/ic_help"
-            android:title="@string/drawer_help" />
+            android:title="@string/drawer_setting" />
     </group>
 
     <group
         android:id="@+id/grp3"
         android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_help"
+            android:icon="@mipmap/ic_help"
+            android:title="@string/drawer_help" />
+    </group>
+
+    <group
+        android:id="@+id/grp4"
+        android:checkableBehavior="single">
+        <item
             android:id="@+id/nav_feedback"
             android:icon="@mipmap/ic_userfeedback"
             android:title="@string/drawer_feedback" />
     </group>
-
 
 </menu>

@@ -176,6 +176,19 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         return true;
     }
 
+    public ArrayList<FileInfo> getSelectedFiles(){
+        ArrayList<FileInfo> list = new ArrayList<>();
+        for (FileInfo file : mList) {
+            if (file.checked)
+                list.add(file);
+        }
+        return list;
+    }
+
+    public ArrayList<FileInfo> getAllFiles(){
+        return mList;
+    }
+
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
 
         int viewType;

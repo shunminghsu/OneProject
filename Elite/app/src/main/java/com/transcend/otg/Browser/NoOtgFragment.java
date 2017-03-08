@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -124,7 +123,7 @@ public class NoOtgFragment extends Fragment {
 
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
-            Constant.pickedDir = Constant.rootDir = null;
+            Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = null;
             Constant.rootUri = null;
             return;
         }
@@ -182,7 +181,7 @@ public class NoOtgFragment extends Fragment {
                     mContext.getContentResolver().takePersistableUriPermission(uri,
                             Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                     LocalPreferences.setOTGKey(mContext, device.getUsbDevice().getSerialNumber(), uri.toString());
-                    Constant.pickedDir = Constant.rootDir = otgDir = rootDir;
+                    Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = otgDir = rootDir;
                     Constant.rootUri = uri;
                     return true;
                 }

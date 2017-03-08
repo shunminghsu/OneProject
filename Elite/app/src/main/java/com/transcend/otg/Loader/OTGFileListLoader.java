@@ -4,7 +4,6 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
-import android.util.Log;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
@@ -35,11 +34,11 @@ public class OTGFileListLoader extends AsyncTaskLoader<Boolean> {
         super(context);
         mContext = context;
         mFileList = new ArrayList<FileInfo>();
-        if (Constant.mCurrentDocumentFile == null) {
+        if (Constant.mCurrentDocumentFileExplore == null) {
             dFile = DocumentFile.fromTreeUri(mContext, uri);
             dFile = dFile.findFile(selectName);
         } else {
-            dFile = Constant.mCurrentDocumentFile;
+            dFile = Constant.mCurrentDocumentFileExplore;
         }
 
     }

@@ -64,8 +64,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         mOuterStoragePath = outer_path;
         mIsOtg = otg;
         mContext = context;
-        dFile = Constant.pickedDir;
-        rootDFile = Constant.rootDir;
+        dFile = Constant.mCurrentDocumentFile;
+        rootDFile = Constant.mRootDocumentFile;
         rootUri = Constant.rootUri;
         if (rootUri != null)
             baseRootUri = DocumentsContract.buildChildDocumentsUriUsingTree(rootUri, DocumentsContract.getTreeDocumentId(rootUri));
@@ -436,6 +436,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             else if (mSortBy == Constant.SORT_BY_SIZE)
                 orderBy = MediaStore.Video.Media.SIZE;
             String order = mSortOrderAsc ? " ASC" : " DESC";
+
+
             Cursor videocursor = mContext.getContentResolver().query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     videoTypes, null, null, orderBy + order);
 
