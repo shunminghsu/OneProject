@@ -352,7 +352,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onItemClick(FileInfo file) {
-        if(file.type == FileInfo.TYPE.DIR)
+        if(file.type == Constant.TYPE_DIR)
             startFolderExploreActivity(file);
     }
 
@@ -552,6 +552,14 @@ public class MainActivity extends AppCompatActivity
             sort_order.setVisible(false);
             search.setVisible(false);
         }
+
+        final MenuItem menu_sort_name = menu.findItem(R.id.menu_sort_name);
+        final MenuItem menu_sort_date = menu.findItem(R.id.menu_sort_date);
+        final MenuItem menu_sort_size = menu.findItem(R.id.menu_sort_size);
+        int sort_value = LocalPreferences.getPref(this, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+        menu_sort_name.setChecked(sort_value == Constant.SORT_BY_NAME);
+        menu_sort_date.setChecked(sort_value == Constant.SORT_BY_DATE);
+        menu_sort_size.setChecked(sort_value == Constant.SORT_BY_SIZE);
 
         return true;
     }

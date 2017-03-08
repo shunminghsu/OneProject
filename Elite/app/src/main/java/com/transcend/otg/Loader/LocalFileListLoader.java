@@ -4,6 +4,7 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.util.Log;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Utils.FileInfoSort;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Utils.FileFactory;
@@ -50,7 +51,7 @@ public class LocalFileListLoader extends AsyncTaskLoader<Boolean> {
             fileInfo.path = file.getPath();
             fileInfo.name = file.getName();
             fileInfo.time = FileInfo.getTime(file.lastModified());
-            fileInfo.type = file.isFile() ? FileInfo.getType(file.getPath()) : FileInfo.TYPE.DIR;
+            fileInfo.type = file.isFile() ? FileInfo.getType(file.getPath()) : Constant.TYPE_DIR;
             fileInfo.size = file.length();
             mFileList.add(fileInfo);
         }

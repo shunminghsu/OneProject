@@ -105,12 +105,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             holder.subtitle.setText(mShowSize ? fileInfo.format_size : fileInfo.time);
 
         if (holder.info != null) {
-            holder.info.setVisibility(fileInfo.type == FileInfo.TYPE.DIR ? View.GONE : View.VISIBLE);
+            holder.info.setVisibility(fileInfo.type == Constant.TYPE_DIR ? View.GONE : View.VISIBLE);
         }
 
-        if (fileInfo.type == FileInfo.TYPE.MUSIC) {
+        if (fileInfo.type == Constant.TYPE_MUSIC) {
             mIconHelper.loadMusicThumbnail(fileInfo.path, fileInfo.album_id, holder.icon, holder.iconMime);
-        } else if (fileInfo.type == FileInfo.TYPE.PHOTO && fileInfo.uri != null) {
+        } else if (fileInfo.type == Constant.TYPE_PHOTO && fileInfo.uri != null) {
             mIconHelper.loadThumbnail(fileInfo.uri, fileInfo.type, holder.icon, holder.iconMime);
         } else
             mIconHelper.loadThumbnail(fileInfo.path, fileInfo.type, holder.icon, holder.iconMime);

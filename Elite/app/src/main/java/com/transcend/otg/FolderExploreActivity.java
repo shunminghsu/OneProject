@@ -42,7 +42,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private String mPath;
     private Uri mUri;
     private DocumentFile mDocumentFile;
-    private FileInfo.STORAGEMODE mMode;
+    private int mMode;
     private int mLoaderID;
     private ArrayList<FileInfo> mFileList;
     private DocumentFile mCurrentDocumentFile;
@@ -89,7 +89,7 @@ public class FolderExploreActivity extends AppCompatActivity
         mFile = Constant.mCurrentFile;
         mPath = mFile.path;
         mMode = mFile.storagemode;
-        if(mMode == FileInfo.STORAGEMODE.LOCAL || mMode == FileInfo.STORAGEMODE.SD){
+        if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
             doLoad(mPath);
         }else{
             doLoadOTG(mFile, true);
@@ -116,12 +116,12 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void updateScreen() {
-        if(mMode == FileInfo.STORAGEMODE.LOCAL || mMode == FileInfo.STORAGEMODE.SD){
+        if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
             mDropdownAdapter.updateList(mPath);
             mDropdownAdapter.notifyDataSetChanged();
             mFolderExploreAdapter.update(mFileList);
             checkEmpty();
-        }else if (mMode == FileInfo.STORAGEMODE.OTG){
+        }else if (mMode == Constant.STORAGEMODE_OTG){
             dropDownMapOTG.put(mCurrentDocumentFile.getName(), mCurrentDocumentFile);
             updateDropDownList(mCurrentDocumentFile);
             mDropdownAdapter.updateList(dropDownListOTG);
@@ -173,10 +173,10 @@ public class FolderExploreActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         if (!isOnTop()) {
-            if (mMode == FileInfo.STORAGEMODE.LOCAL || mMode == FileInfo.STORAGEMODE.SD) {
+            if (mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD) {
                 String parent = new File(mPath).getParent();
                 doLoad(parent);
-            }else if (mMode == FileInfo.STORAGEMODE.OTG){
+            }else if (mMode == Constant.STORAGEMODE_OTG){
                 mCurrentDocumentFile = mCurrentDocumentFile.getParentFile();
                 doLoadOTG(null, false);
             }
@@ -188,11 +188,11 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private boolean isOnTop(){
-        if (mMode == FileInfo.STORAGEMODE.LOCAL)
+        if (mMode == Constant.STORAGEMODE_LOCAL)
             return mPath.equals(Constant.ROOT_LOCAL);
-        else if (mMode == FileInfo.STORAGEMODE.SD)
+        else if (mMode == Constant.STORAGEMODE_SD)
             return mPath.equals(FileFactory.getOuterStoragePath(this, Constant.sd_key_path));
-        else if (mMode == FileInfo.STORAGEMODE.OTG){
+        else if (mMode == Constant.STORAGEMODE_OTG){
             return mCurrentDocumentFile.getParentFile() == null;
         }
         return true;
@@ -233,10 +233,10 @@ public class FolderExploreActivity extends AppCompatActivity
     @Override
     public void onDropdownItemSelected(int position) {
         if (position > 0) {
-            if(mMode == FileInfo.STORAGEMODE.LOCAL || mMode == FileInfo.STORAGEMODE.SD){
+            if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
                 String path = mDropdownAdapter.getPath(mMode, position);
                 doLoad(path);
-            }else if(mMode == FileInfo.STORAGEMODE.OTG){
+            }else if(mMode == Constant.STORAGEMODE_OTG){
                 String path = mDropdownAdapter.getPath(mMode, position);
                 DocumentFile mapDFile = dropDownMapOTG.get(path);
                 mCurrentDocumentFile = mapDFile;
@@ -247,10 +247,10 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     public void onRecyclerItemClick(int position) {
-        if(mFileList.get(position).type == FileInfo.TYPE.DIR){
-            if(mMode == FileInfo.STORAGEMODE.LOCAL || mMode == FileInfo.STORAGEMODE.SD)
+        if(mFileList.get(position).type == Constant.TYPE_DIR){
+            if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD)
                 doLoad(mFileList.get(position).path);
-            else if (mMode == FileInfo.STORAGEMODE.OTG){
+            else if (mMode == Constant.STORAGEMODE_OTG){
                 mCurrentDocumentFile = mCurrentDocumentFile.findFile(mFileList.get(position).name);
                 doLoadOTG(mFileList.get(position), false);
             }

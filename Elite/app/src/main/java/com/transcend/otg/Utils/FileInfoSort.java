@@ -29,23 +29,6 @@ public class FileInfoSort {
             return sortAsc ? new FileInfoSort.byDate() : new FileInfoSort.byReverseDate();
     }
 
-    public static class byType implements Comparator<FileInfo> {
-
-        @Override
-        public int compare(FileInfo lhs, FileInfo rhs) {
-            int result = 0;
-            if (lhs.type.equals(rhs.type)) {
-                result = compareByName(lhs, rhs);
-                if (result == 0)
-                    result = compareByExtension(lhs, rhs);
-            } else {
-                result = compareByType(lhs, rhs);
-            }
-            return result;
-        }
-
-    }
-
     public static class byDate implements Comparator<FileInfo> {
 
         @Override
@@ -72,6 +55,15 @@ public class FileInfoSort {
                 result = -compareByDate(lhs, rhs);
             }
             return result;
+        }
+
+    }
+
+    public static class byType implements Comparator<FileInfo> {
+
+        @Override
+        public int compare(FileInfo lhs, FileInfo rhs) {
+            return (int) (lhs.type - rhs.type);
         }
 
     }
@@ -110,10 +102,6 @@ public class FileInfoSort {
             return -compareByName(lhs, rhs);
         }
 
-    }
-
-    private static int compareByType(FileInfo lhs, FileInfo rhs) {
-        return lhs.type.compareTo(rhs.type);
     }
 
     private static int compareByExtension(FileInfo lhs, FileInfo rhs) {

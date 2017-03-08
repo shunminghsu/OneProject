@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.provider.MediaStore;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 
 import java.io.File;
@@ -70,7 +71,7 @@ public class LocalTypeListLoader extends AsyncTaskLoader<Boolean> {
                         fileInfo.path = picPath;
                         fileInfo.name = picName;
                         fileInfo.time = picTime;
-                        fileInfo.type = FileInfo.TYPE.PHOTO;
+                        fileInfo.type = Constant.TYPE_PHOTO;
                         fileInfo.size = Long.valueOf(picSize);
                         mFileListImage.add(fileInfo);
                     }
@@ -112,7 +113,7 @@ public class LocalTypeListLoader extends AsyncTaskLoader<Boolean> {
                         fileInfo.path = musicPath;
                         fileInfo.name = musicName;
                         fileInfo.time = musicTime;
-                        fileInfo.type = FileInfo.TYPE.MUSIC;
+                        fileInfo.type = Constant.TYPE_MUSIC;
                         fileInfo.size = Long.valueOf(musicSize);
                         mFileListMusic.add(fileInfo);
                     }
@@ -153,7 +154,7 @@ public class LocalTypeListLoader extends AsyncTaskLoader<Boolean> {
                         fileInfo.path = videoPath;
                         fileInfo.name = videoName;
                         fileInfo.time = videoTime;
-                        fileInfo.type = FileInfo.TYPE.VIDEO;
+                        fileInfo.type = Constant.TYPE_VIDEO;
                         fileInfo.size = Long.valueOf(videoSize);
                         mFileListVideo.add(fileInfo);
                     }
@@ -201,7 +202,7 @@ public class LocalTypeListLoader extends AsyncTaskLoader<Boolean> {
                         fileInfo.path = docPath;
                         fileInfo.name = docName;
                         fileInfo.time = docTime;
-                        fileInfo.type = FileInfo.TYPE.FILE;
+                        fileInfo.type = Constant.TYPE_DOC;
                         fileInfo.size = Long.valueOf(docSize);
                         mFileListDoc.add(fileInfo);
                     }

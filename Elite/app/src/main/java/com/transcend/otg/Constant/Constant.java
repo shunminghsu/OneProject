@@ -35,4 +35,16 @@ public class Constant {
 
     public static final String sd_key_path = "sd";
     public static final String otg_key_path = "usb";
+
+    public static final int TYPE_DIR = 0;
+    public static final int TYPE_PHOTO = 1;
+    public static final int TYPE_VIDEO = 2;
+    public static final int TYPE_MUSIC = 3;
+    public static final int TYPE_DOC = 4;
+    public static final int TYPE_ENCRYPT = 5;
+    public static final int TYPE_OTHER_FILE = 6;
+
+    public static final int STORAGEMODE_LOCAL = 0;
+    public static final int STORAGEMODE_SD = 1;
+    public static final int STORAGEMODE_OTG = 2;
 }

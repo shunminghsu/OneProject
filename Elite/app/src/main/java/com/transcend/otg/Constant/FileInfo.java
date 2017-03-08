@@ -32,8 +32,8 @@ public class FileInfo implements Durable, Parcelable {
         size = 0;
         album_id = -1;
         checked = false;
-        type = null;
-        storagemode = null;
+        type = 0;
+        storagemode = 0;
     }
 
     @Override
@@ -46,10 +46,8 @@ public class FileInfo implements Durable, Parcelable {
         size = in.readLong();
         album_id = in.readLong();
         checked = in.readBoolean();
-        String t = DurableUtils.readNullableString(in);
-        String s = DurableUtils.readNullableString(in);
-        type = TYPE.PHOTO;//DurableUtils.readNullableString(in);
-        storagemode = STORAGEMODE.LOCAL;//iDurableUtils.readNullableString(in);
+        type = in.readInt();
+        storagemode = in.readInt();
     }
 
     @Override
@@ -63,52 +61,36 @@ public class FileInfo implements Durable, Parcelable {
         out.writeLong(size);
         out.writeLong(album_id);
         out.writeBoolean(checked);
-        DurableUtils.writeNullableString(out, type.toString());
-        DurableUtils.writeNullableString(out, storagemode.toString());
-    }
-
-    public enum TYPE {
-        DIR,
-        PHOTO,
-        VIDEO,
-        MUSIC,
-        FILE,
-        ENCRYPT,
-        OTHERS
-    }
-
-    public enum STORAGEMODE{
-        LOCAL,
-        SD,
-        OTG
+        out.writeInt(type);
+        out.writeInt(storagemode);
     }
 
     public String path;
 
     public String name;
     public String time;
-    public TYPE type;
+    public int type;
     public Uri uri;
     public long size;
     public String format_size;
     public long album_id;
     public boolean checked;
-    public STORAGEMODE storagemode;
+    public int storagemode;
 
     public FileInfo() {
         reset();
     }
 
-    public static TYPE getType(String path) {
+    public static int getType(String path) {
         if (MimeUtil.isPhoto(path))
-            return TYPE.PHOTO;
+            return Constant.TYPE_PHOTO;
         if (MimeUtil.isVideo(path))
-            return TYPE.VIDEO;
+            return Constant.TYPE_VIDEO;
         if (MimeUtil.isMusic(path))
-            return TYPE.MUSIC;
+            return Constant.TYPE_MUSIC;
         if (MimeUtil.isEncrypt(path))
-            return TYPE.ENCRYPT;
-        return TYPE.FILE;
+            return Constant.TYPE_ENCRYPT;
+        return Constant.TYPE_DOC;
     }
 
     public static String getTime(long time) {

@@ -68,26 +68,26 @@ public class IconHelper {
         return IconUtils.loadIcon(mContext, mMode);
     }
 
-    public Drawable getIconMime(FileInfo.TYPE type) {
+    public Drawable getIconMime(int type) {
         switch (type) {
-            case DIR:
+            case Constant.TYPE_DIR:
                 return IconUtils.loadFolderTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case PHOTO:
+            case Constant.TYPE_PHOTO:
                 return IconUtils.loadImageTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case VIDEO:
+            case Constant.TYPE_VIDEO:
                 return IconUtils.loadVideoTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case MUSIC:
+            case Constant.TYPE_MUSIC:
                 return IconUtils.loadMusicTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case FILE:
+            case Constant.TYPE_DOC:
                 return IconUtils.loadFileTypeIcon(mContext, mMode==Constant.ITEM_GRID);
-            case ENCRYPT:
+            case Constant.TYPE_ENCRYPT:
                 return IconUtils.loadEncryptTypeIcon(mContext, mMode==Constant.ITEM_GRID);
             default:
                 return IconUtils.loadImageTypeIcon(mContext, mMode==Constant.ITEM_GRID);
         }
     }
 
-    public void loadThumbnail(String path, FileInfo.TYPE thumbnailType,
+    public void loadThumbnail(String path, int thumbnailType,
                               ImageView iconThumb, ImageView iconMime) {
         boolean cacheHit = false;
         boolean showThumbnail = true;
@@ -128,12 +128,12 @@ public class IconHelper {
         private final ImageView mIconMime;
         private final ImageView mIconThumb;
         private final Point mThumbSize;
-        private final FileInfo.TYPE mThumbType;
+        private final int mThumbType;
         //private final CancellationSignal mSignal;
 
         private Context mContext;
         public LoaderTask(String filePath, ImageView iconMime, ImageView iconThumb,
-                          FileInfo.TYPE thumbType, Point thumbSize, Context context) {
+                          int thumbType, Point thumbSize, Context context) {
             mPath = filePath;
             mIconMime = iconMime;
             mIconThumb = iconThumb;
@@ -159,9 +159,9 @@ public class IconHelper {
             //final Context context = mIconThumb.getContext();
             Bitmap result = null;
             try {
-                if (mThumbType == FileInfo.TYPE.PHOTO) {
+                if (mThumbType == Constant.TYPE_PHOTO) {
                     result = IconUtils.decodeSampledBitmapFromPath(mPath, mThumbSize.x, mThumbSize.y);
-                } else if (mThumbType == FileInfo.TYPE.VIDEO)
+                } else if (mThumbType == Constant.TYPE_VIDEO)
                     result = ThumbnailUtils.createVideoThumbnail(mPath, MediaStore.Video.Thumbnails.MINI_KIND);
                 else {
 
@@ -195,7 +195,7 @@ public class IconHelper {
         }
     }
 
-    public void loadThumbnail(Uri uri, FileInfo.TYPE thumbnailType,
+    public void loadThumbnail(Uri uri, int thumbnailType,
                               ImageView iconThumb, ImageView iconMime) {
         boolean cacheHit = false;
 
@@ -299,7 +299,7 @@ public class IconHelper {
             }
         }
 
-        final Drawable icon = getIconMime(FileInfo.TYPE.MUSIC);
+        final Drawable icon = getIconMime(Constant.TYPE_MUSIC);
         if (cacheHit) {
             iconMime.setImageDrawable(null);
             iconMime.setAlpha(0f);

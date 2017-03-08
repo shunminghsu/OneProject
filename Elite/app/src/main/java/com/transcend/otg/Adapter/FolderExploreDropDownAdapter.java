@@ -83,8 +83,8 @@ public class FolderExploreDropDownAdapter extends BaseAdapter {
         mList = list;
     }
 
-    public String getPath(FileInfo.STORAGEMODE mMode, int position) {
-        if (mMode == FileInfo.STORAGEMODE.LOCAL || mMode == FileInfo.STORAGEMODE.SD) {
+    public String getPath(int mMode, int position) {
+        if (mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD) {
             List<String> list = mList.subList(position, mList.size());
             Collections.reverse(list);
             StringBuilder builder = new StringBuilder();
@@ -102,7 +102,7 @@ public class FolderExploreDropDownAdapter extends BaseAdapter {
                 path = path.substring(0, path.length() - 1);
             }
             return path;
-        } else if (mMode == FileInfo.STORAGEMODE.OTG) {
+        } else if (mMode == Constant.STORAGEMODE_OTG) {
             String path = mList.get(position);
             return path;
         }

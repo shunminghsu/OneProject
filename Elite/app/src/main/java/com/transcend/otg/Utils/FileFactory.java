@@ -1,12 +1,16 @@
 package com.transcend.otg.Utils;
 
 import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Environment;
+import android.os.IBinder;
 import android.os.StatFs;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
 import android.util.Log;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 
 import java.io.File;
@@ -211,7 +215,7 @@ public class FileFactory {
         for (int i = 0; i < 2; i++) {
             if (i == 0) {
                 for (FileInfo file : tmp) {
-                    if (file.type == FileInfo.TYPE.DIR) {
+                    if (file.type == Constant.TYPE_DIR) {
                         fileList.add(file);
                     }
                 }
@@ -219,7 +223,7 @@ public class FileFactory {
 
             if (i == 1) {
                 for (FileInfo file : tmp) {
-                    if (file.type != FileInfo.TYPE.DIR) {
+                    if (file.type != Constant.TYPE_DIR) {
                         fileList.add(file);
                     }
                 }

@@ -58,23 +58,23 @@ public class OTGFileListLoader extends AsyncTaskLoader<Boolean> {
                 tmpFileInfo.time = FileInfo.getTime(ddFile.lastModified());
                 tmpFileInfo.uri = ddFile.getUri();
                 tmpFileInfo.size = ddFile.length();
-                tmpFileInfo.storagemode = FileInfo.STORAGEMODE.OTG;
+                tmpFileInfo.storagemode = Constant.STORAGEMODE_OTG;
                 String type = ddFile.getType();
                 if (type != null) {
                     if (type.contains(IMAGE))
-                        tmpFileInfo.type = FileInfo.TYPE.PHOTO;
+                        tmpFileInfo.type = Constant.TYPE_PHOTO;
                     else if (type.contains(APPLICATION) || type.contains(TEXT))
-                        tmpFileInfo.type = FileInfo.TYPE.FILE;
+                        tmpFileInfo.type = Constant.TYPE_DOC;
                     else if (type.contains(VIDEO))
-                        tmpFileInfo.type = FileInfo.TYPE.VIDEO;
+                        tmpFileInfo.type = Constant.TYPE_VIDEO;
                     else if (type.contains(AUDIO))
-                        tmpFileInfo.type = FileInfo.TYPE.MUSIC;
+                        tmpFileInfo.type = Constant.TYPE_MUSIC;
                     else
-                        tmpFileInfo.type = FileInfo.TYPE.DIR;
+                        tmpFileInfo.type = Constant.TYPE_DIR;
                     if (tmpFileInfo.name.contains(ENCRYPT))
-                        tmpFileInfo.type = FileInfo.TYPE.ENCRYPT;
+                        tmpFileInfo.type = Constant.TYPE_ENCRYPT;
                 } else {
-                    tmpFileInfo.type = FileInfo.TYPE.DIR;
+                    tmpFileInfo.type = Constant.TYPE_DIR;
                 }
                 if (tmpFileInfo.name != null) {
                     if (tmpFileInfo.name.substring(0, 1).equals("."))

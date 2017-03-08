@@ -17,9 +17,9 @@
     <string name="menu_copy_to_clipboard">Copy</string>
     <string name="menu_paste_from_clipboard">Paste</string>
 
-    <string name="sort_name">By name</string>
-    <string name="sort_date">By date modified</string>
-    <string name="sort_size">By size</string>
+    <string name="sort_name">Name</string>
+    <string name="sort_date">Date</string>
+    <string name="sort_size">Size</string>
     <string name="sort_order_as">Ascending</string>
     <string name="sort_order_des">Descending</string>
 </resources>

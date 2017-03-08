@@ -102,26 +102,26 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.time = FileInfo.getTime(time);
                         switch (cursor.getInt(typeColumnIndex)) {
                             case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
-                                fileInfo.type = FileInfo.TYPE.PHOTO;
+                                fileInfo.type = Constant.TYPE_PHOTO;
                                 fileInfo.uri = fileUri;
                                 break;
                             case MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO:
-                                fileInfo.type = FileInfo.TYPE.MUSIC;
+                                fileInfo.type = Constant.TYPE_MUSIC;
                                 break;
                             case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
-                                fileInfo.type = FileInfo.TYPE.VIDEO;
+                                fileInfo.type = Constant.TYPE_VIDEO;
                                 break;
                             default:
                                 if (mimeType != null && (mimeType.contains(TEXT) || mimeType.contains(PDF) || mimeType.contains(WORD) || mimeType.contains(PPT) || mimeType.contains(EXCEL))) {
-                                    fileInfo.type = FileInfo.TYPE.FILE;
+                                    fileInfo.type = Constant.TYPE_DOC;
                                 } else {
                                     File file = new File(path);
                                     if (file.exists() && file.isDirectory()) {
-                                        fileInfo.type = FileInfo.TYPE.DIR;
+                                        fileInfo.type = Constant.TYPE_DIR;
                                     } else if (name.contains(ENCRYPT)) {
-                                        fileInfo.type = FileInfo.TYPE.ENCRYPT;
+                                        fileInfo.type = Constant.TYPE_ENCRYPT;
                                     } else {
-                                        fileInfo.type = FileInfo.TYPE.OTHERS;
+                                        fileInfo.type = Constant.TYPE_OTHER_FILE;
                                     }
                                 }
                                 break;
@@ -158,45 +158,49 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     String JPG = "jpg";
     private ArrayList<FileInfo> searchAllOtg(Uri _rootUri) {
 
-        Cursor encCursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
-        int cursor_index_ID = encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID);
-        while (encCursor.moveToNext()) {
-            if (!encCursor.getString(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
-                String type = encCursor.getString(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
-                String name = encCursor.getString(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+        Cursor cursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
+        if (cursor == null) {
+            cancelLoad();
+            return null;
+        }
+        int cursor_index_ID = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID);
+        while (cursor.moveToNext()) {
+            if (!cursor.getString(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
+                String type = cursor.getString(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
+                String name = cursor.getString(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
                 if (type.contains(DIR)) {
-                    searchAllOtg(DocumentsContract.buildChildDocumentsUriUsingTree(_rootUri, encCursor.getString(cursor_index_ID)));
+                    searchAllOtg(DocumentsContract.buildChildDocumentsUriUsingTree(_rootUri, cursor.getString(cursor_index_ID)));
                 }
                 if (name.toLowerCase().contains(mQueryText.toLowerCase())) {
                     FileInfo item = new FileInfo();
                     item.name = name;
-                    item.time = FileInfo.getTime(encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
-                    item.size = encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
-                    String[] split = encCursor.getString(cursor_index_ID).split(":");
+                    item.time = FileInfo.getTime(cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.size = cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    String[] split = cursor.getString(cursor_index_ID).split(":");
                     item.path = mOTGPath + "/" + split[1];
-                    item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, encCursor.getString(cursor_index_ID));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, cursor.getString(cursor_index_ID));
 
                     if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {
-                        item.type = FileInfo.TYPE.PHOTO;
+                        item.type = Constant.TYPE_PHOTO;
                     } else if (type.contains(VIDEO)) {
-                        item.type = FileInfo.TYPE.VIDEO;
+                        item.type = Constant.TYPE_VIDEO;
                     } else if (type.contains(AUDIO)) {
-                        item.type = FileInfo.TYPE.MUSIC;
+                        item.type = Constant.TYPE_MUSIC;
                     } else if (type.contains(TEXT) || type.contains(PDF) || type.contains(WORD) || type.contains(PPT) || type.contains(EXCEL)) {
-                        item.type = FileInfo.TYPE.FILE;
+                        item.type = Constant.TYPE_DOC;
                     } else if (name.contains(ENCRYPT)) {
-                        item.type = FileInfo.TYPE.ENCRYPT;
+                        item.type = Constant.TYPE_ENCRYPT;
                     } else if (type.contains(DIR)) {
-                        item.type = FileInfo.TYPE.DIR;
+                        item.type = Constant.TYPE_DIR;
                     } else {
-                        item.type = FileInfo.TYPE.OTHERS;
+                        item.type = Constant.TYPE_OTHER_FILE;
                     }
 
                     mFileList.add(item);
                 }
             }
         }
-        encCursor.close();
+        cursor.close();
 
         return mFileList;
     }
