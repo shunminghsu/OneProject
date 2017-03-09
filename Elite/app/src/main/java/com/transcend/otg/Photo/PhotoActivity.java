@@ -110,10 +110,11 @@ public class PhotoActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.share:
                 Intent share_intent = new Intent(Intent.ACTION_SEND);
-                share_intent.setDataAndType(mPhotoList.get(mPager.getCurrentItem()).uri, "image/*");
+                share_intent.putExtra(Intent.EXTRA_STREAM, mPhotoList.get(mPager.getCurrentItem()).uri);
+                share_intent.setType("image/*");
                 share_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                //startActivityForResult(share_intent, EDIT_REQUEST_CODE);
-                startActivity(Intent.createChooser(share_intent, null));
+                startActivityForResult(share_intent, EDIT_REQUEST_CODE);
+                //startActivity(Intent.createChooser(share_intent, null));
                 return true;
             case R.id.edit:
                 Intent edit_intent = new Intent(Intent.ACTION_EDIT);
@@ -241,7 +242,7 @@ public class PhotoActivity extends AppCompatActivity {
             TouchImageView imageView = (TouchImageView) itemView.findViewById(R.id.photo);
             imageView.setPhotoClickListener(mPhotoClickListener);
             ViewGroup loading = (ViewGroup) itemView.findViewById(R.id.loading);
-            mPhotoHelper.loadThumbnail(mPhotoList.get(position).path, imageView, loading, mScreenW, mScreenH);
+            mPhotoHelper.loadThumbnail(mPhotoList.get(position).uri, imageView, loading, mScreenW, mScreenH);
 
             ViewGroup viewGroup = (ViewGroup)itemView.findViewById(R.id.info);
             viewGroup.setVisibility(mHideAllUI ? View.GONE : View.VISIBLE);

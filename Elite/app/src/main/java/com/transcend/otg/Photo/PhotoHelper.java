@@ -1,9 +1,14 @@
 package com.transcend.otg.Photo;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Point;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.CancellationSignal;
+import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,30 +28,33 @@ public class PhotoHelper {
         mContext = context;
     }
 
-    public void loadThumbnail(String path, ImageView photoView, ViewGroup loadingView, int width, int height) {
+    public void loadThumbnail(Uri uri, ImageView photoView, ViewGroup loadingView, int width, int height) {
 
         photoView.setImageDrawable(null);
-        final PhotoHelper.LoaderTask task = new PhotoHelper.LoaderTask(path, photoView, loadingView, mContext, width, height);
+        final PhotoHelper.LoaderTask task = new PhotoHelper.LoaderTask(uri, photoView, loadingView, mContext, width, height);
         photoView.setTag(task);
         task.execute();
 
     }
 
     private static class LoaderTask extends AsyncTask<String, Void, Bitmap> {
-        private final String mPath;
+        private final Uri mUri;
         private final ViewGroup mLoadingView;
         private final ImageView mPhotoView;
         final private int mPhotoWidth, mPhotoHeight;
-
+        private final CancellationSignal mSignal;
+        private Point mThumbSize;
         private Context mContext;
-        public LoaderTask(String filePath, ImageView photoView, ViewGroup loadingView, Context context,
+        public LoaderTask(Uri uri, ImageView photoView, ViewGroup loadingView, Context context,
                           int width, int height) {
-            mPath = filePath;
+            mUri = uri;
             mLoadingView = loadingView;
             mPhotoView = photoView;
             mContext = context;
             mPhotoWidth = width;
             mPhotoHeight = height;
+            mThumbSize = new Point(width, height);
+            mSignal = new CancellationSignal();
         }
 
         @Override
@@ -60,9 +68,9 @@ public class PhotoHelper {
         protected Bitmap doInBackground(String... params) {
             if (isCancelled())
                 return null;
-
+            final ContentResolver resolver = mContext.getContentResolver();
             Bitmap result = null;
-            result = decodeFullScreenBitmapFromPath(mPath, mPhotoWidth, mPhotoHeight);
+            result = DocumentsContract.getDocumentThumbnail(resolver, mUri, mThumbSize, mSignal);
             return result;
         }
 
