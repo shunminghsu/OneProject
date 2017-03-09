@@ -296,7 +296,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 String[] split = cursor.getString(cursor_index_ID).split(":");
                 item.path = mOuterStoragePath + "/" + split[1];
                 item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, cursor.getString(cursor_index_ID));
-
+                item.storagemode = Constant.STORAGEMODE_OTG;
                 if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {
                     item.type = Constant.TYPE_PHOTO;
                 } else if (type.contains(VIDEO)) {
