@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.design.widget.Snackbar;
+import android.support.v4.provider.DocumentFile;
 import android.widget.Toast;
 
+import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.R;
 
 import java.io.File;
@@ -71,7 +73,19 @@ public class MediaUtils {
         Uri uri = createUri(path);
         String name = parseName(path);
         String type = MimeUtil.getMimeType(path);
-        if(type != null && !type.equals("enc")){
+        if(type != null && !name.contains(".enc")){
+            shareIn(act, uri, type, name);
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public static boolean otgShare(Activity act, DocumentFile file) {
+        Uri uri = file.getUri();
+        String name = file.getName();
+        String type = file.getType();
+        if(type != null && !name.contains(".enc")){
             shareIn(act, uri, type, name);
             return true;
         }else{

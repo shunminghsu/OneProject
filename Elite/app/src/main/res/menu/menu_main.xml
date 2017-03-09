@@ -19,11 +19,10 @@
             android:title="@string/menu_list"
             app:showAsAction="never" />
         <item
-            android:id="@+id/menu_create_dir"
-            android:title="@string/menu_create_dir"
+            android:id="@+id/menu_new_folder"
+            android:title="@string/menu_new_folder"
             android:icon="@drawable/ic_menu_send"
-            app:showAsAction="never"
-            android:visible="false" />
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_paste_from_clipboard"
             android:title="@string/menu_paste_from_clipboard"

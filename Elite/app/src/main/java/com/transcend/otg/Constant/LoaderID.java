@@ -9,7 +9,11 @@ public class LoaderID {
     public static final int LOCAL_ALL_TYPE_LIST = 2;
     public static final int LOCAL_FILE_RENAME = 3;
     public static final int LOCAL_FILE_DELETE = 4;
+    public static final int LOCAL_NEW_FOLDER = 5;
 
 
     public static final int OTG_FILE_LIST = 21;
+    public static final int OTG_RENAME = 22;
+    public static final int OTG_DELETE = 23;
+    public static final int OTG_NEW_FOLDER = 24;
 }

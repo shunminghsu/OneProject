@@ -88,19 +88,23 @@ public class FileActionManager {
     }
 
     public void list(String path) {
-        createLoader(FileActionService.FileAction.LIST, null, path, null, null);
+        createLoader(FileActionService.FileAction.LIST, null, path, null, null, null);
         Log.w(TAG, "doLoad: " + path);
     }
 
     public void otgList(FileInfo file) {
         if (file != null)
-            createLoader(FileActionService.FileAction.OTGLIST, file.name, null, null, file);
+            createLoader(FileActionService.FileAction.OTGLIST, file.name, null, null, file, null);
         else
-            createLoader(FileActionService.FileAction.OTGLIST, null, null, null, file);
+            createLoader(FileActionService.FileAction.OTGLIST, null, null, null, file, null);
     }
 
     public void rename(String path, String newName) {
-        createLoader(FileActionService.FileAction.RENAME, newName, path, null, null);
+        createLoader(FileActionService.FileAction.RENAME, newName, path, null, null, null);
+    }
+
+    public void renameOTG(String newName, ArrayList<DocumentFile> dFile){
+        createLoader(FileActionService.FileAction.RENAME_OTG, newName, null, null, null, dFile);
     }
 
     public void delete(ArrayList<FileInfo> selectFiles) {
@@ -108,15 +112,26 @@ public class FileActionManager {
         for (FileInfo info : selectFiles) {
             paths.add(info.path);
         }
+        createLoader(FileActionService.FileAction.DELETE, null, null, paths, null, null);
+    }
 
-        createLoader(FileActionService.FileAction.DELETE, null, null, paths, null);
+    public void deleteOTG(ArrayList<DocumentFile> selectDFiles) {
+        createLoader(FileActionService.FileAction.DELETE_OTG, null, null, null, null, selectDFiles);
+    }
+
+    public void newFolder(String path){
+        createLoader(FileActionService.FileAction.NEWFOLDER, null, path, null, null, null);
+    }
+
+    public void newFolderOTG(String name, ArrayList<DocumentFile> dFile){
+        createLoader(FileActionService.FileAction.NEWFOLDER_OTG, name, null, null, null, dFile);
     }
 
     public void listAllType() {
-        createLoader(FileActionService.FileAction.LIST_ALL_TYPE, null, null, null, null);
+        createLoader(FileActionService.FileAction.LIST_ALL_TYPE, null, null, null, null, null);
     }
 
-    private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths, FileInfo file) {
+    private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths, FileInfo file, ArrayList<DocumentFile> dFiles) {
         int id = mFileActionService.getLoaderID(mode);
         Bundle args = new Bundle();
         if (name != null)
@@ -130,6 +145,8 @@ public class FileActionManager {
         if (file != null) {
             args.putParcelable("uri", file.uri);
         }
+        if(dFiles != null)
+            args.putSerializable("dFile", dFiles);
 
         ((Activity) mContext).getLoaderManager().restartLoader(id, args, mCallbacks).forceLoad();
     }
@@ -147,7 +164,7 @@ public class FileActionManager {
                         case LIST:
                         case RENAME:
                         case DELETE:
-                        case CreateFOLDER:
+                        case NEWFOLDER:
                             mProgressLayout.setVisibility(View.VISIBLE);
                             break;
                         default:

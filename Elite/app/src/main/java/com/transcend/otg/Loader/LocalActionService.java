@@ -4,7 +4,9 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Loader;
 import android.net.Uri;
+import android.support.v4.provider.DocumentFile;
 
+import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Constant.LoaderID;
 
 import java.util.ArrayList;
@@ -20,16 +22,16 @@ public class LocalActionService extends FileActionService{
         TAG = LocalActionService.class.getSimpleName();
         LIST = LoaderID.LOCAL_FILE_LIST;
         LIST_ALL_TYPE = LoaderID.LOCAL_ALL_TYPE_LIST;
-//        UPLOAD = LoaderID.LOCAL_FILE_UPLOAD;
-//        CreateFOLDER = LoaderID.LOCAL_NEW_FOLDER;
+        NEWFOLDER = LoaderID.LOCAL_NEW_FOLDER;
         RENAME = LoaderID.LOCAL_FILE_RENAME;
 //        COPY = LoaderID.LOCAL_FILE_COPY;
 //        MOVE = LoaderID.LOCAL_FILE_MOVE;
         DELETE = LoaderID.LOCAL_FILE_DELETE;
-//        SHARE = LoaderID.LOCAL_FILE_SHARE;
-//        mMode = NASApp.MODE_STG;
-//        mRoot = NASApp.ROOT_STG;
-//        mPath = NASApp.ROOT_STG;
+        OTGLIST = LoaderID.OTG_FILE_LIST;
+        RENAME_OTG = LoaderID.OTG_RENAME;
+        DELETE_OTG = LoaderID.OTG_DELETE;
+        NEWFOLDER_OTG = LoaderID.OTG_NEW_FOLDER;
+
     }
 
     @Override
@@ -73,6 +75,11 @@ public class LocalActionService extends FileActionService{
     }
 
     @Override
+    protected AsyncTaskLoader renameOTG(Context context, String name, ArrayList<DocumentFile> dFiles) {
+        return new OTGRenameLoader(context, name, dFiles);
+    }
+
+    @Override
     protected AsyncTaskLoader copy(Context context, List<String> list, String dest) {
         return null;
     }
@@ -88,8 +95,18 @@ public class LocalActionService extends FileActionService{
     }
 
     @Override
-    protected AsyncTaskLoader createFolder(Context context, String path) {
-        return null;
+    protected AsyncTaskLoader deleteOTG(Context context, ArrayList<DocumentFile> dFiles) {
+        return new OTGDeleteLoader(context, dFiles);
+    }
+
+    @Override
+    protected AsyncTaskLoader newFolder(Context context, String path) {
+        return new LocalNewFolderLoader(context, path);
+    }
+
+    @Override
+    protected AsyncTaskLoader newFolderOTG(Context context, String name, ArrayList<DocumentFile> dFiles) {
+        return new OTGNewFolderLoader(context, name, dFiles);
     }
 
     @Override

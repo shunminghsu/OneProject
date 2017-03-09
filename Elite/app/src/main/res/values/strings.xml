@@ -21,6 +21,7 @@
 
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
+    <string name="fail">Fail</string>
 
     <string name="openin_title">Please Choose App</string>
     <string name="conj_selected">%1$d file(s) selected</string>
@@ -75,5 +76,6 @@
     <string name="invalid_name">Invalid name</string>
     <string name="duplicate_name">Duplicate name</string>
     <string name="illegal_name">Incorrect characters</string>
+    <string name="untitled_folder">Untitled folder</string>
 
 </resources>

@@ -7,12 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.provider.DocumentFile;
 
-import com.transcend.otg.Constant.FileInfo;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.transcend.otg.Loader.FileActionService.FileAction.OTGLIST;
 
 /**
  * Created by wangbojie on 2017/2/7.
@@ -28,7 +24,7 @@ abstract class FileActionService {
     protected int LIST;
     protected int DOWNLOAD;
     protected int UPLOAD;
-    protected int CreateFOLDER;
+    protected int NEWFOLDER;
     protected int RENAME;
     protected int COPY;
     protected int MOVE;
@@ -36,9 +32,13 @@ abstract class FileActionService {
     protected int SHARE;
     protected int LIST_ALL_TYPE;
     protected int OTGLIST;
+    protected int RENAME_OTG;
+    protected int DELETE_OTG;
+    protected int NEWFOLDER_OTG;
 
     public enum FileAction {
-        OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, CreateFOLDER, SHARE, LIST_ALL_TYPE, OTGLIST
+        OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, NEWFOLDER, SHARE, LIST_ALL_TYPE, OTGLIST, RENAME_OTG, DELETE_OTG,
+        NEWFOLDER_OTG
     }
 
     public String getMode(Context context){
@@ -81,14 +81,20 @@ abstract class FileActionService {
             fileAction = FileAction.MOVE;
         else if(action == DELETE)
             fileAction = FileAction.DELETE;
-        else if(action == CreateFOLDER)
-            fileAction = FileAction.CreateFOLDER;
+        else if(action == NEWFOLDER)
+            fileAction = FileAction.NEWFOLDER;
         else if(action == SHARE)
             fileAction = FileAction.SHARE;
         else if(action == LIST_ALL_TYPE)
             fileAction = FileAction.LIST_ALL_TYPE;
         else if(action == OTGLIST)
             fileAction = FileAction.OTGLIST;
+        else if(action == RENAME_OTG)
+            fileAction = FileAction.RENAME_OTG;
+        else if(action == DELETE_OTG)
+            fileAction = FileAction.DELETE_OTG;
+        else if(action == NEWFOLDER_OTG)
+            fileAction = FileAction.NEWFOLDER_OTG;
         return fileAction;
     }
 
@@ -119,8 +125,8 @@ abstract class FileActionService {
             case DELETE:
                 id = DELETE;
                 break;
-            case CreateFOLDER:
-                id = CreateFOLDER;
+            case NEWFOLDER:
+                id = NEWFOLDER;
                 break;
             case SHARE:
                 id = SHARE;
@@ -130,6 +136,15 @@ abstract class FileActionService {
                 break;
             case OTGLIST:
                 id = OTGLIST;
+                break;
+            case RENAME_OTG:
+                id = RENAME_OTG;
+                break;
+            case DELETE_OTG:
+                id = DELETE_OTG;
+                break;
+            case NEWFOLDER_OTG:
+                id = NEWFOLDER_OTG;
                 break;
         }
 
@@ -141,6 +156,7 @@ abstract class FileActionService {
         String path = args.getString("path");
         String name = args.getString("name");
         Uri uri = args.getParcelable("uri");
+        ArrayList<DocumentFile> dFiles = (ArrayList<DocumentFile>) args.getSerializable("dFile");
         switch (id) {
             case LIST:
                 return list(context, path);
@@ -156,14 +172,20 @@ abstract class FileActionService {
                 return move(context, paths, path);
             case DELETE:
                 return delete(context, paths);
-            case CreateFOLDER:
-                return createFolder(context, path);
+            case NEWFOLDER:
+                return newFolder(context, path);
             case SHARE:
                 return share(context, paths, path);
             case LIST_ALL_TYPE:
                 return listAllType(context);
             case OTGLIST:
                 return otglist(context, uri, name);
+            case RENAME_OTG:
+                return renameOTG(context, name, dFiles);
+            case DELETE_OTG:
+                return deleteOTG(context, dFiles);
+            case NEWFOLDER_OTG:
+                return newFolderOTG(context, name, dFiles);
         }
 
         return null;
@@ -187,11 +209,17 @@ abstract class FileActionService {
 
     protected abstract AsyncTaskLoader delete(Context context, List<String> list);
 
-    protected abstract AsyncTaskLoader createFolder(Context context, String path);
+    protected abstract AsyncTaskLoader newFolder(Context context, String path);
 
     protected abstract AsyncTaskLoader share(Context context, ArrayList<String> paths, String dest);
 
     protected abstract AsyncTaskLoader listAllType(Context context);
 
     protected abstract AsyncTaskLoader otglist(Context context, Uri uri, String na);
+
+    protected abstract AsyncTaskLoader renameOTG(Context context, String name, ArrayList<DocumentFile> dFiles);
+
+    protected abstract AsyncTaskLoader deleteOTG(Context context, ArrayList<DocumentFile> dFiles);
+
+    protected abstract AsyncTaskLoader newFolderOTG(Context context, String name, ArrayList<DocumentFile> dFiles);
 }

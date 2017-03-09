@@ -8,6 +8,7 @@ import android.os.IBinder;
 import android.os.StatFs;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
+import android.support.v4.provider.DocumentFile;
 import android.util.Log;
 
 import com.transcend.otg.Constant.Constant;
@@ -285,6 +286,31 @@ public class FileFactory {
     public void releaseNotificationID(int id) {
         String value = "" + id;
         mNotificationList.remove(value);
+    }
+
+    public static ArrayList<DocumentFile> findDocumentFilefromPath(ArrayList<FileInfo> fileInfos){
+        ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
+        DocumentFile currentDocumentFile = Constant.mCurrentDocumentFile;
+        for(FileInfo file : fileInfos){
+            String path = file.path;
+            String[] array = path.split("/");
+            DocumentFile tmp = currentDocumentFile;
+            for(int i= 1;i<array.length;i++){
+                tmp = tmp.findFile(array[i]);
+            }
+            mDocumentFiles.add(tmp);
+        }
+        return mDocumentFiles;
+    }
+
+    public static ArrayList<DocumentFile> findDocumentFilefromName(ArrayList<FileInfo> fileInfos){
+        ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
+        DocumentFile currentDocumentFile = Constant.mCurrentDocumentFile;
+        for(FileInfo file : fileInfos){
+            DocumentFile tmp = currentDocumentFile.findFile(file.name);
+            mDocumentFiles.add(tmp);
+        }
+        return mDocumentFiles;
     }
 
 //    public static String getStorageSize(String filePath) {

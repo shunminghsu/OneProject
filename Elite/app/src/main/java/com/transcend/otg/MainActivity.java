@@ -50,7 +50,11 @@ import com.transcend.otg.Browser.TabInfo;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.LocalDeleteDialog;
+import com.transcend.otg.Dialog.LocalNewFolderDialog;
 import com.transcend.otg.Dialog.LocalRenameDialog;
+import com.transcend.otg.Dialog.OTGDeleteDialog;
+import com.transcend.otg.Dialog.OTGFileRenameDialog;
+import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Utils.FileFactory;
@@ -284,6 +288,7 @@ public class MainActivity extends AppCompatActivity
 
     private void toggleActionModeAction(int count) {
         boolean visible = false;
+        int position = getBrowserFragment().getCurrentTabPosition();
         if (count == 0) {
             mActionMode.getMenu().findItem(R.id.action_rename).setVisible(visible);
             mActionMode.getMenu().findItem(R.id.action_share).setVisible(visible);
@@ -309,6 +314,8 @@ public class MainActivity extends AppCompatActivity
             mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(!visible);
         }
+        if(position != 5)
+            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(visible);
     }
 
     @Override
@@ -332,11 +339,15 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_delete:
                 if (Constant.nowMODE == Constant.MODE.LOCAL) {
                     doLocalDelete();
+                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                    doOTGDelete();
                 }
                 break;
             case R.id.action_share:
                 if(Constant.nowMODE == Constant.MODE.LOCAL || Constant.nowMODE == Constant.MODE.SD){
                     doLocalShare();
+                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                    doOTGShare();
                 }
         }
         return false;
@@ -532,6 +543,7 @@ public class MainActivity extends AppCompatActivity
         final MenuItem sort_order = menu.findItem(R.id.menu_sort_order);
         final MenuItem grid = menu.findItem(R.id.menu_grid);
         final MenuItem list = menu.findItem(R.id.menu_list);
+        final MenuItem newFolder = menu.findItem(R.id.menu_new_folder);
 
         BrowserFragment fragment = getBrowserFragment();
         if (fragment != null && fragment.mCurTab != null) {
@@ -540,12 +552,17 @@ public class MainActivity extends AppCompatActivity
             sort.setVisible(true);
             sort_order.setVisible(true);
             search.setVisible(true);
+            if(fragment.getCurrentTabPosition() == 5)
+                newFolder.setVisible(true);
+            else
+                newFolder.setVisible(false);
         } else {
             grid.setVisible(false);
             list.setVisible(false);
             sort.setVisible(false);
             sort_order.setVisible(false);
             search.setVisible(false);
+            newFolder.setVisible(false);
         }
 
         final MenuItem menu_sort_name = menu.findItem(R.id.menu_sort_name);
@@ -562,8 +579,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.menu_create_dir:
-                //showCreateDirectoryDialog();
+            case R.id.menu_new_folder:
+                if(Constant.nowMODE == Constant.MODE.LOCAL)
+                    doLocalNewFolder();
+                else if(Constant.nowMODE == Constant.MODE.OTG)
+                    doOTGNewFolder();
                 return true;
             case R.id.menu_sort_name:
                 setSortBy(Constant.SORT_BY_NAME);
@@ -664,10 +684,13 @@ public class MainActivity extends AppCompatActivity
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
         mFileActionManager.onLoadFinished(loader, success);
         if (success) {
-            mActionMode.finish();
-            Constant.mActionMode = mActionMode = null;
+            if(mActionMode != null){
+                mActionMode.finish();
+                Constant.mActionMode = mActionMode = null;
+            }
             getBrowserFragment().restartLoaderforCurrentTab();
-            Log.d(TAG, "rename ok");
+        }else{
+            snackBarShow(R.string.fail);
         }
 
     }
@@ -832,6 +855,42 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+    private void doLocalNewFolder(){
+        List<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        new LocalNewFolderDialog(this, folderNames) {
+            @Override
+            public void onConfirm(String newName) {
+                String path = Constant.ROOT_LOCAL;
+                StringBuilder builder = new StringBuilder(path);
+                if (!path.endsWith("/"))
+                    builder.append("/");
+                builder.append(newName);
+                String newFolderPath = builder.toString();
+                mFileActionManager.newFolder(newFolderPath);
+            }
+        };
+    }
+
+    private void doOTGNewFolder() {
+        List<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        new OTGNewFolderDialog(this, folderNames) {
+            @Override
+            public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
+                mFileActionManager.newFolderOTG(newName, mDFiles);
+            }
+        };
+    }
+
     private void doLocalRename(){
         List<String> names = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
@@ -844,7 +903,7 @@ public class MainActivity extends AppCompatActivity
         }
         final String path = target.path;
         final String name = target.name;
-        boolean ignoreType = target.type == Constant.TYPE_DIR;
+        boolean ignoreType = (target.type == Constant.TYPE_DIR);
         new LocalRenameDialog(this,ignoreType, name, names) {
             @Override
             public void onConfirm(String newName) {
@@ -856,33 +915,19 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doOTGRename() {
+        boolean fromName = false;
+        int postion = getBrowserFragment().getCurrentTabPosition();
+        if(postion == 5)
+            fromName = true;
         ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
-
-//        Uri uri = target.uri;
-//        uri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, DocumentsContract.getDocumentId(uri));
-//        DocumentFile a = DocumentFile.fromTreeUri(this, uri);
-//        DocumentsContract.renameDocument(getContentResolver(), uri, "wangjaja.avi");
-//        DocumentFile.fromSingleUri()
-//        String parentId = DocumentsContract.get.getTreeDocumentId(uri);
-//        parentUri = DocumentsContract.buildChildDocumentsUriUsingTree(uri, parentId);
-//
-//        DocumentFile pickedDir = DocumentFile.fromTreeUri(this, path);
-//        pickedDir.renameTo("aa.jpg");
-//        final String name = target.name;
-//
-//        final String name = getSelectedDocumentFile().get(0).getName();
-//        DocumentFile[] pickDirArray = pickedDir.listFiles();
-//        for (DocumentFile file : pickDirArray) {
-//            names.add(file.getName().toLowerCase());
-//        }
-//        new OTGFileActionRenameDialog(this, name, names) {
-//            @Override
-//            public void onConfirm(String newName) {
-//                if (newName.equals(name))
-//                    return;
-//
-//            }
-//        };
+        new OTGFileRenameDialog(this, selectedFiles, fromName) {
+            @Override
+            public void onConfirm(String newName, String oldName, ArrayList<DocumentFile> selectedDocumentFile) {
+                if (newName.equals(oldName))
+                    return;
+                mFileActionManager.renameOTG(newName, selectedDocumentFile);
+            }
+        };
     }
 
     private void doLocalDelete(){
@@ -895,6 +940,16 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
+    private void doOTGDelete(){
+        ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+        new OTGDeleteDialog(this, selectedFiles) {
+            @Override
+            public void onConfirm(ArrayList<DocumentFile> selectedDocumentFile) {
+                mFileActionManager.deleteOTG(selectedDocumentFile);
+            }
+        };
+    }
+
     private void doLocalShare() {
         String selectPath = getBrowserFragment().getSelectedFiles().get(0).path;
         boolean shareSuccess = MediaUtils.localShare(this, selectPath);
@@ -903,5 +958,15 @@ public class MainActivity extends AppCompatActivity
         mActionMode.finish();
         Constant.mActionMode = null;
 
+    }
+
+    private void doOTGShare(){
+        ArrayList<FileInfo> selectFiles = getBrowserFragment().getSelectedFiles();
+        ArrayList<DocumentFile> selectDFiles = FileFactory.findDocumentFilefromPath(selectFiles);
+        boolean shareSuccess = MediaUtils.otgShare(this, selectDFiles.get(0));
+        if(!shareSuccess)
+            snackBarShow(R.string.snackbar_not_support_share);
+        mActionMode.finish();
+        Constant.mActionMode = null;
     }
 }
