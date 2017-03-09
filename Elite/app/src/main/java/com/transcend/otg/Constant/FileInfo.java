@@ -41,7 +41,8 @@ public class FileInfo implements Durable, Parcelable {
         path = DurableUtils.readNullableString(in);
         name = DurableUtils.readNullableString(in);
         time = DurableUtils.readNullableString(in);
-        uri = Uri.parse(DurableUtils.readNullableString(in));
+        String uri_string = DurableUtils.readNullableString(in);
+        uri = (uri_string == null) ? null : Uri.parse(uri_string);
         format_size = DurableUtils.readNullableString(in);
         size = in.readLong();
         album_id = in.readLong();
@@ -56,7 +57,7 @@ public class FileInfo implements Durable, Parcelable {
         DurableUtils.writeNullableString(out, path);
         DurableUtils.writeNullableString(out, name);
         DurableUtils.writeNullableString(out, time);
-        DurableUtils.writeNullableString(out, uri.toString());
+        DurableUtils.writeNullableString(out, (uri == null) ? null : uri.toString());
         DurableUtils.writeNullableString(out, format_size);
         out.writeLong(size);
         out.writeLong(album_id);

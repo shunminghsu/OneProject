@@ -26,6 +26,11 @@
         app:showAsAction="always" >
         <menu>
         <item
+            android:id="@+id/set_photo_as"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="@string/set_photo_as"
+            app:showAsAction="never" />
+        <item
             android:id="@+id/action_rename"
             android:icon="@drawable/ic_menu_camera"
             android:title="@string/rename"

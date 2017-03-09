@@ -69,6 +69,7 @@
     <string name="photo_location_otg">Located in OTG</string>
     <string name="photo_path">Path</string>
 
+    <string name="set_photo_as">Set as</string>
     <string name="no_item_selected">No item selected</string>
 
     <string name="invalid_name">Invalid name</string>

@@ -1,6 +1,7 @@
 package com.transcend.otg;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.SearchLoader;
+import com.transcend.otg.Photo.PhotoActivity;
 
 import java.util.ArrayList;
 
@@ -135,6 +137,7 @@ public class SearchResults extends Fragment {
         mResultsListView = (RecyclerView) view.findViewById(R.id.list_results);
         mResultsListView.setLayoutManager(new LinearLayoutManager(context));
         mResultsListView.setAdapter(mResultsAdapter);
+
 
         mSuggestionsListView = new ListPopupWindow(context);
         mSuggestionsListView.setAdapter(mSuggestionsAdapter);
@@ -283,9 +286,35 @@ public class SearchResults extends Fragment {
 
         @Override
         public SearchResults.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-            return new ViewHolder(layoutInflater.inflate(R.layout.listitem_recyclerview, parent, false), viewType);
+            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.listitem_recyclerview, parent, false);
+            SearchResults.ViewHolder vh = new SearchResults.ViewHolder(v,
+                    new SearchResults.ViewHolder.OnRecyclerItemListener() {
+                @Override
+                public void onRecyclerItemClick(int position) {
+                    switch (mList.get(position).type) {
+                        case Constant.TYPE_PHOTO:
+                            Intent intent = new Intent(mContext, PhotoActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                            intent.putParcelableArrayListExtra("photo_list", getPhotoList(mList, position));
+                            intent.putExtra("list_index", mPhotoListPosition);
+                            mContext.startActivity(intent);
+                            break;
+                        case Constant.TYPE_MUSIC:
+                        case Constant.TYPE_VIDEO:
+                        case Constant.TYPE_DOC:
+                        case Constant.TYPE_ENCRYPT:
+                        case Constant.TYPE_DIR:
+                            break;
+                        default:
+                    }
+                }
 
+                @Override
+                public void onRecyclerItemLongClick(int position) {
+
+                }
+            });
+            return vh;
         }
 
         @Override
@@ -319,9 +348,8 @@ public class SearchResults extends Fragment {
     }
 
 
-    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
-
-        int viewType;
+    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
+        private OnRecyclerItemListener listener;
 
         View itemView;
         ImageView mark;
@@ -331,10 +359,10 @@ public class SearchResults extends Fragment {
         TextView title;
         TextView subtitle;
 
-        public ViewHolder(View itemView, int viewType) {
+        public ViewHolder(View itemView, OnRecyclerItemListener _listener) {
             super(itemView);
-            this.viewType = viewType;
             this.itemView = itemView;
+            listener = _listener;
 
             mark = (ImageView) itemView.findViewById(R.id.item_mark);
             icon = (ImageView) itemView.findViewById(R.id.item_icon);
@@ -343,28 +371,30 @@ public class SearchResults extends Fragment {
             title = (TextView) itemView.findViewById(R.id.item_title);
             subtitle = (TextView) itemView.findViewById(R.id.item_subtitle);
             if (info != null)
-                setOnItemInfoClickListener();
+                info.setOnClickListener(this);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            Log.d(TAG, "onClick");
+            if (v == info) {
 
+            } else {
+                listener.onRecyclerItemClick(getAdapterPosition());
+            }
         }
 
         @Override
         public boolean onLongClick(View v) {
-            Log.d(TAG, "onLongClick");
-
+            listener.onRecyclerItemLongClick(getAdapterPosition());
             return true;
         }
 
-        private void setOnItemInfoClickListener() {
-
+        public interface OnRecyclerItemListener {
+            void onRecyclerItemClick(int position);
+            void onRecyclerItemLongClick(int position);
         }
-
     }
 
 
@@ -480,5 +510,17 @@ public class SearchResults extends Fragment {
             mEmptyView.setVisibility(View.VISIBLE);
         else
             mEmptyView.setVisibility(View.GONE);
+    }
+
+    int mPhotoListPosition = 0;
+    private ArrayList<FileInfo> getPhotoList(ArrayList<FileInfo> list, int position) {
+        ArrayList<FileInfo> photoList = new ArrayList<FileInfo>();
+        for (int i=0;i<list.size();i++) {
+            if (list.get(i).type == Constant.TYPE_PHOTO)
+                photoList.add(list.get(i));
+            if (i == position)
+                mPhotoListPosition = photoList.size() - 1;
+        }
+        return photoList;
     }
 }

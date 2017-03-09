@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
+import android.text.format.Formatter;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
@@ -26,6 +27,7 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     private Context mContext;
     private String mQueryText;
     private String mOTGPath;
+    private String mSdCardPath;
     private Uri baseRootUri;
 
     public SearchLoader(Context context, String query_text) {
@@ -40,6 +42,7 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     @Override
     public ArrayList<FileInfo> loadInBackground() {
         mFileList.clear();
+        mSdCardPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
         if (baseRootUri != null) {
             mOTGPath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
             if (mOTGPath != null) {
@@ -75,7 +78,8 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Files.FileColumns.MEDIA_TYPE,
                     MediaStore.Files.FileColumns.MIME_TYPE,
                     MediaStore.Files.FileColumns.DATE_MODIFIED,
-                    MediaStore.Files.FileColumns.DATA};
+                    MediaStore.Files.FileColumns.DATA,
+                    MediaStore.Files.FileColumns.SIZE};
             Uri contextUri = MediaStore.Files.getContentUri("external");
 
             final String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
@@ -87,6 +91,7 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 int mimeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE);
                 int typeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE);
                 int timeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED);
+                int sizeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
                 while (cursor.moveToNext()) {
                     Uri fileUri = ContentUris.withAppendedId(contextUri,
                             cursor.getInt(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID)));
@@ -94,16 +99,20 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     String name = path.substring(path.lastIndexOf('/')+1);
                     String mimeType = cursor.getString(mimeColumnIndex);
                     Long time = 1000 * cursor.getLong(timeColumnIndex);
+                    Long size = cursor.getLong(sizeColumnIndex);
 
                     if (!path.contains("/.") && name.toLowerCase().contains(mQueryText.toLowerCase())) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
+                        if (path.contains(mSdCardPath))
+                            fileInfo.storagemode = Constant.STORAGEMODE_SD;
                         fileInfo.name = name;
                         fileInfo.time = FileInfo.getTime(time);
                         switch (cursor.getInt(typeColumnIndex)) {
                             case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
                                 fileInfo.type = Constant.TYPE_PHOTO;
                                 fileInfo.uri = fileUri;
+                                fileInfo.format_size = Formatter.formatFileSize(mContext, size);
                                 break;
                             case MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO:
                                 fileInfo.type = Constant.TYPE_MUSIC;
@@ -176,8 +185,10 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.name = name;
                     item.time = FileInfo.getTime(cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.format_size = Formatter.formatFileSize(mContext, item.size);
                     String[] split = cursor.getString(cursor_index_ID).split(":");
                     item.path = mOTGPath + "/" + split[1];
+                    item.storagemode = Constant.STORAGEMODE_OTG;
                     item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, cursor.getString(cursor_index_ID));
 
                     if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {

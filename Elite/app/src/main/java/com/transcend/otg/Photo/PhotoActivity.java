@@ -108,11 +108,35 @@ public class PhotoActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.share:
+                Intent share_intent = new Intent(Intent.ACTION_SEND);
+                share_intent.setDataAndType(mPhotoList.get(mPager.getCurrentItem()).uri, "image/*");
+                share_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                //startActivityForResult(share_intent, EDIT_REQUEST_CODE);
+                startActivity(Intent.createChooser(share_intent, null));
+                return true;
             case R.id.edit:
-                Intent intent = new Intent(Intent.ACTION_EDIT);
-                intent.setDataAndType(mPhotoList.get(mPager.getCurrentItem()).uri, "image/jpeg");
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                startActivityForResult(intent, EDIT_REQUEST_CODE);
+                Intent edit_intent = new Intent(Intent.ACTION_EDIT);
+                edit_intent.setDataAndType(mPhotoList.get(mPager.getCurrentItem()).uri, "image/*");
+                edit_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(Intent.createChooser(edit_intent, null));
+                //startActivityForResult(intent, EDIT_REQUEST_CODE);
+                return true;
+            case R.id.action_delete:
+                return true;
+            case R.id.set_photo_as:
+                Intent setas_intent = new Intent(Intent.ACTION_ATTACH_DATA);
+                setas_intent.setDataAndType(mPhotoList.get(mPager.getCurrentItem()).uri, "image/*");
+                setas_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                startActivity(Intent.createChooser(setas_intent, getString(R.string.set_photo_as)));
+                return true;
+            case R.id.action_rename:
+                return true;
+            case R.id.action_copy:
+                return true;
+            case R.id.action_move:
+                return true;
+            case R.id.action_encrypt:
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
