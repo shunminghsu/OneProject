@@ -104,8 +104,11 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     if (!path.contains("/.") && name.toLowerCase().contains(mQueryText.toLowerCase())) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
-                        if (path.contains(mSdCardPath))
-                            fileInfo.storagemode = Constant.STORAGEMODE_SD;
+                        if(mSdCardPath != null){
+                            if (path.contains(mSdCardPath))
+                                fileInfo.storagemode = Constant.STORAGEMODE_SD;
+                        }
+
                         fileInfo.name = name;
                         fileInfo.time = FileInfo.getTime(time);
                         switch (cursor.getInt(typeColumnIndex)) {
