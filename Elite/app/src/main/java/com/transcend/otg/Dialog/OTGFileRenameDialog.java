@@ -2,6 +2,7 @@ package com.transcend.otg.Dialog;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.AlertDialog;
@@ -12,6 +13,7 @@ import android.widget.Button;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 
@@ -34,7 +36,7 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
 
     private String mName, mType;
     private ArrayList<DocumentFile> mDFiles;
-    private boolean mIgnoreType, mFromName;
+    private boolean mIgnoreType, bFromName;
     private List<String> mNames;
     private ArrayList<FileInfo> mFiles;
 
@@ -43,7 +45,7 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
         mFiles = files;
         mNames = new ArrayList<>();
         mIgnoreType = false;
-        mFromName = fromName;
+        bFromName = fromName;
 
         initNames();
         initDialog();
@@ -51,21 +53,58 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
     }
 
     private void initNames(){
-        if(mFromName)
-            mDFiles = FileFactory.findDocumentFilefromName(mFiles);
-        else
-            mDFiles = FileFactory.findDocumentFilefromPath(mFiles);
-        String name = mFiles.get(0).name;
-        mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
-        DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();
-        for (DocumentFile file : parentFiles) {
-            mNames.add(file.getName().toLowerCase());
-        }
-        if (!mIgnoreType) {
-            mName = FilenameUtils.getBaseName(name);
-            mType = FilenameUtils.getExtension(name);
-        }else{
-            mName = name;
+        if(Constant.nowMODE == Constant.MODE.SD){
+            String sdKey = LocalPreferences.getSDKey(mContext);
+            if(sdKey != ""){
+                Uri uriSDKey = Uri.parse(sdKey);
+                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+                Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
+                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                if(bFromName)
+                    mDFiles = FileFactory.findDocumentFilefromName(mFiles);
+                else
+                    mDFiles = FileFactory.findDocumentFilefromPath(mFiles, sdPath);
+                String name = mFiles.get(0).name;
+                mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
+                DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();
+                for (DocumentFile file : parentFiles) {
+                    if(file.exists())
+                        mNames.add(file.getName().toLowerCase());
+                }
+                if (!mIgnoreType) {
+                    mName = FilenameUtils.getBaseName(name);
+                    mType = FilenameUtils.getExtension(name);
+                }else{
+                    mName = name;
+                }
+            }else{
+                String name = mFiles.get(0).name;
+                mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
+                if (!mIgnoreType) {
+                    mName = FilenameUtils.getBaseName(name);
+                    mType = FilenameUtils.getExtension(name);
+                }else{
+                    mName = name;
+                }
+            }
+        }else if(Constant.nowMODE == Constant.MODE.OTG){
+            if(bFromName)
+                mDFiles = FileFactory.findDocumentFilefromName(mFiles);
+            else
+                mDFiles = FileFactory.findDocumentFilefromPath(mFiles);
+            String name = mFiles.get(0).name;
+            mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
+            DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();
+            for (DocumentFile file : parentFiles) {
+                if(file.exists())
+                    mNames.add(file.getName().toLowerCase());
+            }
+            if (!mIgnoreType) {
+                mName = FilenameUtils.getBaseName(name);
+                mType = FilenameUtils.getExtension(name);
+            }else{
+                mName = name;
+            }
         }
 
     }
@@ -97,6 +136,7 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
         if (v.equals(mDlgBtnPos)) {
             if (mFieldName.getEditText() == null || mFieldName.getEditText().getText().toString().equals("")) return;
             String name = addExtension(mFieldName.getEditText().getText().toString());
+            mName = addExtension(mName);
             onConfirm(name, mName, mDFiles);
             mDialog.dismiss();
         }
@@ -143,7 +183,7 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
         if (isInvalid(name)) return false;
         if(!mIgnoreType)
             name = name + "." + mType;
-        return mNames.contains(name);
+        return mNames.contains(name.toLowerCase());
     }
 
     private boolean isIlleagal(String name){

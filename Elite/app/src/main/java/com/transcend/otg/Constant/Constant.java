@@ -16,7 +16,7 @@ public class Constant {
         LOCAL, SD, OTG, ARRANGE, DROPBOX, GOOGLEDRIVE, SSD
     }
     public static MODE nowMODE;
-    public static DocumentFile mCurrentDocumentFile, mRootDocumentFile;
+    public static DocumentFile mCurrentDocumentFile, mRootDocumentFile, mSDCurrentDocumentFile, mSDRootDocumentFile;
     public static Uri rootUri;
     public static final String ROOT_LOCAL = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static ActionMode mActionMode;

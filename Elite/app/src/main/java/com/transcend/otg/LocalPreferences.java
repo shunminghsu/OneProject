@@ -11,6 +11,7 @@ public class LocalPreferences {
     public static final String BROWSER_SORT_PREFIX = "browserSort-";
     public static final String BROWSER_SORT_ORDER_PREFIX = "browserSortOrder-";
     private static final String OTG_KEY = "otgKey-";
+    private static final String SD_KEY = "sdKey-";
 
     public static int getBrowserViewMode(Context context, int type, int default_value) {
         String key = BROWSER_MODE_PREFIX + type;
@@ -37,6 +38,16 @@ public class LocalPreferences {
 
     public static void setOTGKey(Context context, String serialNumber, String uri) {
         String key = OTG_KEY + serialNumber;
+        getPrefs(context).edit().putString(createKey(key), uri).apply();
+    }
+
+    public static String getSDKey(Context context) {
+        String key = SD_KEY;
+        return getPrefs(context).getString(createKey(key), "");
+    }
+
+    public static void setSDKey(Context context, String uri) {
+        String key = SD_KEY;
         getPrefs(context).edit().putString(createKey(key), uri).apply();
     }
 

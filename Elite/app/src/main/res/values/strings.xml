@@ -48,6 +48,7 @@
     <string name="nav_otg" translatable="false">OTG</string>
     <string name="documenttree_guide">Please follow the guide to select right disk</string>
     <string name="snackbar_plz_select_otg">Please select OTG device</string>
+    <string name="snackbar_plz_select_sd">Please select SD card</string>
     <string name="snackbar_plz_select_top">Please select the root folder</string>
     <string name="no_otg">Device is not found.</string>
 

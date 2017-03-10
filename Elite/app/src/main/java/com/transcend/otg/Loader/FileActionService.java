@@ -14,7 +14,7 @@ import java.util.List;
  * Created by wangbojie on 2017/2/7.
  */
 
-abstract class FileActionService {
+public abstract class FileActionService {
     public String TAG = FileActionService.class.getSimpleName();
     protected String mMode;
     protected String mRoot;

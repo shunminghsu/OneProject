@@ -2,13 +2,16 @@ package com.transcend.otg.Dialog;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 
@@ -27,12 +30,35 @@ public abstract class OTGDeleteDialog implements OnClickListener {
 
     private ArrayList<FileInfo> mFiles;
     private ArrayList<DocumentFile> mDFiles;
+    private boolean bFromName;
 
-    public OTGDeleteDialog(Context context, ArrayList<FileInfo> files) {
+    public OTGDeleteDialog(Context context, ArrayList<FileInfo> files, boolean fromName) {
         mContext = context;
         mFiles = files;
-        mDFiles = FileFactory.findDocumentFilefromPath(mFiles);
+        bFromName = fromName;
+        initData();
         initDialog();
+    }
+
+    private void initData(){
+        if(Constant.nowMODE == Constant.MODE.SD){
+            String sdKey = LocalPreferences.getSDKey(mContext);
+            if(sdKey != ""){
+                Uri uriSDKey = Uri.parse(sdKey);
+                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+                Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
+                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                if(bFromName)
+                    mDFiles = FileFactory.findDocumentFilefromName(mFiles);
+                else
+                    mDFiles = FileFactory.findDocumentFilefromPath(mFiles, sdPath);
+            }
+        }else if(Constant.nowMODE == Constant.MODE.OTG){
+            if(bFromName)
+                mDFiles = FileFactory.findDocumentFilefromName(mFiles);
+            else
+                mDFiles = FileFactory.findDocumentFilefromPath(mFiles);
+        }
     }
 
     private void initDialog() {

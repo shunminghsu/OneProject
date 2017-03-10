@@ -47,6 +47,7 @@ import com.transcend.otg.Browser.NoSdFragment;
 import com.transcend.otg.Browser.OTGFragment;
 import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Browser.TabInfo;
+import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.LocalDeleteDialog;
@@ -56,10 +57,13 @@ import com.transcend.otg.Dialog.OTGDeleteDialog;
 import com.transcend.otg.Dialog.OTGFileRenameDialog;
 import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
+import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
+import com.transcend.otg.Loader.OTGRenameLoader;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,7 +90,7 @@ public class MainActivity extends AppCompatActivity
     private SdFragment sdFragment;
     private OTGFragment otgFragment;
     private LocalFragment localFragment;
-    private int mLoaderID, mOTGDocumentTreeID = 1000;
+    private int mLoaderID, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private FileActionManager mFileActionManager;
     private String mPath;
     private Button mLocalButton, mSdButton, mOtgButton;
@@ -95,6 +99,7 @@ public class MainActivity extends AppCompatActivity
     private ActionMode mActionMode;
     private RelativeLayout mActionModeView;
     private TextView mActionModeTitle;
+    private int nowAction;
 
     //home page
     private LinearLayout home_container;
@@ -129,6 +134,7 @@ public class MainActivity extends AppCompatActivity
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mScreenW = displaymetrics.widthPixels;
+        nowAction = -1;
     }
 
     private void showHomeOrFragment(boolean home) {
@@ -331,16 +337,20 @@ public class MainActivity extends AppCompatActivity
                 if (Constant.nowMODE == Constant.MODE.LOCAL) {
                     doLocalRename();
                 }else if(Constant.nowMODE == Constant.MODE.SD) {
-
+                    nowAction = R.id.action_rename;
+                    doOTGRename(true);
                 }else if (Constant.nowMODE == Constant.MODE.OTG) {
-                    doOTGRename();
+                    doOTGRename(false);
                 }
                 break;
             case R.id.action_delete:
                 if (Constant.nowMODE == Constant.MODE.LOCAL) {
                     doLocalDelete();
+                }else if(Constant.nowMODE == Constant.MODE.SD){
+                    nowAction = R.id.action_delete;
+                    doOTGDelete(true);
                 }else if(Constant.nowMODE == Constant.MODE.OTG){
-                    doOTGDelete();
+                    doOTGDelete(false);
                 }
                 break;
             case R.id.action_share:
@@ -376,7 +386,6 @@ public class MainActivity extends AppCompatActivity
             toggleFabSelectAll(true);
         else
             toggleFabSelectAll(false);
-
     }
 
     @Override
@@ -404,7 +413,7 @@ public class MainActivity extends AppCompatActivity
                 markSelectedBtn(mSdButton);
                 String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 if (sdpath != null) {
-                        replaceFragment(sdFragment);
+                    replaceFragment(sdFragment);
                 } else {
                     //showSearchIcon(false);
                     if(mActionMode != null)
@@ -463,6 +472,18 @@ public class MainActivity extends AppCompatActivity
             }
         }else{
             intentDocumentTree();
+        }
+    }
+
+    private boolean checkSDWritePermission(){
+        String sdKey = LocalPreferences.getSDKey(this);
+        if(sdKey != ""){
+            Uri uriSDKey = Uri.parse(sdKey);
+            Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
+            return true;
+        }else{
+            intentDocumentTreeSD();
+            return false;
         }
     }
 
@@ -582,8 +603,11 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_new_folder:
                 if(Constant.nowMODE == Constant.MODE.LOCAL)
                     doLocalNewFolder();
-                else if(Constant.nowMODE == Constant.MODE.OTG)
-                    doOTGNewFolder();
+                else if(Constant.nowMODE == Constant.MODE.SD){
+                    nowAction = R.id.menu_new_folder;
+                    doOTGNewFolder(true);
+                }else if(Constant.nowMODE == Constant.MODE.OTG)
+                    doOTGNewFolder(false);
                 return true;
             case R.id.menu_sort_name:
                 setSortBy(Constant.SORT_BY_NAME);
@@ -810,8 +834,18 @@ public class MainActivity extends AppCompatActivity
                 if (isClick) {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                     startActivityForResult(intent, mOTGDocumentTreeID);
-                } else{
-                    //                    toggleDrawerCheckedItem();
+                }
+            }
+        };
+    }
+
+    private void intentDocumentTreeSD() {
+        new SDPermissionGuideDialog(this) {
+            @Override
+            public void onConfirm(Boolean isClick) {
+                if (isClick) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, mSDDocumentTreeID);
                 }
             }
         };
@@ -825,8 +859,38 @@ public class MainActivity extends AppCompatActivity
             if(checkStorage(uriTree)){
                 replaceFragment(otgFragment);
             }
-
+        }else if(reqCode == mSDDocumentTreeID && resCode == RESULT_OK){
+            Uri uriTree = data.getData();
+            if(checkSD(uriTree)){
+                doAction();
+            }
         }
+    }
+
+    private boolean checkSD(Uri uri){
+        if (!uri.toString().contains("primary")) {
+            if (uri != null) {
+                if(uri.getPath().toString().split(":").length > 1){
+                    snackBarShow(R.string.snackbar_plz_select_top);
+                    intentDocumentTreeSD();
+                }else{
+                    rootDir = DocumentFile.fromTreeUri(this, uri);//sd root path
+                    getContentResolver().takePersistableUriPermission(uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    LocalPreferences.setSDKey(this, uri.toString());
+                    Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
+                    ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
+                    tmpDFiles.add(rootDir);
+                    ActionParameter.dFiles = tmpDFiles;
+                    return true;
+                }
+            }
+
+        }else {
+            snackBarShow(R.string.snackbar_plz_select_sd);
+            intentDocumentTreeSD();
+        }
+        return false;
     }
 
     private boolean checkStorage(Uri uri){
@@ -855,6 +919,26 @@ public class MainActivity extends AppCompatActivity
         return false;
     }
 
+    private void doAction(){
+        switch (nowAction){
+            case R.id.menu_new_folder:
+                mFileActionManager.newFolderOTG(ActionParameter.name, ActionParameter.dFiles);
+                break;
+            case R.id.action_delete:
+                String sdPathDelete = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPath(ActionParameter.files, sdPathDelete);
+                mFileActionManager.deleteOTG(ActionParameter.dFiles);
+                break;
+            case R.id.action_rename:
+                String sdPathRename = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPath(ActionParameter.files, sdPathRename);
+                mFileActionManager.renameOTG(ActionParameter.name, ActionParameter.dFiles);
+                break;
+            default:
+                break;
+        }
+    }
+
     private void doLocalNewFolder(){
         List<String> folderNames = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
@@ -876,7 +960,7 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    private void doOTGNewFolder() {
+    private void doOTGNewFolder(final boolean bSDCard) {
         List<String> folderNames = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
         for (FileInfo file : allFiles) {
@@ -886,7 +970,16 @@ public class MainActivity extends AppCompatActivity
         new OTGNewFolderDialog(this, folderNames) {
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
-                mFileActionManager.newFolderOTG(newName, mDFiles);
+                if(bSDCard){
+                    if(checkSDWritePermission()){
+                        mFileActionManager.newFolderOTG(newName, mDFiles);
+                    }else{
+                        ActionParameter.name = newName;
+                    }
+
+                }else{
+                    mFileActionManager.newFolderOTG(newName, mDFiles);
+                }
             }
         };
     }
@@ -914,18 +1007,30 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    private void doOTGRename() {
+    private void doOTGRename(final boolean bSDCard) {
         boolean fromName = false;
         int postion = getBrowserFragment().getCurrentTabPosition();
         if(postion == 5)
             fromName = true;
-        ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+        final ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
         new OTGFileRenameDialog(this, selectedFiles, fromName) {
             @Override
             public void onConfirm(String newName, String oldName, ArrayList<DocumentFile> selectedDocumentFile) {
                 if (newName.equals(oldName))
                     return;
-                mFileActionManager.renameOTG(newName, selectedDocumentFile);
+                if(bSDCard){
+                    if(checkSDWritePermission()){
+                        ActionParameter.name = newName;
+                        ActionParameter.files = selectedFiles;
+                        mFileActionManager.renameOTG(newName, selectedDocumentFile);
+                    }else{
+                        ActionParameter.name = newName;
+                        ActionParameter.files = selectedFiles;
+                    }
+                }else{
+                    mFileActionManager.renameOTG(newName, selectedDocumentFile);
+                }
+
             }
         };
     }
@@ -940,12 +1045,24 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    private void doOTGDelete(){
-        ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
-        new OTGDeleteDialog(this, selectedFiles) {
+    private void doOTGDelete(final boolean bSDCard){
+        boolean fromName = false;
+        int postion = getBrowserFragment().getCurrentTabPosition();
+        if(postion == 5)
+            fromName = true;
+        final ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+        new OTGDeleteDialog(this, selectedFiles, fromName) {
             @Override
             public void onConfirm(ArrayList<DocumentFile> selectedDocumentFile) {
-                mFileActionManager.deleteOTG(selectedDocumentFile);
+                if(bSDCard){
+                    if(checkSDWritePermission()){
+                        mFileActionManager.deleteOTG(selectedDocumentFile);
+                    }else{
+                        ActionParameter.files = selectedFiles;
+                    }
+                }else{
+                    mFileActionManager.deleteOTG(selectedDocumentFile);
+                }
             }
         };
     }

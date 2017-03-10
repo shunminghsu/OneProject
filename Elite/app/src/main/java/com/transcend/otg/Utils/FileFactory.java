@@ -288,27 +288,57 @@ public class FileFactory {
         mNotificationList.remove(value);
     }
 
+    public static ArrayList<DocumentFile> findDocumentFilefromPath(ArrayList<FileInfo> fileInfos, String sdPath){
+        ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
+        DocumentFile currentDocumentFile = null;
+        if(Constant.nowMODE == Constant.MODE.SD)
+            currentDocumentFile = Constant.mSDCurrentDocumentFile;
+        if(currentDocumentFile != null){
+            for(FileInfo file : fileInfos){
+                String path = file.path;
+                path = path.replace(sdPath, "");
+                String[] array = path.split("/");
+                DocumentFile tmp = currentDocumentFile;
+                for(int i= 1;i<array.length;i++){
+                    tmp = tmp.findFile(array[i]);
+                }
+                mDocumentFiles.add(tmp);
+            }
+        }
+        return mDocumentFiles;
+    }
+
     public static ArrayList<DocumentFile> findDocumentFilefromPath(ArrayList<FileInfo> fileInfos){
         ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
-        DocumentFile currentDocumentFile = Constant.mCurrentDocumentFile;
-        for(FileInfo file : fileInfos){
-            String path = file.path;
-            String[] array = path.split("/");
-            DocumentFile tmp = currentDocumentFile;
-            for(int i= 1;i<array.length;i++){
-                tmp = tmp.findFile(array[i]);
+        DocumentFile currentDocumentFile = null;
+        if(Constant.nowMODE == Constant.MODE.OTG)
+            currentDocumentFile = Constant.mCurrentDocumentFile;
+        if(currentDocumentFile != null){
+            for(FileInfo file : fileInfos){
+                String path = file.path;
+                String[] array = path.split("/");
+                DocumentFile tmp = currentDocumentFile;
+                for(int i= 1;i<array.length;i++){
+                    tmp = tmp.findFile(array[i]);
+                }
+                mDocumentFiles.add(tmp);
             }
-            mDocumentFiles.add(tmp);
         }
         return mDocumentFiles;
     }
 
     public static ArrayList<DocumentFile> findDocumentFilefromName(ArrayList<FileInfo> fileInfos){
         ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
-        DocumentFile currentDocumentFile = Constant.mCurrentDocumentFile;
-        for(FileInfo file : fileInfos){
-            DocumentFile tmp = currentDocumentFile.findFile(file.name);
-            mDocumentFiles.add(tmp);
+        DocumentFile currentDocumentFile = null;
+        if(Constant.nowMODE == Constant.MODE.SD)
+            currentDocumentFile = Constant.mSDCurrentDocumentFile;
+        else if(Constant.nowMODE == Constant.MODE.OTG)
+            currentDocumentFile = Constant.mCurrentDocumentFile;
+        if(currentDocumentFile != null){
+            for(FileInfo file : fileInfos){
+                DocumentFile tmp = currentDocumentFile.findFile(file.name);
+                mDocumentFiles.add(tmp);
+            }
         }
         return mDocumentFiles;
     }

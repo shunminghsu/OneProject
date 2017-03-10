@@ -55,7 +55,7 @@ public class SDGuideAdapter extends PagerAdapter {
     public void destroyItem(ViewGroup container, int position, Object object) {
         if (object instanceof ImageView) {
             ImageView iv = (ImageView) object;
-            ImageLoader.getInstance().cancelDisplayTask(iv);
+//            ImageLoader.getInstance().cancelDisplayTask(iv);
             container.removeView(iv);
         }
     }
