@@ -36,17 +36,17 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
 
     private String mName, mType;
     private ArrayList<DocumentFile> mDFiles;
-    private boolean mIgnoreType, bFromName;
+    private boolean mIgnoreType, bFromName, bFromExploreActivity;
     private List<String> mNames;
     private ArrayList<FileInfo> mFiles;
 
-    public OTGFileRenameDialog(Context context, ArrayList<FileInfo> files, boolean fromName) {
+    public OTGFileRenameDialog(Context context, ArrayList<FileInfo> files, boolean fromName, boolean fromExploreActivity) {
         mContext = context;
         mFiles = files;
         mNames = new ArrayList<>();
         mIgnoreType = false;
         bFromName = fromName;
-
+        bFromExploreActivity = fromExploreActivity;
         initNames();
         initDialog();
         initFieldName();
@@ -58,12 +58,12 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
                 DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
-                Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
+                Constant.mCurrentDocumentFileExplore = Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
                 String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 if(bFromName)
-                    mDFiles = FileFactory.findDocumentFilefromName(mFiles);
+                    mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
                 else
-                    mDFiles = FileFactory.findDocumentFilefromPath(mFiles, sdPath);
+                    mDFiles = FileFactory.findDocumentFilefromPath(mFiles, sdPath, bFromExploreActivity);
                 String name = mFiles.get(0).name;
                 mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
                 DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();
@@ -89,9 +89,9 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
             }
         }else if(Constant.nowMODE == Constant.MODE.OTG){
             if(bFromName)
-                mDFiles = FileFactory.findDocumentFilefromName(mFiles);
+                mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
             else
-                mDFiles = FileFactory.findDocumentFilefromPath(mFiles);
+                mDFiles = FileFactory.findDocumentFilefromPath(mFiles, bFromExploreActivity);
             String name = mFiles.get(0).name;
             mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
             DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();

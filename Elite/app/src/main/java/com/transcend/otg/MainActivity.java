@@ -366,9 +366,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        Constant.mActionMode = mActionMode = null;
-        getBrowserFragment().clearAllSelect();//TODO
+        getBrowserFragment().clearAllSelect();
         toggleFabSelectAll(false);
+        Constant.mActionMode = mActionMode = null;
     }
 
     @Override
@@ -926,12 +926,12 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.action_delete:
                 String sdPathDelete = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
-                ActionParameter.dFiles = FileFactory.findDocumentFilefromPath(ActionParameter.files, sdPathDelete);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPath(ActionParameter.files, sdPathDelete, false);
                 mFileActionManager.deleteOTG(ActionParameter.dFiles);
                 break;
             case R.id.action_rename:
                 String sdPathRename = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
-                ActionParameter.dFiles = FileFactory.findDocumentFilefromPath(ActionParameter.files, sdPathRename);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPath(ActionParameter.files, sdPathRename, false);
                 mFileActionManager.renameOTG(ActionParameter.name, ActionParameter.dFiles);
                 break;
             default:
@@ -1013,7 +1013,7 @@ public class MainActivity extends AppCompatActivity
         if(postion == 5)
             fromName = true;
         final ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
-        new OTGFileRenameDialog(this, selectedFiles, fromName) {
+        new OTGFileRenameDialog(this, selectedFiles, fromName, false) {
             @Override
             public void onConfirm(String newName, String oldName, ArrayList<DocumentFile> selectedDocumentFile) {
                 if (newName.equals(oldName))
@@ -1051,7 +1051,7 @@ public class MainActivity extends AppCompatActivity
         if(postion == 5)
             fromName = true;
         final ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
-        new OTGDeleteDialog(this, selectedFiles, fromName) {
+        new OTGDeleteDialog(this, selectedFiles, fromName, false) {
             @Override
             public void onConfirm(ArrayList<DocumentFile> selectedDocumentFile) {
                 if(bSDCard){
@@ -1078,8 +1078,14 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doOTGShare(){
+        int position = getBrowserFragment().getCurrentTabPosition();
         ArrayList<FileInfo> selectFiles = getBrowserFragment().getSelectedFiles();
-        ArrayList<DocumentFile> selectDFiles = FileFactory.findDocumentFilefromPath(selectFiles);
+        ArrayList<DocumentFile> selectDFiles = new ArrayList<>();
+        if(position == 5){
+            selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, false);
+        }else{
+            selectDFiles = FileFactory.findDocumentFilefromPath(selectFiles, false);
+        }
         boolean shareSuccess = MediaUtils.otgShare(this, selectDFiles.get(0));
         if(!shareSuccess)
             snackBarShow(R.string.snackbar_not_support_share);

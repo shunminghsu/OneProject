@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
 
 import com.transcend.otg.Constant.ActionParameter;
+import com.transcend.otg.Constant.Constant;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,14 +43,19 @@ public class OTGRenameLoader extends AsyncTaskLoader<Boolean> {
         if (mSelectFiles.get(0).exists()) {
             String oldName = mSelectFiles.get(0).getName();
             if(mSelectFiles.get(0).renameTo(mNewName)){
-                String newName = mNewName;
-                String path = ActionParameter.files.get(0).path;
-                path = path.replace(oldName, newName);
-                File rename = new File(path);
-                mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(rename)));
-                Thread.sleep(500);
+                if(Constant.nowMODE == Constant.MODE.SD){
+                    String newName = mNewName;
+                    String path = ActionParameter.files.get(0).path;
+                    path = path.replace(oldName, newName);
+                    File rename = new File(path);
+                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(rename)));
+                    Thread.sleep(500);
+                }
+                return true;
+            }else{
+                return false;
             }
-            return true;
+
         }
         return false;
     }

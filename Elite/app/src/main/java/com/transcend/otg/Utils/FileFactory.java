@@ -288,11 +288,17 @@ public class FileFactory {
         mNotificationList.remove(value);
     }
 
-    public static ArrayList<DocumentFile> findDocumentFilefromPath(ArrayList<FileInfo> fileInfos, String sdPath){
+    public static ArrayList<DocumentFile> findDocumentFilefromPath(ArrayList<FileInfo> fileInfos, String sdPath, boolean fromExploreActivity){
         ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
         DocumentFile currentDocumentFile = null;
-        if(Constant.nowMODE == Constant.MODE.SD)
-            currentDocumentFile = Constant.mSDCurrentDocumentFile;
+        if(fromExploreActivity){
+            if(Constant.nowMODE == Constant.MODE.SD)
+                currentDocumentFile = Constant.mCurrentDocumentFileExplore;
+        }else{
+            if(Constant.nowMODE == Constant.MODE.SD)
+                currentDocumentFile = Constant.mSDCurrentDocumentFile;
+        }
+
         if(currentDocumentFile != null){
             for(FileInfo file : fileInfos){
                 String path = file.path;
@@ -308,11 +314,16 @@ public class FileFactory {
         return mDocumentFiles;
     }
 
-    public static ArrayList<DocumentFile> findDocumentFilefromPath(ArrayList<FileInfo> fileInfos){
+    public static ArrayList<DocumentFile> findDocumentFilefromPath(ArrayList<FileInfo> fileInfos, boolean fromExploreActivity){
         ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
         DocumentFile currentDocumentFile = null;
-        if(Constant.nowMODE == Constant.MODE.OTG)
-            currentDocumentFile = Constant.mCurrentDocumentFile;
+        if(fromExploreActivity){
+            if(Constant.nowMODE == Constant.MODE.OTG)
+                currentDocumentFile = Constant.mCurrentDocumentFileExplore;
+        }else{
+            if(Constant.nowMODE == Constant.MODE.OTG)
+                currentDocumentFile = Constant.mCurrentDocumentFile;
+        }
         if(currentDocumentFile != null){
             for(FileInfo file : fileInfos){
                 String path = file.path;
@@ -327,13 +338,18 @@ public class FileFactory {
         return mDocumentFiles;
     }
 
-    public static ArrayList<DocumentFile> findDocumentFilefromName(ArrayList<FileInfo> fileInfos){
+    public static ArrayList<DocumentFile> findDocumentFilefromName(ArrayList<FileInfo> fileInfos, boolean fromExploreActivity){
         ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
         DocumentFile currentDocumentFile = null;
-        if(Constant.nowMODE == Constant.MODE.SD)
-            currentDocumentFile = Constant.mSDCurrentDocumentFile;
-        else if(Constant.nowMODE == Constant.MODE.OTG)
-            currentDocumentFile = Constant.mCurrentDocumentFile;
+        if(fromExploreActivity){
+            currentDocumentFile = Constant.mCurrentDocumentFileExplore;
+        }else{
+            if(Constant.nowMODE == Constant.MODE.SD)
+                currentDocumentFile = Constant.mSDCurrentDocumentFile;
+            else if(Constant.nowMODE == Constant.MODE.OTG)
+                currentDocumentFile = Constant.mCurrentDocumentFile;
+        }
+
         if(currentDocumentFile != null){
             for(FileInfo file : fileInfos){
                 DocumentFile tmp = currentDocumentFile.findFile(file.name);

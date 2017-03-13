@@ -2,6 +2,7 @@
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/coordinatorlayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
@@ -41,18 +42,27 @@
             android:layout_below="@+id/explore_app_bar"
             android:background="@drawable/toolbar_dropshadow" />
 
+        <com.transcend.otg.Browser.PagerSwipeRefreshLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/swiperefresh"
+            android:layout_below="@+id/toolbar_shadow"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
         <android.support.v7.widget.RecyclerView
             android:id="@+id/explore_recycler_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/toolbar_shadow"
+
             android:background="@color/colorWhite" />
+        </com.transcend.otg.Browser.PagerSwipeRefreshLayout>
 
         <TextView
             android:id="@+id/empty_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
             android:visibility="gone"
             android:textSize="40sp"
             android:text="@string/empty" />
@@ -69,7 +79,16 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_margin="16dp"
-                android:visibility="gone"
+                android:src="@drawable/ic_menu_camera"
+                app:elevation="2dp" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/explore_fab_exit"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_margin="16dp"
                 android:src="@drawable/ic_menu_camera"
                 app:elevation="2dp" />
 

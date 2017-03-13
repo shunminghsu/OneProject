@@ -1,30 +1,50 @@
 package com.transcend.otg;
 
 import android.app.LoaderManager;
+import android.content.Intent;
 import android.content.Loader;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.provider.DocumentFile;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.transcend.otg.Adapter.FolderExploreAdapter;
 import com.transcend.otg.Adapter.FolderExploreDropDownAdapter;
+import com.transcend.otg.Browser.PagerSwipeRefreshLayout;
+import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Dialog.LocalDeleteDialog;
+import com.transcend.otg.Dialog.LocalRenameDialog;
+import com.transcend.otg.Dialog.OTGDeleteDialog;
+import com.transcend.otg.Dialog.OTGFileRenameDialog;
+import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalFileListLoader;
 import com.transcend.otg.Loader.OTGFileListLoader;
 import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.MediaUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by wangbojie on 2017/3/2.
@@ -33,7 +53,8 @@ import java.util.HashMap;
 public class FolderExploreActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Boolean>,
         FolderExploreDropDownAdapter.OnDropdownItemSelectedListener,
-        FolderExploreAdapter.OnRecyclerItemCallbackListener {
+        FolderExploreAdapter.OnRecyclerItemCallbackListener,
+        ActionMode.Callback{
 
     private String TAG = FolderExploreActivity.class.getSimpleName();
     public static final int REQUEST_CODE = FolderExploreActivity.class.hashCode() & 0xFFFF;
@@ -43,7 +64,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private Uri mUri;
     private DocumentFile mDocumentFile;
     private int mMode;
-    private int mLoaderID;
+    private int mSDDocumentTreeID = 1001, nowAction;
     private ArrayList<FileInfo> mFileList;
     private DocumentFile mCurrentDocumentFile;
     private FolderExploreDropDownAdapter mDropdownAdapter;
@@ -54,18 +75,36 @@ public class FolderExploreActivity extends AppCompatActivity
     private LinearLayout loadingContainer;
     private HashMap<String, DocumentFile> dropDownMapOTG;
     private ArrayList<String> dropDownListOTG;
+    private ActionMode mActionMode;
+    private RelativeLayout mActionModeView;
+    private TextView mActionModeTitle;
+    private FloatingActionButton mFab, mFabExit;
+    private PagerSwipeRefreshLayout mSwipeRefreshLayout;
+    private CoordinatorLayout mCoordinatorlayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_folder_explore);
-        initRecyclerViewAdapter();
+        initRecyclerViewAndAdapter();
         initDropdown();
         initData();
+        initActionModeView();
 
     }
 
-    private void initRecyclerViewAdapter() {
+    private void initRecyclerViewAndAdapter() {
+        mCoordinatorlayout = (CoordinatorLayout) findViewById(R.id.coordinatorlayout);
+        mSwipeRefreshLayout = (PagerSwipeRefreshLayout) findViewById(R.id.swiperefresh);
+        mSwipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if(mActionMode != null)
+                    mActionMode.finish();;
+                doRefresh();
+            }
+        });
         mEmptyView = (TextView) findViewById(R.id.empty_view);
         loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
         mFolderExploreAdapter = new FolderExploreAdapter(this);
@@ -76,6 +115,7 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void initDropdown() {
+        nowAction = -1;
         mDropdownAdapter = new FolderExploreDropDownAdapter(this, false);
         mDropdownAdapter.setOnDropdownItemSelectedListener(this);
         mDropdown = (AppCompatSpinner) findViewById(R.id.main_dropdown);
@@ -94,9 +134,31 @@ public class FolderExploreActivity extends AppCompatActivity
         }else{
             doLoadOTG(mFile, true);
         }
-
-
     }
+
+    private void initActionModeView() {
+        mFab = (FloatingActionButton) findViewById(R.id.explore_fab);
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mActionMode == null)
+                    startActionMode();
+                else
+                    toggleSelectAll();
+
+            }
+        });
+        mFabExit = (FloatingActionButton) findViewById(R.id.explore_fab_exit);
+        mFabExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        mActionModeView = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.action_mode_custom, null);
+        mActionModeTitle = (TextView) mActionModeView.findViewById(R.id.action_mode_custom_title);
+    }
+
 
     private void doLoad(String path) {
         mFileActionManager.checkServiceMode(path);
@@ -170,6 +232,40 @@ public class FolderExploreActivity extends AppCompatActivity
         }
     }
 
+    private void snackBarShow(int resId) {
+        Snackbar.make(mCoordinatorlayout, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+    }
+
+    private boolean checkSDWritePermission(){
+        String sdKey = LocalPreferences.getSDKey(this);
+        if(sdKey != ""){
+            Uri uriSDKey = Uri.parse(sdKey);
+            Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
+            return true;
+        }else{
+            intentDocumentTreeSD();
+            return false;
+        }
+    }
+
+    private void intentDocumentTreeSD() {
+        new SDPermissionGuideDialog(this) {
+            @Override
+            public void onConfirm(Boolean isClick) {
+                if (isClick) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, mSDDocumentTreeID);
+                }
+            }
+        };
+    }
+
+    @Override
+    protected void onDestroy() {
+        Constant.mCurrentDocumentFileExplore = null;
+        super.onDestroy();
+    }
+
     @Override
     public void onBackPressed() {
         if (!isOnTop()) {
@@ -198,10 +294,17 @@ public class FolderExploreActivity extends AppCompatActivity
         return true;
     }
 
+    private void doRefresh(){
+        if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
+            doLoad(mPath);
+        }else if(mMode == Constant.STORAGEMODE_OTG){
+            doLoadOTG(null, false);
+        }
+    }
+
     @Override
     public Loader<Boolean> onCreateLoader(int id, Bundle args) {
         loadingContainer.setVisibility(View.VISIBLE);
-        mLoaderID = id;
         Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
 
         return loader;
@@ -218,10 +321,17 @@ public class FolderExploreActivity extends AppCompatActivity
             }else if (loader instanceof OTGFileListLoader){
                 mPath = ((OTGFileListLoader) loader).getPath();
                 mFileList = ((OTGFileListLoader) loader).getFileList();
-                mCurrentDocumentFile = ((OTGFileListLoader)loader).getCurrentDocumentFile();
+                Constant.mCurrentDocumentFileExplore = mCurrentDocumentFile = ((OTGFileListLoader)loader).getCurrentDocumentFile();
                 updateScreen();
+            }else{
+                doRefresh();
             }
+            if(mActionMode != null){
+                mActionMode.finish();
+            }
+
         }
+        mSwipeRefreshLayout.setRefreshing(false);
         loadingContainer.setVisibility(View.GONE);
     }
 
@@ -247,25 +357,305 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     public void onRecyclerItemClick(int position) {
-        if(mFileList.get(position).type == Constant.TYPE_DIR){
-            if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD)
-                doLoad(mFileList.get(position).path);
-            else if (mMode == Constant.STORAGEMODE_OTG){
-                mCurrentDocumentFile = mCurrentDocumentFile.findFile(mFileList.get(position).name);
-                doLoadOTG(mFileList.get(position), false);
-            }
+        int type = mFileList.get(position).type;
+        FileInfo file = mFileList.get(position);
+        if(mActionMode == null){
+            switch (type){
+                case Constant.TYPE_DIR:
+                    if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD)
+                        doLoad(mFileList.get(position).path);
+                    else if (mMode == Constant.STORAGEMODE_OTG){
+                        mCurrentDocumentFile = mCurrentDocumentFile.findFile(mFileList.get(position).name);
+                        doLoadOTG(mFileList.get(position), false);
+                    }
+                    break;
+                case Constant.TYPE_PHOTO:
+                    if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
 
+                    }else if (mMode == Constant.STORAGEMODE_OTG){
+
+                    }
+                    break;
+                case Constant.TYPE_VIDEO:
+                    if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
+                        MediaUtils.execute(this, file.path, getResources().getString(R.string.openin_title));
+                    }else if (mMode == Constant.STORAGEMODE_OTG){
+                        MediaUtils.executeUri(this, file.uri.toString(), getResources().getString(R.string.openin_title));
+                    }
+                    break;
+                case Constant.TYPE_MUSIC:
+                    if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
+                        MediaUtils.execute(this, file.path, getResources().getString(R.string.openin_title));
+                    }else if (mMode == Constant.STORAGEMODE_OTG){
+                        MediaUtils.executeUri(this, file.uri.toString(), getResources().getString(R.string.openin_title));
+                    }
+                    break;
+                case Constant.TYPE_DOC:
+                    if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
+                        MediaUtils.execute(this, file.path, getResources().getString(R.string.openin_title));
+                    }else if (mMode == Constant.STORAGEMODE_OTG){
+                        MediaUtils.executeUri(this, file.uri.toString(), getResources().getString(R.string.openin_title));
+                    }
+                    break;
+                case Constant.TYPE_ENCRYPT:
+                    if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
+
+                    }else if (mMode == Constant.STORAGEMODE_OTG){
+
+                    }
+                    break;
+                case Constant.TYPE_OTHER_FILE:
+                    if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
+                        MediaUtils.execute(this, file.path, getResources().getString(R.string.openin_title));
+                    }else if (mMode == Constant.STORAGEMODE_OTG){
+                        MediaUtils.executeUri(this, file.uri.toString(), getResources().getString(R.string.openin_title));
+                    }
+                    break;
+            }
+        }else{
+            selectAtPosition(position);
         }
+
     }
 
     @Override
     public void onRecyclerItemLongClick(int position) {
-
+        if (mActionMode == null) {
+            startActionMode();
+            selectAtPosition(position);
+        }
     }
 
     @Override
     public void onRecyclerItemInfoClick(int position) {
 
     }
+
+    private void startActionMode() {
+        if (mActionMode == null)
+            startSupportActionMode(this);
+    }
+
+    private void selectAtPosition(int position) {
+        boolean checked = mFileList.get(position).checked;
+        mFileList.get(position).checked = !checked;
+        mFolderExploreAdapter.notifyItemChanged(position);
+        int count = mFolderExploreAdapter.getItemSelectedCount();
+        boolean selectAll = (count == mFileList.size());
+        updateActionModeTitle(count);
+        toggleActionModeAction(count);
+        toggleFabSelectAll(selectAll);
+    }
+
+    private void toggleSelectAll() {
+        boolean selectAll = mFolderExploreAdapter.getSelectedAllorNot();
+        if (selectAll)
+            mFolderExploreAdapter.clearAllSelection();
+        else
+            mFolderExploreAdapter.setAllSelection();
+        selectAll = !selectAll;
+        updateActionModeTitle(mFolderExploreAdapter.getItemSelectedCount());
+        toggleActionModeAction(mFolderExploreAdapter.getItemSelectedCount());
+        toggleFabSelectAll(selectAll);
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        initView(mode);
+        initMenu(menu);
+        updateActionModeTitle(0);
+        toggleActionModeAction(0);
+        toggleFabSelectAll(false);
+        return true;
+    }
+
+    public void updateActionModeTitle(int count) {
+        String format = getResources().getString(R.string.conj_selected);
+        mActionModeTitle.setText(String.format(format, count));
+    }
+
+    private void toggleFabSelectAll(boolean selectAll) {
+        int resId = selectAll
+                ? R.drawable.ic_menu_manage
+                : R.drawable.ic_menu_camera;
+        mFab.setImageResource(resId);
+        mFab.setVisibility(View.VISIBLE);
+    }
+
+    private void toggleActionModeAction(int count) {
+        boolean visible = false;
+        if (count == 0) {
+            mActionMode.getMenu().findItem(R.id.action_rename).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_share).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_copy).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_move).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_delete).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(visible);
+        } else if (count == 1) {
+            mActionMode.getMenu().findItem(R.id.action_rename).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_share).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_copy).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_move).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_delete).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(!visible);
+        } else if (count > 1) {
+            mActionMode.getMenu().findItem(R.id.action_rename).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_share).setVisible(visible);
+            mActionMode.getMenu().findItem(R.id.action_copy).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_move).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_delete).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
+            mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(!visible);
+        }
+    }
+
+    private void initView(ActionMode mode) {
+        mActionMode = mode;
+        mActionMode.setCustomView(mActionModeView);
+    }
+
+    private void initMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.fab_editor, menu);
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        return false;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_rename:
+                if (Constant.nowMODE == Constant.MODE.LOCAL) {
+                    doLocalRename();
+                }else if(Constant.nowMODE == Constant.MODE.SD) {
+                    nowAction = R.id.action_rename;
+                    doOTGRename(true);
+                }else if (Constant.nowMODE == Constant.MODE.OTG) {
+                    doOTGRename(false);
+                }
+                break;
+            case R.id.action_delete:
+                if (Constant.nowMODE == Constant.MODE.LOCAL) {
+                    doLocalDelete();
+                }else if(Constant.nowMODE == Constant.MODE.SD){
+                    nowAction = R.id.action_delete;
+                    doOTGDelete(true);
+                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                    doOTGDelete(false);
+                }
+                break;
+            case R.id.action_share:
+                if(Constant.nowMODE == Constant.MODE.LOCAL || Constant.nowMODE == Constant.MODE.SD){
+                    doLocalShare();
+                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                    doOTGShare();
+                }
+        }
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        mFolderExploreAdapter.clearAllSelection();
+        toggleFabSelectAll(false);
+        mActionMode = null;
+    }
+
+    private void doLocalRename(){
+        List<String> names = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        FileInfo target = new FileInfo();
+        for (FileInfo file : allFiles) {
+            if (file.checked)
+                target = file;
+            else
+                names.add(file.name.toLowerCase());
+        }
+        final String path = target.path;
+        final String name = target.name;
+        boolean ignoreType = (target.type == Constant.TYPE_DIR);
+        new LocalRenameDialog(this,ignoreType, name, names) {
+            @Override
+            public void onConfirm(String newName) {
+                if (newName.equals(name))
+                    return;
+                mFileActionManager.rename(path, newName);
+            }
+        };
+    }
+
+    private void doOTGRename(final boolean bSDCard) {
+        final ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
+        new OTGFileRenameDialog(this, selectedFiles, !bSDCard, true) {
+            @Override
+            public void onConfirm(String newName, String oldName, ArrayList<DocumentFile> selectedDocumentFile) {
+                if (newName.equals(oldName))
+                    return;
+                if(bSDCard){
+                    if(checkSDWritePermission()){
+                        ActionParameter.name = newName;
+                        ActionParameter.files = selectedFiles;
+                        mFileActionManager.renameOTG(newName, selectedDocumentFile);
+                    }else{
+                        ActionParameter.name = newName;
+                        ActionParameter.files = selectedFiles;
+                    }
+                }else{
+                    mFileActionManager.renameOTG(newName, selectedDocumentFile);
+                }
+
+            }
+        };
+    }
+
+    private void doLocalDelete(){
+        ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
+        new LocalDeleteDialog(this, selectedFiles) {
+            @Override
+            public void onConfirm(ArrayList<FileInfo> selectedFiles) {
+                mFileActionManager.delete(selectedFiles);
+            }
+        };
+    }
+
+    private void doOTGDelete(final boolean bSDCard){
+        final ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
+        new OTGDeleteDialog(this, selectedFiles, !bSDCard, true) {
+            @Override
+            public void onConfirm(ArrayList<DocumentFile> selectedDocumentFile) {
+                if(bSDCard){
+                    if(checkSDWritePermission()){
+                        mFileActionManager.deleteOTG(selectedDocumentFile);
+                    }else{
+                        ActionParameter.files = selectedFiles;
+                    }
+                }else{
+                    mFileActionManager.deleteOTG(selectedDocumentFile);
+                }
+            }
+        };
+    }
+
+    private void doLocalShare() {
+        String selectPath = mFolderExploreAdapter.getSelectedFiles().get(0).path;
+        boolean shareSuccess = MediaUtils.localShare(this, selectPath);
+        if(!shareSuccess)
+            snackBarShow(R.string.snackbar_not_support_share);
+        mActionMode.finish();
+    }
+
+    private void doOTGShare(){
+        ArrayList<FileInfo> selectFiles = mFolderExploreAdapter.getSelectedFiles();
+        ArrayList<DocumentFile> selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, true);
+        boolean shareSuccess = MediaUtils.otgShare(this, selectDFiles.get(0));
+        if(!shareSuccess)
+            snackBarShow(R.string.snackbar_not_support_share);
+        mActionMode.finish();
+    }
+
 }
 

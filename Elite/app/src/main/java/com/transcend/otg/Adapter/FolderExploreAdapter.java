@@ -49,7 +49,6 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
     }
 
 
-
     public void update(@Nullable ArrayList<FileInfo> items) {
         mList = items;
         mShowSize = LocalPreferences.getPref(mContext,
@@ -99,12 +98,55 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
 
     }
 
+    public ArrayList<FileInfo> getSelectedFiles(){
+        ArrayList<FileInfo> list = new ArrayList<>();
+        for (FileInfo file : mList) {
+            if (file.checked)
+                list.add(file);
+        }
+        return list;
+    }
+
+    public boolean getSelectedAllorNot() {
+        for (FileInfo file : mList) {
+            if (!file.checked)
+                return false;
+        }
+        return true;
+    }
+
+    public int getItemSelectedCount() {
+        int count = 0;
+        for (FileInfo file : mList) {
+            if(file.checked)
+                count++;
+        }
+        return count;
+    }
+
+    public void setAllSelection(){
+        for (FileInfo file : mList)
+            file.checked = true;
+        notifyDataSetChanged();
+    }
+
+
+    public void clearAllSelection(){
+        for (FileInfo file : mList)
+            file.checked = false;
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         if (mList != null)
             return mList.size();
         else
             return 0;
+    }
+
+    public ArrayList<FileInfo> getAllFiles(){
+        return mList;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -135,6 +177,7 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
+
         @Override
         public void onClick(View v) {
             if (mCallback != null) {

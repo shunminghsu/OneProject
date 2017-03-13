@@ -30,12 +30,13 @@ public abstract class OTGDeleteDialog implements OnClickListener {
 
     private ArrayList<FileInfo> mFiles;
     private ArrayList<DocumentFile> mDFiles;
-    private boolean bFromName;
+    private boolean bFromName, bFromExploreActivity;
 
-    public OTGDeleteDialog(Context context, ArrayList<FileInfo> files, boolean fromName) {
+    public OTGDeleteDialog(Context context, ArrayList<FileInfo> files, boolean fromName, boolean fromExploreActivity) {
         mContext = context;
         mFiles = files;
         bFromName = fromName;
+        bFromExploreActivity = fromExploreActivity;
         initData();
         initDialog();
     }
@@ -46,18 +47,18 @@ public abstract class OTGDeleteDialog implements OnClickListener {
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
                 DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
-                Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
+                Constant.mCurrentDocumentFileExplore = Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
                 String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 if(bFromName)
-                    mDFiles = FileFactory.findDocumentFilefromName(mFiles);
+                    mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
                 else
-                    mDFiles = FileFactory.findDocumentFilefromPath(mFiles, sdPath);
+                    mDFiles = FileFactory.findDocumentFilefromPath(mFiles, sdPath, bFromExploreActivity);
             }
         }else if(Constant.nowMODE == Constant.MODE.OTG){
             if(bFromName)
-                mDFiles = FileFactory.findDocumentFilefromName(mFiles);
+                mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
             else
-                mDFiles = FileFactory.findDocumentFilefromPath(mFiles);
+                mDFiles = FileFactory.findDocumentFilefromPath(mFiles, bFromExploreActivity);
         }
     }
 
