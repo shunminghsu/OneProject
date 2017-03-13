@@ -3,6 +3,7 @@ package com.transcend.otg.Photo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.view.PagerAdapter;
@@ -24,8 +25,10 @@ import android.widget.TextView;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Dialog.LocalDeleteDialog;
 import com.transcend.otg.R;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -33,6 +36,7 @@ import java.util.ArrayList;
  */
 
 public class PhotoActivity extends AppCompatActivity {
+    private Context mContext;
     private PhotoHelper mPhotoHelper;
     private ViewPager mPager;
     private ArrayList<FileInfo> mPhotoList;
@@ -48,6 +52,7 @@ public class PhotoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.photo_layout);
@@ -107,29 +112,50 @@ public class PhotoActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        final FileInfo fileinfo = mPhotoList.get(mPager.getCurrentItem());
         switch (item.getItemId()) {
             case R.id.share:
-                Intent share_intent = new Intent(Intent.ACTION_SEND);
-                share_intent.putExtra(Intent.EXTRA_STREAM, mPhotoList.get(mPager.getCurrentItem()).uri);
-                share_intent.setType("image/*");
-                share_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivityForResult(share_intent, EDIT_REQUEST_CODE);
-                //startActivity(Intent.createChooser(share_intent, null));
+                if (fileinfo.type == Constant.STORAGEMODE_OTG) {
+
+                } else {
+                    Intent share_intent = new Intent(Intent.ACTION_SEND);
+                    share_intent.putExtra(Intent.EXTRA_STREAM, fileinfo.uri);
+                    share_intent.setType("image/jpeg");
+                    share_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivityForResult(share_intent, EDIT_REQUEST_CODE);
+                    //startActivity(Intent.createChooser(share_intent, null));
+                }
                 return true;
             case R.id.edit:
-                Intent edit_intent = new Intent(Intent.ACTION_EDIT);
-                edit_intent.setDataAndType(mPhotoList.get(mPager.getCurrentItem()).uri, "image/*");
-                edit_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(Intent.createChooser(edit_intent, null));
-                //startActivityForResult(intent, EDIT_REQUEST_CODE);
+                if (fileinfo.type == Constant.STORAGEMODE_OTG) {
+
+                } else {
+                    Intent edit_intent = new Intent(Intent.ACTION_EDIT);
+                    edit_intent.setDataAndType(fileinfo.uri, "image/*");
+                    edit_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(edit_intent, null));
+                    //startActivityForResult(intent, EDIT_REQUEST_CODE);
+                }
                 return true;
-            case R.id.action_delete:
+            case R.id.delete:
+                ArrayList<FileInfo> deleteOneFiles = new ArrayList<FileInfo>();
+                deleteOneFiles.add(fileinfo);
+                new LocalDeleteDialog(this, deleteOneFiles) {
+                    @Override
+                    public void onConfirm(ArrayList<FileInfo> selectedFiles) {
+                        new DeleteTask(fileinfo).execute();
+                    }
+                };
                 return true;
             case R.id.set_photo_as:
-                Intent setas_intent = new Intent(Intent.ACTION_ATTACH_DATA);
-                setas_intent.setDataAndType(mPhotoList.get(mPager.getCurrentItem()).uri, "image/*");
-                setas_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                startActivity(Intent.createChooser(setas_intent, getString(R.string.set_photo_as)));
+                if (fileinfo.type == Constant.STORAGEMODE_OTG) {
+
+                } else {
+                    Intent setas_intent = new Intent(Intent.ACTION_ATTACH_DATA);
+                    setas_intent.setDataAndType(fileinfo.uri, "image/*");
+                    setas_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(setas_intent, getString(R.string.set_photo_as)));
+                }
                 return true;
             case R.id.action_rename:
                 return true;
@@ -242,7 +268,7 @@ public class PhotoActivity extends AppCompatActivity {
             TouchImageView imageView = (TouchImageView) itemView.findViewById(R.id.photo);
             imageView.setPhotoClickListener(mPhotoClickListener);
             ViewGroup loading = (ViewGroup) itemView.findViewById(R.id.loading);
-            mPhotoHelper.loadThumbnail(mPhotoList.get(position).uri, imageView, loading, mScreenW, mScreenH);
+            mPhotoHelper.loadThumbnail(mPhotoList.get(position).path, mPhotoList.get(position).uri, imageView, loading, mScreenW, mScreenH);
 
             ViewGroup viewGroup = (ViewGroup)itemView.findViewById(R.id.info);
             viewGroup.setVisibility(mHideAllUI ? View.GONE : View.VISIBLE);
@@ -323,6 +349,40 @@ public class PhotoActivity extends AppCompatActivity {
                             + (1 - MIN_SCALE) * (1 - Math.abs(position));
                     photo.setScaleX(scaleFactor);
                     photo.setScaleY(scaleFactor);
+                }
+            }
+        }
+    }
+
+    private class DeleteTask extends AsyncTask<Void, Void, Boolean> {
+        private final FileInfo mFileInfo;
+
+        public DeleteTask(FileInfo fileInfo) {
+            mFileInfo = fileInfo;
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            File f = new File(mFileInfo.path);
+            return f.delete();
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result) {
+                mPhotoList.remove(mFileInfo);
+                if (mPhotoList.size() == 0) {
+                    finish();
+                } else {
+                    mAdapter = null;
+                    mAdapter = new CustomPagerAdapter(mContext);
+                    mPager.setAdapter(mAdapter);
+                    mPosition = mPosition - 1;
+                    mPager.setCurrentItem(mPosition);
                 }
             }
         }

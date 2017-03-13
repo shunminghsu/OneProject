@@ -36,94 +36,85 @@ public class FileFactory {
     private int RealPathMapLifeCycle = 10;
 
     //try to return sdcard path, if sdcard not found, return null
-    public static String getOuterStoragePath(Context context, String key_path) {
-
-        Method getService = null;
-        Method asInterface = null;
+    public static String getOuterStoragePath(Context mContext, String key_word) {
+        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
+        Class<?> storageVolumeClazz = null;
         try {
-            getService = Class.forName("android.os.ServiceManager")
-                    .getDeclaredMethod("getService", String.class);
-            asInterface = Class.forName("android.os.storage.IMountService$Stub")
-                    .getDeclaredMethod("asInterface", IBinder.class);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = null;
+            Method getPath = null;
+            Method isRemovable = null;
+            Method getState = null;
+            try {
+                getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+                getPath = storageVolumeClazz.getMethod("getPath");
+                isRemovable = storageVolumeClazz.getMethod("isRemovable");
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+
+            Object result = getVolumeList.invoke(mStorageManager);
+            final int length = Array.getLength(result);
+            for (int i = 0; i < length; i++) {
+                Object storageVolumeElement = Array.get(result, i);
+                String path = (String) getPath.invoke(storageVolumeElement);
+                Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
+                if (removable && path != null) {
+                    if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
+                        return path;
+                    } else if (path.contains(key_word)) {
+                        return path;
+                    }
+                }
+            }
         } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        if (!getService.isAccessible()) getService.setAccessible(true);
-        if (!asInterface.isAccessible()) asInterface.setAccessible(true);
-
-        IBinder service = null;
-        Object mountService = null;
-        try {
-            service = (IBinder) getService.invoke(null, "mount");
-            mountService = asInterface.invoke(null, service);
-        } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
+        return null;
+    }
 
-        Object[] storageVolumes = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String packageName = context.getPackageName();
-
-            try {
-                int uid = context.getPackageManager().getPackageInfo(packageName, 0).applicationInfo.uid;
-                Method getVolumeList = mountService.getClass().getDeclaredMethod(
-                        "getVolumeList", int.class, String.class, int.class);
-                if (!getVolumeList.isAccessible()) getVolumeList.setAccessible(true);
-                storageVolumes = (Object[]) getVolumeList.invoke(mountService, uid, packageName, 0);
-            } catch (PackageManager.NameNotFoundException e) {
-                e.printStackTrace();
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        } else {
-            try {
-                Method getVolumeList = mountService.getClass().getDeclaredMethod("getVolumeList");
-                if (!getVolumeList.isAccessible()) getVolumeList.setAccessible(true);
-                storageVolumes = (Object[]) getVolumeList.invoke(mountService, (Object[]) null);
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (storageVolumes == null) return null;
-
-        for (Object storageVolume : storageVolumes) {
-            Class<?> cls = storageVolume.getClass();
+    //try to return the state of path, if path not found, return null
+    public static Boolean getMountedState(Context mContext, String _path) {
+        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
+        Class<?> storageVolumeClazz = null;
+        try {
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = null;
+            Method getPath = null;
             Method isRemovable = null;
+            Method getState = null;
             try {
-                isRemovable = cls.getDeclaredMethod("isRemovable");
-                if (!isRemovable.isAccessible()) isRemovable.setAccessible(true);
-                if ((boolean) isRemovable.invoke(storageVolume, (Object[]) null)) {
-                    Method getState = cls.getDeclaredMethod("getState");
-                    if (!getState.isAccessible()) getState.setAccessible(true);
-                    String state = (String) getState.invoke(storageVolume, (Object[]) null);
-                    if (state.equals("mounted")) {
-                        Method getPath = cls.getDeclaredMethod("getPath");
-                        if (!getPath.isAccessible()) getPath.setAccessible(true);
-                        String path = (String) getPath.invoke(storageVolume, (Object[]) null);
-                        if (path.toLowerCase().contains(key_path.toLowerCase()))
-                            return path;
+                getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+                getPath = storageVolumeClazz.getMethod("getPath");
+                isRemovable = storageVolumeClazz.getMethod("isRemovable");
+                getState = storageVolumeClazz.getMethod("getState");
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+
+            Object result = getVolumeList.invoke(mStorageManager);
+            final int length = Array.getLength(result);
+            for (int i = 0; i < length; i++) {
+                Object storageVolumeElement = Array.get(result, i);
+                String path = (String) getPath.invoke(storageVolumeElement);
+                String state = (String) getState.invoke(storageVolumeElement);
+                Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
+                if (removable) {
+                    if (path != null && path.equals(_path)) {
+                        return state.equals("mounted");
                     }
                 }
-            } catch (NoSuchMethodException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
             }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
         }
         return null;
     }

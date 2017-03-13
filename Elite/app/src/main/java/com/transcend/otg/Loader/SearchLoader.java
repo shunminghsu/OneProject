@@ -100,7 +100,9 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     String mimeType = cursor.getString(mimeColumnIndex);
                     Long time = 1000 * cursor.getLong(timeColumnIndex);
                     Long size = cursor.getLong(sizeColumnIndex);
-
+                    File check_file = new File(path);
+                    if (check_file.exists() == false)
+                        continue;
                     if (!path.contains("/.") && name.toLowerCase().contains(mQueryText.toLowerCase())) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;

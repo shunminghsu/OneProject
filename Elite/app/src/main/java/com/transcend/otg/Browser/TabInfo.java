@@ -134,22 +134,23 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
 
     @Override
     public void onRecyclerItemClick(FileInfo file, int position) {
-        if(mType == 0){//photo
-            Intent intent = new Intent(mContext, PhotoActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            intent.putParcelableArrayListExtra("photo_list", getAdapter().getList());
-            intent.putExtra("list_index", position);
-            mContext.startActivity(intent);
-        }else if(mType == 4){//encrypted file
-
-        }else if(mType == 5){
-            mCallback.onItemClick(file);
-        }else{//video / music / document
-            if(Constant.nowMODE == Constant.MODE.OTG){
-                MediaUtils.executeUri(mContext, file.uri.toString(), mContext.getResources().getString(R.string.openin_title));
-            }else{
-                MediaUtils.execute(mContext, file.path, mContext.getResources().getString(R.string.openin_title));
-            }
+        switch (file.type) {
+            case Constant.TYPE_PHOTO:
+                startPhotoSingleView(getAdapter().getList(), position);
+                break;
+            case Constant.TYPE_MUSIC:
+            case Constant.TYPE_VIDEO:
+            case Constant.TYPE_DOC:
+                if (file.storagemode == Constant.STORAGEMODE_OTG)
+                    MediaUtils.executeUri(mContext, file.uri.toString(), mContext.getResources().getString(R.string.openin_title));
+                else
+                    MediaUtils.execute(mContext, file.path, mContext.getResources().getString(R.string.openin_title));
+                break;
+            case Constant.TYPE_ENCRYPT:
+                break;
+            case Constant.TYPE_DIR:
+                mCallback.onItemClick(file);
+                break;
         }
     }
 
@@ -234,5 +235,22 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
                 (MainActivity.mScreenW - viewPadding) / (cellWidth + cellMargin));
 
         return columnCount;
+    }
+
+    private void startPhotoSingleView(ArrayList<FileInfo> list, int position) {
+        Intent intent = new Intent(mContext, PhotoActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        int newListPosition = 0;
+        ArrayList<FileInfo> photoList = new ArrayList<FileInfo>();
+        for (int i=0;i<list.size();i++) {
+            if (list.get(i).type == Constant.TYPE_PHOTO)
+                photoList.add(list.get(i));
+            if (i == position)
+                newListPosition = photoList.size() - 1;
+        }
+
+        intent.putParcelableArrayListExtra("photo_list", photoList);
+        intent.putExtra("list_index", newListPosition);
+        mContext.startActivity(intent);
     }
 }

@@ -89,7 +89,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             case BrowserFragment.LIST_TYPE_ENCRYPTION:
                 return mIsOtg ? getSortList(getOtgAllEncs(baseRootUri)) : getAllEncs();
             case BrowserFragment.LIST_TYPE_FOLDER:
-                return mIsOtg ? getSortList(getOtgFileList(baseRootUri)) : getFileList(Constant.sd_key_path);
+                return mIsOtg ? getSortList(getOtgFileList(baseRootUri)) : getFileList();
             default:
                 return null;
         }
@@ -634,12 +634,105 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         return mFileList;
     }
 
-    private ArrayList<FileInfo> getFileList(String key) {
+    private ArrayList<FileInfo> getFileList() {
+        String root_path;
+        if (mOuterStoragePath == null)
+            root_path = Constant.ROOT_LOCAL;
+        else
+            root_path = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+        try {
+            String[] proj = {
+                    MediaStore.Files.FileColumns._ID,
+                    MediaStore.Files.FileColumns.MEDIA_TYPE,
+                    MediaStore.Files.FileColumns.MIME_TYPE,
+                    MediaStore.Files.FileColumns.DATE_MODIFIED,
+                    MediaStore.Files.FileColumns.DATA,
+                    MediaStore.Files.FileColumns.SIZE};
+            Uri contextUri = MediaStore.Files.getContentUri("external");
+
+            String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
+            if (mSortBy == Constant.SORT_BY_NAME)
+                orderBy = MediaStore.Files.FileColumns.DISPLAY_NAME;
+            else if (mSortBy == Constant.SORT_BY_SIZE)
+                orderBy = MediaStore.Files.FileColumns.SIZE;
+            String order = mSortOrderAsc ? " ASC" : " DESC";
+            Cursor cursor = mContext.getContentResolver().query(
+                    contextUri, proj,
+                    null, null, orderBy + order);
+            if (cursor != null) {
+                int pathColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
+                int mimeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE);
+                int typeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE);
+                int timeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED);
+                int sizeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
+                while (cursor.moveToNext()) {
+                    String path = cursor.getString(pathColumnIndex);
+                    File check_file = new File(path);
+                    if (check_file.exists() == false)
+                        continue;
+                    if (!path.contains("/.") && path.contains(root_path) && path.lastIndexOf('/') == root_path.length()) {
+                        Uri fileUri = ContentUris.withAppendedId(contextUri,
+                                cursor.getInt(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID)));
+                        String name = path.substring(path.lastIndexOf('/')+1);
+                        String mimeType = cursor.getString(mimeColumnIndex);
+                        Long time = 1000 * cursor.getLong(timeColumnIndex);
+                        Long size = cursor.getLong(sizeColumnIndex);
+
+                        FileInfo fileInfo = new FileInfo();
+                        fileInfo.path = path;
+
+                        if (root_path == Constant.ROOT_LOCAL)
+                            fileInfo.storagemode = Constant.STORAGEMODE_LOCAL;
+                        else
+                            fileInfo.storagemode = Constant.STORAGEMODE_SD;
+                        fileInfo.name = name;
+                        fileInfo.time = FileInfo.getTime(time);
+                        fileInfo.size = size;
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, size);
+                        switch (cursor.getInt(typeColumnIndex)) {
+                            case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
+                                fileInfo.type = Constant.TYPE_PHOTO;
+                                fileInfo.uri = fileUri;
+                                break;
+                            case MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO:
+                                fileInfo.type = Constant.TYPE_MUSIC;
+                                break;
+                            case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
+                                fileInfo.type = Constant.TYPE_VIDEO;
+                                break;
+                            default:
+                                if (mimeType != null && (mimeType.contains(TEXT) || mimeType.contains(PDF) || mimeType.contains(WORD) || mimeType.contains(PPT) || mimeType.contains(EXCEL))) {
+                                    fileInfo.type = Constant.TYPE_DOC;
+                                } else {
+                                    File file = new File(path);
+                                    if (file.exists() && file.isDirectory()) {
+                                        fileInfo.type = Constant.TYPE_DIR;
+                                    } else if (name.contains(ENCRYPT)) {
+                                        fileInfo.type = Constant.TYPE_ENCRYPT;
+                                    } else {
+                                        fileInfo.type = Constant.TYPE_OTHER_FILE;
+                                    }
+                                }
+                                break;
+                        }
+                        mFileList.add(fileInfo);
+                    }
+                }
+            }
+            cursor.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return mFileList;
+        }
+        return mFileList;
+    }
+
+    private ArrayList<FileInfo> getFileList_old() {
         String path;
         if (mOuterStoragePath == null)
             path = Constant.ROOT_LOCAL;
         else
-            path = FileFactory.getOuterStoragePath(mContext, key);
+            path = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
         File dir = new File(path);
         if (!dir.exists())
             return mFileList;

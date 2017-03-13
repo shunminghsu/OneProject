@@ -413,7 +413,12 @@ public class MainActivity extends AppCompatActivity
                 markSelectedBtn(mSdButton);
                 String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 if (sdpath != null) {
-                    replaceFragment(sdFragment);
+                    if (FileFactory.getMountedState(mContext, sdpath)) {
+                        replaceFragment(sdFragment);
+                    } else {
+                        //showSearchIcon(false);
+                        switchToFragment(NoSdFragment.class.getName(), false);
+                    }
                 } else {
                     //showSearchIcon(false);
                     if(mActionMode != null)

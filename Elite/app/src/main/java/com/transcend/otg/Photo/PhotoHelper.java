@@ -28,10 +28,10 @@ public class PhotoHelper {
         mContext = context;
     }
 
-    public void loadThumbnail(Uri uri, ImageView photoView, ViewGroup loadingView, int width, int height) {
+    public void loadThumbnail(String path, Uri uri, ImageView photoView, ViewGroup loadingView, int width, int height) {
 
         photoView.setImageDrawable(null);
-        final PhotoHelper.LoaderTask task = new PhotoHelper.LoaderTask(uri, photoView, loadingView, mContext, width, height);
+        final PhotoHelper.LoaderTask task = new PhotoHelper.LoaderTask(path, uri, photoView, loadingView, mContext, width, height);
         photoView.setTag(task);
         task.execute();
 
@@ -39,14 +39,16 @@ public class PhotoHelper {
 
     private static class LoaderTask extends AsyncTask<String, Void, Bitmap> {
         private final Uri mUri;
+        private final String mPath;
         private final ViewGroup mLoadingView;
         private final ImageView mPhotoView;
         final private int mPhotoWidth, mPhotoHeight;
         private final CancellationSignal mSignal;
         private Point mThumbSize;
         private Context mContext;
-        public LoaderTask(Uri uri, ImageView photoView, ViewGroup loadingView, Context context,
+        public LoaderTask(String path, Uri uri, ImageView photoView, ViewGroup loadingView, Context context,
                           int width, int height) {
+            mPath = path;
             mUri = uri;
             mLoadingView = loadingView;
             mPhotoView = photoView;
@@ -70,7 +72,11 @@ public class PhotoHelper {
                 return null;
             final ContentResolver resolver = mContext.getContentResolver();
             Bitmap result = null;
-            result = DocumentsContract.getDocumentThumbnail(resolver, mUri, mThumbSize, mSignal);
+
+            if (mPath != null)
+                result = decodeFullScreenBitmapFromPath(mPath, mPhotoWidth, mPhotoHeight);
+            else if (mUri != null)
+                result = DocumentsContract.getDocumentThumbnail(resolver, mUri, mThumbSize, mSignal);
             return result;
         }
 
