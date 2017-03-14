@@ -62,7 +62,7 @@ public class FileFactory {
                 if (removable && path != null) {
                     if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
                         return path;
-                    } else if (path.contains(key_word)) {
+                    } else if (path.toLowerCase().contains(key_word)) {
                         return path;
                     }
                 }

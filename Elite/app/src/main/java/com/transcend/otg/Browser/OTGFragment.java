@@ -1,5 +1,6 @@
 package com.transcend.otg.Browser;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import com.transcend.otg.Constant.Constant;
@@ -15,7 +16,10 @@ public class OTGFragment extends BrowserFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mOuterStoragePath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            mOuterStoragePath = "/"+getResources().getString(R.string.nav_otg);
+        else
+            mOuterStoragePath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
         mIsOtg = true;
         initTabInfos(savedInstanceState);
     }

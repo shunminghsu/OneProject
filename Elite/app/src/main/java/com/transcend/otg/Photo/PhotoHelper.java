@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.CancellationSignal;
 import android.provider.DocumentsContract;
 import android.util.Log;
@@ -14,6 +15,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Constant.FileInfo;
+
+import java.io.File;
 
 
 /**
@@ -28,10 +33,10 @@ public class PhotoHelper {
         mContext = context;
     }
 
-    public void loadThumbnail(String path, Uri uri, ImageView photoView, ViewGroup loadingView, int width, int height) {
-
+    public void loadThumbnail(FileInfo fileInfo, ImageView photoView, ViewGroup loadingView, int width, int height) {
+        boolean isOtg = fileInfo.type == Constant.STORAGEMODE_OTG;
         photoView.setImageDrawable(null);
-        final PhotoHelper.LoaderTask task = new PhotoHelper.LoaderTask(path, uri, photoView, loadingView, mContext, width, height);
+        final PhotoHelper.LoaderTask task = new PhotoHelper.LoaderTask(fileInfo.path, fileInfo.uri, photoView, loadingView, mContext, width, height, isOtg);
         photoView.setTag(task);
         task.execute();
 
@@ -40,6 +45,7 @@ public class PhotoHelper {
     private static class LoaderTask extends AsyncTask<String, Void, Bitmap> {
         private final Uri mUri;
         private final String mPath;
+        private boolean mOtgFile;
         private final ViewGroup mLoadingView;
         private final ImageView mPhotoView;
         final private int mPhotoWidth, mPhotoHeight;
@@ -47,15 +53,16 @@ public class PhotoHelper {
         private Point mThumbSize;
         private Context mContext;
         public LoaderTask(String path, Uri uri, ImageView photoView, ViewGroup loadingView, Context context,
-                          int width, int height) {
+                          int width, int height, boolean isOtg) {
             mPath = path;
             mUri = uri;
+            mOtgFile = isOtg;
             mLoadingView = loadingView;
             mPhotoView = photoView;
             mContext = context;
             mPhotoWidth = width;
             mPhotoHeight = height;
-            mThumbSize = new Point(width, height);
+            mThumbSize = new Point(width/2, height/2);
             mSignal = new CancellationSignal();
         }
 
@@ -73,10 +80,15 @@ public class PhotoHelper {
             final ContentResolver resolver = mContext.getContentResolver();
             Bitmap result = null;
 
-            if (mPath != null)
-                result = decodeFullScreenBitmapFromPath(mPath, mPhotoWidth, mPhotoHeight);
-            else if (mUri != null)
+            if (mOtgFile && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M))
                 result = DocumentsContract.getDocumentThumbnail(resolver, mUri, mThumbSize, mSignal);
+            else {
+                File f = new File(mPath);
+                if (f.exists())
+                    result = decodeFullScreenBitmapFromPath(mPath, mPhotoWidth, mPhotoHeight);
+                else
+                    result = DocumentsContract.getDocumentThumbnail(resolver, mUri, mThumbSize, mSignal);
+            }
             return result;
         }
 

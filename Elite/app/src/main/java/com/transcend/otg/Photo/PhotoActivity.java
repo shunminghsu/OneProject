@@ -268,7 +268,7 @@ public class PhotoActivity extends AppCompatActivity {
             TouchImageView imageView = (TouchImageView) itemView.findViewById(R.id.photo);
             imageView.setPhotoClickListener(mPhotoClickListener);
             ViewGroup loading = (ViewGroup) itemView.findViewById(R.id.loading);
-            mPhotoHelper.loadThumbnail(mPhotoList.get(position).path, mPhotoList.get(position).uri, imageView, loading, mScreenW, mScreenH);
+            mPhotoHelper.loadThumbnail(mPhotoList.get(position), imageView, loading, mScreenW, mScreenH);
 
             ViewGroup viewGroup = (ViewGroup)itemView.findViewById(R.id.info);
             viewGroup.setVisibility(mHideAllUI ? View.GONE : View.VISIBLE);
