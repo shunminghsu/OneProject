@@ -17,8 +17,8 @@ import java.util.Collections;
  * Created by wangbojie on 2017/3/3.
  */
 
-public class OTGFileListLoader extends AsyncTaskLoader<Boolean> {
-    private static final String TAG = OTGFileListLoader.class.getSimpleName();
+public class OTGFileLoader extends AsyncTaskLoader<Boolean> {
+    private static final String TAG = OTGFileLoader.class.getSimpleName();
     private ArrayList<FileInfo> mFileList;
     private DocumentFile dFile;
     private Context mContext;
@@ -30,7 +30,7 @@ public class OTGFileListLoader extends AsyncTaskLoader<Boolean> {
     String AUDIO = "audio";
     String ENCRYPT = "enc";
 
-    public OTGFileListLoader(Context context, Uri uri, String selectName) {
+    public OTGFileLoader(Context context, Uri uri, String selectName) {
         super(context);
         mContext = context;
         mFileList = new ArrayList<FileInfo>();

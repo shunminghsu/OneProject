@@ -6,7 +6,6 @@ import android.content.Loader;
 import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
 
-import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Constant.LoaderID;
 
 import java.util.ArrayList;
@@ -46,7 +45,7 @@ public class LocalActionService extends FileActionService{
 
     @Override
     protected AsyncTaskLoader list(Context context, String path) {
-        return new LocalFileListLoader(context, path);
+        return new LocalListLoader(context, path);
     }
 
     @Override
@@ -56,7 +55,7 @@ public class LocalActionService extends FileActionService{
 
     @Override
     protected AsyncTaskLoader otglist(Context context, Uri uri, String selectName) {
-        return new OTGFileListLoader(context, uri, selectName);
+        return new OTGFileLoader(context, uri, selectName);
     }
 
     @Override

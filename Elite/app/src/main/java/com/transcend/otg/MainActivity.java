@@ -11,7 +11,6 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.DocumentsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -54,16 +53,14 @@ import com.transcend.otg.Dialog.LocalDeleteDialog;
 import com.transcend.otg.Dialog.LocalNewFolderDialog;
 import com.transcend.otg.Dialog.LocalRenameDialog;
 import com.transcend.otg.Dialog.OTGDeleteDialog;
-import com.transcend.otg.Dialog.OTGFileRenameDialog;
+import com.transcend.otg.Dialog.OTGRenameDialog;
 import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
-import com.transcend.otg.Loader.OTGRenameLoader;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -931,12 +928,12 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.action_delete:
                 String sdPathDelete = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
-                ActionParameter.dFiles = FileFactory.findDocumentFilefromPath(ActionParameter.files, sdPathDelete, false);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(ActionParameter.files, sdPathDelete, false);
                 mFileActionManager.deleteOTG(ActionParameter.dFiles);
                 break;
             case R.id.action_rename:
                 String sdPathRename = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
-                ActionParameter.dFiles = FileFactory.findDocumentFilefromPath(ActionParameter.files, sdPathRename, false);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(ActionParameter.files, sdPathRename, false);
                 mFileActionManager.renameOTG(ActionParameter.name, ActionParameter.dFiles);
                 break;
             default:
@@ -972,11 +969,12 @@ public class MainActivity extends AppCompatActivity
             if (file.type == Constant.TYPE_DIR)
                 folderNames.add(file.name.toLowerCase());
         }
-        new OTGNewFolderDialog(this, folderNames) {
+        new OTGNewFolderDialog(this, folderNames, false) {
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
                 if(bSDCard){
                     if(checkSDWritePermission()){
+                        ActionParameter.path = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                         mFileActionManager.newFolderOTG(newName, mDFiles);
                     }else{
                         ActionParameter.name = newName;
@@ -1018,7 +1016,7 @@ public class MainActivity extends AppCompatActivity
         if(postion == 5)
             fromName = true;
         final ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
-        new OTGFileRenameDialog(this, selectedFiles, fromName, false) {
+        new OTGRenameDialog(this, selectedFiles, fromName, false) {
             @Override
             public void onConfirm(String newName, String oldName, ArrayList<DocumentFile> selectedDocumentFile) {
                 if (newName.equals(oldName))
@@ -1089,7 +1087,8 @@ public class MainActivity extends AppCompatActivity
         if(position == 5){
             selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, false);
         }else{
-            selectDFiles = FileFactory.findDocumentFilefromPath(selectFiles, false);
+            String otgPath = FileFactory.getOuterStoragePath(this, Constant.otg_key_path) == null ? "null" : FileFactory.getOuterStoragePath(this, Constant.otg_key_path);
+            selectDFiles = FileFactory.findDocumentFilefromPathOTG(selectFiles, otgPath, false);
         }
         boolean shareSuccess = MediaUtils.otgShare(this, selectDFiles.get(0));
         if(!shareSuccess)

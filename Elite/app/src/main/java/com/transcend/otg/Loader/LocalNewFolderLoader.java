@@ -2,6 +2,8 @@ package com.transcend.otg.Loader;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 
 import java.io.File;
 
@@ -11,23 +13,33 @@ import java.io.File;
 public class LocalNewFolderLoader extends AsyncTaskLoader<Boolean> {
 
     private static final String TAG = LocalNewFolderLoader.class.getSimpleName();
-
+    private Context mContext;
     private String mPath;
 
     public LocalNewFolderLoader(Context context, String path) {
         super(context);
+        mContext = context;
         mPath = path;
     }
 
     @Override
     public Boolean loadInBackground() {
-        return createNewFolder();
+        try {
+            return createNewFolder();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
-    private boolean createNewFolder() {
+    private boolean createNewFolder() throws InterruptedException {
         File dir = new File(mPath);
         if (!dir.exists()) {
             boolean b = dir.mkdirs();
+            if(b){
+                mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(dir)));
+                Thread.sleep(500);
+            }
             return true;
         }
         return false;

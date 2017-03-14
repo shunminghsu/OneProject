@@ -11,9 +11,12 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 
+import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -24,7 +27,7 @@ import java.util.List;
  * Created by wangbojie on 2016/6/8.
  */
 public abstract class OTGNewFolderDialog implements TextWatcher, View.OnClickListener{
-    public abstract void onConfirm(String newName, ArrayList<DocumentFile> mRootDFile);
+    public abstract void onConfirm(String newName, ArrayList<DocumentFile> mDFiles);
 
     private Context mContext;
     private AlertDialog mDialog;
@@ -32,29 +35,46 @@ public abstract class OTGNewFolderDialog implements TextWatcher, View.OnClickLis
     private TextInputLayout mFieldName;
 
     private List<String> mFolderNames;
-    private ArrayList<DocumentFile> mRootDFile;
+    private ArrayList<DocumentFile> mDFiles;
+    private boolean bFromExploreActivity;
 
-    public OTGNewFolderDialog(Context context, List<String> folderNames) {
+
+    public OTGNewFolderDialog(Context context, List<String> folderNames, boolean fromExploreActivity) {
         mContext = context;
         mFolderNames = folderNames;
+        bFromExploreActivity = fromExploreActivity;
         initData();
         initDialog();
         initFieldName();
     }
 
     private void initData(){
-        mRootDFile = new ArrayList<>();
+        mDFiles = new ArrayList<>();
         if(Constant.nowMODE == Constant.MODE.SD){
             String sdKey = LocalPreferences.getSDKey(mContext);
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
-                mRootDFile.add(DocumentFile.fromTreeUri(mContext, uriSDKey));
+                if(bFromExploreActivity){
+                    DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+                    Constant.mCurrentDocumentFileExplore = Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
+                    String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                    ArrayList<FileInfo> mFiles = new ArrayList<>();
+                    FileInfo tmpFile = new FileInfo();
+                    tmpFile.path = ActionParameter.path;
+                    mFiles.add(tmpFile);
+                    mDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, bFromExploreActivity);
+                }else{
+                    mDFiles.add(DocumentFile.fromTreeUri(mContext, uriSDKey));
+                }
+
             }
-        }else if(Constant.nowMODE == Constant.MODE.OTG)
-            mRootDFile.add(Constant.mCurrentDocumentFile);
+        }else if(Constant.nowMODE == Constant.MODE.OTG){
+            if(bFromExploreActivity)
+                mDFiles.add(Constant.mCurrentDocumentFileExplore);
+            else
+                mDFiles.add(Constant.mRootDocumentFile);
+        }
     }
-
-
 
     private void initDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -92,7 +112,7 @@ public abstract class OTGNewFolderDialog implements TextWatcher, View.OnClickLis
         if (v.equals(mDlgBtnPos)) {
             if (mFieldName.getEditText() == null || mFieldName.getEditText().getText().toString().equals("")) return;
             String name = mFieldName.getEditText().getText().toString();
-            onConfirm(name, mRootDFile);
+            onConfirm(name, mDFiles);
             mDialog.dismiss();
         }
     }

@@ -52,13 +52,15 @@ public abstract class OTGDeleteDialog implements OnClickListener {
                 if(bFromName)
                     mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
                 else
-                    mDFiles = FileFactory.findDocumentFilefromPath(mFiles, sdPath, bFromExploreActivity);
+                    mDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, bFromExploreActivity);
             }
         }else if(Constant.nowMODE == Constant.MODE.OTG){
             if(bFromName)
                 mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
-            else
-                mDFiles = FileFactory.findDocumentFilefromPath(mFiles, bFromExploreActivity);
+            else{
+                String otgPath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path) == null ? "null" : FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
+                mDFiles = FileFactory.findDocumentFilefromPathOTG(mFiles, otgPath, bFromExploreActivity);
+            }
         }
     }
 

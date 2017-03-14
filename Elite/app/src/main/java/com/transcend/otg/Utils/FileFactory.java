@@ -279,7 +279,7 @@ public class FileFactory {
         mNotificationList.remove(value);
     }
 
-    public static ArrayList<DocumentFile> findDocumentFilefromPath(ArrayList<FileInfo> fileInfos, String sdPath, boolean fromExploreActivity){
+    public static ArrayList<DocumentFile> findDocumentFilefromPathSD(ArrayList<FileInfo> fileInfos, String sdPath, boolean fromExploreActivity){
         ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
         DocumentFile currentDocumentFile = null;
         if(fromExploreActivity){
@@ -305,7 +305,7 @@ public class FileFactory {
         return mDocumentFiles;
     }
 
-    public static ArrayList<DocumentFile> findDocumentFilefromPath(ArrayList<FileInfo> fileInfos, boolean fromExploreActivity){
+    public static ArrayList<DocumentFile> findDocumentFilefromPathOTG(ArrayList<FileInfo> fileInfos, String otgPath, boolean fromExploreActivity){
         ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
         DocumentFile currentDocumentFile = null;
         if(fromExploreActivity){
@@ -318,6 +318,7 @@ public class FileFactory {
         if(currentDocumentFile != null){
             for(FileInfo file : fileInfos){
                 String path = file.path;
+                path = path.replace(otgPath, "");
                 String[] array = path.split("/");
                 DocumentFile tmp = currentDocumentFile;
                 for(int i= 1;i<array.length;i++){

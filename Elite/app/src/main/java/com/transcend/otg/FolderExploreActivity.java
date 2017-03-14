@@ -9,13 +9,13 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.provider.DocumentFile;
-import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,13 +31,15 @@ import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.LocalDeleteDialog;
+import com.transcend.otg.Dialog.LocalNewFolderDialog;
 import com.transcend.otg.Dialog.LocalRenameDialog;
 import com.transcend.otg.Dialog.OTGDeleteDialog;
-import com.transcend.otg.Dialog.OTGFileRenameDialog;
+import com.transcend.otg.Dialog.OTGRenameDialog;
+import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
-import com.transcend.otg.Loader.LocalFileListLoader;
-import com.transcend.otg.Loader.OTGFileListLoader;
+import com.transcend.otg.Loader.LocalListLoader;
+import com.transcend.otg.Loader.OTGFileLoader;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
@@ -81,16 +83,45 @@ public class FolderExploreActivity extends AppCompatActivity
     private FloatingActionButton mFab, mFabExit;
     private PagerSwipeRefreshLayout mSwipeRefreshLayout;
     private CoordinatorLayout mCoordinatorlayout;
+    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_folder_explore);
+        initToolbar();
         initRecyclerViewAndAdapter();
         initDropdown();
         initData();
         initActionModeView();
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_new_folder:
+                if(Constant.nowMODE == Constant.MODE.LOCAL)
+                    doLocalNewFolder();
+                else if(Constant.nowMODE == Constant.MODE.SD){
+                    nowAction = R.id.menu_new_folder;
+                    doOTGNewFolder(true);
+                }else if(Constant.nowMODE == Constant.MODE.OTG)
+                    doOTGNewFolder(false);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void initToolbar(){
+        toolbar = (Toolbar) findViewById(R.id.explore_toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
     }
 
     private void initRecyclerViewAndAdapter() {
@@ -314,14 +345,14 @@ public class FolderExploreActivity extends AppCompatActivity
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
         mFileActionManager.onLoadFinished(loader, success);
         if (success) {
-            if (loader instanceof LocalFileListLoader) {
-                mPath = ((LocalFileListLoader) loader).getPath();
-                mFileList = ((LocalFileListLoader) loader).getFileList();
+            if (loader instanceof LocalListLoader) {
+                mPath = ((LocalListLoader) loader).getPath();
+                mFileList = ((LocalListLoader) loader).getFileList();
                 updateScreen();
-            }else if (loader instanceof OTGFileListLoader){
-                mPath = ((OTGFileListLoader) loader).getPath();
-                mFileList = ((OTGFileListLoader) loader).getFileList();
-                Constant.mCurrentDocumentFileExplore = mCurrentDocumentFile = ((OTGFileListLoader)loader).getCurrentDocumentFile();
+            }else if (loader instanceof OTGFileLoader){
+                mPath = ((OTGFileLoader) loader).getPath();
+                mFileList = ((OTGFileLoader) loader).getFileList();
+                Constant.mCurrentDocumentFileExplore = mCurrentDocumentFile = ((OTGFileLoader)loader).getCurrentDocumentFile();
                 updateScreen();
             }else{
                 doRefresh();
@@ -565,6 +596,53 @@ public class FolderExploreActivity extends AppCompatActivity
         mActionMode = null;
     }
 
+    private void doLocalNewFolder(){
+        List<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        new LocalNewFolderDialog(this, folderNames) {
+            @Override
+            public void onConfirm(String newName) {
+                String path = mPath;
+                StringBuilder builder = new StringBuilder(path);
+                if (!path.endsWith("/"))
+                    builder.append("/");
+                builder.append(newName);
+                String newFolderPath = builder.toString();
+                mFileActionManager.newFolder(newFolderPath);
+            }
+        };
+    }
+
+    private void doOTGNewFolder(final boolean bSDCard) {
+        List<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        ActionParameter.path = mPath;
+        new OTGNewFolderDialog(this, folderNames, true) {
+            @Override
+            public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
+                if(bSDCard){
+                    if(checkSDWritePermission()){
+                        ActionParameter.name = newName;
+                        mFileActionManager.newFolderOTG(newName, mDFiles);
+                    }else{
+                        ActionParameter.name = newName;
+                    }
+
+                }else{
+                    mFileActionManager.newFolderOTG(newName, mDFiles);
+                }
+            }
+        };
+    }
+
     private void doLocalRename(){
         List<String> names = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
@@ -590,7 +668,7 @@ public class FolderExploreActivity extends AppCompatActivity
 
     private void doOTGRename(final boolean bSDCard) {
         final ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
-        new OTGFileRenameDialog(this, selectedFiles, !bSDCard, true) {
+        new OTGRenameDialog(this, selectedFiles, !bSDCard, true) {
             @Override
             public void onConfirm(String newName, String oldName, ArrayList<DocumentFile> selectedDocumentFile) {
                 if (newName.equals(oldName))

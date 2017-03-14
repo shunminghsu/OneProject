@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * Created by wangbojie on 2017/3/8.
  */
-public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickListener {
+public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListener {
 
     public abstract void onConfirm(String newName, String oldName, ArrayList<DocumentFile> dFiles);
 
@@ -40,7 +40,7 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
     private List<String> mNames;
     private ArrayList<FileInfo> mFiles;
 
-    public OTGFileRenameDialog(Context context, ArrayList<FileInfo> files, boolean fromName, boolean fromExploreActivity) {
+    public OTGRenameDialog(Context context, ArrayList<FileInfo> files, boolean fromName, boolean fromExploreActivity) {
         mContext = context;
         mFiles = files;
         mNames = new ArrayList<>();
@@ -63,7 +63,7 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
                 if(bFromName)
                     mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
                 else
-                    mDFiles = FileFactory.findDocumentFilefromPath(mFiles, sdPath, bFromExploreActivity);
+                    mDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, bFromExploreActivity);
                 String name = mFiles.get(0).name;
                 mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
                 DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();
@@ -90,8 +90,10 @@ public abstract class OTGFileRenameDialog implements TextWatcher, View.OnClickLi
         }else if(Constant.nowMODE == Constant.MODE.OTG){
             if(bFromName)
                 mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
-            else
-                mDFiles = FileFactory.findDocumentFilefromPath(mFiles, bFromExploreActivity);
+            else{
+                String otgPath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path) == null ? "null" : FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
+                mDFiles = FileFactory.findDocumentFilefromPathOTG(mFiles, otgPath, bFromExploreActivity);
+            }
             String name = mFiles.get(0).name;
             mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
             DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();
