@@ -109,6 +109,32 @@ public class FolderExploreDropDownAdapter extends BaseAdapter {
         return "";
     }
 
+    public String getPath(int position) {
+        if (Constant.nowMODE == Constant.MODE.LOCAL || Constant.nowMODE == Constant.MODE.SD) {
+            List<String> list = mList.subList(position, mList.size());
+            Collections.reverse(list);
+            StringBuilder builder = new StringBuilder();
+            for (String item : list) {
+                builder.append(item);
+                builder.append("/");
+            }
+            String path = builder.toString();
+            if (path.contains(PREFIX_SD))
+                path = path.replaceFirst(PREFIX_SD, sdPath);
+            else if (path.contains(PREFIX_MAINPAGE))
+                path = path.replaceFirst(PREFIX_MAINPAGE, Constant.ROOT_LOCAL);
+
+            if (path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
+            }
+            return path;
+        } else if (Constant.nowMODE == Constant.MODE.OTG) {
+            String path = mList.get(position);
+            return path;
+        }
+        return "";
+    }
+
     @Override
     public int getCount() {
         return mList.size();

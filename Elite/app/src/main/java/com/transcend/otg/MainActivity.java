@@ -242,6 +242,8 @@ public class MainActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
         initBroadcast();
+        if(mActionMode != null)
+            mActionMode.finish();
     }
 
     @Override
@@ -357,6 +359,10 @@ public class MainActivity extends AppCompatActivity
                 }else if(Constant.nowMODE == Constant.MODE.OTG){
                     doOTGShare();
                 }
+                break;
+            case R.id.action_copy:
+                startDestinationActivity();
+
         }
         return false;
     }
@@ -660,12 +666,16 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_backup) {
 
         } else if (id == R.id.nav_help){
-            Intent intent = new Intent();
-            intent.setClass(MainActivity.this, DestinationActivity.class);
-            startActivity(intent);
+
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public void startDestinationActivity(){
+        Intent intent = new Intent();
+        intent.setClass(MainActivity.this, DestinationActivity.class);
+        startActivityForResult(intent, DestinationActivity.REQUEST_CODE);
     }
 
     public void startFolderExploreActivity(FileInfo file){

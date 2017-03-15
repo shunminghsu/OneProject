@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    >
+    tools:context=".DestinationActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -35,12 +35,43 @@
 
         </android.support.design.widget.AppBarLayout>
 
+        <LinearLayout
+            android:id="@+id/layout_storage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/app_bar"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_local"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/nav_local" />
+
+            <Button
+                android:id="@+id/btn_sd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/nav_sd" />
+
+            <Button
+                android:id="@+id/btn_otg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/nav_otg" />
+        </LinearLayout>
+
         <View
             android:id="@+id/toolbar_shadow"
             android:layout_width="match_parent"
             android:layout_height="6dp"
-            android:layout_below="@+id/app_bar"
+            android:layout_below="@+id/layout_storage"
             android:background="@drawable/toolbar_dropshadow" />
+
 
         <com.transcend.otg.Browser.PagerSwipeRefreshLayout
             xmlns:android="http://schemas.android.com/apk/res/android"

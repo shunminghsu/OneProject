@@ -21,7 +21,7 @@ public class Constant {
     public static final String ROOT_LOCAL = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static ActionMode mActionMode;
     public static FileInfo mCurrentFile;
-    public static DocumentFile mCurrentDocumentFileExplore;
+    public static DocumentFile mCurrentDocumentFileExplore, mCurrentDocumentFileDestination;
 
     public static final int ITEM_LIST = 0;
     public static final int ITEM_GRID = 1;

@@ -68,6 +68,13 @@
             android:text="@string/nav_otg" />
     </LinearLayout>
 
+    <View
+        android:id="@+id/toolbar_shadow"
+        android:layout_width="match_parent"
+        android:layout_height="6dp"
+        android:layout_below="@+id/layout_storage"
+        android:background="@drawable/toolbar_dropshadow" />
+
     <LinearLayout
         android:id="@+id/home_page"
         android:layout_width="match_parent"
