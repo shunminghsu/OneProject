@@ -395,6 +395,48 @@ public class FileFactory {
         return mDocumentFiles;
     }
 
+    //local file can't use this function
+    //rootPath mean: /storage/0000-0000
+    //rootName mean: 0000-0000
+    public static DocumentFile findDocumentFilefromName(Context context, FileInfo fileInfo){
+        String rootPath;
+        String rootName = null;
+        DocumentFile tmp;
+        if (fileInfo.storagemode == Constant.STORAGEMODE_SD) {
+            tmp = Constant.mSDRootDocumentFile;
+            rootPath = getOuterStoragePath(context, Constant.sd_key_path);
+        } else {//(fileInfo.storagemode == Constant.STORAGEMODE_OTG)
+            tmp = Constant.mRootDocumentFile;
+            rootPath = getOuterStoragePath(context, Constant.otg_key_path);
+        }
+
+        String[] rootPath_array = rootPath.split("/");
+        for (int i = rootPath_array.length-1;i >= 0;i--) {
+            if (rootPath_array[i].length() != 0) {
+                rootName = rootPath_array[i];
+                break;
+            }
+        }
+
+        if (rootName == null || rootName.length() == 0) {
+            Log.d(TAG, "findDocumentFile fail, rootPath: "+rootPath);
+            return null;
+        }
+
+        String[] array = fileInfo.path.split("/");
+        boolean findRootName = false;
+        for(int i = 0;i < array.length;i++){
+            Log.d(TAG, "i: "+array[i]);
+            if (rootName.equals(array[i]) || findRootName) {
+                if (findRootName)
+                    tmp = tmp.findFile(array[i]);
+                findRootName = true;
+            } else {
+                continue;
+            }
+        }
+        return tmp;
+    }
 //    public static String getStorageSize(String filePath) {
 //        StatFs stat = new StatFs(filePath);
 //        long bytesAvailable = (long) stat.getBlockSize() * (long) stat.getBlockCount();

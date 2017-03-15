@@ -3,9 +3,13 @@ package com.transcend.otg.Photo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
+import android.support.v4.provider.DocumentFile;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -26,10 +30,15 @@ import android.widget.TextView;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.LocalDeleteDialog;
+import com.transcend.otg.Dialog.LocalRenameDialog;
+import com.transcend.otg.Dialog.SDPermissionGuideDialog;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by henry_hsu on 2017/3/3.
@@ -47,6 +56,8 @@ public class PhotoActivity extends AppCompatActivity {
     private ActionMenuView mActionMenuView;
     private boolean mHideAllUI = false;
     PhotoClickListener mPhotoClickListener;
+    private RelativeLayout mRootLayout;
+    private static final int SD_PERMISSION_REQUEST_CODE = 2017;
     private static final int EDIT_REQUEST_CODE = 101;
 
     @Override
@@ -73,6 +84,7 @@ public class PhotoActivity extends AppCompatActivity {
         initPager();
         initToolbar();
         mPhotoClickListener = new PhotoClickListener();
+        mRootLayout = (RelativeLayout) findViewById(R.id.main_relativelayout);
     }
 
     @Override
@@ -115,7 +127,8 @@ public class PhotoActivity extends AppCompatActivity {
         final FileInfo fileinfo = mPhotoList.get(mPager.getCurrentItem());
         switch (item.getItemId()) {
             case R.id.share:
-                if (fileinfo.type == Constant.STORAGEMODE_OTG) {
+                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
+                        fileinfo.storagemode == Constant.STORAGEMODE_OTG) {
 
                 } else {
                     Intent share_intent = new Intent(Intent.ACTION_SEND);
@@ -123,11 +136,11 @@ public class PhotoActivity extends AppCompatActivity {
                     share_intent.setType("image/jpeg");
                     share_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivityForResult(share_intent, EDIT_REQUEST_CODE);
-                    //startActivity(Intent.createChooser(share_intent, null));
                 }
                 return true;
             case R.id.edit:
-                if (fileinfo.type == Constant.STORAGEMODE_OTG) {
+                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
+                        fileinfo.storagemode == Constant.STORAGEMODE_OTG) {
 
                 } else {
                     Intent edit_intent = new Intent(Intent.ACTION_EDIT);
@@ -138,6 +151,8 @@ public class PhotoActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.delete:
+                if (!checkSDWritePermission())
+                    return false;
                 ArrayList<FileInfo> deleteOneFiles = new ArrayList<FileInfo>();
                 deleteOneFiles.add(fileinfo);
                 new LocalDeleteDialog(this, deleteOneFiles) {
@@ -148,7 +163,8 @@ public class PhotoActivity extends AppCompatActivity {
                 };
                 return true;
             case R.id.set_photo_as:
-                if (fileinfo.type == Constant.STORAGEMODE_OTG) {
+                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
+                        fileinfo.storagemode == Constant.STORAGEMODE_OTG) {
 
                 } else {
                     Intent setas_intent = new Intent(Intent.ACTION_ATTACH_DATA);
@@ -158,10 +174,19 @@ public class PhotoActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.action_rename:
+                if (!checkSDWritePermission())
+                    return false;
+                List<String> empty_list = new ArrayList<String>();
+                new LocalRenameDialog(this,false, fileinfo.name, empty_list) {
+                    @Override
+                    public void onConfirm(String newName) {
+                        if (newName.equals(fileinfo.name))
+                            return;
+                        new RenameTask(fileinfo).execute(newName);
+                    }
+                };
                 return true;
             case R.id.action_copy:
-                return true;
-            case R.id.action_move:
                 return true;
             case R.id.action_encrypt:
                 return true;
@@ -173,6 +198,12 @@ public class PhotoActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == SD_PERMISSION_REQUEST_CODE && resultCode == RESULT_OK){
+            Uri uriTree = data.getData();
+            if(checkSD(uriTree)){
+                Log.d("henry", "checkSD OK");
+            }
+        }
     }
 
     private void initToolbar() {
@@ -206,7 +237,7 @@ public class PhotoActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-
+                mPosition = position;
             }
 
             @Override
@@ -367,8 +398,14 @@ public class PhotoActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            File f = new File(mFileInfo.path);
-            return f.delete();
+            if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
+                    mFileInfo.storagemode != Constant.STORAGEMODE_LOCAL) {
+                DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
+                return dfile.delete();
+            } else {
+                File f = new File(mFileInfo.path);
+                return f.delete();
+            }
         }
 
         @Override
@@ -386,5 +423,118 @@ public class PhotoActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private class RenameTask extends AsyncTask<String, Void, Boolean> {
+        private final FileInfo mFileInfo;
+        private String mNewDisplayName;
+        File mNewFile;//be used for sendBroadcast Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
+
+        public RenameTask(FileInfo fileInfo) {
+            mFileInfo = fileInfo;
+        }
+
+        @Override
+        protected void onPreExecute() {
+        }
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            mNewDisplayName = params[0];
+            if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
+                    mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
+                DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
+                return dfile.renameTo(mNewDisplayName);
+            } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
+                    mFileInfo.storagemode == Constant.STORAGEMODE_SD) {
+                File f = new File(mFileInfo.path);
+                File parent = f.getParentFile();
+                File f2 = new File(parent, mNewDisplayName);
+                mNewFile = f2;
+                DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
+                return dfile.renameTo(mNewDisplayName);
+            } else {
+                File f = new File(mFileInfo.path);
+                File parent = f.getParentFile();
+                File f2 = new File(parent, mNewDisplayName);
+                mNewFile = f2;
+                if (f2.exists())
+                    return false;
+                return f.renameTo(f2);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result) {
+                SparseArray<ViewGroup> photoInfo = mAdapter.getPhotoInfo();
+                TextView photoName = (TextView) photoInfo.get(mPosition).findViewById(R.id.name);
+                TextView photoPath = (TextView) photoInfo.get(mPosition).findViewById(R.id.path);
+                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
+                        mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
+                    String newPath = mFileInfo.path.replace(mFileInfo.name, mNewDisplayName);
+                    photoName.setText(mNewDisplayName);
+                    photoPath.setText(newPath);
+                } else {
+                    Log.d("henry","U: "+Uri.fromFile(mNewFile));
+                    sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mNewFile)));
+                    photoName.setText(mNewFile.getName());
+                    photoPath.setText(mNewFile.getPath());
+                }
+            }
+        }
+    }
+
+    private boolean checkSDWritePermission(){
+        String sdKey = LocalPreferences.getSDKey(this);
+        if(sdKey != ""){
+            Uri uriSDKey = Uri.parse(sdKey);
+            Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
+            return true;
+        }else{
+            intentDocumentTreeSD();
+            return false;
+        }
+    }
+
+    private void intentDocumentTreeSD() {
+        new SDPermissionGuideDialog(this) {
+            @Override
+            public void onConfirm(Boolean isClick) {
+                if (isClick) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, SD_PERMISSION_REQUEST_CODE);
+                }
+            }
+        };
+    }
+
+    private boolean checkSD(Uri uri){
+        if (!uri.toString().contains("primary")) {
+            if (uri != null) {
+                if(uri.getPath().toString().split(":").length > 1){
+                    snackBarShow(R.string.snackbar_plz_select_top);
+                    intentDocumentTreeSD();
+                }else{
+                    Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uri);//sd root path
+                    getContentResolver().takePersistableUriPermission(uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    LocalPreferences.setSDKey(this, uri.toString());
+                    //ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
+                    //tmpDFiles.add(rootDir);
+                    //ActionParameter.dFiles = tmpDFiles;
+                    return true;
+                }
+            }
+
+        }else {
+            snackBarShow(R.string.snackbar_plz_select_sd);
+            intentDocumentTreeSD();
+        }
+        return false;
+    }
+
+    private void snackBarShow(int resId) {
+        Snackbar.make(mRootLayout, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 }

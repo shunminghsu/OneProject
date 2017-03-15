@@ -4,6 +4,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
@@ -79,7 +80,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         mFileList.clear();
         switch (mType) {
             case BrowserFragment.LIST_TYPE_IMAGE:
-                return mIsOtg ? getSortList(getOtgAllImages(baseRootUri)) : getAllImages();
+                return mIsOtg ? getSortList(getOtgAllImages(baseRootUri, Constant.STORAGEMODE_OTG)) : getAllImages();
             case BrowserFragment.LIST_TYPE_VIDEO:
                 return mIsOtg ? getSortList(getOtgAllVideos(baseRootUri)) : getAllVideos();
             case BrowserFragment.LIST_TYPE_MUSIC:
@@ -106,7 +107,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         cancelLoad();
     }
 
-    private ArrayList<FileInfo> getOtgAllImages(Uri _rootUri) {
+    private ArrayList<FileInfo> getOtgAllImages(Uri _rootUri, int storage_mode) {
 
         Cursor imageCursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
         if (imageCursor == null) {
@@ -118,7 +119,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             if (!imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
                 String type = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
                 if (type.contains(DIR)) {
-                    getOtgAllImages(DocumentsContract.buildChildDocumentsUriUsingTree(_rootUri, imageCursor.getString(cursor_index_ID)));
+                    getOtgAllImages(DocumentsContract.buildChildDocumentsUriUsingTree(_rootUri, imageCursor.getString(cursor_index_ID)), storage_mode);
                 } else if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {
                     FileInfo item = new FileInfo();
                     item.name = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
@@ -126,10 +127,10 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.size = imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = imageCursor.getString(cursor_index_ID).split(":");
                     item.path = mOuterStoragePath + "/" + split[1];
-                    item.uri = DocumentsContract.buildChildDocumentsUriUsingTree(_rootUri, imageCursor.getString(cursor_index_ID));
+                    item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, imageCursor.getString(cursor_index_ID));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
                     item.type = Constant.TYPE_PHOTO;
-                    item.storagemode = Constant.STORAGEMODE_OTG;
+                    item.storagemode = storage_mode;
                     mFileList.add(item);
                 }
             }
@@ -323,6 +324,15 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 //////local & sd card function start//////
 
     private ArrayList<FileInfo> getAllImages() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Constant.mSDRootDocumentFile != null && mOuterStoragePath != null) {
+            Uri uriSDKey = Uri.parse(LocalPreferences.getSDKey(mContext));
+            Uri sdBaseRootUri = null;
+            if (uriSDKey != null)
+                sdBaseRootUri = DocumentsContract.buildChildDocumentsUriUsingTree(uriSDKey, DocumentsContract.getTreeDocumentId(uriSDKey));
+            if (sdBaseRootUri != null) {
+                return getSortList(getOtgAllImages(sdBaseRootUri, Constant.STORAGEMODE_SD));
+            }
+        }
         try {
             String[] proj = {MediaStore.Images.Media.SIZE,
                     MediaStore.Images.Media.DATA,
