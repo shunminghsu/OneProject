@@ -44,7 +44,7 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         mFileList.clear();
         mSdCardPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
         if (baseRootUri != null) {
-            mOTGPath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
+            mOTGPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
             if (mOTGPath != null) {
                 searchAllOtg(baseRootUri);
             }

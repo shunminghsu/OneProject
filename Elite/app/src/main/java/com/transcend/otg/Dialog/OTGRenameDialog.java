@@ -19,6 +19,7 @@ import com.transcend.otg.Utils.FileFactory;
 
 import org.apache.commons.io.FilenameUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,7 +92,7 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
             if(bFromName)
                 mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
             else{
-                String otgPath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path) == null ? "null" : FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
+                String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
                 mDFiles = FileFactory.findDocumentFilefromPathOTG(mFiles, otgPath, bFromExploreActivity);
             }
             String name = mFiles.get(0).name;

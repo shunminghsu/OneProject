@@ -15,6 +15,7 @@ import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -58,7 +59,7 @@ public abstract class OTGDeleteDialog implements OnClickListener {
             if(bFromName)
                 mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
             else{
-                String otgPath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path) == null ? "null" : FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
+                String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
                 mDFiles = FileFactory.findDocumentFilefromPathOTG(mFiles, otgPath, bFromExploreActivity);
             }
         }

@@ -61,6 +61,7 @@ import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -659,7 +660,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_backup) {
 
         } else if (id == R.id.nav_help){
-
+            Intent intent = new Intent();
+            intent.setClass(MainActivity.this, DestinationActivity.class);
+            startActivity(intent);
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -1087,7 +1090,7 @@ public class MainActivity extends AppCompatActivity
         if(position == 5){
             selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, false);
         }else{
-            String otgPath = FileFactory.getOuterStoragePath(this, Constant.otg_key_path) == null ? "null" : FileFactory.getOuterStoragePath(this, Constant.otg_key_path);
+            String otgPath = FileFactory.getOTGStoragePath(this, Constant.otg_key_path);
             selectDFiles = FileFactory.findDocumentFilefromPathOTG(selectFiles, otgPath, false);
         }
         boolean shareSuccess = MediaUtils.otgShare(this, selectDFiles.get(0));

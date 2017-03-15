@@ -13,6 +13,7 @@ import android.util.Log;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.R;
 
 import java.io.File;
 import java.lang.reflect.Array;
@@ -75,6 +76,49 @@ public class FileFactory {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static String getOTGStoragePath(Context mContext, String key_word){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            return File.separator + mContext.getResources().getString(R.string.nav_otg);
+        }else{
+            StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
+            Class<?> storageVolumeClazz = null;
+            try {
+                storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+                Method getVolumeList = null;
+                Method getPath = null;
+                Method isRemovable = null;
+                Method getState = null;
+                try {
+                    getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+                    getPath = storageVolumeClazz.getMethod("getPath");
+                    isRemovable = storageVolumeClazz.getMethod("isRemovable");
+                } catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                }
+
+                Object result = getVolumeList.invoke(mStorageManager);
+                final int length = Array.getLength(result);
+                for (int i = 0; i < length; i++) {
+                    Object storageVolumeElement = Array.get(result, i);
+                    String path = (String) getPath.invoke(storageVolumeElement);
+                    Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
+                    if (removable && path != null) {
+                        if (path.toLowerCase().contains(key_word)) {
+                            return path;
+                        }
+                    }
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            return File.separator + mContext.getResources().getString(R.string.nav_otg);
+        }
     }
 
     //try to return the state of path, if path not found, return null

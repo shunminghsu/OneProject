@@ -7,6 +7,8 @@ import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 
+import java.io.File;
+
 
 /**
  * Created by wangbojie on 2017/2/13.
@@ -16,10 +18,7 @@ public class OTGFragment extends BrowserFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            mOuterStoragePath = "/"+getResources().getString(R.string.nav_otg);
-        else
-            mOuterStoragePath = FileFactory.getOuterStoragePath(mContext, Constant.otg_key_path);
+        mOuterStoragePath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
         mIsOtg = true;
         initTabInfos(savedInstanceState);
     }
