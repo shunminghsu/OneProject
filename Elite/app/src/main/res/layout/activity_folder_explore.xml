@@ -89,7 +89,7 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
                 android:layout_margin="16dp"
-                android:src="@drawable/ic_menu_camera"
+                android:src="@mipmap/ic_exit"
                 app:elevation="2dp" />
 
 

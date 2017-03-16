@@ -16,13 +16,14 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="0dp">
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
+                app:layout_scrollFlags="scroll|enterAlways"
                 app:popupTheme="@style/AppTheme.PopupOverlay">
 
                 <android.support.v7.widget.AppCompatSpinner
@@ -30,6 +31,15 @@
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     app:theme="@style/AppTheme.DropDown" />
+
+                <TextView
+                    android:id="@+id/toolbar_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/title_paste_to"
+                    android:layout_gravity="center"
+                    android:textSize="20sp"
+                    android:textColor="@color/colorWhite"/>
 
             </android.support.v7.widget.Toolbar>
 
@@ -120,7 +130,7 @@
                 android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
                 android:layout_margin="16dp"
-                android:src="@drawable/ic_menu_camera"
+                android:src="@mipmap/ic_exit"
                 app:elevation="2dp" />
 
 

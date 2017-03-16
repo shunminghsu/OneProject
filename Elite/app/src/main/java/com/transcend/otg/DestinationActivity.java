@@ -1,7 +1,13 @@
 package com.transcend.otg;
 
 import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -14,13 +20,18 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Adapter.FolderExploreAdapter;
 import com.transcend.otg.Adapter.FolderExploreDropDownAdapter;
+import com.transcend.otg.Browser.NoOtgFragment;
+import com.transcend.otg.Browser.NoSdFragment;
 import com.transcend.otg.Browser.PagerSwipeRefreshLayout;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
@@ -43,6 +54,7 @@ public class DestinationActivity extends AppCompatActivity
         FolderExploreDropDownAdapter.OnDropdownItemSelectedListener,
         FolderExploreAdapter.OnRecyclerItemCallbackListener{
 
+    private String TAG = DestinationActivity.class.getSimpleName();
     public static final int REQUEST_CODE = DestinationActivity.class.hashCode() & 0xFFFF;
     private Toolbar toolbar;
     private CoordinatorLayout mCoordinatorlayout;
@@ -62,16 +74,22 @@ public class DestinationActivity extends AppCompatActivity
     private ArrayList<FileInfo> mFileList;
     private Constant.MODE nowMode;
     private FloatingActionButton mFab, mFabExit;
+    private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
+    private Button mLocalButton, mSdButton, mOtgButton;
+    private Context mContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_destination);
+        init();
         initToolbar();
+        initButtons();
         initRecyclerViewAndAdapter();
         initDropdown();
+        initBroadcast();
         initData();
-        initFab();
+
     }
 
     @Override
@@ -80,10 +98,61 @@ public class DestinationActivity extends AppCompatActivity
         return super.onCreateOptionsMenu(menu);
     }
 
+    private void init(){
+        mContext = this;
+    }
+
     private void initToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+    }
+
+    private void initButtons() {
+        mLocalButton = (Button) findViewById(R.id.btn_local);
+        mSdButton = (Button) findViewById(R.id.btn_sd);
+        mOtgButton = (Button) findViewById(R.id.btn_otg);
+
+        DestinationActivity.ButtonClickListener listener = new DestinationActivity.ButtonClickListener();
+        mLocalButton.setOnClickListener(listener);
+        mSdButton.setOnClickListener(listener);
+        mOtgButton.setOnClickListener(listener);
+        mFab = (FloatingActionButton) findViewById(R.id.fab);
+        mFab.setOnClickListener(listener);
+        mFabExit = (FloatingActionButton) findViewById(R.id.fab_exit);
+        mFabExit.setOnClickListener(listener);
+    }
+
+    class ButtonClickListener implements View.OnClickListener {
+
+        @Override
+        public void onClick(View view) {
+            if (view == mLocalButton) {
+                nowMode = Constant.MODE.LOCAL;
+                markSelectedBtn(mLocalButton);
+                mPath = Constant.ROOT_LOCAL;
+                doLoad(mPath);
+            } else if (view == mSdButton) {
+                nowMode = Constant.MODE.SD;
+                markSelectedBtn(mSdButton);
+                String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                if (sdpath != null) {
+                    if (FileFactory.getMountedState(mContext, sdpath)) {
+                        mPath = sdpath;
+                        doLoad(mPath);
+                    } else {
+
+                    }
+                } else {
+
+                }
+            } else if (view == mOtgButton) {
+                markSelectedBtn(mOtgButton);
+                discoverDevice();
+            } else if (view == mFabExit){
+                finish();
+            }
+        }
     }
 
     private void initRecyclerViewAndAdapter() {
@@ -114,6 +183,58 @@ public class DestinationActivity extends AppCompatActivity
         resetDropDownMapAndList();
     }
 
+    private void initBroadcast(){
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        registerReceiver(usbReceiver, filter);
+    }
+
+    private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String action = intent.getAction();
+            if (ACTION_USB_PERMISSION.equals(action)) {
+
+                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+
+//                    intentDocumentTree();
+                }
+
+            } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
+
+            } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
+
+                if (device != null && Constant.nowMODE == Constant.MODE.OTG) {
+                    discoverDevice();
+                }
+            }
+
+        }
+    };
+
+    private void discoverDevice() {
+        UsbManager usbManager = (UsbManager) this.getSystemService(Context.USB_SERVICE);
+        UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(this);
+
+        if (devices.length == 0) {
+            Log.w(TAG, "no device found!");
+            return;
+        }
+//        device = devices[0];
+//        String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
+//        if(otgKey != "" || otgKey == null){
+//            Uri uriTree = Uri.parse(otgKey);
+//            if(checkStorage(uriTree)){
+//                replaceFragment(otgFragment);
+//            }
+//        }else{
+//            intentDocumentTree();
+//        }
+    }
+
     private void resetDropDownMapAndList() {
         dropDownMapOTG = new HashMap<String, DocumentFile>();
         dropDownListOTG = new ArrayList<String>();
@@ -124,27 +245,22 @@ public class DestinationActivity extends AppCompatActivity
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
         if(Constant.nowMODE == Constant.MODE.LOCAL){
             nowMode = Constant.MODE.LOCAL;
+            markSelectedBtn(mLocalButton);
             mPath = Constant.ROOT_LOCAL;
             doLoad(mPath);
         }else if(Constant.nowMODE == Constant.MODE.SD){
             nowMode = Constant.MODE.SD;
+            markSelectedBtn(mSdButton);
             mPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
             doLoad(mPath);
         }else if(Constant.nowMODE == Constant.MODE.OTG){
             nowMode = Constant.MODE.OTG;
+            markSelectedBtn(mOtgButton);
         }
 
     }
 
-    private void initFab(){
-        mFabExit = (FloatingActionButton) findViewById(R.id.fab_exit);
-        mFabExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-            }
-        });
-    }
+
 
     private void doLoad(String path) {
         mFileActionManager.checkServiceMode(path);
@@ -177,6 +293,13 @@ public class DestinationActivity extends AppCompatActivity
             mFolderExploreAdapter.update(mFileList);
             checkEmpty();
         }
+    }
+
+    private void markSelectedBtn(Button selected) {
+        mLocalButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        mSdButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        mOtgButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        selected.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
 
     private void checkEmpty() {

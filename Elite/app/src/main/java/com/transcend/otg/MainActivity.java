@@ -430,6 +430,8 @@ public class MainActivity extends AppCompatActivity
                     switchToFragment(NoSdFragment.class.getName(), false);
                 }
             } else if (view == mOtgButton) {
+                if(mActionMode != null)
+                    mActionMode.finish();
                 markSelectedBtn(mOtgButton);
                 discoverDevice();
             } else if (view == mFab)

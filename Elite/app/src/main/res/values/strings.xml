@@ -79,4 +79,8 @@
     <string name="illegal_name">Incorrect characters</string>
     <string name="untitled_folder">Untitled folder</string>
 
+    <!-- Action -->
+    <string name="title_paste_to">Copy to…</string>
+    <string name="title_move_to">Move to…</string>
+
 </resources>

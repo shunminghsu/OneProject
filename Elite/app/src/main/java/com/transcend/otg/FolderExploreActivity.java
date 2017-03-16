@@ -1,8 +1,13 @@
 package com.transcend.otg;
 
 import android.app.LoaderManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.Loader;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -16,6 +21,7 @@ import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -84,6 +90,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private PagerSwipeRefreshLayout mSwipeRefreshLayout;
     private CoordinatorLayout mCoordinatorlayout;
     private Toolbar toolbar;
+    private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +99,7 @@ public class FolderExploreActivity extends AppCompatActivity
         initToolbar();
         initRecyclerViewAndAdapter();
         initDropdown();
+        initBroadcast();
         initData();
         initActionModeView();
     }
@@ -154,6 +162,25 @@ public class FolderExploreActivity extends AppCompatActivity
         mDropdown.setDropDownVerticalOffset(10);
         resetDropDownMapAndList();
     }
+
+    private void initBroadcast(){
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        registerReceiver(usbReceiver, filter);
+    }
+
+    private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String action = intent.getAction();
+            if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                if(Constant.nowMODE == Constant.MODE.OTG)
+                    finish();
+            }
+
+        }
+    };
 
     private void initData() {
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
@@ -293,8 +320,17 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        Constant.mCurrentDocumentFileExplore = null;
         super.onDestroy();
+        Constant.mCurrentDocumentFileExplore = null;
+        unregisterReceiver(usbReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initBroadcast();
+        if(mActionMode != null)
+            mActionMode.finish();
     }
 
     @Override
