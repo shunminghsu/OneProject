@@ -3,14 +3,17 @@ package com.transcend.otg.Browser;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.Constant;
@@ -160,8 +163,8 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     }
 
     @Override
-    public void onRecyclerItemInfoClick(String path) {
-
+    public void onRecyclerItemInfoClick(FileInfo fileInfo) {
+        createInfoDialog(mContext, fileInfo, MainActivity.mScreenW);
     }
 
     private class SpanSizeLookup extends GridLayoutManager.SpanSizeLookup {
@@ -252,5 +255,44 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         intent.putParcelableArrayListExtra("photo_list", photoList);
         intent.putExtra("list_index", newListPosition);
         mContext.startActivity(intent);
+    }
+
+    private void createInfoDialog(Context context, FileInfo fileInfo, int dialog_size) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View mInfoDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_info, null);
+        ((TextView) mInfoDialogView.findViewById(R.id.name)).setText(fileInfo.name);
+        ((TextView) mInfoDialogView.findViewById(R.id.type)).setText(getFileTypeString(context, fileInfo.type));
+        if (fileInfo.format_size == null) {
+            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(Formatter.formatFileSize(context, fileInfo.size));
+        } else {
+            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(fileInfo.format_size);
+        }
+        ((TextView) mInfoDialogView.findViewById(R.id.modify_time)).setText(fileInfo.time);
+        ((TextView) mInfoDialogView.findViewById(R.id.path)).setText(fileInfo.path);
+        builder.setView(mInfoDialogView);
+        builder.setTitle(context.getResources().getString(R.string.info_title));
+        builder.setIcon(R.drawable.ic_menu_camera);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getWindow().setLayout(dialog_size, dialog_size);
+    }
+
+    private String getFileTypeString(Context context, int type) {
+        switch (type) {
+            case Constant.TYPE_PHOTO:
+                return context.getResources().getString(R.string.info_image);
+            case Constant.TYPE_MUSIC:
+                return context.getResources().getString(R.string.info_music);
+            case Constant.TYPE_VIDEO:
+                return context.getResources().getString(R.string.info_video);
+            case Constant.TYPE_DOC:
+                return context.getResources().getString(R.string.info_document);
+            case Constant.TYPE_ENCRYPT:
+                return context.getResources().getString(R.string.info_enc);
+            case Constant.TYPE_DIR:
+                return context.getResources().getString(R.string.info_folder);
+            default: //Constant.TYPE_OTHER_FILE:
+                return context.getResources().getString(R.string.info_other);
+        }
     }
 }

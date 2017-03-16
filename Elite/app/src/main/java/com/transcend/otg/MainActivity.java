@@ -530,9 +530,9 @@ public class MainActivity extends AppCompatActivity
         //mSearchMenuItem.setVisible(mShowSearchIcon);
         mSearchView = (SearchView) mSearchMenuItem.getActionView();
         initSearch(mSearchView);
-
+        EditText searchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
         if (mSearchResultsFragment != null) {
-            mSearchResultsFragment.setSearchView(mSearchView);
+            mSearchResultsFragment.setSearchView(mSearchView, searchEditText);
         }
 
         MenuItemCompat.setOnActionExpandListener(mSearchMenuItem,
@@ -542,10 +542,6 @@ public class MainActivity extends AppCompatActivity
                         switchToSearchResultsFragmentIfNeeded();
                         layout_storage.setVisibility(View.GONE);
                         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                        EditText et = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
-                        if (mSearchResultsFragment != null)
-                            mSearchResultsFragment.onExpand(et);
-
                         return true;
                     }
                     @Override
@@ -766,7 +762,8 @@ public class MainActivity extends AppCompatActivity
             mSearchResultsFragment = (SearchResults) switchToFragment(
                     SearchResults.class.getName(), true);
         }
-        mSearchResultsFragment.setSearchView(mSearchView);
+        EditText searchEditText = ((EditText)mSearchView.findViewById(android.support.v7.appcompat.R.id.search_src_text));
+        mSearchResultsFragment.setSearchView(mSearchView, searchEditText);
         mSearchMenuItemExpanded = true;
     }
 

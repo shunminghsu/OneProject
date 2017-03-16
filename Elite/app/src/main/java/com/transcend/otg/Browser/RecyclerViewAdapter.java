@@ -40,7 +40,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
         void onRecyclerItemLongClick(FileInfo file);
 
-        void onRecyclerItemInfoClick(String path);
+        void onRecyclerItemInfoClick(FileInfo file);
     }
 
     public interface OnActionModeItemCallbackListener{
@@ -260,12 +260,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             info.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (mCallback == null) return;
-                    if (Constant.nowMODE == Constant.MODE.OTG) {
-                        mCallback.onRecyclerItemInfoClick(mList.get(getAdapterPosition()).uri.toString());
-                    } else {
-                        mCallback.onRecyclerItemInfoClick(mList.get(getAdapterPosition()).path);
-                    }
+                    mCallback.onRecyclerItemInfoClick(mList.get(getAdapterPosition()));
                 }
             });
         }

@@ -279,6 +279,10 @@ public class IconHelper {
                 mIconThumb.setAlpha(0f);
                 mIconThumb.animate().alpha(alpha).start();
             }
+            if (mIconMime.getAlpha() == mIconThumb.getAlpha()) {
+                Log.d("henry", "debug: alpha=" + mIconMime.getAlpha() + ", " + mUri);
+                //TO-DO
+            }
         }
     }
 

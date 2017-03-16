@@ -9,11 +9,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.ListPopupWindow;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +23,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -30,6 +33,7 @@ import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.SearchLoader;
 import com.transcend.otg.Photo.PhotoActivity;
+import com.transcend.otg.Utils.MediaUtils;
 
 import java.util.ArrayList;
 
@@ -45,6 +49,7 @@ public class SearchResults extends Fragment {
     private static final String EMPTY_QUERY = "";
 
     private SearchView mSearchView;
+    private EditText mEditTextView;
 
     private TextView mEmptyView;
     private RecyclerView mResultsListView;
@@ -83,6 +88,8 @@ public class SearchResults extends Fragment {
 
         if (!mShowResults) {
             showSomeSuggestions();
+        } else {
+            updateSearchResults();
         }
     }
 
@@ -158,12 +165,6 @@ public class SearchResults extends Fragment {
             }
         });
         return view;
-    }
-
-    public void onExpand(View edit_view) {
-        mSuggestionsListView.setAnchorView(edit_view);
-        mSuggestionsListView.setWidth(2*mScreenW/3);
-        mSuggestionsListView.show();
     }
 
     private class UpdateSuggestionsTask extends AsyncTask<String, Void, Cursor> {
@@ -286,12 +287,14 @@ public class SearchResults extends Fragment {
 
         @Override
         public SearchResults.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.listitem_recyclerview, parent, false);
+            final Context context = parent.getContext();
+            View v = LayoutInflater.from(context).inflate(R.layout.listitem_recyclerview, parent, false);
             SearchResults.ViewHolder vh = new SearchResults.ViewHolder(v,
                     new SearchResults.ViewHolder.OnRecyclerItemListener() {
                 @Override
                 public void onRecyclerItemClick(int position) {
-                    switch (mList.get(position).type) {
+                    FileInfo fileInfo = mList.get(position);
+                    switch (fileInfo.type) {
                         case Constant.TYPE_PHOTO:
                             Intent intent = new Intent(mContext, PhotoActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -302,8 +305,16 @@ public class SearchResults extends Fragment {
                         case Constant.TYPE_MUSIC:
                         case Constant.TYPE_VIDEO:
                         case Constant.TYPE_DOC:
+                            if (fileInfo.storagemode == Constant.STORAGEMODE_OTG)
+                                MediaUtils.executeUri(mContext, fileInfo.uri.toString(), mContext.getResources().getString(R.string.openin_title));
+                            else
+                                MediaUtils.execute(mContext, fileInfo.path, mContext.getResources().getString(R.string.openin_title));
+                            break;
                         case Constant.TYPE_ENCRYPT:
+                            break;
                         case Constant.TYPE_DIR:
+                            Constant.mCurrentFile = fileInfo;
+                            startActivityForResult(new Intent().setClass(context, FolderExploreActivity.class), FolderExploreActivity.REQUEST_CODE);
                             break;
                         default:
                     }
@@ -313,7 +324,12 @@ public class SearchResults extends Fragment {
                 public void onRecyclerItemLongClick(int position) {
 
                 }
-            });
+
+                @Override
+                public void onRecyclerItemInfoClick(int position) {
+                    createInfoDialog(mContext, mList.get(position) , MainActivity.mScreenW);
+                }
+                    });
             return vh;
         }
 
@@ -379,7 +395,7 @@ public class SearchResults extends Fragment {
         @Override
         public void onClick(View v) {
             if (v == info) {
-
+                listener.onRecyclerItemInfoClick(getAdapterPosition());
             } else {
                 listener.onRecyclerItemClick(getAdapterPosition());
             }
@@ -394,12 +410,22 @@ public class SearchResults extends Fragment {
         public interface OnRecyclerItemListener {
             void onRecyclerItemClick(int position);
             void onRecyclerItemLongClick(int position);
+            void onRecyclerItemInfoClick(int position);
         }
     }
 
 
-    public void setSearchView(SearchView searchView) {
+    public void setSearchView(SearchView searchView, EditText edit_view) {
         mSearchView = searchView;
+        mSuggestionsListView.setAnchorView(edit_view);
+        mSuggestionsListView.setWidth(2*mScreenW/3);
+        mEditTextView = edit_view;
+        mEditTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mSuggestionsListView.show();
+            }
+        });
     }
 
     private void setSuggestionsVisibility(boolean visible) {
@@ -522,5 +548,44 @@ public class SearchResults extends Fragment {
                 mPhotoListPosition = photoList.size() - 1;
         }
         return photoList;
+    }
+
+    private void createInfoDialog(Context context, FileInfo fileInfo, int dialog_size) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View mInfoDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_info, null);
+        ((TextView) mInfoDialogView.findViewById(R.id.name)).setText(fileInfo.name);
+        ((TextView) mInfoDialogView.findViewById(R.id.type)).setText(getFileTypeString(context, fileInfo.type));
+        if (fileInfo.format_size == null) {
+            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(Formatter.formatFileSize(context, fileInfo.size));
+        } else {
+            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(fileInfo.format_size);
+        }
+        ((TextView) mInfoDialogView.findViewById(R.id.modify_time)).setText(fileInfo.time);
+        ((TextView) mInfoDialogView.findViewById(R.id.path)).setText(fileInfo.path);
+        builder.setView(mInfoDialogView);
+        builder.setTitle(context.getResources().getString(R.string.info_title));
+        builder.setIcon(R.drawable.ic_menu_camera);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getWindow().setLayout(dialog_size, dialog_size);
+    }
+
+    private String getFileTypeString(Context context, int type) {
+        switch (type) {
+            case Constant.TYPE_PHOTO:
+                return context.getResources().getString(R.string.info_image);
+            case Constant.TYPE_MUSIC:
+                return context.getResources().getString(R.string.info_music);
+            case Constant.TYPE_VIDEO:
+                return context.getResources().getString(R.string.info_video);
+            case Constant.TYPE_DOC:
+                return context.getResources().getString(R.string.info_document);
+            case Constant.TYPE_ENCRYPT:
+                return context.getResources().getString(R.string.info_enc);
+            case Constant.TYPE_DIR:
+                return context.getResources().getString(R.string.info_folder);
+            default: //Constant.TYPE_OTHER_FILE:
+                return context.getResources().getString(R.string.info_other);
+        }
     }
 }

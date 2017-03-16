@@ -83,4 +83,23 @@
     <string name="title_paste_to">Copy to…</string>
     <string name="title_move_to">Move to…</string>
 
+    <!-- File information -->
+    <string name="info_title">Information</string>
+    <string name="info_name">Name:</string>
+    <string name="info_type">Type:</string>
+    <string name="info_image">Image</string>
+    <string name="info_video">Video</string>
+    <string name="info_music">Music</string>
+    <string name="info_document">Document</string>
+    <string name="info_enc">Elite Encryption</string>
+    <string name="info_folder">Folder</string>
+    <string name="info_other">Unknown</string>
+    <string name="info_size">Size:</string>
+    <string name="info_ctime">Created Time:</string>
+    <string name="info_mtime">Modified Time:</string>
+    <string name="info_location_phone">Located in Phone</string>
+    <string name="info_location_sd">Located in SD Card</string>
+    <string name="info_location_otg">Located in OTG</string>
+    <string name="info_path">Path:</string>
+
 </resources>
