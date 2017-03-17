@@ -105,7 +105,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             holder.subtitle.setText(mShowSize ? fileInfo.format_size : fileInfo.time);
 
         if (holder.info != null) {
-            holder.info.setVisibility(fileInfo.type == Constant.TYPE_DIR ? View.GONE : View.VISIBLE);
+            //holder.info.setVisibility(fileInfo.type == Constant.TYPE_DIR ? View.GONE : View.VISIBLE);
         }
 
         if (fileInfo.type == Constant.TYPE_MUSIC) {

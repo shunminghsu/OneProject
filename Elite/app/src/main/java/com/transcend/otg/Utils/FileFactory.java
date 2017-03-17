@@ -434,7 +434,6 @@ public class FileFactory {
         String[] array = fileInfo.path.split("/");
         boolean findRootName = false;
         for(int i = 0;i < array.length;i++){
-            Log.d(TAG, "i: "+array[i]);
             if (rootName.equals(array[i]) || findRootName) {
                 if (findRootName)
                     tmp = tmp.findFile(array[i]);

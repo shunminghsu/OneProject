@@ -45,6 +45,23 @@
         android:textSize="20sp"
         />
     <TextView
+        android:id="@+id/file_number_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/info_file_number"
+        android:layout_marginTop="10dp"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        />
+    <TextView
+        android:id="@+id/file_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:visibility="gone"
+        />
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/info_size"
@@ -54,20 +71,6 @@
         />
     <TextView
         android:id="@+id/size"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/info_ctime"
-        android:layout_marginTop="10dp"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        />
-    <TextView
-        android:id="@+id/create_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20sp"

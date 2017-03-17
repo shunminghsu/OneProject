@@ -22,6 +22,8 @@ import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.Photo.PhotoActivity;
 import com.transcend.otg.R;
+import com.transcend.otg.Task.ComputeFilsNumberTask;
+import com.transcend.otg.Task.ComputeFilsTotalSizeTask;
 import com.transcend.otg.Utils.MediaUtils;
 
 import java.util.ArrayList;
@@ -269,9 +271,18 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         }
         ((TextView) mInfoDialogView.findViewById(R.id.modify_time)).setText(fileInfo.time);
         ((TextView) mInfoDialogView.findViewById(R.id.path)).setText(fileInfo.path);
+        if (fileInfo.type == Constant.TYPE_DIR) {
+            mInfoDialogView.findViewById(R.id.file_number_title).setVisibility(View.VISIBLE);
+            TextView fileNumView = (TextView) mInfoDialogView.findViewById(R.id.file_number);
+            fileNumView.setVisibility(View.VISIBLE);
+            fileNumView.setText(context.getResources().getString(R.string.info_file_number_computing));
+            new ComputeFilsNumberTask(context, fileInfo, fileNumView).execute();
+            new ComputeFilsTotalSizeTask(context, fileInfo, (TextView) mInfoDialogView.findViewById(R.id.size)).execute();
+        }
+
         builder.setView(mInfoDialogView);
         builder.setTitle(context.getResources().getString(R.string.info_title));
-        builder.setIcon(R.drawable.ic_menu_camera);
+        builder.setIcon(R.mipmap.test_info);
         AlertDialog dialog = builder.create();
         dialog.show();
         dialog.getWindow().setLayout(dialog_size, dialog_size);

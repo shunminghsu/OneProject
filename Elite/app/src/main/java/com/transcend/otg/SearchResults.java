@@ -33,6 +33,8 @@ import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.SearchLoader;
 import com.transcend.otg.Photo.PhotoActivity;
+import com.transcend.otg.Task.ComputeFilsNumberTask;
+import com.transcend.otg.Task.ComputeFilsTotalSizeTask;
 import com.transcend.otg.Utils.MediaUtils;
 
 import java.util.ArrayList;
@@ -341,10 +343,6 @@ public class SearchResults extends Fragment {
             if (holder.subtitle != null)
                 holder.subtitle.setText(fileInfo.time);
 
-            if (holder.info != null) {
-                holder.info.setVisibility(fileInfo.type == Constant.TYPE_DIR ? View.GONE : View.VISIBLE);
-            }
-
             if (fileInfo.type == Constant.TYPE_MUSIC) {
                 mIconHelper.loadMusicThumbnail(fileInfo.path, fileInfo.album_id, holder.icon, holder.iconMime);
             } else if (fileInfo.type == Constant.TYPE_PHOTO && fileInfo.uri != null) {
@@ -386,8 +384,8 @@ public class SearchResults extends Fragment {
             info = (ImageView) itemView.findViewById(R.id.item_info);
             title = (TextView) itemView.findViewById(R.id.item_title);
             subtitle = (TextView) itemView.findViewById(R.id.item_subtitle);
-            if (info != null)
-                info.setOnClickListener(this);
+
+            info.setOnClickListener(this);
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
         }
@@ -562,9 +560,18 @@ public class SearchResults extends Fragment {
         }
         ((TextView) mInfoDialogView.findViewById(R.id.modify_time)).setText(fileInfo.time);
         ((TextView) mInfoDialogView.findViewById(R.id.path)).setText(fileInfo.path);
+        if (fileInfo.type == Constant.TYPE_DIR) {
+            mInfoDialogView.findViewById(R.id.file_number_title).setVisibility(View.VISIBLE);
+            TextView fileNumView = (TextView) mInfoDialogView.findViewById(R.id.file_number);
+            fileNumView.setVisibility(View.VISIBLE);
+            fileNumView.setText(context.getResources().getString(R.string.info_file_number_computing));
+            new ComputeFilsNumberTask(context, fileInfo, fileNumView).execute();
+            new ComputeFilsTotalSizeTask(context, fileInfo, (TextView) mInfoDialogView.findViewById(R.id.size)).execute();
+        }
+
         builder.setView(mInfoDialogView);
         builder.setTitle(context.getResources().getString(R.string.info_title));
-        builder.setIcon(R.drawable.ic_menu_camera);
+        builder.setIcon(R.mipmap.test_info);
         AlertDialog dialog = builder.create();
         dialog.show();
         dialog.getWindow().setLayout(dialog_size, dialog_size);

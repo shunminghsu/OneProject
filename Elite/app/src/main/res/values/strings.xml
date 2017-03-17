@@ -92,10 +92,15 @@
     <string name="info_music">Music</string>
     <string name="info_document">Document</string>
     <string name="info_enc">Elite Encryption</string>
-    <string name="info_folder">Folder</string>
+    <string name="info_folder">Directory</string>
     <string name="info_other">Unknown</string>
     <string name="info_size">Size:</string>
-    <string name="info_ctime">Created Time:</string>
+    <string name="info_file_number">Files Numbers:</string>
+    <string name="info_file_number_text1">file</string>
+    <string name="info_dir_number_text1">directory</string>
+    <string name="info_file_number_text2">files</string>
+    <string name="info_dir_number_text2">directories</string>
+    <string name="info_file_number_computing">Computing...</string>
     <string name="info_mtime">Modified Time:</string>
     <string name="info_location_phone">Located in Phone</string>
     <string name="info_location_sd">Located in SD Card</string>

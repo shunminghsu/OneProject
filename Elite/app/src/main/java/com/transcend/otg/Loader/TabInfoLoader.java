@@ -644,7 +644,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         return mFileList;
     }
 
-    private ArrayList<FileInfo> getFileList() {
+    //this is slow
+    private ArrayList<FileInfo> getFileList_old() {
         String root_path;
         if (mOuterStoragePath == null)
             root_path = Constant.ROOT_LOCAL;
@@ -737,7 +738,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         return mFileList;
     }
 
-    private ArrayList<FileInfo> getFileList_old() {
+    private ArrayList<FileInfo> getFileList() {
         String path;
         if (mOuterStoragePath == null)
             path = Constant.ROOT_LOCAL;
