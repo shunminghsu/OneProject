@@ -183,6 +183,7 @@ public class FolderExploreActivity extends AppCompatActivity
     };
 
     private void initData() {
+        Constant.Activity = 1;
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
         mFile = Constant.mCurrentFile;
         mPath = mFile.path;
@@ -328,6 +329,7 @@ public class FolderExploreActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        Constant.Activity = 1;
         initBroadcast();
         if(mActionMode != null)
             mActionMode.finish();
@@ -621,8 +623,17 @@ public class FolderExploreActivity extends AppCompatActivity
                 }else if(Constant.nowMODE == Constant.MODE.OTG){
                     doOTGShare();
                 }
+                break;
+            case R.id.action_copy:
+                startDestinationActivity();
         }
         return false;
+    }
+
+    public void startDestinationActivity(){
+        Intent intent = new Intent();
+        intent.setClass(FolderExploreActivity.this, DestinationActivity.class);
+        startActivityForResult(intent, DestinationActivity.REQUEST_CODE);
     }
 
     @Override
@@ -661,7 +672,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 folderNames.add(file.name.toLowerCase());
         }
         ActionParameter.path = mPath;
-        new OTGNewFolderDialog(this, folderNames, true) {
+        new OTGNewFolderDialog(this, folderNames, Constant.Activity) {
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
                 if(bSDCard){
@@ -764,7 +775,7 @@ public class FolderExploreActivity extends AppCompatActivity
 
     private void doOTGShare(){
         ArrayList<FileInfo> selectFiles = mFolderExploreAdapter.getSelectedFiles();
-        ArrayList<DocumentFile> selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, true);
+        ArrayList<DocumentFile> selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, Constant.Activity);
         boolean shareSuccess = MediaUtils.otgShare(this, selectDFiles.get(0));
         if(!shareSuccess)
             snackBarShow(R.string.snackbar_not_support_share);

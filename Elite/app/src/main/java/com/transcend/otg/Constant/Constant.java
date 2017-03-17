@@ -47,4 +47,6 @@ public class Constant {
     public static final int STORAGEMODE_LOCAL = 0;
     public static final int STORAGEMODE_SD = 1;
     public static final int STORAGEMODE_OTG = 2;
+
+    public static int Activity = 0;//Main = 0, FolderExplore = 1, Destination = 2
 }

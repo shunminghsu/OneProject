@@ -62,9 +62,9 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
                 Constant.mCurrentDocumentFileExplore = Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
                 String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 if(bFromName)
-                    mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
+                    mDFiles = FileFactory.findDocumentFilefromName(mFiles, Constant.Activity);
                 else
-                    mDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, bFromExploreActivity);
+                    mDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, Constant.Activity);
                 String name = mFiles.get(0).name;
                 mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
                 DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();
@@ -90,10 +90,10 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
             }
         }else if(Constant.nowMODE == Constant.MODE.OTG){
             if(bFromName)
-                mDFiles = FileFactory.findDocumentFilefromName(mFiles, bFromExploreActivity);
+                mDFiles = FileFactory.findDocumentFilefromName(mFiles, Constant.Activity);
             else{
                 String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
-                mDFiles = FileFactory.findDocumentFilefromPathOTG(mFiles, otgPath, bFromExploreActivity);
+                mDFiles = FileFactory.findDocumentFilefromPathOTG(mFiles, otgPath, Constant.Activity);
             }
             String name = mFiles.get(0).name;
             mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);

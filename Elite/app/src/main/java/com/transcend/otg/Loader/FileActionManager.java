@@ -89,7 +89,6 @@ public class FileActionManager {
 
     public void list(String path) {
         createLoader(FileActionService.FileAction.LIST, null, path, null, null, null);
-        Log.w(TAG, "doLoad: " + path);
     }
 
     public void otgList(FileInfo file) {

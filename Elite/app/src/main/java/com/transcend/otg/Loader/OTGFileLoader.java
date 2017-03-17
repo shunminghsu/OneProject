@@ -34,13 +34,19 @@ public class OTGFileLoader extends AsyncTaskLoader<Boolean> {
         super(context);
         mContext = context;
         mFileList = new ArrayList<FileInfo>();
-        if (Constant.mCurrentDocumentFileExplore == null) {
+
+
+        if (Constant.Activity == 0) {
             dFile = DocumentFile.fromTreeUri(mContext, uri);
             dFile = dFile.findFile(selectName);
-        } else {
-            dFile = Constant.mCurrentDocumentFileExplore;
-        }
-
+        } else if(Constant.Activity == 1){
+            if(Constant.mCurrentDocumentFileExplore == null){
+                dFile = DocumentFile.fromTreeUri(mContext, uri);
+                dFile = dFile.findFile(selectName);
+            }else
+                dFile = Constant.mCurrentDocumentFileExplore;
+        } else if(Constant.Activity == 2)
+            dFile = Constant.mCurrentDocumentFileDestination;
     }
 
     @Override

@@ -83,6 +83,10 @@ public class FolderExploreDropDownAdapter extends BaseAdapter {
         mList = list;
     }
 
+    public void resetList(){
+        mList = new ArrayList<>();
+    }
+
     public String getPath(int mMode, int position) {
         if (mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD) {
             List<String> list = mList.subList(position, mList.size());

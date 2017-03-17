@@ -36,13 +36,13 @@ public abstract class OTGNewFolderDialog implements TextWatcher, View.OnClickLis
 
     private List<String> mFolderNames;
     private ArrayList<DocumentFile> mDFiles;
-    private boolean bFromExploreActivity;
+    private int mFromWhichActivity;
 
 
-    public OTGNewFolderDialog(Context context, List<String> folderNames, boolean fromExploreActivity) {
+    public OTGNewFolderDialog(Context context, List<String> folderNames, int fromWhichActivity) {
         mContext = context;
         mFolderNames = folderNames;
-        bFromExploreActivity = fromExploreActivity;
+        mFromWhichActivity = fromWhichActivity;
         initData();
         initDialog();
         initFieldName();
@@ -54,7 +54,7 @@ public abstract class OTGNewFolderDialog implements TextWatcher, View.OnClickLis
             String sdKey = LocalPreferences.getSDKey(mContext);
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
-                if(bFromExploreActivity){
+                if(mFromWhichActivity == 1){
                     DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
                     Constant.mCurrentDocumentFileExplore = Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
                     String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
@@ -62,17 +62,28 @@ public abstract class OTGNewFolderDialog implements TextWatcher, View.OnClickLis
                     FileInfo tmpFile = new FileInfo();
                     tmpFile.path = ActionParameter.path;
                     mFiles.add(tmpFile);
-                    mDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, bFromExploreActivity);
-                }else{
+                    mDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, mFromWhichActivity);
+                }else if(mFromWhichActivity == 0){
                     mDFiles.add(DocumentFile.fromTreeUri(mContext, uriSDKey));
+                }else if(mFromWhichActivity == 2){
+                    DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+                    Constant.mCurrentDocumentFileDestination = tmpDFile;
+                    String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                    ArrayList<FileInfo> mFiles = new ArrayList<>();
+                    FileInfo tmpFile = new FileInfo();
+                    tmpFile.path = ActionParameter.path;
+                    mFiles.add(tmpFile);
+                    mDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, mFromWhichActivity);
                 }
 
             }
         }else if(Constant.nowMODE == Constant.MODE.OTG){
-            if(bFromExploreActivity)
+            if(mFromWhichActivity == 1)
                 mDFiles.add(Constant.mCurrentDocumentFileExplore);
-            else
+            else if(mFromWhichActivity == 0)
                 mDFiles.add(Constant.mRootDocumentFile);
+            else if(mFromWhichActivity == 2)
+                mDFiles.add(Constant.mCurrentDocumentFileDestination);
         }
     }
 

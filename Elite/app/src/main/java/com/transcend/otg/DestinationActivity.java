@@ -22,9 +22,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
@@ -33,8 +35,13 @@ import com.transcend.otg.Adapter.FolderExploreDropDownAdapter;
 import com.transcend.otg.Browser.NoOtgFragment;
 import com.transcend.otg.Browser.NoSdFragment;
 import com.transcend.otg.Browser.PagerSwipeRefreshLayout;
+import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Dialog.LocalNewFolderDialog;
+import com.transcend.otg.Dialog.OTGNewFolderDialog;
+import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
+import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalListLoader;
 import com.transcend.otg.Loader.OTGFileLoader;
@@ -44,6 +51,7 @@ import com.transcend.otg.Utils.MediaUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by wangbojie on 2017/3/15.
@@ -75,8 +83,12 @@ public class DestinationActivity extends AppCompatActivity
     private Constant.MODE nowMode;
     private FloatingActionButton mFab, mFabExit;
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
-    private Button mLocalButton, mSdButton, mOtgButton;
+    private Button mLocalButton, mSdButton, mOtgButton, mCheckSDButton, mCheckOTGButton;
     private Context mContext;
+    private RelativeLayout mNoSDLayout, mNoOTGLayout;
+    private UsbMassStorageDevice device;
+    private int mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
+    private DocumentFile rootDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,14 +104,11 @@ public class DestinationActivity extends AppCompatActivity
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
     private void init(){
         mContext = this;
+        mNoSDLayout = (RelativeLayout) findViewById(R.id.no_sd_layout);
+        mNoOTGLayout = (RelativeLayout) findViewById(R.id.no_otg_layout);
+        Constant.Activity = 2;
     }
 
     private void initToolbar() {
@@ -121,6 +130,10 @@ public class DestinationActivity extends AppCompatActivity
         mFab.setOnClickListener(listener);
         mFabExit = (FloatingActionButton) findViewById(R.id.fab_exit);
         mFabExit.setOnClickListener(listener);
+        mCheckSDButton = (Button) findViewById(R.id.check_sdbtn);
+        mCheckSDButton.setOnClickListener(listener);
+        mCheckOTGButton = (Button) findViewById(R.id.check_otgbtn);
+        mCheckOTGButton.setOnClickListener(listener);
     }
 
     class ButtonClickListener implements View.OnClickListener {
@@ -141,16 +154,20 @@ public class DestinationActivity extends AppCompatActivity
                         mPath = sdpath;
                         doLoad(mPath);
                     } else {
-
+                        markSelectView(mNoSDLayout);
                     }
                 } else {
-
+                    markSelectView(mNoSDLayout);
                 }
             } else if (view == mOtgButton) {
                 markSelectedBtn(mOtgButton);
                 discoverDevice();
             } else if (view == mFabExit){
                 finish();
+            } else if (view == mCheckSDButton){
+
+            } else if (view == mCheckOTGButton){
+
             }
         }
     }
@@ -199,7 +216,7 @@ public class DestinationActivity extends AppCompatActivity
 
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 
-//                    intentDocumentTree();
+                    intentDocumentTree();
                 }
 
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
@@ -221,18 +238,80 @@ public class DestinationActivity extends AppCompatActivity
 
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
+            markSelectView(mNoOTGLayout);
             return;
         }
-//        device = devices[0];
-//        String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
-//        if(otgKey != "" || otgKey == null){
-//            Uri uriTree = Uri.parse(otgKey);
-//            if(checkStorage(uriTree)){
-//                replaceFragment(otgFragment);
-//            }
-//        }else{
-//            intentDocumentTree();
-//        }
+        device = devices[0];
+        String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
+        if(otgKey != "" || otgKey == null){
+            Uri uriTree = Uri.parse(otgKey);
+            if(checkStorage(uriTree)) {
+                doLoadOTG(true);
+            }
+        }else{
+            intentDocumentTree();
+        }
+    }
+
+    private boolean checkStorage(Uri uri){
+        if (!uri.toString().contains("primary")) {
+            if (uri != null) {
+                if(uri.getPath().toString().split(":").length > 1){
+                    snackBarShow(R.string.snackbar_plz_select_top);
+                    intentDocumentTree();
+                }else{
+                    rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
+                    getContentResolver().takePersistableUriPermission(uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    LocalPreferences.setOTGKey(this, device.getUsbDevice().getSerialNumber(), uri.toString());
+                    Constant.mCurrentDocumentFileDestination = rootDir;
+                    nowMode = Constant.MODE.OTG;
+                    return true;
+                }
+
+            }
+
+        }else {
+            snackBarShow(R.string.snackbar_plz_select_otg);
+            intentDocumentTree();
+        }
+        return false;
+    }
+
+    private void intentDocumentTree() {
+        new OTGPermissionGuideDialog(this) {
+            @Override
+            public void onConfirm(Boolean isClick) {
+                if (isClick) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, mOTGDocumentTreeID);
+                }
+            }
+        };
+    }
+
+    private void intentDocumentTreeSD() {
+        new SDPermissionGuideDialog(this) {
+            @Override
+            public void onConfirm(Boolean isClick) {
+                if (isClick) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, mSDDocumentTreeID);
+                }
+            }
+        };
+    }
+
+    private boolean checkSDWritePermission(){
+        String sdKey = LocalPreferences.getSDKey(this);
+        if(sdKey != ""){
+            Uri uriSDKey = Uri.parse(sdKey);
+            Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
+            return true;
+        }else{
+            intentDocumentTreeSD();
+            return false;
+        }
     }
 
     private void resetDropDownMapAndList() {
@@ -256,29 +335,49 @@ public class DestinationActivity extends AppCompatActivity
         }else if(Constant.nowMODE == Constant.MODE.OTG){
             nowMode = Constant.MODE.OTG;
             markSelectedBtn(mOtgButton);
+            discoverDevice();
         }
-
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_destination, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_new_folder:
+                if(nowMode == Constant.MODE.LOCAL)
+                    doLocalNewFolder();
+                else if(nowMode == Constant.MODE.SD){
+//                    nowAction = R.id.menu_new_folder;
+                    doOTGNewFolder(true);
+                }else if(nowMode == Constant.MODE.OTG)
+                    doOTGNewFolder(false);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     private void doLoad(String path) {
         mFileActionManager.checkServiceMode(path);
         mFileActionManager.list(path);
     }
 
-//    private void doLoadOTG(FileInfo file, boolean bInitial) {
-//        mFileActionManager.setMode(FileActionManager.MODE.OTG);
-//        if(bInitial){
-//            resetDropDownMapAndList();
-//            mFileActionManager.otgList(file);
-//        }else{
-//            Constant.mCurrentDocumentFileExplore = mCurrentDocumentFile;
-//            mFileActionManager.otgList(null);
-//        }
-//
-//    }
+    private void doLoadOTG(boolean bInitial) {
+        mFileActionManager.setMode(FileActionManager.MODE.OTG);
+        if(bInitial){
+            resetDropDownMapAndList();
+            Constant.mCurrentDocumentFileDestination = rootDir;
+            mFileActionManager.otgList(null);
+        }else{
+            Constant.mCurrentDocumentFileDestination = mCurrentDocumentFile;
+            mFileActionManager.otgList(null);
+        }
 
+    }
     private void updateScreen() {
         if(nowMode == Constant.MODE.LOCAL || nowMode == Constant.MODE.SD){
             mDropdownAdapter.updateList(mPath);
@@ -302,6 +401,23 @@ public class DestinationActivity extends AppCompatActivity
         selected.setTextColor(getResources().getColor(R.color.colorPrimary));
     }
 
+    private void markSelectView(View view){
+        mRecyclerView.setVisibility(View.GONE);
+        mNoSDLayout.setVisibility(View.GONE);
+        mNoOTGLayout.setVisibility(View.GONE);
+        view.setVisibility(View.VISIBLE);
+        if(view == mNoSDLayout || view == mNoOTGLayout){
+            mEmptyView.setVisibility(View.GONE);
+            mFab.setVisibility(View.GONE);
+            resetDropDownMapAndList();
+            mDropdownAdapter.resetList();
+            mDropdownAdapter.notifyDataSetChanged();
+        }
+        else
+            mFab.setVisibility(View.VISIBLE);
+
+    }
+
     private void checkEmpty() {
         if (mFileList.isEmpty())
             mEmptyView.setVisibility(View.VISIBLE);
@@ -312,9 +428,7 @@ public class DestinationActivity extends AppCompatActivity
     private void updateDropDownList(DocumentFile mDFile) {
         String fileName = mDFile.getName();
         Uri fileUri = mDFile.getUri();
-        if (dropDownListOTG.size() == 0) {//first time, add parent file
-            dropDownMapOTG.put(mDFile.getParentFile().getName(), mDFile.getParentFile());
-            dropDownListOTG.add(mDFile.getParentFile().getName() + "@" + mDFile.getParentFile().getUri());
+        if (dropDownListOTG.size() == 0) {
             dropDownListOTG.add(fileName + "@" + fileUri.toString());
         } else {//not first time in, should do arrange
             int dSize = dropDownListOTG.size();
@@ -351,10 +465,17 @@ public class DestinationActivity extends AppCompatActivity
     }
 
     private void doRefresh(){
-        if(Constant.nowMODE == Constant.MODE.LOCAL || Constant.nowMODE == Constant.MODE.SD){
+        if(nowMode == Constant.MODE.LOCAL){
             doLoad(mPath);
-        }else if(Constant.nowMODE == Constant.MODE.OTG){
-
+        }else if(nowMode == Constant.MODE.SD){
+            String sdPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+            if (sdPath != null) {
+                doLoad(mPath);
+            }else{
+                mSwipeRefreshLayout.setRefreshing(false);
+            }
+        }else if(nowMode == Constant.MODE.OTG){
+            doLoadOTG(false);
         }
     }
 
@@ -365,12 +486,28 @@ public class DestinationActivity extends AppCompatActivity
                 String parent = new File(mPath).getParent();
                 doLoad(parent);
             }else if (nowMode == Constant.MODE.OTG){
-
+                mCurrentDocumentFile = mCurrentDocumentFile.getParentFile();
+                doLoadOTG(false);
             }
         }else{
             Constant.mCurrentDocumentFileDestination = null;
             this.finish();
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Constant.Activity = 2;
+        initBroadcast();
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Constant.mCurrentDocumentFileDestination = null;
+        unregisterReceiver(usbReceiver);
     }
 
     @Override
@@ -380,10 +517,10 @@ public class DestinationActivity extends AppCompatActivity
                 String path = mDropdownAdapter.getPath(position);
                 doLoad(path);
             }else if(nowMode == Constant.MODE.OTG){
-//                String path = mDropdownAdapter.getPath(mMode, position);
-//                DocumentFile mapDFile = dropDownMapOTG.get(path);
-//                mCurrentDocumentFile = mapDFile;
-//                doLoadOTG(null, false);
+                String path = mDropdownAdapter.getPath(position);
+                DocumentFile mapDFile = dropDownMapOTG.get(path);
+                mCurrentDocumentFile = mapDFile;
+                doLoadOTG(false);
             }
         }
     }
@@ -397,7 +534,8 @@ public class DestinationActivity extends AppCompatActivity
                 if(nowMode == Constant.MODE.LOCAL || nowMode == Constant.MODE.SD)
                     doLoad(mFileList.get(position).path);
                 else if (nowMode == Constant.MODE.OTG){
-
+                    mCurrentDocumentFile = mCurrentDocumentFile.findFile(mFileList.get(position).name);
+                    doLoadOTG(false);
                 }
                 break;
         }
@@ -438,6 +576,7 @@ public class DestinationActivity extends AppCompatActivity
                 doRefresh();
             }
         }
+        markSelectView(mRecyclerView);
         mSwipeRefreshLayout.setRefreshing(false);
         loadingContainer.setVisibility(View.GONE);
     }
@@ -445,6 +584,53 @@ public class DestinationActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Boolean> loader) {
 
+    }
+
+    private void doLocalNewFolder(){
+        List<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        new LocalNewFolderDialog(this, folderNames) {
+            @Override
+            public void onConfirm(String newName) {
+                String path = mPath;
+                StringBuilder builder = new StringBuilder(path);
+                if (!path.endsWith("/"))
+                    builder.append("/");
+                builder.append(newName);
+                String newFolderPath = builder.toString();
+                mFileActionManager.newFolder(newFolderPath);
+            }
+        };
+    }
+
+    private void doOTGNewFolder(final boolean bSDCard) {
+        List<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        ActionParameter.path = mPath;
+        new OTGNewFolderDialog(this, folderNames, Constant.Activity) {
+            @Override
+            public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
+                if(bSDCard){
+                    if(checkSDWritePermission()){
+                        ActionParameter.name = newName;
+                        mFileActionManager.newFolderOTG(newName, mDFiles);
+                    }else{
+                        ActionParameter.name = newName;
+                    }
+
+                }else{
+                    mFileActionManager.newFolderOTG(newName, mDFiles);
+                }
+            }
+        };
     }
 
 

@@ -241,6 +241,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        Constant.Activity = 0;
         initBroadcast();
         if(mActionMode != null)
             mActionMode.finish();
@@ -940,12 +942,12 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.action_delete:
                 String sdPathDelete = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
-                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(ActionParameter.files, sdPathDelete, false);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(ActionParameter.files, sdPathDelete, Constant.Activity);
                 mFileActionManager.deleteOTG(ActionParameter.dFiles);
                 break;
             case R.id.action_rename:
                 String sdPathRename = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
-                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(ActionParameter.files, sdPathRename, false);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(ActionParameter.files, sdPathRename, Constant.Activity);
                 mFileActionManager.renameOTG(ActionParameter.name, ActionParameter.dFiles);
                 break;
             default:
@@ -981,7 +983,7 @@ public class MainActivity extends AppCompatActivity
             if (file.type == Constant.TYPE_DIR)
                 folderNames.add(file.name.toLowerCase());
         }
-        new OTGNewFolderDialog(this, folderNames, false) {
+        new OTGNewFolderDialog(this, folderNames, Constant.Activity) {
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
                 if(bSDCard){
@@ -1097,10 +1099,10 @@ public class MainActivity extends AppCompatActivity
         ArrayList<FileInfo> selectFiles = getBrowserFragment().getSelectedFiles();
         ArrayList<DocumentFile> selectDFiles = new ArrayList<>();
         if(position == 5){
-            selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, false);
+            selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, Constant.Activity);
         }else{
             String otgPath = FileFactory.getOTGStoragePath(this, Constant.otg_key_path);
-            selectDFiles = FileFactory.findDocumentFilefromPathOTG(selectFiles, otgPath, false);
+            selectDFiles = FileFactory.findDocumentFilefromPathOTG(selectFiles, otgPath, Constant.Activity);
         }
         boolean shareSuccess = MediaUtils.otgShare(this, selectDFiles.get(0));
         if(!shareSuccess)

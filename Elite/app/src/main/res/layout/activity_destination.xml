@@ -36,10 +36,10 @@
                     android:id="@+id/toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/title_paste_to"
                     android:layout_gravity="center"
-                    android:textSize="20sp"
-                    android:textColor="@color/colorWhite"/>
+                    android:text="@string/title_paste_to"
+                    android:textColor="@color/colorWhite"
+                    android:textSize="20sp" />
 
             </android.support.v7.widget.Toolbar>
 
@@ -83,12 +83,11 @@
             android:background="@drawable/toolbar_dropshadow" />
 
 
-        <com.transcend.otg.Browser.PagerSwipeRefreshLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <com.transcend.otg.Browser.PagerSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swiperefresh"
-            android:layout_below="@+id/toolbar_shadow"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolbar_shadow">
 
 
             <android.support.v7.widget.RecyclerView
@@ -104,9 +103,53 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:visibility="gone"
+            android:text="@string/empty"
             android:textSize="40sp"
-            android:text="@string/empty" />
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/no_sd_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/no_sd_storage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+
+            <Button
+                android:id="@+id/check_sdbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/no_sd_storage"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/no_otg_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/no_otg_storage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+
+            <Button
+                android:id="@+id/check_otgbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/no_otg_storage"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp" />
+        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -127,8 +170,8 @@
                 android:id="@+id/fab_exit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
                 android:layout_margin="16dp"
                 android:src="@mipmap/ic_exit"
                 app:elevation="2dp" />
@@ -138,23 +181,19 @@
 
     </RelativeLayout>
 
-    <LinearLayout android:id="@+id/loading_container"
-        android:orientation="vertical"
+    <LinearLayout
+        android:id="@+id/loading_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        <ProgressBar style="?android:attr/progressBarStyleLarge"
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <TextView android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/loading"
-            android:paddingTop="4dip"
-            android:maxLines="1"/>
 
     </LinearLayout>
 
