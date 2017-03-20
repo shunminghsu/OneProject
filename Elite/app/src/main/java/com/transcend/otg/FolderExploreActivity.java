@@ -15,12 +15,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.provider.DocumentFile;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,6 +48,9 @@ import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalListLoader;
 import com.transcend.otg.Loader.OTGFileLoader;
+import com.transcend.otg.Photo.PhotoActivity;
+import com.transcend.otg.Task.ComputeFilsNumberTask;
+import com.transcend.otg.Task.ComputeFilsTotalSizeTask;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
@@ -80,7 +85,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private FolderExploreAdapter mFolderExploreAdapter;
     private RecyclerView mRecyclerView;
     private TextView mEmptyView;
-    private LinearLayout loadingContainer;
+   // private LinearLayout loadingContainer;
     private HashMap<String, DocumentFile> dropDownMapOTG;
     private ArrayList<String> dropDownListOTG;
     private ActionMode mActionMode;
@@ -91,6 +96,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private CoordinatorLayout mCoordinatorlayout;
     private Toolbar toolbar;
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
+    private boolean mInitOtgLoad = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +151,7 @@ public class FolderExploreActivity extends AppCompatActivity
             }
         });
         mEmptyView = (TextView) findViewById(R.id.empty_view);
-        loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
+        //loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
         mFolderExploreAdapter = new FolderExploreAdapter(this);
         mFolderExploreAdapter.setOnRecyclerItemCallbackListener(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.explore_recycler_view);
@@ -188,11 +194,6 @@ public class FolderExploreActivity extends AppCompatActivity
         mFile = Constant.mCurrentFile;
         mPath = mFile.path;
         mMode = mFile.storagemode;
-        if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
-            doLoad(mPath);
-        }else{
-            doLoadOTG(mFile, true);
-        }
     }
 
     private void initActionModeView() {
@@ -333,6 +334,15 @@ public class FolderExploreActivity extends AppCompatActivity
         initBroadcast();
         if(mActionMode != null)
             mActionMode.finish();
+        if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
+            doLoad(mPath);
+        }else if(mMode == Constant.STORAGEMODE_OTG){
+            if (mInitOtgLoad) {
+                doLoadOTG(mFile, true);
+                mInitOtgLoad = false;
+            } else
+                doLoadOTG(null, false);
+        }
     }
 
     @Override
@@ -373,7 +383,7 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-        loadingContainer.setVisibility(View.VISIBLE);
+        //loadingContainer.setVisibility(View.VISIBLE);
         Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
 
         return loader;
@@ -401,7 +411,7 @@ public class FolderExploreActivity extends AppCompatActivity
 
         }
         mSwipeRefreshLayout.setRefreshing(false);
-        loadingContainer.setVisibility(View.GONE);
+        //loadingContainer.setVisibility(View.GONE);
     }
 
     @Override
@@ -439,11 +449,7 @@ public class FolderExploreActivity extends AppCompatActivity
                     }
                     break;
                 case Constant.TYPE_PHOTO:
-                    if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
-
-                    }else if (mMode == Constant.STORAGEMODE_OTG){
-
-                    }
+                    startPhotoSingleView(mFileList, position);
                     break;
                 case Constant.TYPE_VIDEO:
                     if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
@@ -497,7 +503,7 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     public void onRecyclerItemInfoClick(int position) {
-
+        createInfoDialog(this, mFileList.get(position), MainActivity.mScreenW);
     }
 
     private void startActionMode() {
@@ -782,5 +788,69 @@ public class FolderExploreActivity extends AppCompatActivity
         mActionMode.finish();
     }
 
+    private void startPhotoSingleView(ArrayList<FileInfo> list, int position) {
+        Intent intent = new Intent(this, PhotoActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        int newListPosition = 0;
+        ArrayList<FileInfo> photoList = new ArrayList<FileInfo>();
+        for (int i=0;i<list.size();i++) {
+            if (list.get(i).type == Constant.TYPE_PHOTO)
+                photoList.add(list.get(i));
+            if (i == position)
+                newListPosition = photoList.size() - 1;
+        }
+
+        intent.putParcelableArrayListExtra("photo_list", photoList);
+        intent.putExtra("list_index", newListPosition);
+        startActivity(intent);
+    }
+
+    private void createInfoDialog(Context context, FileInfo fileInfo, int dialog_size) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View mInfoDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_info, null);
+        ((TextView) mInfoDialogView.findViewById(R.id.name)).setText(fileInfo.name);
+        ((TextView) mInfoDialogView.findViewById(R.id.type)).setText(getFileTypeString(context, fileInfo.type));
+        if (fileInfo.format_size == null) {
+            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(Formatter.formatFileSize(context, fileInfo.size));
+        } else {
+            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(fileInfo.format_size);
+        }
+        ((TextView) mInfoDialogView.findViewById(R.id.modify_time)).setText(fileInfo.time);
+        ((TextView) mInfoDialogView.findViewById(R.id.path)).setText(fileInfo.path);
+        if (fileInfo.type == Constant.TYPE_DIR) {
+            mInfoDialogView.findViewById(R.id.file_number_title).setVisibility(View.VISIBLE);
+            TextView fileNumView = (TextView) mInfoDialogView.findViewById(R.id.file_number);
+            fileNumView.setVisibility(View.VISIBLE);
+            fileNumView.setText(context.getResources().getString(R.string.info_file_number_computing));
+            new ComputeFilsNumberTask(context, fileInfo, fileNumView).execute();
+            new ComputeFilsTotalSizeTask(context, fileInfo, (TextView) mInfoDialogView.findViewById(R.id.size)).execute();
+        }
+
+        builder.setView(mInfoDialogView);
+        builder.setTitle(context.getResources().getString(R.string.info_title));
+        builder.setIcon(R.mipmap.test_info);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getWindow().setLayout(dialog_size, dialog_size);
+    }
+
+    private String getFileTypeString(Context context, int type) {
+        switch (type) {
+            case Constant.TYPE_PHOTO:
+                return context.getResources().getString(R.string.info_image);
+            case Constant.TYPE_MUSIC:
+                return context.getResources().getString(R.string.info_music);
+            case Constant.TYPE_VIDEO:
+                return context.getResources().getString(R.string.info_video);
+            case Constant.TYPE_DOC:
+                return context.getResources().getString(R.string.info_document);
+            case Constant.TYPE_ENCRYPT:
+                return context.getResources().getString(R.string.info_enc);
+            case Constant.TYPE_DIR:
+                return context.getResources().getString(R.string.info_folder);
+            default: //Constant.TYPE_OTHER_FILE:
+                return context.getResources().getString(R.string.info_other);
+        }
+    }
 }
 

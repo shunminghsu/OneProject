@@ -41,6 +41,23 @@ public class MimeUtil {
         return mime.contains(ENCRYPT);
     }
 
+    public static boolean isDocument(String path) {
+        String ext = FilenameUtils.getExtension(path);
+        if ("doc".equals(ext))
+            return true;
+        if ("docx".equals(ext))
+            return true;
+        if ("xls".equals(ext))
+            return true;
+        if ("ppt".equals(ext))
+            return true;
+        if ("pdf".equals(ext))
+            return true;
+        if ("txt".equals(ext))
+            return true;
+        return false;
+    }
+
     public static String getMimeType(String path) {
         String ext = FilenameUtils.getExtension(path);
         if (ext != null) {

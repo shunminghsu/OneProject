@@ -74,9 +74,9 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
         if (holder.subtitle != null)
             holder.subtitle.setText(mShowSize ? fileInfo.format_size : fileInfo.time);
 
-        if (holder.info != null) {
-            holder.info.setVisibility(fileInfo.type == Constant.TYPE_DIR ? View.GONE : View.VISIBLE);
-        }
+        //if (holder.info != null) {
+            //holder.info.setVisibility(fileInfo.type == Constant.TYPE_DIR ? View.GONE : View.VISIBLE);
+        //}
 
         if (fileInfo.type == Constant.TYPE_MUSIC) {
             mIconHelper.loadMusicThumbnail(fileInfo.path, fileInfo.album_id, holder.icon, holder.iconMime);

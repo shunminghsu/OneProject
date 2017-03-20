@@ -89,9 +89,11 @@ public class FileInfo implements Durable, Parcelable {
             return Constant.TYPE_VIDEO;
         if (MimeUtil.isMusic(path))
             return Constant.TYPE_MUSIC;
+        if (MimeUtil.isDocument(path))
+            return Constant.TYPE_DOC;
         if (MimeUtil.isEncrypt(path))
             return Constant.TYPE_ENCRYPT;
-        return Constant.TYPE_DOC;
+        return Constant.TYPE_OTHER_FILE;
     }
 
     public static String getTime(long time) {

@@ -11,9 +11,12 @@ import android.text.format.Formatter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.FileInfoSort;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by wangbojie on 2017/2/6.
@@ -25,128 +28,49 @@ public class LocalListLoader extends AsyncTaskLoader<Boolean> {
 
     private ArrayList<FileInfo> mFileList;
     private String mPath;
+    private Boolean mIsLocal;
     private Context mContext;
-    private int mSortBy;
-    private Boolean mSortOrderAsc = false;
-    String IMAGE = "image";
-    String WORD = "word";
-    String PDF = "pdf";
-    String PPT = "powerpoint";
-    String EXCEL = "excel";
-    String TEXT = "text";
-    String VIDEO = "video";
-    String AUDIO = "audio";
-    String ENCRYPT = "enc";
-    String DIR = "directory";
-    String PNG = "png";
-    String JPG = "jpg";
 
     public LocalListLoader(Context context, String path) {
         super(context);
         mContext = context;
         mFileList = new ArrayList<FileInfo>();
         mPath = path;
-        mSortBy = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
-        mSortOrderAsc = LocalPreferences.getPref(mContext,
-                LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS) == Constant.SORT_ORDER_AS;
     }
 
     @Override
     public Boolean loadInBackground() {
+        if (mPath != null)
+            mIsLocal = mPath.startsWith(Constant.ROOT_LOCAL);
+        else
+            return false;
         return updateFileList();
     }
 
     private boolean updateFileList() {
-        if (mPath == null)
+        File dir = new File(mPath);
+        if (!dir.exists())
             return false;
-        try {
-
-
-            String[] proj = {
-                    MediaStore.Files.FileColumns._ID,
-                    MediaStore.Files.FileColumns.MEDIA_TYPE,
-                    MediaStore.Files.FileColumns.MIME_TYPE,
-                    MediaStore.Files.FileColumns.DATE_MODIFIED,
-                    MediaStore.Files.FileColumns.DATA,
-                    MediaStore.Files.FileColumns.SIZE};
-            Uri contextUri = MediaStore.Files.getContentUri("external");
-
-            String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
-            if (mSortBy == Constant.SORT_BY_NAME)
-                orderBy = MediaStore.Files.FileColumns.DISPLAY_NAME;
-            else if (mSortBy == Constant.SORT_BY_SIZE)
-                orderBy = MediaStore.Files.FileColumns.SIZE;
-            String order = mSortOrderAsc ? " ASC" : " DESC";
-            Cursor cursor = mContext.getContentResolver().query(
-                    contextUri, proj,
-                    null, null, orderBy + order);
-            if (cursor != null) {
-                int pathColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
-                int mimeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE);
-                int typeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.MEDIA_TYPE);
-                int timeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED);
-                int sizeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
-                while (cursor.moveToNext()) {
-                    String path = cursor.getString(pathColumnIndex);
-                    File check_file = new File(path);
-                    if (check_file.exists() == false)
-                        continue;
-                    if (!path.contains("/.") && path.contains(mPath) && path.lastIndexOf('/') == mPath.length()) {
-                        Uri fileUri = ContentUris.withAppendedId(contextUri,
-                                cursor.getInt(cursor.getColumnIndex(MediaStore.Files.FileColumns._ID)));
-                        String name = path.substring(path.lastIndexOf('/') + 1);
-                        String mimeType = cursor.getString(mimeColumnIndex);
-                        Long time = 1000 * cursor.getLong(timeColumnIndex);
-                        Long size = cursor.getLong(sizeColumnIndex);
-
-                        FileInfo fileInfo = new FileInfo();
-                        fileInfo.path = path;
-
-                        if (mPath == Constant.ROOT_LOCAL)
-                            fileInfo.storagemode = Constant.STORAGEMODE_LOCAL;
-                        else
-                            fileInfo.storagemode = Constant.STORAGEMODE_SD;
-                        fileInfo.name = name;
-                        fileInfo.time = FileInfo.getTime(time);
-                        fileInfo.size = size;
-                        fileInfo.format_size = Formatter.formatFileSize(mContext, size);
-                        switch (cursor.getInt(typeColumnIndex)) {
-                            case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
-                                fileInfo.type = Constant.TYPE_PHOTO;
-                                fileInfo.uri = fileUri;
-                                break;
-                            case MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO:
-                                fileInfo.type = Constant.TYPE_MUSIC;
-                                break;
-                            case MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO:
-                                fileInfo.type = Constant.TYPE_VIDEO;
-                                break;
-                            default:
-                                if (mimeType != null && (mimeType.contains(TEXT) || mimeType.contains(PDF) || mimeType.contains(WORD) || mimeType.contains(PPT) || mimeType.contains(EXCEL))) {
-                                    fileInfo.type = Constant.TYPE_DOC;
-                                } else {
-                                    File file = new File(path);
-                                    if (file.exists() && file.isDirectory()) {
-                                        fileInfo.type = Constant.TYPE_DIR;
-                                    } else if (name.contains(ENCRYPT)) {
-                                        fileInfo.type = Constant.TYPE_ENCRYPT;
-                                    } else {
-                                        fileInfo.type = Constant.TYPE_OTHER_FILE;
-                                    }
-                                }
-                                break;
-                        }
-                        mFileList.add(fileInfo);
-                    }
-                }
-            }
-            cursor.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-
-
+        File files[] = dir.listFiles();
+        for (File file : files) {
+            if (file.isHidden())
+                continue;
+            FileInfo fileInfo = new FileInfo();
+            fileInfo.path = file.getPath();
+            fileInfo.name = file.getName();
+            fileInfo.time = FileInfo.getTime(file.lastModified());
+            fileInfo.type = file.isFile() ? FileInfo.getType(file.getPath()) : Constant.TYPE_DIR;
+            fileInfo.size = file.length();
+            fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
+            if (mIsLocal)
+                fileInfo.storagemode = Constant.STORAGEMODE_LOCAL;
+            else
+                fileInfo.storagemode = Constant.STORAGEMODE_SD;
+            mFileList.add(fileInfo);
         }
+        Collections.sort(mFileList, FileInfoSort.comparator(mContext));
+        //FileFactory.getInstance().addFolderFilterRule(path, mFileList);
+        FileFactory.getInstance().addFileTypeSortRule(mFileList);
         return true;
     }
 

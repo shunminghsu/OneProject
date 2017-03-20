@@ -805,7 +805,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             mFileList.add(fileInfo);
         }
         Collections.sort(mFileList, FileInfoSort.comparator(mContext));
-        FileFactory.getInstance().addFolderFilterRule(path, mFileList);
+        //FileFactory.getInstance().addFolderFilterRule(path, mFileList);
         FileFactory.getInstance().addFileTypeSortRule(mFileList);
 
         return mFileList;
