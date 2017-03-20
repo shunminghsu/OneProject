@@ -123,6 +123,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 } else if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {
                     FileInfo item = new FileInfo();
                     item.name = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.name = item.name.substring(0, item.name.lastIndexOf("."));
                     item.time = FileInfo.getTime(imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = imageCursor.getString(cursor_index_ID).split(":");
@@ -156,6 +157,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 } else if (type.contains(VIDEO)) {
                     FileInfo item = new FileInfo();
                     item.name = videoCursor.getString(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.name = item.name.substring(0, item.name.lastIndexOf("."));
                     item.time = FileInfo.getTime(videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = videoCursor.getString(cursor_index_ID).split(":");
@@ -188,6 +190,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 } else if (type.contains(AUDIO)) {
                     FileInfo item = new FileInfo();
                     item.name = musicCursor.getString(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
+                    item.name = item.name.substring(0, item.name.lastIndexOf("."));
                     item.time = FileInfo.getTime(musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = musicCursor.getString(cursor_index_ID).split(":");
@@ -367,6 +370,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     if (picFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = picPath;
+                        picName = picName.substring(0, picName.lastIndexOf("."));
                         fileInfo.name = picName;
                         fileInfo.time = FileInfo.getTime(picTime);
                         fileInfo.type = Constant.TYPE_PHOTO;
@@ -431,6 +435,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     if (musicFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = musicPath;
+                        musicName = musicName.substring(0, musicName.lastIndexOf("."));
                         fileInfo.name = musicName;
                         fileInfo.time = FileInfo.getTime(musicTime);
                         fileInfo.type = Constant.TYPE_MUSIC;
@@ -492,6 +497,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     if (videoFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = videoPath;
+                        videoName = videoName.substring(0, videoName.lastIndexOf("."));
                         fileInfo.name = videoName;
                         fileInfo.time = FileInfo.getTime(videoTime);
                         fileInfo.type = Constant.TYPE_VIDEO;
@@ -527,9 +533,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Files.FileColumns.SIZE};
 
             String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
-            if (mSortBy == Constant.SORT_BY_NAME)
-                orderBy = MediaStore.Files.FileColumns.DISPLAY_NAME;
-            else if (mSortBy == Constant.SORT_BY_SIZE)
+            //FileColumns.DISPLAY_NAME could be null, so we can't sort by name in query
+            if (mSortBy == Constant.SORT_BY_SIZE)
                 orderBy = MediaStore.Files.FileColumns.SIZE;
             String order = mSortOrderAsc ? " ASC" : " DESC";
             String select = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.doc'" + " or "
@@ -555,7 +560,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     if (isSd && path.startsWith(mOuterStoragePath) && !path.contains("/.")) {
                         String name = path.substring(path.lastIndexOf('/')+1);
                         File check_file = new File(path);
-                        if (!check_file.exists())
+                        if (!check_file.exists() || check_file.isDirectory())
                             continue;
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
@@ -570,7 +575,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     } else if (!isSd && path.startsWith(Constant.ROOT_LOCAL) && !path.contains("/.")) {
                         String name = path.substring(path.lastIndexOf('/')+1);
                         File check_file = new File(path);
-                        if (!check_file.exists())
+                        if (!check_file.exists() || check_file.isDirectory())
                             continue;
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
@@ -611,6 +616,9 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             e.printStackTrace();
             return mFileList;
         }
+        if (mSortBy == Constant.SORT_BY_NAME)
+            return getSortList(mFileList);
+
         return mFileList;
     }
 
@@ -625,9 +633,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             Uri contextUri = MediaStore.Files.getContentUri("external");
 
             String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
-            if (mSortBy == Constant.SORT_BY_NAME)
-                orderBy = MediaStore.Files.FileColumns.DISPLAY_NAME;
-            else if (mSortBy == Constant.SORT_BY_SIZE)
+            if (mSortBy == Constant.SORT_BY_SIZE)
                 orderBy = MediaStore.Files.FileColumns.SIZE;
             String order = mSortOrderAsc ? " ASC" : " DESC";
             String select = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.enc'" + ")";
@@ -647,7 +653,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     if (isSd && path.startsWith(mOuterStoragePath) && !path.contains("/.")) {
                         String name = path.substring(path.lastIndexOf('/')+1);
                         File check_file = new File(path);
-                        if (!check_file.exists())
+                        if (!check_file.exists() || check_file.isDirectory())
                             continue;
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
@@ -662,7 +668,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     } else if (!isSd && path.startsWith(Constant.ROOT_LOCAL) && !path.contains("/.")) {
                         String name = path.substring(path.lastIndexOf('/')+1);
                         File check_file = new File(path);
-                        if (!check_file.exists())
+                        if (!check_file.exists() || check_file.isDirectory())
                             continue;
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
@@ -681,6 +687,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             e.printStackTrace();
             return mFileList;
         }
+        if (mSortBy == Constant.SORT_BY_NAME)
+            return getSortList(mFileList);
         return mFileList;
     }
 

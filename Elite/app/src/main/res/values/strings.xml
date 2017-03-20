@@ -96,7 +96,7 @@
     <string name="info_document">Document</string>
     <string name="info_enc">Elite Encryption</string>
     <string name="info_folder">Directory</string>
-    <string name="info_other">Unknown</string>
+    <string name="info_other">Others</string>
     <string name="info_size">Size:</string>
     <string name="info_file_number">Files Numbers:</string>
     <string name="info_file_number_text1">file</string>

@@ -146,6 +146,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
             case Constant.TYPE_MUSIC:
             case Constant.TYPE_VIDEO:
             case Constant.TYPE_DOC:
+            case Constant.TYPE_OTHER_FILE:
                 if (file.storagemode == Constant.STORAGEMODE_OTG)
                     MediaUtils.executeUri(mContext, file.uri.toString(), mContext.getResources().getString(R.string.openin_title));
                 else

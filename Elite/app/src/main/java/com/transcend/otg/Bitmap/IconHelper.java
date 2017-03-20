@@ -96,6 +96,7 @@ public class IconHelper {
             if (cachedResult != null) {
                 iconThumb.setImageBitmap(cachedResult);
                 cacheHit = true;
+                iconThumb.setTag(null);//to ignore previous load thumbnail task
             } else {
                 iconThumb.setImageDrawable(null);
                 final LoaderTask task = new LoaderTask(path, iconMime, iconThumb, thumbnailType, mThumbSize, mContext);
@@ -205,6 +206,7 @@ public class IconHelper {
             if (cachedResult != null) {
                 iconThumb.setImageBitmap(cachedResult);
                 cacheHit = true;
+                iconThumb.setTag(null); //to ignore previous load thumbnail task
             } else {
                 iconThumb.setImageDrawable(null);
                 final LoaderTaskUri task = new LoaderTaskUri(uri, iconMime, iconThumb, mThumbSize, mContext);
@@ -279,10 +281,6 @@ public class IconHelper {
                 mIconThumb.setAlpha(0f);
                 mIconThumb.animate().alpha(alpha).start();
             }
-            if (mIconMime.getAlpha() == mIconThumb.getAlpha()) {
-                Log.d("henry", "debug: alpha=" + mIconMime.getAlpha() + ", " + mUri);
-                //TO-DO
-            }
         }
     }
 
@@ -295,6 +293,7 @@ public class IconHelper {
             if (cachedResult != null) {
                 iconThumb.setImageBitmap(cachedResult);
                 cacheHit = true;
+                iconThumb.setTag(null); //to ignore previous load thumbnail task
             } else {
                 iconThumb.setImageDrawable(null);
                 final LoaderTaskMusic task = new LoaderTaskMusic(path, album_id, iconMime, iconThumb, mThumbSize, mContext);

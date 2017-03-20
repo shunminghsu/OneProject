@@ -62,7 +62,7 @@ public class PhotoHelper {
             mContext = context;
             mPhotoWidth = width;
             mPhotoHeight = height;
-            mThumbSize = new Point(width/2, height/2);
+            mThumbSize = new Point(width, height);
             mSignal = new CancellationSignal();
         }
 

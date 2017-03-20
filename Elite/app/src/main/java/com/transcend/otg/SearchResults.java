@@ -307,6 +307,7 @@ public class SearchResults extends Fragment {
                         case Constant.TYPE_MUSIC:
                         case Constant.TYPE_VIDEO:
                         case Constant.TYPE_DOC:
+                        case Constant.TYPE_OTHER_FILE:
                             if (fileInfo.storagemode == Constant.STORAGEMODE_OTG)
                                 MediaUtils.executeUri(mContext, fileInfo.uri.toString(), mContext.getResources().getString(R.string.openin_title));
                             else
