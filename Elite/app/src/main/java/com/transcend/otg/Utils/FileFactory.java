@@ -327,14 +327,11 @@ public class FileFactory {
         ArrayList<DocumentFile> mDocumentFiles = new ArrayList<>();
         DocumentFile currentDocumentFile = null;
         if(fromWhichActivity == 1){
-            if(Constant.nowMODE == Constant.MODE.SD)
-                currentDocumentFile = Constant.mCurrentDocumentFileExplore;
+            currentDocumentFile = Constant.mCurrentDocumentFileExplore;
         }else if(fromWhichActivity == 0){
-            if(Constant.nowMODE == Constant.MODE.SD)
-                currentDocumentFile = Constant.mSDCurrentDocumentFile;
+            currentDocumentFile = Constant.mSDCurrentDocumentFile;
         }else if(fromWhichActivity == 2){
-            if(Constant.nowMODE == Constant.MODE.SD)
-                currentDocumentFile = Constant.mCurrentDocumentFileDestination;
+            currentDocumentFile = Constant.mCurrentDocumentFileDestination;
         }
 
         if(currentDocumentFile != null){
@@ -447,7 +444,7 @@ public class FileFactory {
 //    public static String getStorageSize(String filePath) {
 //        StatFs stat = new StatFs(filePath);
 //        long bytesAvailable = (long) stat.getBlockSize() * (long) stat.getBlockCount();
-//        String size = MathUtil.getStorageSize(bytesAvailable);
+//        String size = MathUtils.getStorageSize(bytesAvailable);
 //        return size;
 //    }
 //
@@ -455,7 +452,7 @@ public class FileFactory {
 //        StatFs stat = new StatFs(filePath);
 //        long bytesAvailable = (long) stat.getBlockSize() * (long) stat.getBlockCount();
 //        long bytesLeftAvailable = (long) stat.getBlockSize() * (long) stat.getAvailableBlocks();
-//        String size = MathUtil.getStorageSize(bytesAvailable - bytesLeftAvailable);
+//        String size = MathUtils.getStorageSize(bytesAvailable - bytesLeftAvailable);
 //        return size;
 //
 //    }

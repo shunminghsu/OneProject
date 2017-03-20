@@ -35,10 +35,13 @@ public abstract class FileActionService {
     protected int RENAME_OTG;
     protected int DELETE_OTG;
     protected int NEWFOLDER_OTG;
+    protected int COPY_OTG;
+    protected int COPY_LOCAL_OTG;
+    protected int COPY_OTG_LOCAL;
 
     public enum FileAction {
         OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, NEWFOLDER, SHARE, LIST_ALL_TYPE, OTGLIST, RENAME_OTG, DELETE_OTG,
-        NEWFOLDER_OTG
+        NEWFOLDER_OTG, COPY_OTG, COPY_LOCAL_OTG, COPY_OTG_LOCAL
     }
 
     public String getMode(Context context){
@@ -95,6 +98,12 @@ public abstract class FileActionService {
             fileAction = FileAction.DELETE_OTG;
         else if(action == NEWFOLDER_OTG)
             fileAction = FileAction.NEWFOLDER_OTG;
+        else if(action == COPY_OTG)
+            fileAction = FileAction.COPY_OTG;
+        else if(action == COPY_LOCAL_OTG)
+            fileAction = FileAction.COPY_LOCAL_OTG;
+        else if(action == COPY_OTG_LOCAL)
+            fileAction = FileAction.COPY_OTG_LOCAL;
         return fileAction;
     }
 
@@ -146,6 +155,15 @@ public abstract class FileActionService {
             case NEWFOLDER_OTG:
                 id = NEWFOLDER_OTG;
                 break;
+            case COPY_OTG:
+                id = COPY_OTG;
+                break;
+            case COPY_LOCAL_OTG:
+                id = COPY_LOCAL_OTG;
+                break;
+            case COPY_OTG_LOCAL:
+                id = COPY_OTG_LOCAL;
+                break;
         }
 
         return id;
@@ -157,6 +175,7 @@ public abstract class FileActionService {
         String name = args.getString("name");
         Uri uri = args.getParcelable("uri");
         ArrayList<DocumentFile> dFiles = (ArrayList<DocumentFile>) args.getSerializable("dFile");
+        ArrayList<DocumentFile> dFiles2 = (ArrayList<DocumentFile>) args.getSerializable("dFile2");
         switch (id) {
             case LIST:
                 return list(context, path);
@@ -186,6 +205,12 @@ public abstract class FileActionService {
                 return deleteOTG(context, dFiles);
             case NEWFOLDER_OTG:
                 return newFolderOTG(context, name, dFiles);
+            case COPY_OTG:
+                return copyOTG(context, dFiles, dFiles2);
+            case COPY_LOCAL_OTG:
+                return copyLocaltoOTG(context, paths, dFiles);
+            case COPY_OTG_LOCAL:
+                return copyOTGtoLocal(context, dFiles, path);
         }
 
         return null;
@@ -222,4 +247,10 @@ public abstract class FileActionService {
     protected abstract AsyncTaskLoader deleteOTG(Context context, ArrayList<DocumentFile> dFiles);
 
     protected abstract AsyncTaskLoader newFolderOTG(Context context, String name, ArrayList<DocumentFile> dFiles);
+
+    protected abstract AsyncTaskLoader copyOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2);
+
+    protected abstract AsyncTaskLoader copyLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles);
+
+    protected abstract AsyncTaskLoader copyOTGtoLocal(Context context, ArrayList<DocumentFile> dFiles, String dest);
 }

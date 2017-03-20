@@ -23,13 +23,16 @@ public class LocalActionService extends FileActionService{
         LIST_ALL_TYPE = LoaderID.LOCAL_ALL_TYPE_LIST;
         NEWFOLDER = LoaderID.LOCAL_NEW_FOLDER;
         RENAME = LoaderID.LOCAL_FILE_RENAME;
-//        COPY = LoaderID.LOCAL_FILE_COPY;
+        COPY = LoaderID.LOCAL_COPY;
 //        MOVE = LoaderID.LOCAL_FILE_MOVE;
         DELETE = LoaderID.LOCAL_FILE_DELETE;
         OTGLIST = LoaderID.OTG_FILE_LIST;
         RENAME_OTG = LoaderID.OTG_RENAME;
         DELETE_OTG = LoaderID.OTG_DELETE;
         NEWFOLDER_OTG = LoaderID.OTG_NEW_FOLDER;
+        COPY_OTG = LoaderID.OTG_COPY;
+        COPY_LOCAL_OTG = LoaderID.LOCAL_OTG_COPY;
+        COPY_OTG_LOCAL = LoaderID.OTG_LOCAL_COPY;
 
     }
 
@@ -79,8 +82,23 @@ public class LocalActionService extends FileActionService{
     }
 
     @Override
-    protected AsyncTaskLoader copy(Context context, List<String> list, String dest) {
-        return null;
+    protected AsyncTaskLoader copy(Context context, List<String> sources, String dest) {
+        return new LocalCopyLoader(context, sources, dest);
+    }
+
+    @Override
+    protected AsyncTaskLoader copyOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2) {
+        return new OTGCopyLoader(context, dFiles, dFiles2);
+    }
+
+    @Override
+    protected AsyncTaskLoader copyLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles) {
+        return new LocalCopytoOTGLoader(context, list, dFiles);
+    }
+
+    @Override
+    protected AsyncTaskLoader copyOTGtoLocal(Context context, ArrayList<DocumentFile> dFiles, String dest) {
+        return new OTGCopytoLocalLoader(context, dFiles, dest);
     }
 
     @Override

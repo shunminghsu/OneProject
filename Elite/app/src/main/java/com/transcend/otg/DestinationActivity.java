@@ -3,6 +3,7 @@ package com.transcend.otg;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
@@ -15,6 +16,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.provider.DocumentFile;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.LinearLayoutManager;
@@ -89,6 +91,7 @@ public class DestinationActivity extends AppCompatActivity
     private UsbMassStorageDevice device;
     private int mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private DocumentFile rootDir;
+    private int actionId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +112,7 @@ public class DestinationActivity extends AppCompatActivity
         mNoSDLayout = (RelativeLayout) findViewById(R.id.no_sd_layout);
         mNoOTGLayout = (RelativeLayout) findViewById(R.id.no_otg_layout);
         Constant.Activity = 2;
+        actionId = -1;
     }
 
     private void initToolbar() {
@@ -164,6 +168,8 @@ public class DestinationActivity extends AppCompatActivity
                 discoverDevice();
             } else if (view == mFabExit){
                 finish();
+            } else if (view == mFab){
+                popupConfirmDialog();
             } else if (view == mCheckSDButton){
 
             } else if (view == mCheckOTGButton){
@@ -337,6 +343,8 @@ public class DestinationActivity extends AppCompatActivity
             markSelectedBtn(mOtgButton);
             discoverDevice();
         }
+        Bundle args = getIntent().getExtras();
+        actionId = args.getInt("actionId");
     }
 
     @Override
@@ -391,6 +399,51 @@ public class DestinationActivity extends AppCompatActivity
             mDropdownAdapter.notifyDataSetChanged();
             mFolderExploreAdapter.update(mFileList);
             checkEmpty();
+        }
+    }
+
+    private void popupConfirmDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getHintResId(actionId));
+        builder.setMessage(mPath);
+        builder.setNegativeButton(R.string.cancel, null);
+        builder.setPositiveButton(R.string.confirm, null);
+        builder.setCancelable(true);
+        final AlertDialog dialog = builder.show();
+        Button bnPos = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+        bnPos.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                backToPreviousActivity();
+            }
+        });
+    }
+
+    private void backToPreviousActivity(){
+        ArrayList<DocumentFile> destinationDFiles = new ArrayList<>();
+        if(nowMode == Constant.MODE.OTG){
+            destinationDFiles.add(mCurrentDocumentFile);
+            Constant.destinationDFile = destinationDFiles;
+        }
+        Bundle args = new Bundle();
+        args.putInt("actionId", actionId);
+        args.putString("path", mPath);
+        args.putSerializable("destinationMode", nowMode);
+        Intent intent = new Intent();
+        intent.putExtras(args);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    private int getHintResId(int actionId) {
+        switch (actionId){
+            case R.id.action_copy:
+                return R.string.title_copy_to;
+            case R.id.action_move:
+                return  R.string.title_move_to;
+            default:
+                return 0;
         }
     }
 

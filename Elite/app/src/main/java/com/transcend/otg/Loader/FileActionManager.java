@@ -88,22 +88,22 @@ public class FileActionManager {
     }
 
     public void list(String path) {
-        createLoader(FileActionService.FileAction.LIST, null, path, null, null, null);
+        createLoader(FileActionService.FileAction.LIST, null, path, null, null, null, null);
     }
 
     public void otgList(FileInfo file) {
         if (file != null)
-            createLoader(FileActionService.FileAction.OTGLIST, file.name, null, null, file, null);
+            createLoader(FileActionService.FileAction.OTGLIST, file.name, null, null, file, null, null);
         else
-            createLoader(FileActionService.FileAction.OTGLIST, null, null, null, file, null);
+            createLoader(FileActionService.FileAction.OTGLIST, null, null, null, file, null, null);
     }
 
     public void rename(String path, String newName) {
-        createLoader(FileActionService.FileAction.RENAME, newName, path, null, null, null);
+        createLoader(FileActionService.FileAction.RENAME, newName, path, null, null, null, null);
     }
 
     public void renameOTG(String newName, ArrayList<DocumentFile> dFile){
-        createLoader(FileActionService.FileAction.RENAME_OTG, newName, null, null, null, dFile);
+        createLoader(FileActionService.FileAction.RENAME_OTG, newName, null, null, null, dFile, null);
     }
 
     public void delete(ArrayList<FileInfo> selectFiles) {
@@ -111,26 +111,50 @@ public class FileActionManager {
         for (FileInfo info : selectFiles) {
             paths.add(info.path);
         }
-        createLoader(FileActionService.FileAction.DELETE, null, null, paths, null, null);
+        createLoader(FileActionService.FileAction.DELETE, null, null, paths, null, null, null);
     }
 
     public void deleteOTG(ArrayList<DocumentFile> selectDFiles) {
-        createLoader(FileActionService.FileAction.DELETE_OTG, null, null, null, null, selectDFiles);
+        createLoader(FileActionService.FileAction.DELETE_OTG, null, null, null, null, selectDFiles, null);
     }
 
     public void newFolder(String path){
-        createLoader(FileActionService.FileAction.NEWFOLDER, null, path, null, null, null);
+        createLoader(FileActionService.FileAction.NEWFOLDER, null, path, null, null, null, null);
     }
 
     public void newFolderOTG(String name, ArrayList<DocumentFile> dFile){
-        createLoader(FileActionService.FileAction.NEWFOLDER_OTG, name, null, null, null, dFile);
+        createLoader(FileActionService.FileAction.NEWFOLDER_OTG, name, null, null, null, dFile, null);
     }
 
     public void listAllType() {
-        createLoader(FileActionService.FileAction.LIST_ALL_TYPE, null, null, null, null, null);
+        createLoader(FileActionService.FileAction.LIST_ALL_TYPE, null, null, null, null, null, null);
     }
 
-    private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths, FileInfo file, ArrayList<DocumentFile> dFiles) {
+    public void copy(ArrayList<FileInfo> selectedFiles, String destinationPath){
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectedFiles) {
+            paths.add(info.path);
+        }
+        createLoader(FileActionService.FileAction.COPY, null, destinationPath, paths, null, null, null);
+    }
+
+    public void copyFromLocaltoOTG(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles){
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectedFiles) {
+            paths.add(info.path);
+        }
+        createLoader(FileActionService.FileAction.COPY_LOCAL_OTG, null, null, paths, null, destinationDFiles, null);
+    }
+
+    public void copyOTG(ArrayList<DocumentFile> srcDFiles, ArrayList<DocumentFile> destinationDFiles){
+        createLoader(FileActionService.FileAction.COPY_OTG, null, null, null, null, srcDFiles, destinationDFiles);
+    }
+
+    public void copyOTGtoLocal(ArrayList<DocumentFile> srcDFiles, String desinationPath){
+        createLoader(FileActionService.FileAction.COPY_OTG_LOCAL, null, desinationPath, null, null, srcDFiles, null);
+    }
+
+    private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths, FileInfo file, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2) {
         int id = mFileActionService.getLoaderID(mode);
         Bundle args = new Bundle();
         if (name != null)
@@ -141,11 +165,12 @@ public class FileActionManager {
             args.putStringArrayList("paths", paths);
         if (mode != null)
             args.putInt("actionMode", id);
-        if (file != null) {
+        if (file != null)
             args.putParcelable("uri", file.uri);
-        }
         if(dFiles != null)
             args.putSerializable("dFile", dFiles);
+        if(dFiles2 != null)
+            args.putSerializable("dFile2", dFiles2);
 
         ((Activity) mContext).getLoaderManager().restartLoader(id, args, mCallbacks).forceLoad();
     }

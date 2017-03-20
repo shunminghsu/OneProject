@@ -7,6 +7,8 @@ import android.support.v7.view.ActionMode;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 
+import java.util.ArrayList;
+
 /**
  * Created by wangbojie on 2017/2/6.
  */
@@ -49,4 +51,5 @@ public class Constant {
     public static final int STORAGEMODE_OTG = 2;
 
     public static int Activity = 0;//Main = 0, FolderExplore = 1, Destination = 2
+    public static ArrayList<DocumentFile> destinationDFile;
 }

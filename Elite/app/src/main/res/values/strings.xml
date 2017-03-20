@@ -80,8 +80,11 @@
     <string name="untitled_folder">Untitled folder</string>
 
     <!-- Action -->
-    <string name="title_paste_to">Copy to…</string>
+    <string name="title_copy_to">Copy to…</string>
     <string name="title_move_to">Move to…</string>
+    <string name="error">Error</string>
+    <string name="done">Action Finished</string>
+    <string name="select_folder_error">Destination folder cannot be same as the source folder.</string>
 
     <!-- File information -->
     <string name="info_title">Information</string>
