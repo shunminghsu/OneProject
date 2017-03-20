@@ -519,8 +519,10 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     }
 
     private ArrayList<FileInfo> getAllDocs() {
+        boolean isSd =  (mOuterStoragePath != null);
         try {
-            String[] proj = {MediaStore.Files.FileColumns.DATA,
+            String[] proj = {MediaStore.Files.FileColumns.MIME_TYPE,
+                    MediaStore.Files.FileColumns.DATA,
                     MediaStore.Files.FileColumns.DATE_MODIFIED,
                     MediaStore.Files.FileColumns.SIZE};
 
@@ -541,14 +543,47 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Files.getContentUri("external"), proj, select, null, orderBy + order);
             if (docscursor != null) {
                 while (docscursor.moveToNext()) {
+                    int mimeColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE);
                     int pathColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                     int timeColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED);
                     int sizeColumnIndex = docscursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
 
-                    String docPath = docscursor.getString(pathColumnIndex);
-                    Long docTime = 1000 * docscursor.getLong(timeColumnIndex);
-                    Long docSize = docscursor.getLong(sizeColumnIndex);
-                    File docFile = new File(docPath);
+                    String mimeType = docscursor.getString(mimeColumnIndex);
+                    if (mimeType != null && mimeType.contains("directory"))
+                        continue;
+                    String path = docscursor.getString(pathColumnIndex);
+                    if (isSd && path.startsWith(mOuterStoragePath) && !path.contains("/.")) {
+                        String name = path.substring(path.lastIndexOf('/')+1);
+                        File check_file = new File(path);
+                        if (!check_file.exists())
+                            continue;
+                        FileInfo fileInfo = new FileInfo();
+                        fileInfo.path = path;
+                        fileInfo.name = name;
+                        fileInfo.time = FileInfo.getTime(1000 * docscursor.getLong(timeColumnIndex));
+                        fileInfo.size = docscursor.getLong(sizeColumnIndex);
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
+                        fileInfo.type = Constant.TYPE_DOC;
+                        fileInfo.storagemode = Constant.STORAGEMODE_SD;
+                        mFileList.add(fileInfo);
+
+                    } else if (!isSd && path.startsWith(Constant.ROOT_LOCAL) && !path.contains("/.")) {
+                        String name = path.substring(path.lastIndexOf('/')+1);
+                        File check_file = new File(path);
+                        if (!check_file.exists())
+                            continue;
+                        FileInfo fileInfo = new FileInfo();
+                        fileInfo.path = path;
+                        fileInfo.name = name;
+                        fileInfo.time = FileInfo.getTime(1000 * docscursor.getLong(timeColumnIndex));
+                        fileInfo.size = docscursor.getLong(sizeColumnIndex);
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
+                        fileInfo.type = Constant.TYPE_DOC;
+                        fileInfo.storagemode = Constant.STORAGEMODE_LOCAL;
+                        mFileList.add(fileInfo);
+                    }
+
+                    /*File docFile = new File(docPath);
                     if (docFile.exists() && !docFile.isDirectory()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = docPath;
@@ -568,7 +603,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                                 mFileList.add(fileInfo);
                             }
                         }
-                    }
+                    }*/
                 }
             }
             docscursor.close();
@@ -580,9 +615,10 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     }
 
     private ArrayList<FileInfo> getAllEncs() {
-
+        boolean isSd =  (mOuterStoragePath != null);
         try {
             String[] proj = {
+                    MediaStore.Files.FileColumns.MIME_TYPE,
                     MediaStore.Files.FileColumns.DATE_MODIFIED,
                     MediaStore.Files.FileColumns.DATA,
                     MediaStore.Files.FileColumns.SIZE};
@@ -594,45 +630,49 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             else if (mSortBy == Constant.SORT_BY_SIZE)
                 orderBy = MediaStore.Files.FileColumns.SIZE;
             String order = mSortOrderAsc ? " ASC" : " DESC";
+            String select = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '%.enc'" + ")";
             Cursor encCursor = mContext.getContentResolver().query(
                     contextUri, proj,
-                    null, null, orderBy + order);
+                    select, null, orderBy + order);
             if (encCursor != null) {
+                int mimeColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE);
                 int pathColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                 int timeColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.DATE_MODIFIED);
                 int sizeColumnIndex = encCursor.getColumnIndex(MediaStore.Files.FileColumns.SIZE);
                 while (encCursor.moveToNext()) {
+                    String mimeType = encCursor.getString(mimeColumnIndex);
+                    if (mimeType != null && mimeType.contains("directory"))
+                        continue;
                     String path = encCursor.getString(pathColumnIndex);
-                    if(!path.contains("/.")){
-                        File file = new File(path);
-                        if(file.exists() && !file.isDirectory()){
-                            String name = path.substring(path.lastIndexOf('/')+1);
-                            if(name.contains(".")){
-                                String ext = name.substring(name.lastIndexOf('.'));
-                                Long encTime = 1000 * encCursor.getLong(timeColumnIndex);
-                                Long encSize = encCursor.getLong(sizeColumnIndex);
-                                if( ".enc".equals(ext)){
-                                    FileInfo fileInfo = new FileInfo();
-                                    fileInfo.path = path;
-                                    fileInfo.name = name;
-                                    fileInfo.time = FileInfo.getTime(encTime);
-                                    fileInfo.size = encSize;
-                                    fileInfo.format_size = Formatter.formatFileSize(mContext, encSize);
-                                    fileInfo.type = Constant.TYPE_ENCRYPT;
-                                    if (mOuterStoragePath == null) {
-                                        if (path.contains(Constant.ROOT_LOCAL)) {
-                                            fileInfo.storagemode = Constant.STORAGEMODE_LOCAL;
-                                            mFileList.add(fileInfo);
-                                        }
-                                    } else {
-                                        if (path.contains(mOuterStoragePath)) {
-                                            fileInfo.storagemode = Constant.STORAGEMODE_SD;
-                                            mFileList.add(fileInfo);
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    if (isSd && path.startsWith(mOuterStoragePath) && !path.contains("/.")) {
+                        String name = path.substring(path.lastIndexOf('/')+1);
+                        File check_file = new File(path);
+                        if (!check_file.exists())
+                            continue;
+                        FileInfo fileInfo = new FileInfo();
+                        fileInfo.path = path;
+                        fileInfo.name = name;
+                        fileInfo.time = FileInfo.getTime(1000 * encCursor.getLong(timeColumnIndex));
+                        fileInfo.size = encCursor.getLong(sizeColumnIndex);
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
+                        fileInfo.type = Constant.TYPE_ENCRYPT;
+                        fileInfo.storagemode = Constant.STORAGEMODE_SD;
+                        mFileList.add(fileInfo);
+
+                    } else if (!isSd && path.startsWith(Constant.ROOT_LOCAL) && !path.contains("/.")) {
+                        String name = path.substring(path.lastIndexOf('/')+1);
+                        File check_file = new File(path);
+                        if (!check_file.exists())
+                            continue;
+                        FileInfo fileInfo = new FileInfo();
+                        fileInfo.path = path;
+                        fileInfo.name = name;
+                        fileInfo.time = FileInfo.getTime(1000 * encCursor.getLong(timeColumnIndex));
+                        fileInfo.size = encCursor.getLong(sizeColumnIndex);
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
+                        fileInfo.type = Constant.TYPE_ENCRYPT;
+                        fileInfo.storagemode = Constant.STORAGEMODE_LOCAL;
+                        mFileList.add(fileInfo);
                     }
                 }
             }

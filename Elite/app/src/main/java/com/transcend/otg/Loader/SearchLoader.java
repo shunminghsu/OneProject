@@ -8,7 +8,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
 import android.text.format.Formatter;
-import android.util.Log;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
@@ -72,7 +71,6 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     }
 
     private ArrayList<FileInfo> searchAll() {
-Log.d("henry", "start");
         try {
             String[] proj = {
                     MediaStore.Files.FileColumns._ID,
@@ -84,9 +82,13 @@ Log.d("henry", "start");
             Uri contextUri = MediaStore.Files.getContentUri("external");
 
             final String orderBy = MediaStore.Files.FileColumns.DATE_MODIFIED;
+            //this can speed up search
+            String select = "("
+                    + MediaStore.Files.FileColumns.DATA + " LIKE " + "'%" + mQueryText + "%'"
+                    + ")";
             Cursor cursor = mContext.getContentResolver().query(
                     contextUri, proj,
-                    null, null, orderBy + " DESC");
+                    select, null, orderBy + " DESC");
             if (cursor != null) {
                 int pathColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.DATA);
                 int mimeColumnIndex = cursor.getColumnIndex(MediaStore.Files.FileColumns.MIME_TYPE);
@@ -101,10 +103,9 @@ Log.d("henry", "start");
                     String mimeType = cursor.getString(mimeColumnIndex);
                     Long time = 1000 * cursor.getLong(timeColumnIndex);
                     Long size = cursor.getLong(sizeColumnIndex);
-                    //to speed up, we dont' check file in search
-                    //File check_file = new File(path);
-                    //if (check_file.exists() == false)
-                        //continue;
+                    File check_file = new File(path);
+                    if (check_file.exists() == false)
+                        continue;
                     if (!path.contains("/.") && name.toLowerCase().contains(mQueryText.toLowerCase())) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
@@ -151,7 +152,6 @@ Log.d("henry", "start");
             e.printStackTrace();
             return mFileList;
         }
-        Log.d("henry", "end");
         return mFileList;
     }
 

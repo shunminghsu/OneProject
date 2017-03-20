@@ -147,10 +147,15 @@ public class BrowserFragment extends Fragment {
     }
 
     public void updateCurrentTab(int position) {
+        boolean needLoad = (mCurrentTabPosition != position);
+        //fix bugs: do twice loader when switch storage type
+        //In some case, ex: switch from Local to SD, onStart() will be called, and
+        //then do restartLoader, so we don't need to do restartLoader again
         TabInfo tab = mTabs.get(position);
         mCurTab = tab;
         mCurrentTabPosition = position;
-        getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
+        if(needLoad)
+            getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
         // Put things in the correct paused/resumed state.
         //TO-DO
     }
