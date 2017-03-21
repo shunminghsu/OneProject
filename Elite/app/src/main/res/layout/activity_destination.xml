@@ -69,6 +69,7 @@
                 android:id="@+id/btn_local"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/storage_btn_selector"
                 android:layout_weight="1"
                 android:text="@string/nav_local" />
 
@@ -76,6 +77,7 @@
                 android:id="@+id/btn_sd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/storage_btn_selector"
                 android:layout_weight="1"
                 android:text="@string/nav_sd" />
 
@@ -83,6 +85,7 @@
                 android:id="@+id/btn_otg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:background="@drawable/storage_btn_selector"
                 android:layout_weight="1"
                 android:text="@string/nav_otg" />
         </LinearLayout>

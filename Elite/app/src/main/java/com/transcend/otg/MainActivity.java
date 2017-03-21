@@ -258,6 +258,10 @@ public class MainActivity extends AppCompatActivity
         mSdButton.setTextColor(getResources().getColor(R.color.colorBlack));
         mOtgButton.setTextColor(getResources().getColor(R.color.colorBlack));
         selected.setTextColor(getResources().getColor(R.color.colorPrimary));
+        mLocalButton.setSelected(false);
+        mSdButton.setSelected(false);
+        mOtgButton.setSelected(false);
+        selected.setSelected(true);
     }
 
     @Override
