@@ -4,55 +4,53 @@ import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AsyncTaskLoader;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.transcend.otg.R;
-import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MathUtils;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
-
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.FileNameMap;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by wangbojie on 2017/3/17.
+ * Created by wangbojie on 2017/3/20.
  */
-public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
-    private static final String TAG = LocalCopyLoader.class.getSimpleName();
+public class LocalMovetoOTGLoader extends AsyncTaskLoader<Boolean> {
+
+    private static final String TAG = LocalMovetoOTGLoader.class.getSimpleName();
 
     private Activity mActivity;
     private HandlerThread mThread;
     private Handler mHandler;
     private Runnable mWatcher;
+    private DocumentFile mDesDocumentFile;
+    private List<String> mSrcFile;
 
-    private List<String> mSrcs;
-    private String mDest;
-    private int mNotificationID = 0;
-
-    public LocalCopyLoader(Context context, List<String> srcs, String dest) {
+    public LocalMovetoOTGLoader(Context context, List<String> src, ArrayList<DocumentFile> des) {
         super(context);
         mActivity = (Activity) context;
-        mSrcs = srcs;
-        mDest = dest;
-        mNotificationID = FileFactory.getInstance().getNotificationID();
+        mSrcFile = src;
+        mDesDocumentFile = des.get(0);
     }
 
     @Override
     public Boolean loadInBackground() {
         try {
-            return copy();
+            return Move();
         } catch (IOException e) {
             e.printStackTrace();
             closeProgressWatcher();
@@ -61,78 +59,107 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
         return false;
     }
 
-    private boolean copy() throws IOException {
+    private boolean Move() throws IOException {
         updateProgress(getContext().getResources().getString(R.string.loading), 0, 0);
-        for (String path : mSrcs) {
+        for (String path : mSrcFile) {
             File source = new File(path);
-            if (source.isDirectory())
-                copyDirectory(source, mDest);
-            else
-                copyFile(source, mDest);
+            if (source.isDirectory()) {
+                moveDirectoryTask(mActivity, source, mDesDocumentFile);
+            } else {
+                moveFileTask(mActivity, source, mDesDocumentFile);
+            }
         }
         updateResult(getContext().getString(R.string.done));
         return true;
     }
 
-    private void copyDirectory(File source, String destination) throws IOException {
-        String name = createUniqueName(source, destination);
-        File target = new File(destination, name);
-        target.mkdirs();
-        mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(target)));
-        File[] files = source.listFiles();
-        String path = target.getPath();
+    private void moveDirectoryTask(Context context, File srcFileItem, DocumentFile destFileItem) throws IOException {
+        String name = createUniqueFoloderName(srcFileItem, destFileItem);
+        DocumentFile destDirectory = destFileItem.createDirectory(name);
+        File[] files = srcFileItem.listFiles();
         for (File file : files) {
-            if (file.isHidden())
-                continue;
-            if (file.isDirectory())
-                copyDirectory(file, path);
-            else
-                copyFile(file, path);
+            if (file.isDirectory()) {
+                moveDirectoryTask(mActivity, file, destDirectory);
+            } else {//is file
+                moveFileTask(mActivity, file, destDirectory);
+            }
         }
+        srcFileItem.delete();
     }
 
-    private void copyFile(File source, String destination) throws IOException {
-        String name = createUniqueName(source, destination);
-        File target = new File(destination, name);
-        int total = (int) source.length();
-        startProgressWatcher(target, total);
-        FileUtils.copyFile(source, target);
-        mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(target)));
+    private void moveFileTask(Context context, File srcFileItem, DocumentFile destFileItem) throws IOException {
+        FileNameMap fileNameMap = URLConnection.getFileNameMap();
+        String type = fileNameMap.getContentTypeFor(srcFileItem.getAbsolutePath());
+        if (type == null) type = "";
+        DocumentFile destFile = destFileItem.createFile(type, srcFileItem.getName());
+        int total = (int) srcFileItem.length();
+        startProgressWatcher(destFile, total);
+        moveFile(context, srcFileItem, destFile);
         closeProgressWatcher();
-        updateProgress(target.getName(), total, total);
+        updateProgress(destFile.getName(), total, total);
     }
 
-    private String createUniqueName(File source, String destination) throws MalformedURLException {
-        final boolean isDirectory = source.isDirectory();
-        File dir = new File(destination);
-        File[] files = dir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory() == isDirectory;
+    public boolean moveFile(Context context, File srcFileItem, DocumentFile destFileItem) {
+        if (srcFileItem.isFile()) {
+            OutputStream out = null;
+            InputStream in = null;
+            ContentResolver resolver = context.getContentResolver();
+            try {
+                in = resolver.openInputStream(Uri.fromFile(srcFileItem));
+                out = resolver.openOutputStream(destFileItem.getUri());
+                byte[] buf = new byte[8192];
+                int len;
+                while ((len = in.read(buf)) > 0) {
+                    out.write(buf, 0, len);
+                }
+                in.close();
+                out.close();
+                srcFileItem.delete();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        });
-        List<String> names = new ArrayList<String>();
-        if (files != null) {
-            for (File file : files) names.add(file.getName());
-            String origin = source.getName();
-            String unique = origin;
-            String ext = FilenameUtils.getExtension(origin);
-            String prefix = FilenameUtils.getBaseName(origin);
-            String suffix = ext.isEmpty() ? "" : String.format(".%s", ext);
-            int index = 1;
-            while (names.contains(unique)) {
-                unique = String.format(prefix + "_%d" + suffix, index++);
-            }
-            return unique;
+            return true;
+        } else if (srcFileItem.isDirectory()) {
+            return true;
         } else {
-            File desFile = new File(destination);
-            desFile.mkdir();
-            return source.getName();
+            try {
+                throw new Exception("item is not a file");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+    }
+
+    private String createUniqueFoloderName(File source, DocumentFile destination) {
+        String sourceName = source.getName();
+        String alreadyExistDest = "";
+        String finalUniqueName = sourceName;
+        DocumentFile[] intoDir = destination.listFiles();
+        List<String> names = new ArrayList<String>();
+        if (intoDir != null) {
+            for (DocumentFile tmpFile : intoDir) {
+                names.add(tmpFile.getName());
+                if (tmpFile.isDirectory() && tmpFile.getName().equals(sourceName))
+                    alreadyExistDest = tmpFile.getName();
+            }
+            if (alreadyExistDest.equals("")) {
+                return sourceName;
+            } else {
+                int index = 1;
+                while (names.contains(finalUniqueName)) {
+                    finalUniqueName = String.format(sourceName + "_%d", index++);
+                }
+                return finalUniqueName;
+            }
+        } else {
+            destination.createDirectory(sourceName);
+            return sourceName;
         }
 
     }
 
-    private void startProgressWatcher(final File target, final int total) {
+    private void startProgressWatcher(final DocumentFile target, final int total) {
         mThread = new HandlerThread(TAG);
         mThread.start();
         mHandler = new Handler(mThread.getLooper());
@@ -169,7 +196,7 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
         boolean indeterminate = (total == 0);
         int icon = R.mipmap.icon_elite_logo;
 
-        String type = getContext().getResources().getString(R.string.copy);
+        String type = getContext().getResources().getString(R.string.move);
         String stat = String.format("%s / %s", MathUtils.getBytes(count), MathUtils.getBytes(total));
         String text = String.format("%s - %s", type, stat);
         String info = String.format("%d%%", progress);
@@ -187,7 +214,7 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
         builder.setProgress(max, progress, indeterminate);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(mNotificationID, builder.build());
+        ntfMgr.notify(0, builder.build());
     }
 
     private void updateResult(String result) {
@@ -195,7 +222,7 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
 
         int icon = R.mipmap.icon_elite_logo;
         String name = getContext().getResources().getString(R.string.app_name);
-        String type = getContext().getResources().getString(R.string.copy);
+        String type = getContext().getResources().getString(R.string.move);
         String text = String.format("%s - %s", type, result);
 
         NotificationManager ntfMgr = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -209,7 +236,6 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
         builder.setContentText(text);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(mNotificationID, builder.build());
-        FileFactory.getInstance().releaseNotificationID(mNotificationID);
+        ntfMgr.notify(0, builder.build());
     }
 }

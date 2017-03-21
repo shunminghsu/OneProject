@@ -19,7 +19,6 @@ public abstract class FileActionService {
     protected String mMode;
     protected String mRoot;
     protected String mPath;
-//    protected ExternalStorageController mExternalStorageController;
     protected int OPEN;
     protected int LIST;
     protected int DOWNLOAD;
@@ -38,10 +37,13 @@ public abstract class FileActionService {
     protected int COPY_OTG;
     protected int COPY_LOCAL_OTG;
     protected int COPY_OTG_LOCAL;
+    protected int MOVE_OTG;
+    protected int MOVE_LOCAL_OTG;
+    protected int MOVE_OTG_LOCAL;
 
     public enum FileAction {
         OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, NEWFOLDER, SHARE, LIST_ALL_TYPE, OTGLIST, RENAME_OTG, DELETE_OTG,
-        NEWFOLDER_OTG, COPY_OTG, COPY_LOCAL_OTG, COPY_OTG_LOCAL
+        NEWFOLDER_OTG, COPY_OTG, COPY_LOCAL_OTG, COPY_OTG_LOCAL, MOVE_OTG, MOVE_LOCAL_OTG, MOVE_OTG_LOCAL
     }
 
     public String getMode(Context context){
@@ -104,6 +106,12 @@ public abstract class FileActionService {
             fileAction = FileAction.COPY_LOCAL_OTG;
         else if(action == COPY_OTG_LOCAL)
             fileAction = FileAction.COPY_OTG_LOCAL;
+        else if(action == MOVE_OTG)
+            fileAction = FileAction.MOVE_OTG;
+        else if(action == MOVE_LOCAL_OTG)
+            fileAction = FileAction.MOVE_LOCAL_OTG;
+        else if(action == MOVE_OTG_LOCAL)
+            fileAction = FileAction.MOVE_OTG_LOCAL;
         return fileAction;
     }
 
@@ -164,6 +172,15 @@ public abstract class FileActionService {
             case COPY_OTG_LOCAL:
                 id = COPY_OTG_LOCAL;
                 break;
+            case MOVE_OTG:
+                id = MOVE_OTG;
+                break;
+            case MOVE_LOCAL_OTG:
+                id = MOVE_LOCAL_OTG;
+                break;
+            case MOVE_OTG_LOCAL:
+                id = MOVE_OTG_LOCAL;
+                break;
         }
 
         return id;
@@ -211,6 +228,12 @@ public abstract class FileActionService {
                 return copyLocaltoOTG(context, paths, dFiles);
             case COPY_OTG_LOCAL:
                 return copyOTGtoLocal(context, dFiles, path);
+            case MOVE_OTG:
+                return moveOTG(context, dFiles, dFiles2);
+            case MOVE_LOCAL_OTG:
+                return moveLocaltoOTG(context, paths, dFiles);
+            case MOVE_OTG_LOCAL:
+                return moveOTGtoLocal(context, dFiles, path);
         }
 
         return null;
@@ -253,4 +276,10 @@ public abstract class FileActionService {
     protected abstract AsyncTaskLoader copyLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles);
 
     protected abstract AsyncTaskLoader copyOTGtoLocal(Context context, ArrayList<DocumentFile> dFiles, String dest);
+
+    protected abstract AsyncTaskLoader moveOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2);
+
+    protected abstract AsyncTaskLoader moveLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles);
+
+    protected abstract AsyncTaskLoader moveOTGtoLocal(Context context, ArrayList<DocumentFile> dFiles, String dest);
 }

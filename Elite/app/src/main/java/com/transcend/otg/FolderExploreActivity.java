@@ -75,7 +75,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private FileInfo mFile;
     private String mPath;
     private Uri mUri;
-    private DocumentFile mDocumentFile;
+    private DocumentFile mDocumentFile, rootDir;
     private int mMode;
     private int mSDDocumentTreeID = 1001, nowAction;
     private ArrayList<FileInfo> mFileList;
@@ -85,7 +85,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private FolderExploreAdapter mFolderExploreAdapter;
     private RecyclerView mRecyclerView;
     private TextView mEmptyView;
-   // private LinearLayout loadingContainer;
+    private Context mContext;
     private HashMap<String, DocumentFile> dropDownMapOTG;
     private ArrayList<String> dropDownListOTG;
     private ActionMode mActionMode;
@@ -178,17 +178,16 @@ public class FolderExploreActivity extends AppCompatActivity
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-
             String action = intent.getAction();
             if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 if(Constant.nowMODE == Constant.MODE.OTG)
                     finish();
             }
-
         }
     };
 
     private void initData() {
+        mContext = this;
         Constant.Activity = 1;
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
         mFile = Constant.mCurrentFile;
@@ -217,6 +216,71 @@ public class FolderExploreActivity extends AppCompatActivity
         });
         mActionModeView = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.action_mode_custom, null);
         mActionModeTitle = (TextView) mActionModeView.findViewById(R.id.action_mode_custom_title);
+    }
+
+    private void startPhotoSingleView(ArrayList<FileInfo> list, int position) {
+        Intent intent = new Intent(this, PhotoActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        int newListPosition = 0;
+        ArrayList<FileInfo> photoList = new ArrayList<FileInfo>();
+        for (int i=0;i<list.size();i++) {
+            if (list.get(i).type == Constant.TYPE_PHOTO)
+                photoList.add(list.get(i));
+            if (i == position)
+                newListPosition = photoList.size() - 1;
+        }
+
+        intent.putParcelableArrayListExtra("photo_list", photoList);
+        intent.putExtra("list_index", newListPosition);
+        startActivity(intent);
+    }
+
+    private void createInfoDialog(Context context, FileInfo fileInfo, int dialog_size) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        View mInfoDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_info, null);
+        ((TextView) mInfoDialogView.findViewById(R.id.name)).setText(fileInfo.name);
+        ((TextView) mInfoDialogView.findViewById(R.id.type)).setText(getFileTypeString(context, fileInfo.type));
+        if (fileInfo.format_size == null) {
+            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(Formatter.formatFileSize(context, fileInfo.size));
+        } else {
+            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(fileInfo.format_size);
+        }
+        ((TextView) mInfoDialogView.findViewById(R.id.modify_time)).setText(fileInfo.time);
+        ((TextView) mInfoDialogView.findViewById(R.id.path)).setText(fileInfo.path);
+        if (fileInfo.type == Constant.TYPE_DIR) {
+            mInfoDialogView.findViewById(R.id.file_number_title).setVisibility(View.VISIBLE);
+            TextView fileNumView = (TextView) mInfoDialogView.findViewById(R.id.file_number);
+            fileNumView.setVisibility(View.VISIBLE);
+            fileNumView.setText(context.getResources().getString(R.string.info_file_number_computing));
+            new ComputeFilsNumberTask(context, fileInfo, fileNumView).execute();
+            new ComputeFilsTotalSizeTask(context, fileInfo, (TextView) mInfoDialogView.findViewById(R.id.size)).execute();
+        }
+
+        builder.setView(mInfoDialogView);
+        builder.setTitle(context.getResources().getString(R.string.info_title));
+        builder.setIcon(R.mipmap.test_info);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+        dialog.getWindow().setLayout(dialog_size, dialog_size);
+    }
+
+    private String getFileTypeString(Context context, int type) {
+        switch (type) {
+            case Constant.TYPE_PHOTO:
+                return context.getResources().getString(R.string.info_image);
+            case Constant.TYPE_MUSIC:
+                return context.getResources().getString(R.string.info_music);
+            case Constant.TYPE_VIDEO:
+                return context.getResources().getString(R.string.info_video);
+            case Constant.TYPE_DOC:
+                return context.getResources().getString(R.string.info_document);
+            case Constant.TYPE_ENCRYPT:
+                return context.getResources().getString(R.string.info_enc);
+            case Constant.TYPE_DIR:
+                return context.getResources().getString(R.string.info_folder);
+            default: //Constant.TYPE_OTHER_FILE:
+                return context.getResources().getString(R.string.info_other);
+        }
     }
 
 
@@ -379,6 +443,151 @@ public class FolderExploreActivity extends AppCompatActivity
         }else if(mMode == Constant.STORAGEMODE_OTG){
             doLoadOTG(null, false);
         }
+    }
+
+    @Override
+    protected void onActivityResult(int reqCode, int resCode, Intent data) {
+        super.onActivityResult(reqCode, resCode, data);
+        if(reqCode == mSDDocumentTreeID && resCode == RESULT_OK){
+            Uri uriTree = data.getData();
+            if(checkSD(uriTree)){
+                doAction();
+            }
+        }else if(reqCode == DestinationActivity.REQUEST_CODE && resCode == RESULT_OK){
+            Bundle bundle = data.getExtras();
+            int actionId = bundle.getInt("actionId");
+            String destinationPath = bundle.getString("path");
+            Constant.MODE actionMode = (Constant.MODE) bundle.getSerializable("destinationMode");
+            ArrayList<DocumentFile> destinationDFiles = Constant.destinationDFile;
+            doDestinationAction(actionId, destinationPath, actionMode, destinationDFiles);
+        }
+    }
+
+    private boolean checkSD(Uri uri){
+        if (!uri.toString().contains("primary")) {
+            if (uri != null) {
+                if(uri.getPath().toString().split(":").length > 1){
+                    snackBarShow(R.string.snackbar_plz_select_top);
+                }else{
+                    rootDir = DocumentFile.fromTreeUri(this, uri);//sd root path
+                    ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    if(bSDCard){
+                        getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        LocalPreferences.setSDKey(this, uri.toString());
+                        Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
+                        return true;
+                    }else{
+                        snackBarShow(R.string.snackbar_plz_select_sd);
+                    }
+                }
+            }
+
+        }else {
+            snackBarShow(R.string.snackbar_plz_select_sd);
+        }
+        return false;
+    }
+
+    private void doAction(){
+        switch (nowAction){
+            case R.id.menu_new_folder:
+                ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
+                tmpDFiles.add(rootDir);
+                ActionParameter.dFiles = tmpDFiles;
+                mFileActionManager.newFolderOTG(ActionParameter.name, ActionParameter.dFiles);
+                break;
+            case R.id.action_delete:
+                String sdPathDelete = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(ActionParameter.files, sdPathDelete, Constant.Activity);
+                mFileActionManager.deleteOTG(ActionParameter.dFiles);
+                break;
+            case R.id.action_rename:
+                String sdPathRename = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(ActionParameter.files, sdPathRename, Constant.Activity);
+                mFileActionManager.renameOTG(ActionParameter.name, ActionParameter.dFiles);
+                break;
+            case R.id.action_copy:
+                if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> SD
+                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> SD
+                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> SD
+                    doOTGCopyorMove(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }
+                break;
+            case R.id.action_move:
+                if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> SD
+                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> SD
+                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> SD
+                    doOTGCopyorMove(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void doDestinationAction(int actionId, String destinationPath, Constant.MODE actionMode, ArrayList<DocumentFile> destinationDFiles){
+        Constant.Activity = 1;
+        ArrayList<FileInfo> mSelectedFiles = mFolderExploreAdapter.getSelectedFiles();
+        if(actionMode == Constant.MODE.LOCAL){
+            if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> Local
+                doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
+            }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> Local
+                doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
+            }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> Local
+                doOTGCopyorMovetoLocal(actionId, mSelectedFiles, destinationPath, false);
+            }
+        }else if(actionMode == Constant.MODE.SD){
+            if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> SD
+                if(checkSDWritePermission()){
+                    doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                }else {
+                    nowAction = actionId;
+                    ActionParameter.path = destinationPath;
+                    ActionParameter.files = mSelectedFiles;
+                    ActionParameter.dFiles = destinationDFiles;
+                }
+            }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> SD
+                if(checkSDWritePermission()){
+                    doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                }else {
+                    nowAction = actionId;
+                    ActionParameter.path = destinationPath;
+                    ActionParameter.files = mSelectedFiles;
+                    ActionParameter.dFiles = destinationDFiles;
+                }
+            }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> SD
+                if(checkSDWritePermission()){
+                    doOTGCopyorMove(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                }else {
+                    nowAction = actionId;
+                    ActionParameter.path = destinationPath;
+                    ActionParameter.files = mSelectedFiles;
+                    ActionParameter.dFiles = destinationDFiles;
+                }
+            }
+        }else if(actionMode == Constant.MODE.OTG){
+            if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> OTG
+                doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
+            }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> OTG
+                doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
+            }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> OTG
+                doOTGCopyorMove(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
+            }
+        }
+    }
+
+    private ArrayList<FileInfo> createListFileInfoFromPath(String path){
+        ArrayList<FileInfo> tmpDesFiles = new ArrayList<>();
+        FileInfo file = new FileInfo();
+        file.path = path;
+        tmpDesFiles.add(file);
+        return tmpDesFiles;
     }
 
     @Override
@@ -565,7 +774,6 @@ public class FolderExploreActivity extends AppCompatActivity
             mActionMode.getMenu().findItem(R.id.action_copy).setVisible(visible);
             mActionMode.getMenu().findItem(R.id.action_move).setVisible(visible);
             mActionMode.getMenu().findItem(R.id.action_delete).setVisible(visible);
-            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(visible);
         } else if (count == 1) {
             mActionMode.getMenu().findItem(R.id.action_rename).setVisible(!visible);
@@ -573,7 +781,6 @@ public class FolderExploreActivity extends AppCompatActivity
             mActionMode.getMenu().findItem(R.id.action_copy).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_move).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_delete).setVisible(!visible);
-            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(!visible);
         } else if (count > 1) {
             mActionMode.getMenu().findItem(R.id.action_rename).setVisible(visible);
@@ -581,7 +788,6 @@ public class FolderExploreActivity extends AppCompatActivity
             mActionMode.getMenu().findItem(R.id.action_copy).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_move).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_delete).setVisible(!visible);
-            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(!visible);
         }
     }
@@ -631,13 +837,20 @@ public class FolderExploreActivity extends AppCompatActivity
                 }
                 break;
             case R.id.action_copy:
-                startDestinationActivity();
+                startDestinationActivity(R.id.action_copy);
+                break;
+            case R.id.action_move:
+                startDestinationActivity(R.id.action_move);
+                break;
         }
         return false;
     }
 
-    public void startDestinationActivity(){
+    public void startDestinationActivity(int actionId){
         Intent intent = new Intent();
+        Bundle args = new Bundle();
+        args.putInt("actionId", actionId);
+        intent.putExtras(args);
         intent.setClass(FolderExploreActivity.this, DestinationActivity.class);
         startActivityForResult(intent, DestinationActivity.REQUEST_CODE);
     }
@@ -788,69 +1001,98 @@ public class FolderExploreActivity extends AppCompatActivity
         mActionMode.finish();
     }
 
-    private void startPhotoSingleView(ArrayList<FileInfo> list, int position) {
-        Intent intent = new Intent(this, PhotoActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        int newListPosition = 0;
-        ArrayList<FileInfo> photoList = new ArrayList<FileInfo>();
-        for (int i=0;i<list.size();i++) {
-            if (list.get(i).type == Constant.TYPE_PHOTO)
-                photoList.add(list.get(i));
-            if (i == position)
-                newListPosition = photoList.size() - 1;
+    private void doLocalCopyorMove(int actionId, ArrayList<FileInfo> selectedFiles, String destinationPath) {
+        for (FileInfo fileInfo : selectedFiles) {
+            if(fileInfo.type == Constant.TYPE_DIR){
+                if (destinationPath.startsWith(fileInfo.path)) {
+                    snackBarShow(R.string.select_folder_error);
+                    return;
+                }
+            }
         }
-
-        intent.putParcelableArrayListExtra("photo_list", photoList);
-        intent.putExtra("list_index", newListPosition);
-        startActivity(intent);
+        if(actionId == R.id.action_copy)
+            mFileActionManager.copy(selectedFiles, destinationPath);
+        else if(actionId == R.id.action_move)
+            mFileActionManager.move(selectedFiles, destinationPath);
     }
 
-    private void createInfoDialog(Context context, FileInfo fileInfo, int dialog_size) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        View mInfoDialogView = LayoutInflater.from(context).inflate(R.layout.dialog_info, null);
-        ((TextView) mInfoDialogView.findViewById(R.id.name)).setText(fileInfo.name);
-        ((TextView) mInfoDialogView.findViewById(R.id.type)).setText(getFileTypeString(context, fileInfo.type));
-        if (fileInfo.format_size == null) {
-            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(Formatter.formatFileSize(context, fileInfo.size));
-        } else {
-            ((TextView) mInfoDialogView.findViewById(R.id.size)).setText(fileInfo.format_size);
-        }
-        ((TextView) mInfoDialogView.findViewById(R.id.modify_time)).setText(fileInfo.time);
-        ((TextView) mInfoDialogView.findViewById(R.id.path)).setText(fileInfo.path);
-        if (fileInfo.type == Constant.TYPE_DIR) {
-            mInfoDialogView.findViewById(R.id.file_number_title).setVisibility(View.VISIBLE);
-            TextView fileNumView = (TextView) mInfoDialogView.findViewById(R.id.file_number);
-            fileNumView.setVisibility(View.VISIBLE);
-            fileNumView.setText(context.getResources().getString(R.string.info_file_number_computing));
-            new ComputeFilsNumberTask(context, fileInfo, fileNumView).execute();
-            new ComputeFilsTotalSizeTask(context, fileInfo, (TextView) mInfoDialogView.findViewById(R.id.size)).execute();
-        }
-
-        builder.setView(mInfoDialogView);
-        builder.setTitle(context.getResources().getString(R.string.info_title));
-        builder.setIcon(R.mipmap.test_info);
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        dialog.getWindow().setLayout(dialog_size, dialog_size);
-    }
-
-    private String getFileTypeString(Context context, int type) {
-        switch (type) {
-            case Constant.TYPE_PHOTO:
-                return context.getResources().getString(R.string.info_image);
-            case Constant.TYPE_MUSIC:
-                return context.getResources().getString(R.string.info_music);
-            case Constant.TYPE_VIDEO:
-                return context.getResources().getString(R.string.info_video);
-            case Constant.TYPE_DOC:
-                return context.getResources().getString(R.string.info_document);
-            case Constant.TYPE_ENCRYPT:
-                return context.getResources().getString(R.string.info_enc);
-            case Constant.TYPE_DIR:
-                return context.getResources().getString(R.string.info_folder);
-            default: //Constant.TYPE_OTHER_FILE:
-                return context.getResources().getString(R.string.info_other);
+    private void doLocalCopyorMovetoOTG(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard){
+        if(isSrcSDCard){
+            String sdKey = LocalPreferences.getSDKey(mContext);
+            if(sdKey != ""){
+                Uri uriSDKey = Uri.parse(sdKey);
+                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+                Constant.mSDCurrentDocumentFile = tmpDFile;
+                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
+                ArrayList<DocumentFile> destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
+                if(actionId == R.id.action_copy)
+                    mFileActionManager.copyFromLocaltoOTG(selectedFiles, destDFiles);
+                else if(actionId == R.id.action_move)
+                    mFileActionManager.moveFromLocaltoOTG(selectedFiles, destDFiles);
+            }
+        }else {
+            if(actionId == R.id.action_copy)
+                mFileActionManager.copyFromLocaltoOTG(selectedFiles, destinationDFiles);
+            else if(actionId == R.id.action_move)
+                mFileActionManager.moveFromLocaltoOTG(selectedFiles, destinationDFiles);
         }
     }
+
+    private void doOTGCopyorMove(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard) {
+        if(isSrcSDCard){
+            String sdKey = LocalPreferences.getSDKey(mContext);
+            if(sdKey != ""){
+                Uri uriSDKey = Uri.parse(sdKey);
+                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+                Constant.mSDCurrentDocumentFile = tmpDFile;
+                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
+                ArrayList<DocumentFile> destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
+                String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
+                ArrayList<DocumentFile> srcDFiles = FileFactory.findDocumentFilefromPathOTG(selectedFiles, otgPath, Constant.Activity);
+                if(actionId == R.id.action_copy)
+                    mFileActionManager.copyOTG(srcDFiles, destDFiles);
+                else if(actionId == R.id.action_move)
+                    mFileActionManager.moveOTG(srcDFiles, destDFiles);
+            }
+        }else{
+            String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
+            ArrayList<DocumentFile> srcDFiles = FileFactory.findDocumentFilefromPathOTG(selectedFiles, otgPath, Constant.Activity);
+            for(DocumentFile dFile : srcDFiles){
+                if(dFile.isDirectory()){
+                    DocumentFile tmpDFile = destinationDFiles.get(0);
+                    while (tmpDFile != null){
+                        if (dFile.getUri().toString().equals(tmpDFile.getUri().toString())){
+                            snackBarShow(R.string.select_folder_error);
+                            return;
+                        }else{
+                            tmpDFile = tmpDFile.getParentFile();
+                        }
+                    }
+                }
+            }
+            if(actionId == R.id.action_copy)
+                mFileActionManager.copyOTG(srcDFiles, destinationDFiles);
+            else if(actionId == R.id.action_move)
+                mFileActionManager.moveOTG(srcDFiles, destinationDFiles);
+
+        }
+    }
+
+    private void doOTGCopyorMovetoLocal(int actionId, ArrayList<FileInfo> selectedFiles, String destinationPath, boolean isDesSDCard){
+        if(isDesSDCard){
+
+        }else {
+            String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
+            ArrayList<DocumentFile> srcDFiles = FileFactory.findDocumentFilefromPathOTG(selectedFiles, otgPath, Constant.Activity);
+            if(actionId == R.id.action_copy)
+                mFileActionManager.copyOTGtoLocal(srcDFiles, destinationPath);
+            else if(actionId == R.id.action_move)
+                mFileActionManager.moveOTGtoLocal(srcDFiles, destinationPath);
+        }
+    }
+
+
 }
 

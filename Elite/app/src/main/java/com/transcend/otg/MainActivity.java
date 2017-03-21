@@ -61,7 +61,6 @@ import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -303,7 +302,6 @@ public class MainActivity extends AppCompatActivity
             mActionMode.getMenu().findItem(R.id.action_copy).setVisible(visible);
             mActionMode.getMenu().findItem(R.id.action_move).setVisible(visible);
             mActionMode.getMenu().findItem(R.id.action_delete).setVisible(visible);
-            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(visible);
         } else if (count == 1) {
             mActionMode.getMenu().findItem(R.id.action_rename).setVisible(!visible);
@@ -311,7 +309,6 @@ public class MainActivity extends AppCompatActivity
             mActionMode.getMenu().findItem(R.id.action_copy).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_move).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_delete).setVisible(!visible);
-            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(!visible);
         } else if (count > 1) {
             mActionMode.getMenu().findItem(R.id.action_rename).setVisible(visible);
@@ -319,11 +316,8 @@ public class MainActivity extends AppCompatActivity
             mActionMode.getMenu().findItem(R.id.action_copy).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_move).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_delete).setVisible(!visible);
-            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(!visible);
             mActionMode.getMenu().findItem(R.id.action_encrypt).setVisible(!visible);
         }
-        if(position != 5)
-            mActionMode.getMenu().findItem(R.id.action_new_folder).setVisible(visible);
     }
 
     @Override
@@ -364,6 +358,10 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.action_copy:
                 startDestinationActivity(R.id.action_copy);
+                break;
+            case R.id.action_move:
+                startDestinationActivity(R.id.action_move);
+                break;
 
         }
         return false;
@@ -906,33 +904,48 @@ public class MainActivity extends AppCompatActivity
         ArrayList<FileInfo> mSelectedFiles = getBrowserFragment().getSelectedFiles();
         if(actionMode == Constant.MODE.LOCAL){
             if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> Local
-                doLocalCopy(actionId, mSelectedFiles, destinationPath);
+                doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
             }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> Local
-                doLocalCopy(actionId, mSelectedFiles, destinationPath);
+                doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
             }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> Local
-                doOTGCopytoLocal(actionId, mSelectedFiles, destinationPath, false);
+                doOTGCopyorMovetoLocal(actionId, mSelectedFiles, destinationPath, false);
             }
         }else if(actionMode == Constant.MODE.SD){
             if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> SD
                 if(checkSDWritePermission()){
-                    doLocalCopytoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                    doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                }else {
+                    nowAction = actionId;
+                    ActionParameter.path = destinationPath;
+                    ActionParameter.files = mSelectedFiles;
+                    ActionParameter.dFiles = destinationDFiles;
                 }
             }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> SD
                 if(checkSDWritePermission()){
-                    doLocalCopytoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                    doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                }else {
+                    nowAction = actionId;
+                    ActionParameter.path = destinationPath;
+                    ActionParameter.files = mSelectedFiles;
+                    ActionParameter.dFiles = destinationDFiles;
                 }
             }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> SD
                 if(checkSDWritePermission()){
-                    doOTGCopy(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                    doOTGCopyorMove(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                }else {
+                    nowAction = actionId;
+                    ActionParameter.path = destinationPath;
+                    ActionParameter.files = mSelectedFiles;
+                    ActionParameter.dFiles = destinationDFiles;
                 }
             }
         }else if(actionMode == Constant.MODE.OTG){
             if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> OTG
-                doLocalCopytoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
+                doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
             }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> OTG
-                doLocalCopytoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
+                doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
             }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> OTG
-                doOTGCopy(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
+                doOTGCopyorMove(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
             }
         }
     }
@@ -942,23 +955,24 @@ public class MainActivity extends AppCompatActivity
             if (uri != null) {
                 if(uri.getPath().toString().split(":").length > 1){
                     snackBarShow(R.string.snackbar_plz_select_top);
-                    intentDocumentTreeSD();
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//sd root path
-                    getContentResolver().takePersistableUriPermission(uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    LocalPreferences.setSDKey(this, uri.toString());
-                    Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
-                    ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
-                    tmpDFiles.add(rootDir);
-                    ActionParameter.dFiles = tmpDFiles;
-                    return true;
+                    ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    if(bSDCard){
+                        getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        LocalPreferences.setSDKey(this, uri.toString());
+                        Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
+                        return true;
+                    }else{
+                        snackBarShow(R.string.snackbar_plz_select_sd);
+                    }
                 }
             }
 
         }else {
             snackBarShow(R.string.snackbar_plz_select_sd);
-            intentDocumentTreeSD();
         }
         return false;
     }
@@ -968,23 +982,27 @@ public class MainActivity extends AppCompatActivity
             if (uri != null) {
                 if(uri.getPath().toString().split(":").length > 1){
                     snackBarShow(R.string.snackbar_plz_select_top);
-                    intentDocumentTree();
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
-                    getContentResolver().takePersistableUriPermission(uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    LocalPreferences.setOTGKey(this, device.getUsbDevice().getSerialNumber(), uri.toString());
-                    Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = otgDir = rootDir;
-                    Constant.nowMODE = Constant.MODE.OTG;
-                    Constant.rootUri = uri;
-                    return true;
+                    ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    if(!bSDCard){
+                        getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        LocalPreferences.setOTGKey(this, device.getUsbDevice().getSerialNumber(), uri.toString());
+                        Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = otgDir = rootDir;
+                        Constant.nowMODE = Constant.MODE.OTG;
+                        Constant.rootUri = uri;
+                        return true;
+                    }else{
+                        snackBarShow(R.string.snackbar_plz_select_otg);
+                    }
                 }
 
             }
 
         }else {
             snackBarShow(R.string.snackbar_plz_select_otg);
-            intentDocumentTree();
         }
         return false;
     }
@@ -992,6 +1010,9 @@ public class MainActivity extends AppCompatActivity
     private void doAction(){
         switch (nowAction){
             case R.id.menu_new_folder:
+                ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
+                tmpDFiles.add(rootDir);
+                ActionParameter.dFiles = tmpDFiles;
                 mFileActionManager.newFolderOTG(ActionParameter.name, ActionParameter.dFiles);
                 break;
             case R.id.action_delete:
@@ -1003,6 +1024,24 @@ public class MainActivity extends AppCompatActivity
                 String sdPathRename = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
                 ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(ActionParameter.files, sdPathRename, Constant.Activity);
                 mFileActionManager.renameOTG(ActionParameter.name, ActionParameter.dFiles);
+                break;
+            case R.id.action_copy:
+                if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> SD
+                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> SD
+                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> SD
+                    doOTGCopyorMove(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }
+                break;
+            case R.id.action_move:
+                if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> SD
+                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> SD
+                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> SD
+                    doOTGCopyorMove(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                }
                 break;
             default:
                 break;
@@ -1138,7 +1177,7 @@ public class MainActivity extends AppCompatActivity
         };
     }
 
-    private void doLocalCopy(int actionId, ArrayList<FileInfo> selectedFiles, String destinationPath) {
+    private void doLocalCopyorMove(int actionId, ArrayList<FileInfo> selectedFiles, String destinationPath) {
         for (FileInfo fileInfo : selectedFiles) {
             if(fileInfo.type == Constant.TYPE_DIR){
                 if (destinationPath.startsWith(fileInfo.path)) {
@@ -1147,10 +1186,13 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         }
-        mFileActionManager.copy(selectedFiles, destinationPath);
+        if(actionId == R.id.action_copy)
+            mFileActionManager.copy(selectedFiles, destinationPath);
+        else if(actionId == R.id.action_move)
+            mFileActionManager.move(selectedFiles, destinationPath);
     }
 
-    private void doLocalCopytoOTG(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard){
+    private void doLocalCopyorMovetoOTG(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard){
         if(isSrcSDCard){
             String sdKey = LocalPreferences.getSDKey(mContext);
             if(sdKey != ""){
@@ -1160,14 +1202,20 @@ public class MainActivity extends AppCompatActivity
                 String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
                 ArrayList<DocumentFile> destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
-                mFileActionManager.copyFromLocaltoOTG(selectedFiles, destDFiles);
+                if(actionId == R.id.action_copy)
+                    mFileActionManager.copyFromLocaltoOTG(selectedFiles, destDFiles);
+                else if(actionId == R.id.action_move)
+                    mFileActionManager.moveFromLocaltoOTG(selectedFiles, destDFiles);
             }
         }else {
-            mFileActionManager.copyFromLocaltoOTG(selectedFiles, destinationDFiles);
+            if(actionId == R.id.action_copy)
+                mFileActionManager.copyFromLocaltoOTG(selectedFiles, destinationDFiles);
+            else if(actionId == R.id.action_move)
+                mFileActionManager.moveFromLocaltoOTG(selectedFiles, destinationDFiles);
         }
     }
 
-    private void doOTGCopy(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard) {
+    private void doOTGCopyorMove(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard) {
         if(isSrcSDCard){
             String sdKey = LocalPreferences.getSDKey(mContext);
             if(sdKey != ""){
@@ -1179,7 +1227,10 @@ public class MainActivity extends AppCompatActivity
                 ArrayList<DocumentFile> destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
                 String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
                 ArrayList<DocumentFile> srcDFiles = FileFactory.findDocumentFilefromPathOTG(selectedFiles, otgPath, Constant.Activity);
-                mFileActionManager.copyOTG(srcDFiles, destDFiles);
+                if(actionId == R.id.action_copy)
+                    mFileActionManager.copyOTG(srcDFiles, destDFiles);
+                else if(actionId == R.id.action_move)
+                    mFileActionManager.moveOTG(srcDFiles, destDFiles);
             }
         }else{
             String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
@@ -1197,17 +1248,24 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
             }
-            mFileActionManager.copyOTG(srcDFiles, destinationDFiles);
+            if(actionId == R.id.action_copy)
+                mFileActionManager.copyOTG(srcDFiles, destinationDFiles);
+            else if(actionId == R.id.action_move)
+                mFileActionManager.moveOTG(srcDFiles, destinationDFiles);
+
         }
     }
 
-    private void doOTGCopytoLocal(int actionId, ArrayList<FileInfo> selectedFiles, String destinationPath, boolean isDesSDCard){
+    private void doOTGCopyorMovetoLocal(int actionId, ArrayList<FileInfo> selectedFiles, String destinationPath, boolean isDesSDCard){
         if(isDesSDCard){
 
         }else {
             String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
             ArrayList<DocumentFile> srcDFiles = FileFactory.findDocumentFilefromPathOTG(selectedFiles, otgPath, Constant.Activity);
-            mFileActionManager.copyOTGtoLocal(srcDFiles, destinationPath);
+            if(actionId == R.id.action_copy)
+                mFileActionManager.copyOTGtoLocal(srcDFiles, destinationPath);
+            else if(actionId == R.id.action_move)
+                mFileActionManager.moveOTGtoLocal(srcDFiles, destinationPath);
         }
     }
 

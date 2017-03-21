@@ -22,9 +22,13 @@ import android.widget.Toast;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
+
+import java.util.ArrayList;
 
 /**
  * Created by henry_hsu on 2017/2/14.
@@ -175,24 +179,29 @@ public class NoOtgFragment extends Fragment {
             if (uri != null) {
                 if(uri.getPath().toString().split(":").length > 1){
                     snackBarShow(R.string.snackbar_plz_select_top);
-                    intentDocumentTree();
                 }else{
                     rootDir = DocumentFile.fromTreeUri(mContext, uri);//OTG root path
-                    mContext.getContentResolver().takePersistableUriPermission(uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    LocalPreferences.setOTGKey(mContext, device.getUsbDevice().getSerialNumber(), uri.toString());
-                    Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = otgDir = rootDir;
-                    Constant.rootUri = uri;
-                    return true;
+                    ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    if(!bSDCard){
+                        mContext.getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        LocalPreferences.setOTGKey(mContext, device.getUsbDevice().getSerialNumber(), uri.toString());
+                        Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = otgDir = rootDir;
+                        Constant.nowMODE = Constant.MODE.OTG;
+                        Constant.rootUri = uri;
+                        return true;
+                    }else{
+                        snackBarShow(R.string.snackbar_plz_select_otg);
+                    }
                 }
-
             }
 
         }else {
             snackBarShow(R.string.snackbar_plz_select_otg);
-            intentDocumentTree();
         }
         return false;
+
     }
 
     private void snackBarShow(int resId) {

@@ -12,6 +12,8 @@ public class LoaderID {
     public static final int LOCAL_NEW_FOLDER = 5;
     public static final int LOCAL_COPY = 6;
     public static final int LOCAL_OTG_COPY = 7;
+    public static final int LOCAL_MOVE = 8;
+    public static final int LOCAL_OTG_MOVE = 9;
 
 
     public static final int OTG_FILE_LIST = 21;
@@ -20,4 +22,6 @@ public class LoaderID {
     public static final int OTG_NEW_FOLDER = 24;
     public static final int OTG_COPY = 25;
     public static final int OTG_LOCAL_COPY = 26;
+    public static final int OTG_MOVE = 27;
+    public static final int OTG_LOCAL_MOVE = 28;
 }

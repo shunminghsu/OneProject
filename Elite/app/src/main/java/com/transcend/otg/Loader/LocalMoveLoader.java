@@ -16,7 +16,6 @@ import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MathUtils;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -27,10 +26,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by wangbojie on 2017/3/17.
+ * Created by wangbojie on 2016/6/22.
  */
-public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
-    private static final String TAG = LocalCopyLoader.class.getSimpleName();
+public class LocalMoveLoader extends AsyncTaskLoader<Boolean> {
+    private static final String TAG = LocalMoveLoader.class.getSimpleName();
 
     private Activity mActivity;
     private HandlerThread mThread;
@@ -41,7 +40,7 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
     private String mDest;
     private int mNotificationID = 0;
 
-    public LocalCopyLoader(Context context, List<String> srcs, String dest) {
+    public LocalMoveLoader(Context context, List<String> srcs, String dest) {
         super(context);
         mActivity = (Activity) context;
         mSrcs = srcs;
@@ -52,7 +51,7 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
     @Override
     public Boolean loadInBackground() {
         try {
-            return copy();
+            return move();
         } catch (IOException e) {
             e.printStackTrace();
             closeProgressWatcher();
@@ -61,20 +60,22 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
         return false;
     }
 
-    private boolean copy() throws IOException {
+    private boolean move() throws IOException {
         updateProgress(getContext().getResources().getString(R.string.loading), 0, 0);
         for (String path : mSrcs) {
             File source = new File(path);
+            if (source.getParent().equals(mDest))
+                continue;
             if (source.isDirectory())
-                copyDirectory(source, mDest);
+                moveDirectory(source, mDest);
             else
-                copyFile(source, mDest);
+                moveFile(source, mDest);
         }
         updateResult(getContext().getString(R.string.done));
         return true;
     }
 
-    private void copyDirectory(File source, String destination) throws IOException {
+    private void moveDirectory(File source, String destination) throws IOException {
         String name = createUniqueName(source, destination);
         File target = new File(destination, name);
         target.mkdirs();
@@ -84,19 +85,21 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
         for (File file : files) {
             if (file.isHidden())
                 continue;
+
             if (file.isDirectory())
-                copyDirectory(file, path);
+                moveDirectory(file, path);
             else
-                copyFile(file, path);
+                moveFile(file, path);
         }
+        source.delete();
     }
 
-    private void copyFile(File source, String destination) throws IOException {
+    private void moveFile(File source, String destination) throws IOException {
         String name = createUniqueName(source, destination);
         File target = new File(destination, name);
         int total = (int) source.length();
         startProgressWatcher(target, total);
-        FileUtils.copyFile(source, target);
+        source.renameTo(target);
         mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(target)));
         closeProgressWatcher();
         updateProgress(target.getName(), total, total);
@@ -140,9 +143,10 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
             @Override
             public void run() {
                 int count = (int) target.length();
+                String name = target.getName();
                 if (mHandler != null) {
                     mHandler.postDelayed(mWatcher, 1000);
-                    updateProgress(target.getName(), count, total);
+                    updateProgress(name, count, total);
                 }
             }
         });
@@ -169,7 +173,7 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
         boolean indeterminate = (total == 0);
         int icon = R.mipmap.icon_elite_logo;
 
-        String type = getContext().getResources().getString(R.string.copy);
+        String type = getContext().getResources().getString(R.string.move);
         String stat = String.format("%s / %s", MathUtils.getBytes(count), MathUtils.getBytes(total));
         String text = String.format("%s - %s", type, stat);
         String info = String.format("%d%%", progress);
@@ -195,7 +199,7 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
 
         int icon = R.mipmap.icon_elite_logo;
         String name = getContext().getResources().getString(R.string.app_name);
-        String type = getContext().getResources().getString(R.string.copy);
+        String type = getContext().getResources().getString(R.string.move);
         String text = String.format("%s - %s", type, result);
 
         NotificationManager ntfMgr = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -212,4 +216,6 @@ public class LocalCopyLoader extends AsyncTaskLoader<Boolean> {
         ntfMgr.notify(mNotificationID, builder.build());
         FileFactory.getInstance().releaseNotificationID(mNotificationID);
     }
+
 }
+

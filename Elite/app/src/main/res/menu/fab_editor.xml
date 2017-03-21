@@ -48,12 +48,6 @@
                 app:showAsAction="never" />
 
             <item
-                android:id="@+id/action_new_folder"
-                android:icon="@drawable/ic_menu_camera"
-                android:title="@string/newfolder"
-                app:showAsAction="never" />
-
-            <item
                 android:id="@+id/action_encrypt"
                 android:icon="@drawable/ic_menu_camera"
                 android:title="@string/encrypt"

@@ -154,6 +154,30 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.COPY_OTG_LOCAL, null, desinationPath, null, null, srcDFiles, null);
     }
 
+    public void move(ArrayList<FileInfo> selectedFiles, String destinationPath){
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectedFiles) {
+            paths.add(info.path);
+        }
+        createLoader(FileActionService.FileAction.MOVE, null, destinationPath, paths, null, null, null);
+    }
+
+    public void moveOTG(ArrayList<DocumentFile> srcDFiles, ArrayList<DocumentFile> destinationDFiles){
+        createLoader(FileActionService.FileAction.MOVE_OTG, null, null, null, null, srcDFiles, destinationDFiles);
+    }
+
+    public void moveFromLocaltoOTG(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles){
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectedFiles) {
+            paths.add(info.path);
+        }
+        createLoader(FileActionService.FileAction.MOVE_LOCAL_OTG, null, null, paths, null, destinationDFiles, null);
+    }
+
+    public void moveOTGtoLocal(ArrayList<DocumentFile> srcDFiles, String desinationPath){
+        createLoader(FileActionService.FileAction.MOVE_OTG_LOCAL, null, desinationPath, null, null, srcDFiles, null);
+    }
+
     private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths, FileInfo file, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2) {
         int id = mFileActionService.getLoaderID(mode);
         Bundle args = new Bundle();

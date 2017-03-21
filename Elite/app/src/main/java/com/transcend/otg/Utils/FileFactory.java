@@ -306,6 +306,24 @@ public class FileFactory {
         return url;
     }
 
+    public boolean doFileNameCompare(DocumentFile[] tmpDFile, ArrayList<String> tmpFile) {
+        int fileCount = 0;
+        for (int fi = 0; fi < tmpFile.size(); fi++) {
+            String name = tmpFile.get(fi);
+            for (int df = 0; df < tmpDFile.length; df++) {
+                if (name.equals(tmpDFile[df].getName())) {
+                    fileCount++;
+                    break;
+                }
+            }
+        }
+        if (fileCount == tmpFile.size()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public int getNotificationID() {
         int id = 1;
         if (mNotificationList.size() > 0) {
@@ -354,11 +372,9 @@ public class FileFactory {
         DocumentFile currentDocumentFile = null;
 
         if(fromWhichActivity == 1){
-            if(Constant.nowMODE == Constant.MODE.OTG)
-                currentDocumentFile = Constant.mCurrentDocumentFileExplore;
+            currentDocumentFile = Constant.mRootDocumentFile;
         }else if(fromWhichActivity == 0){
-            if(Constant.nowMODE == Constant.MODE.OTG)
-                currentDocumentFile = Constant.mCurrentDocumentFile;
+            currentDocumentFile = Constant.mRootDocumentFile;
         }else if(fromWhichActivity == 2){
 
         }

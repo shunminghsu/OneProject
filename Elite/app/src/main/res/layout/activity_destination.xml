@@ -16,7 +16,7 @@
             android:id="@+id/app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+            android:theme="@style/AppTheme">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -37,13 +37,25 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:text="@string/title_copy_to"
                     android:textColor="@color/colorWhite"
                     android:textSize="20sp" />
 
             </android.support.v7.widget.Toolbar>
 
+            <TextView
+                android:id="@+id/hint_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/toolbar"
+                android:gravity="center"
+                android:text="@string/select_destination"
+                android:textColor="@color/colorWhite"
+                android:textSize="16sp"
+                android:theme="@style/AppTheme.DropDown" />
+
         </android.support.design.widget.AppBarLayout>
+
+
 
         <LinearLayout
             android:id="@+id/layout_storage"
@@ -75,13 +87,13 @@
                 android:text="@string/nav_otg" />
         </LinearLayout>
 
+
         <View
             android:id="@+id/toolbar_shadow"
             android:layout_width="match_parent"
             android:layout_height="6dp"
             android:layout_below="@+id/layout_storage"
             android:background="@drawable/toolbar_dropshadow" />
-
 
         <com.transcend.otg.Browser.PagerSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swiperefresh"
