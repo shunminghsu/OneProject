@@ -867,10 +867,6 @@ public class MainActivity extends AppCompatActivity
                 if (isClick) {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                     startActivityForResult(intent, mSDDocumentTreeID);
-                }else{
-                    Constant.nowMODE = Constant.MODE.LOCAL;
-                    markSelectedBtn(mLocalButton);
-                    replaceFragment(localFragment);
                 }
             }
         };
