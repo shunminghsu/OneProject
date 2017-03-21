@@ -174,7 +174,8 @@ public class DestinationActivity extends AppCompatActivity
             } else if (view == mCheckSDButton){
 
             } else if (view == mCheckOTGButton){
-
+                markSelectedBtn(mOtgButton);
+                discoverDevice();
             }
         }
     }
@@ -240,6 +241,22 @@ public class DestinationActivity extends AppCompatActivity
         }
     };
 
+    @Override
+    protected void onActivityResult(int reqCode, int resCode, Intent data) {
+        super.onActivityResult(reqCode, resCode, data);
+        if(reqCode == mOTGDocumentTreeID && resCode == RESULT_OK){
+            Uri uriTree = data.getData();
+            if(checkStorage(uriTree)){
+                doLoadOTG(true);
+            }else{
+                nowMode = Constant.MODE.LOCAL;
+                markSelectedBtn(mLocalButton);
+                mPath = Constant.ROOT_LOCAL;
+                doLoad(mPath);
+            }
+        }
+    }
+
     private void discoverDevice() {
         UsbManager usbManager = (UsbManager) this.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(this);
@@ -255,6 +272,11 @@ public class DestinationActivity extends AppCompatActivity
             Uri uriTree = Uri.parse(otgKey);
             if(checkStorage(uriTree)) {
                 doLoadOTG(true);
+            }else{
+                nowMode = Constant.MODE.LOCAL;
+                markSelectedBtn(mLocalButton);
+                mPath = Constant.ROOT_LOCAL;
+                doLoad(mPath);
             }
         }else{
             intentDocumentTree();
@@ -266,22 +288,26 @@ public class DestinationActivity extends AppCompatActivity
             if (uri != null) {
                 if(uri.getPath().toString().split(":").length > 1){
                     snackBarShow(R.string.snackbar_plz_select_top);
-                    intentDocumentTree();
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
-                    getContentResolver().takePersistableUriPermission(uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    LocalPreferences.setOTGKey(this, device.getUsbDevice().getSerialNumber(), uri.toString());
-                    Constant.mCurrentDocumentFileDestination = rootDir;
-                    nowMode = Constant.MODE.OTG;
-                    return true;
+                    ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    if(!bSDCard){
+                        getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        LocalPreferences.setOTGKey(this, device.getUsbDevice().getSerialNumber(), uri.toString());
+                        Constant.mCurrentDocumentFileDestination = rootDir;
+                        nowMode = Constant.MODE.OTG;
+                        return true;
+                    }else{
+                        snackBarShow(R.string.snackbar_plz_select_otg);
+                    }
                 }
 
             }
 
         }else {
             snackBarShow(R.string.snackbar_plz_select_otg);
-            intentDocumentTree();
         }
         return false;
     }
@@ -293,6 +319,11 @@ public class DestinationActivity extends AppCompatActivity
                 if (isClick) {
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                     startActivityForResult(intent, mOTGDocumentTreeID);
+                }else{
+                    nowMode = Constant.MODE.LOCAL;
+                    markSelectedBtn(mLocalButton);
+                    mPath = Constant.ROOT_LOCAL;
+                    doLoad(mPath);
                 }
             }
         };

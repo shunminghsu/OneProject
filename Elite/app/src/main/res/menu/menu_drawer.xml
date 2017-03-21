@@ -23,7 +23,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_setting"
-            android:icon="@mipmap/ic_help"
+            android:icon="@mipmap/ic_drawer_setting"
             android:title="@string/drawer_setting" />
     </group>
 
