@@ -34,6 +34,7 @@ import android.widget.TextView;
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Adapter.FolderExploreAdapter;
 import com.transcend.otg.Adapter.FolderExploreDropDownAdapter;
+import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
 import com.transcend.otg.Browser.NoSdFragment;
 import com.transcend.otg.Browser.PagerSwipeRefreshLayout;
@@ -190,7 +191,8 @@ public class DestinationActivity extends AppCompatActivity
         });
         mEmptyView = (TextView) findViewById(R.id.empty_view);
         loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
-        mFolderExploreAdapter = new FolderExploreAdapter(this);
+        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
+        mFolderExploreAdapter = new FolderExploreAdapter(this, layout_mode);
         mFolderExploreAdapter.setOnRecyclerItemCallbackListener(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));

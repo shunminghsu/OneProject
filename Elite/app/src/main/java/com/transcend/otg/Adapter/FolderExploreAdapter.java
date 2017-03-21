@@ -26,12 +26,14 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
     private Context mContext;
     private ArrayList<FileInfo> mList;
     private IconHelper mIconHelper;
+    private int mLayoutMode;
     private Boolean mShowSize = false;
     private OnRecyclerItemCallbackListener mCallback;
 
-    public FolderExploreAdapter(Context context) {
+    public FolderExploreAdapter(Context context, int layout_mode) {
         mContext = context;
-        mIconHelper = new IconHelper(mContext, Constant.ITEM_LIST);
+        mLayoutMode = layout_mode;//grid or list
+        mIconHelper = new IconHelper(mContext, layout_mode);
         mShowSize = LocalPreferences.getPref(mContext,
                 LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
     }
@@ -59,14 +61,19 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
     @Override
     public FolderExploreAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        return new FolderExploreAdapter.ViewHolder(layoutInflater.inflate(R.layout.listitem_recyclerview, parent, false), viewType);
 
+        if (viewType == Constant.ITEM_LIST) {
+            return new ViewHolder(layoutInflater.inflate(R.layout.listitem_recyclerview, parent, false), viewType);
+        }
+        if (viewType == Constant.ITEM_GRID) {
+            return new ViewHolder(layoutInflater.inflate(R.layout.griditem_recyclerview_simple, parent, false), viewType);
+        }
+
+        return null;
     }
 
     @Override
     public void onBindViewHolder(FolderExploreAdapter.ViewHolder holder, int position) {
-        if (holder.viewType == Constant.ITEM_FOOTER)
-            return;
 
         FileInfo fileInfo = mList.get(position);
 
@@ -86,16 +93,18 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
             mIconHelper.loadThumbnail(fileInfo.path, fileInfo.type, holder.icon, holder.iconMime);
 
 
-        if (holder.viewType == Constant.ITEM_GRID) {
-            int resId = R.drawable.ic_menu_camera;
-
-        } else { //holder.viewType == Constant.ITEM_LIST
-
-        }
-
         holder.itemView.setSelected(fileInfo.checked);
         holder.mark.setVisibility(fileInfo.checked ? View.VISIBLE : View.INVISIBLE);
 
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return mLayoutMode;
+    }
+
+    public void setLayoutMode(int mode) {
+        mLayoutMode = mode;
     }
 
     public ArrayList<FileInfo> getSelectedFiles(){

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
+import android.content.res.Configuration;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -19,10 +20,12 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Formatter;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -34,6 +37,7 @@ import android.widget.TextView;
 
 import com.transcend.otg.Adapter.FolderExploreAdapter;
 import com.transcend.otg.Adapter.FolderExploreDropDownAdapter;
+import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.PagerSwipeRefreshLayout;
 import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
@@ -84,6 +88,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private AppCompatSpinner mDropdown;
     private FolderExploreAdapter mFolderExploreAdapter;
     private RecyclerView mRecyclerView;
+    private GridLayoutManager mLayout;
     private TextView mEmptyView;
     private Context mContext;
     private HashMap<String, DocumentFile> dropDownMapOTG;
@@ -97,11 +102,15 @@ public class FolderExploreActivity extends AppCompatActivity
     private Toolbar toolbar;
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
     private boolean mInitOtgLoad = true;
+    private int mScreenW;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_folder_explore);
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        mScreenW = displaymetrics.widthPixels;
         initToolbar();
         initRecyclerViewAndAdapter();
         initDropdown();
@@ -117,6 +126,18 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) { // called every time the menu opens
+        super.onPrepareOptionsMenu(menu);
+        final MenuItem grid = menu.findItem(R.id.menu_grid);
+        final MenuItem list = menu.findItem(R.id.menu_list);
+        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
+        grid.setVisible(layout_mode == Constant.ITEM_LIST);
+        list.setVisible(layout_mode == Constant.ITEM_GRID);
+
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_new_folder:
@@ -127,6 +148,12 @@ public class FolderExploreActivity extends AppCompatActivity
                     doOTGNewFolder(true);
                 }else if(Constant.nowMODE == Constant.MODE.OTG)
                     doOTGNewFolder(false);
+                return true;
+            case R.id.menu_grid:
+                updateLayout(Constant.ITEM_GRID);
+                return true;
+            case R.id.menu_list:
+                updateLayout(Constant.ITEM_LIST);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -152,10 +179,16 @@ public class FolderExploreActivity extends AppCompatActivity
         });
         mEmptyView = (TextView) findViewById(R.id.empty_view);
         //loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
-        mFolderExploreAdapter = new FolderExploreAdapter(this);
+        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
+        mFolderExploreAdapter = new FolderExploreAdapter(this, layout_mode);
         mFolderExploreAdapter.setOnRecyclerItemCallbackListener(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.explore_recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
+        int ColumnCount = calculateColumnCount(layout_mode);
+        mLayout = new GridLayoutManager(this, ColumnCount);
+        mLayout.setSpanCount(ColumnCount);
+        mRecyclerView.setLayoutManager(mLayout);
         mRecyclerView.setAdapter(mFolderExploreAdapter);
     }
 
@@ -1093,6 +1126,39 @@ public class FolderExploreActivity extends AppCompatActivity
         }
     }
 
+    public void updateLayout(int mode) {
+        int count = calculateColumnCount(mode);
+        if (mLayout != null) {
+            mLayout.setSpanCount(count);
+        }
+        mFolderExploreAdapter.setLayoutMode(mode);
+        mRecyclerView.requestLayout();
+        //mIconHelper.setViewMode(mode);
+        LocalPreferences.setBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, mode);//same as tab type 5
+    }
 
+    private int calculateColumnCount(int mode) {
+        if (mode == Constant.ITEM_LIST) {
+            // List mode is a "grid" with 1 column.
+            return 1;
+        }
+        int cellWidth = getResources().getDimensionPixelSize(R.dimen.grid_width);
+        int viewPadding = 0;
+        int cellMargin = 0;
+        int columnCount = Math.max(2,
+                (mScreenW - viewPadding) / (cellWidth + cellMargin));
+
+        return columnCount;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        mScreenW = displaymetrics.widthPixels;
+        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
+        updateLayout(layout_mode);
+    }
 }
 
