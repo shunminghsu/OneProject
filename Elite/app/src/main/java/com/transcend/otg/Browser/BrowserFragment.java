@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.TabInfoLoader;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
@@ -101,8 +102,8 @@ public class BrowserFragment extends Fragment {
         for (int i = 0; i < mTabLayout.getTabCount(); i++) {
             mTabLayout.getTabAt(i).setIcon(mTabs.get(i).IconId);
         }
-        LinearLayoutManager manager = new LinearLayoutManager(getContext());
-        manager.setOrientation(LinearLayoutManager.HORIZONTAL);
+        //LinearLayoutManager manager = new LinearLayoutManager(getContext());
+        //manager.setOrientation(LinearLayoutManager.HORIZONTAL);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         mCurTab = mTabs.get(mCurrentTabPosition);
@@ -154,6 +155,7 @@ public class BrowserFragment extends Fragment {
         TabInfo tab = mTabs.get(position);
         mCurTab = tab;
         mCurrentTabPosition = position;
+
         if(needLoad)
             getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
         // Put things in the correct paused/resumed state.
@@ -186,6 +188,7 @@ public class BrowserFragment extends Fragment {
 
     @Override
     public void onDestroy() {
+        mCallbacks = null;
         mTabs.clear();
         super.onDestroy();
     }

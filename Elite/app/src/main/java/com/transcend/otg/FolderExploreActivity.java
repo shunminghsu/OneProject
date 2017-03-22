@@ -37,6 +37,7 @@ import android.widget.TextView;
 
 import com.transcend.otg.Adapter.FolderExploreAdapter;
 import com.transcend.otg.Adapter.FolderExploreDropDownAdapter;
+import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.PagerSwipeRefreshLayout;
 import com.transcend.otg.Constant.ActionParameter;
@@ -89,6 +90,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private FolderExploreAdapter mFolderExploreAdapter;
     private RecyclerView mRecyclerView;
     private GridLayoutManager mLayout;
+    private IconHelper mIconHelper;
     private TextView mEmptyView;
     private Context mContext;
     private HashMap<String, DocumentFile> dropDownMapOTG;
@@ -180,7 +182,8 @@ public class FolderExploreActivity extends AppCompatActivity
         mEmptyView = (TextView) findViewById(R.id.empty_view);
         //loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
         int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
-        mFolderExploreAdapter = new FolderExploreAdapter(this, layout_mode);
+        mIconHelper = new IconHelper(this, layout_mode);
+        mFolderExploreAdapter = new FolderExploreAdapter(this, mIconHelper);
         mFolderExploreAdapter.setOnRecyclerItemCallbackListener(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.explore_recycler_view);
 
@@ -427,6 +430,11 @@ public class FolderExploreActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        //when change grid or list in destination, we need to update
+        int layout_mode = LocalPreferences.getBrowserViewMode(mContext,
+                BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
+        updateLayout(layout_mode);
+
         Constant.Activity = 1;
         initBroadcast();
         if(mActionMode != null)
@@ -1131,9 +1139,8 @@ public class FolderExploreActivity extends AppCompatActivity
         if (mLayout != null) {
             mLayout.setSpanCount(count);
         }
-        mFolderExploreAdapter.setLayoutMode(mode);
+        mIconHelper.setViewMode(mode);
         mRecyclerView.requestLayout();
-        //mIconHelper.setViewMode(mode);
         LocalPreferences.setBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, mode);//same as tab type 5
     }
 

@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-
+        checkGridOrListForFolderPage();
         Constant.Activity = 0;
         initBroadcast();
         if(mActionMode != null)
@@ -579,8 +579,10 @@ public class MainActivity extends AppCompatActivity
 
         BrowserFragment fragment = getBrowserFragment();
         if (fragment != null && fragment.mCurTab != null) {
-            grid.setVisible(fragment.mCurTab.mMode == Constant.ITEM_LIST);
-            list.setVisible(fragment.mCurTab.mMode == Constant.ITEM_GRID);
+            int layout_mode = LocalPreferences.getBrowserViewMode(this,
+                    fragment.mCurTab.mType, Constant.ITEM_LIST);
+            grid.setVisible(layout_mode == Constant.ITEM_LIST);
+            list.setVisible(layout_mode == Constant.ITEM_GRID);
             sort.setVisible(true);
             sort_order.setVisible(true);
             search.setVisible(true);
@@ -1302,5 +1304,13 @@ public class MainActivity extends AppCompatActivity
             snackBarShow(R.string.snackbar_not_support_share);
         mActionMode.finish();
         Constant.mActionMode = null;
+    }
+
+    private void checkGridOrListForFolderPage() {
+        BrowserFragment fragment = getBrowserFragment();
+        if (fragment != null && fragment.mCurTab != null && fragment.mCurTab.mType == BrowserFragment.LIST_TYPE_FOLDER) {
+            int layout_mode = LocalPreferences.getBrowserViewMode(this, fragment.mCurTab.mType, Constant.ITEM_LIST);
+            setViewMode(layout_mode);
+        }
     }
 }

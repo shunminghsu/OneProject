@@ -26,14 +26,12 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
     private Context mContext;
     private ArrayList<FileInfo> mList;
     private IconHelper mIconHelper;
-    private int mLayoutMode;
     private Boolean mShowSize = false;
     private OnRecyclerItemCallbackListener mCallback;
 
-    public FolderExploreAdapter(Context context, int layout_mode) {
+    public FolderExploreAdapter(Context context, IconHelper iconHelper) {
         mContext = context;
-        mLayoutMode = layout_mode;//grid or list
-        mIconHelper = new IconHelper(mContext, layout_mode);
+        mIconHelper = iconHelper;
         mShowSize = LocalPreferences.getPref(mContext,
                 LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
     }
@@ -100,11 +98,7 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
 
     @Override
     public int getItemViewType(int position) {
-        return mLayoutMode;
-    }
-
-    public void setLayoutMode(int mode) {
-        mLayoutMode = mode;
+        return mIconHelper.getViewMode();
     }
 
     public ArrayList<FileInfo> getSelectedFiles(){

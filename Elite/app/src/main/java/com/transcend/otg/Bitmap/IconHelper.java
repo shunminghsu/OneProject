@@ -48,6 +48,10 @@ public class IconHelper {
         mThumbSize = new Point(thumbSize, thumbSize);
     }
 
+    public int getViewMode() {
+        return mMode;
+    }
+
     private int getThumbSize(int mode) {
         int thumbSize;
         switch (mode) {

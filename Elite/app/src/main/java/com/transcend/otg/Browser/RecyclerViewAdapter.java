@@ -131,7 +131,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public int getItemViewType(int position) {
         if (isFooter(position))
             return Constant.ITEM_FOOTER;
-        return mTab.mMode;
+        int layout_mode = LocalPreferences.getBrowserViewMode(mContext,
+                mTab.mType, Constant.ITEM_LIST);
+        return layout_mode;
     }
 
     @Override

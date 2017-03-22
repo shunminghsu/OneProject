@@ -50,7 +50,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     private Context mContext;
     private GridLayoutManager mLayout;
     private int mColumnCount = 1;  // This will get updated when layout changes.
-    public int mMode;
+    private int mMode;
     private IconHelper mIconHelper;
     private OnItemCallbackListener mCallback;
 

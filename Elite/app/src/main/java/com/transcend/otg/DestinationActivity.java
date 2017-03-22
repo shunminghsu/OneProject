@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
+import android.content.res.Configuration;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -19,9 +20,11 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,6 +37,7 @@ import android.widget.TextView;
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Adapter.FolderExploreAdapter;
 import com.transcend.otg.Adapter.FolderExploreDropDownAdapter;
+import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
 import com.transcend.otg.Browser.NoSdFragment;
@@ -71,9 +75,11 @@ public class DestinationActivity extends AppCompatActivity
     private CoordinatorLayout mCoordinatorlayout;
     private PagerSwipeRefreshLayout mSwipeRefreshLayout;
     private TextView mEmptyView;
-    private LinearLayout loadingContainer;
+   // private LinearLayout loadingContainer;
     private FolderExploreAdapter mFolderExploreAdapter;
     private RecyclerView mRecyclerView;
+    private GridLayoutManager mLayout;
+    private IconHelper mIconHelper;
     private FolderExploreDropDownAdapter mDropdownAdapter;
     private AppCompatSpinner mDropdown;
     private HashMap<String, DocumentFile> dropDownMapOTG;
@@ -93,6 +99,8 @@ public class DestinationActivity extends AppCompatActivity
     private int mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private DocumentFile rootDir;
     private int actionId;
+    private int mScreenW;
+    private int mLayoutMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,6 +122,9 @@ public class DestinationActivity extends AppCompatActivity
         mNoOTGLayout = (RelativeLayout) findViewById(R.id.no_otg_layout);
         Constant.Activity = 2;
         actionId = -1;
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        mScreenW = displaymetrics.widthPixels;
     }
 
     private void initToolbar() {
@@ -191,12 +202,17 @@ public class DestinationActivity extends AppCompatActivity
             }
         });
         mEmptyView = (TextView) findViewById(R.id.empty_view);
-        loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
-        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
-        mFolderExploreAdapter = new FolderExploreAdapter(this, layout_mode);
+        //loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
+        mLayoutMode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
+        mIconHelper = new IconHelper(this, mLayoutMode);
+        mFolderExploreAdapter = new FolderExploreAdapter(this, mIconHelper);
         mFolderExploreAdapter.setOnRecyclerItemCallbackListener(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        int ColumnCount = calculateColumnCount(mLayoutMode);
+        mLayout = new GridLayoutManager(this, ColumnCount);
+        mLayout.setSpanCount(ColumnCount);
+        mRecyclerView.setLayoutManager(mLayout);
         mRecyclerView.setAdapter(mFolderExploreAdapter);
     }
 
@@ -387,6 +403,17 @@ public class DestinationActivity extends AppCompatActivity
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) { // called every time the menu opens
+        super.onPrepareOptionsMenu(menu);
+        final MenuItem grid = menu.findItem(R.id.menu_grid);
+        final MenuItem list = menu.findItem(R.id.menu_list);
+        grid.setVisible(mLayoutMode == Constant.ITEM_LIST);
+        list.setVisible(mLayoutMode == Constant.ITEM_GRID);
+
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.menu_new_folder:
@@ -397,6 +424,12 @@ public class DestinationActivity extends AppCompatActivity
                     doOTGNewFolder(true);
                 }else if(nowMode == Constant.MODE.OTG)
                     doOTGNewFolder(false);
+                return true;
+            case R.id.menu_grid:
+                updateLayout(Constant.ITEM_GRID);
+                return true;
+            case R.id.menu_list:
+                updateLayout(Constant.ITEM_LIST);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -643,7 +676,7 @@ public class DestinationActivity extends AppCompatActivity
 
     @Override
     public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-        loadingContainer.setVisibility(View.VISIBLE);
+        //loadingContainer.setVisibility(View.VISIBLE);
         Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
 
         return loader;
@@ -668,7 +701,7 @@ public class DestinationActivity extends AppCompatActivity
         }
         markSelectView(mRecyclerView);
         mSwipeRefreshLayout.setRefreshing(false);
-        loadingContainer.setVisibility(View.GONE);
+        //loadingContainer.setVisibility(View.GONE);
     }
 
     @Override
@@ -723,5 +756,39 @@ public class DestinationActivity extends AppCompatActivity
         };
     }
 
+    public void updateLayout(int mode) {
+        int count = calculateColumnCount(mode);
+        if (mLayout != null) {
+            mLayout.setSpanCount(count);
+        }
+        mIconHelper.setViewMode(mode);
+        mRecyclerView.requestLayout();
+        //to make thing simple, dont save ViewMode value in destinationActivity
+        //so MainActivity will not be effected
+        //LocalPreferences.setBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, mode);
+        mLayoutMode = mode;
+    }
 
+    private int calculateColumnCount(int mode) {
+        if (mode == Constant.ITEM_LIST) {
+            // List mode is a "grid" with 1 column.
+            return 1;
+        }
+        int cellWidth = getResources().getDimensionPixelSize(R.dimen.grid_width);
+        int viewPadding = 0;
+        int cellMargin = 0;
+        int columnCount = Math.max(2,
+                (mScreenW - viewPadding) / (cellWidth + cellMargin));
+
+        return columnCount;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        mScreenW = displaymetrics.widthPixels;
+        updateLayout(mLayoutMode);
+    }
 }
