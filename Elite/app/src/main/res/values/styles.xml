@@ -32,4 +32,8 @@
     <style name="ThemeOverlay.PhotoMenu" parent="Base.ThemeOverlay.AppCompat.ActionBar">
         <item name="android:textColor">@color/colorBlack</item>
     </style>
+    <style name="PopupWindowAnimation">
+        <item name="android:windowEnterAnimation">@anim/slide_in_from_right</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_from_left</item>
+    </style>
 </resources>

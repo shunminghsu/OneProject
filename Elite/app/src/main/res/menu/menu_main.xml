@@ -31,39 +31,9 @@
             android:visible="false" />
         <!-- Copy action is defined in mode_directory.xml -->
         <item
-            android:id="@+id/menu_sort"
+            android:id="@+id/menu_easy_sort"
             android:title="@string/menu_sort"
-            app:showAsAction="never">
-            <menu>
-                <item
-                    android:id="@+id/menu_sort_name"
-                    android:checkable="true"
-                    android:title="@string/sort_name" />
-                <item
-                    android:id="@+id/menu_sort_date"
-                    android:checkable="true"
-                    android:title="@string/sort_date" />
-                <item
-                    android:id="@+id/menu_sort_size"
-                    android:checkable="true"
-                    android:title="@string/sort_size" />
-            </menu>
-        </item>
-        <item
-            android:id="@+id/menu_sort_order"
-            android:title="@string/menu_sort_order"
-            app:showAsAction="never">
-            <menu>
-                <item
-                    android:id="@+id/menu_sort_order_as"
-                    android:checkable="true"
-                    android:title="@string/sort_order_as" />
-                <item
-                    android:id="@+id/menu_sort_order_des"
-                    android:checkable="true"
-                    android:title="@string/sort_order_des" />
-            </menu>
-        </item>
+            app:showAsAction="never" />
         <item
             android:id="@+id/menu_settings"
             android:title="@string/menu_settings"

@@ -23,6 +23,10 @@
             android:title="@string/menu_new_folder"
             android:icon="@drawable/ic_menu_send"
             app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_easy_sort"
+            android:title="@string/menu_sort"
+            app:showAsAction="never" />
 
     </group>
 </menu>

@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -21,6 +22,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.SearchView;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -31,10 +33,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -591,8 +596,8 @@ public class MainActivity extends AppCompatActivity
         super.onPrepareOptionsMenu(menu);
 
         final MenuItem search = menu.findItem(R.id.search);
-        final MenuItem sort = menu.findItem(R.id.menu_sort);
-        final MenuItem sort_order = menu.findItem(R.id.menu_sort_order);
+        final MenuItem sort = menu.findItem(R.id.menu_easy_sort);
+
         final MenuItem grid = menu.findItem(R.id.menu_grid);
         final MenuItem list = menu.findItem(R.id.menu_list);
         final MenuItem newFolder = menu.findItem(R.id.menu_new_folder);
@@ -604,7 +609,6 @@ public class MainActivity extends AppCompatActivity
             grid.setVisible(layout_mode == Constant.ITEM_LIST);
             list.setVisible(layout_mode == Constant.ITEM_GRID);
             sort.setVisible(true);
-            sort_order.setVisible(true);
             search.setVisible(true);
             if(fragment.getCurrentTabPosition() == 5)
                 newFolder.setVisible(true);
@@ -614,18 +618,10 @@ public class MainActivity extends AppCompatActivity
             grid.setVisible(false);
             list.setVisible(false);
             sort.setVisible(false);
-            sort_order.setVisible(false);
             search.setVisible(false);
             newFolder.setVisible(false);
         }
 
-        final MenuItem menu_sort_name = menu.findItem(R.id.menu_sort_name);
-        final MenuItem menu_sort_date = menu.findItem(R.id.menu_sort_date);
-        final MenuItem menu_sort_size = menu.findItem(R.id.menu_sort_size);
-        int sort_value = LocalPreferences.getPref(this, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
-        menu_sort_name.setChecked(sort_value == Constant.SORT_BY_NAME);
-        menu_sort_date.setChecked(sort_value == Constant.SORT_BY_DATE);
-        menu_sort_size.setChecked(sort_value == Constant.SORT_BY_SIZE);
 
         return true;
     }
@@ -642,20 +638,8 @@ public class MainActivity extends AppCompatActivity
                 }else if(Constant.nowMODE == Constant.MODE.OTG)
                     doOTGNewFolder(false);
                 return true;
-            case R.id.menu_sort_name:
-                setSortBy(Constant.SORT_BY_NAME);
-                return true;
-            case R.id.menu_sort_date:
-                setSortBy(Constant.SORT_BY_DATE);
-                return true;
-            case R.id.menu_sort_size:
-                setSortBy(Constant.SORT_BY_SIZE);
-                return true;
-            case R.id.menu_sort_order_as:
-                setSortOrder(Constant.SORT_ORDER_AS);
-                return true;
-            case R.id.menu_sort_order_des:
-                setSortOrder(Constant.SORT_ORDER_DES);
+            case R.id.menu_easy_sort:
+                createPopupWindow(toolbar, this);
                 return true;
             case R.id.menu_grid:
                 setViewMode(Constant.ITEM_GRID);
@@ -1410,6 +1394,86 @@ public class MainActivity extends AppCompatActivity
         if (fragment != null && fragment.mCurTab != null && fragment.mCurTab.mType == BrowserFragment.LIST_TYPE_FOLDER) {
             int layout_mode = LocalPreferences.getBrowserViewMode(this, fragment.mCurTab.mType, Constant.ITEM_LIST);
             setViewMode(layout_mode);
+        }
+    }
+
+    private final View.OnClickListener mOnSortClickListener = new View.OnClickListener() {
+
+        public void onClick(View v) {
+            int sort_by = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+            if (v.getTag().equals("date") && sort_by != Constant.SORT_BY_DATE) {
+                v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.VISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
+                setSortBy(Constant.SORT_BY_DATE);
+            } else if (v.getTag().equals("name") && sort_by != Constant.SORT_BY_NAME) {
+                v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.VISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
+                setSortBy(Constant.SORT_BY_NAME);
+            } else if (v.getTag().equals("size") && sort_by != Constant.SORT_BY_SIZE) {
+                v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.VISIBLE);
+                setSortBy(Constant.SORT_BY_SIZE);
+            } else {
+                boolean sortOrderAsc = LocalPreferences.getPref(mContext,
+                        LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS) == Constant.SORT_ORDER_AS;
+                setSortOrder(sortOrderAsc ? Constant.SORT_ORDER_DES : Constant.SORT_ORDER_AS);
+                updateSortArrow(v.getRootView(), mContext);
+            }
+        }
+    };
+
+    private void createPopupWindow(View toolBarView, final Context context) {
+        int xy[] = {0,0};
+        toolBarView.getLocationOnScreen(xy);
+
+        View layout = getLayoutInflater().inflate(R.layout.easy_sort_layout, null, false);
+        PopupWindow easySortView = new PopupWindow(layout, toolBarView.getWidth(), toolBarView.getHeight(), true);
+        easySortView.setBackgroundDrawable(new BitmapDrawable());
+        easySortView.setOutsideTouchable(true);
+        View rootView = ((ViewGroup) (getWindow().getDecorView().findViewById(android.R.id.content))).getChildAt(0);
+        easySortView.setAnimationStyle(R.style.PopupWindowAnimation);
+        easySortView.showAtLocation(rootView, Gravity.LEFT|Gravity.TOP, xy[0], xy[1]);
+
+        RadioButton b_date = (RadioButton) layout.findViewById(R.id.btn_sort_date);
+        RadioButton b_name = (RadioButton) layout.findViewById(R.id.btn_sort_name);
+        RadioButton b_size = (RadioButton) layout.findViewById(R.id.btn_sort_size);
+        int sort_by = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+        switch (sort_by) {
+            case Constant.SORT_BY_DATE:
+                b_date.setChecked(true);
+                layout.findViewById(R.id.arrow_sort_date).setVisibility(View.VISIBLE);
+                break;
+            case Constant.SORT_BY_NAME:
+                b_name.setChecked(true);
+                layout.findViewById(R.id.arrow_sort_name).setVisibility(View.VISIBLE);
+                break;
+            case Constant.SORT_BY_SIZE:
+                b_size.setChecked(true);
+                layout.findViewById(R.id.arrow_sort_size).setVisibility(View.VISIBLE);
+                break;
+        }
+        updateSortArrow(layout, mContext);
+        b_date.setOnClickListener(mOnSortClickListener);
+        b_name.setOnClickListener(mOnSortClickListener);
+        b_size.setOnClickListener(mOnSortClickListener);
+    }
+
+    private void updateSortArrow (final View layout, Context context) {
+        String arrow = getSortArrow(context);
+        ((TextView) layout.findViewById(R.id.arrow_sort_date)).setText(arrow);
+        ((TextView) layout.findViewById(R.id.arrow_sort_name)).setText(arrow);
+        ((TextView) layout.findViewById(R.id.arrow_sort_size)).setText(arrow);
+    }
+
+    private String getSortArrow(Context context) {
+        int order = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS);
+        if (order == Constant.SORT_ORDER_AS) {
+            return context.getResources().getString(R.string.top_arrow);
+        } else {
+            return context.getResources().getString(R.string.bottom_arrow);
         }
     }
 }

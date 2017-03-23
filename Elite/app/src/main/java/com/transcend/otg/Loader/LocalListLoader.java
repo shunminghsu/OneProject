@@ -60,8 +60,10 @@ public class LocalListLoader extends AsyncTaskLoader<Boolean> {
             fileInfo.name = file.getName();
             fileInfo.time = FileInfo.getTime(file.lastModified());
             fileInfo.type = file.isFile() ? FileInfo.getType(file.getPath()) : Constant.TYPE_DIR;
-            fileInfo.size = file.length();
-            fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
+            if (fileInfo.type != Constant.TYPE_DIR) {
+                fileInfo.size = file.length();
+                fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
+            }
             if (mIsLocal)
                 fileInfo.storagemode = Constant.STORAGEMODE_LOCAL;
             else
@@ -70,7 +72,9 @@ public class LocalListLoader extends AsyncTaskLoader<Boolean> {
         }
         Collections.sort(mFileList, FileInfoSort.comparator(mContext));
         //FileFactory.getInstance().addFolderFilterRule(path, mFileList);
-        FileFactory.getInstance().addFileTypeSortRule(mFileList);
+        int sortBy = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+        if (sortBy != Constant.SORT_BY_SIZE)
+            FileFactory.getInstance().addFileTypeSortRule(mFileList);
         return true;
     }
 

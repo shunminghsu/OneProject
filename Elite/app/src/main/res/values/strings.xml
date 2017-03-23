@@ -119,4 +119,6 @@
     <string name="info_location_otg">Located in OTG</string>
     <string name="info_path">Path:</string>
 
+    <string name="top_arrow">&#9650;</string>
+    <string name="bottom_arrow">&#9660;</string>
 </resources>

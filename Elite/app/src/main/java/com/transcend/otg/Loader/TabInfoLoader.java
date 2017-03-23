@@ -276,7 +276,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
     private ArrayList<FileInfo> getSortList(ArrayList<FileInfo> _list) {
         Collections.sort(_list, FileInfoSort.comparator(mContext));
-        FileFactory.getInstance().addFileTypeSortRule(_list);
+        if (mSortBy != Constant.SORT_BY_SIZE)
+            FileFactory.getInstance().addFileTypeSortRule(_list);
         return _list;
     }
 
@@ -295,8 +296,10 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 FileInfo item = new FileInfo();
                 item.name = name;
                 item.time = FileInfo.getTime(cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
-                item.size = cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
-                item.format_size = Formatter.formatFileSize(mContext, item.size);
+                if (!type.contains(DIR)) {
+                    item.size = cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
+                    item.format_size = Formatter.formatFileSize(mContext, item.size);
+                }
                 String[] split = cursor.getString(cursor_index_ID).split(":");
                 item.path = mOuterStoragePath + "/" + split[1];
                 item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, cursor.getString(cursor_index_ID));
@@ -804,8 +807,10 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             fileInfo.name = file.getName();
             fileInfo.time = FileInfo.getTime(file.lastModified());
             fileInfo.type = file.isFile() ? FileInfo.getType(file.getPath()) : Constant.TYPE_DIR;
-            fileInfo.size = file.length();
-            fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
+            if (fileInfo.type != Constant.TYPE_DIR) {
+                fileInfo.size = file.length();
+                fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
+            }
             if (mOuterStoragePath == null)
                 fileInfo.storagemode = Constant.STORAGEMODE_LOCAL;
             else
@@ -814,7 +819,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         }
         Collections.sort(mFileList, FileInfoSort.comparator(mContext));
         //FileFactory.getInstance().addFolderFilterRule(path, mFileList);
-        FileFactory.getInstance().addFileTypeSortRule(mFileList);
+        if (mSortBy != Constant.SORT_BY_SIZE)
+            FileFactory.getInstance().addFileTypeSortRule(mFileList);
 
         return mFileList;
     }

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:background="@color/colorWhite"
+    android:gravity="center_vertical"
+    android:layout_height="?attr/actionBarSize">
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_centerInParent="true"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/btn_sort_date"
+            android:tag="date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/sort_date"/>
+        <TextView
+            android:id="@+id/arrow_sort_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15dp"
+            android:textColor="@color/colorAccent"
+            android:visibility="invisible"
+            android:text="@string/top_arrow"/>
+        <RadioButton
+            android:id="@+id/btn_sort_name"
+            android:tag="name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/sort_name" />
+        <TextView
+            android:id="@+id/arrow_sort_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15dp"
+            android:textColor="@color/colorAccent"
+            android:visibility="invisible"
+            android:text="@string/top_arrow"/>
+        <RadioButton
+            android:id="@+id/btn_sort_size"
+            android:tag="size"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/sort_size" />
+        <TextView
+            android:id="@+id/arrow_sort_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="15dp"
+            android:textColor="@color/colorAccent"
+            android:visibility="invisible"
+            android:text="@string/top_arrow"/>
+    </RadioGroup>
+
+</RelativeLayout>

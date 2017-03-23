@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.res.Configuration;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -27,11 +28,15 @@ import android.support.v7.widget.Toolbar;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -62,12 +67,14 @@ import com.transcend.otg.Task.ComputeFilsNumberTask;
 import com.transcend.otg.Task.ComputeFilsTotalSizeTask;
 import com.transcend.otg.Utils.EncryptUtil;
 import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.FileInfoSort;
 import com.transcend.otg.Utils.MediaUtils;
 
 import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -163,6 +170,9 @@ public class FolderExploreActivity extends AppCompatActivity
                 return true;
             case R.id.menu_list:
                 updateLayout(Constant.ITEM_LIST);
+                return true;
+            case R.id.menu_easy_sort:
+                createPopupWindow(toolbar, this);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -437,10 +447,6 @@ public class FolderExploreActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        //when change grid or list in destination, we need to update
-        int layout_mode = LocalPreferences.getBrowserViewMode(mContext,
-                BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
-        updateLayout(layout_mode);
 
         Constant.Activity = 1;
         initBroadcast();
@@ -482,30 +488,6 @@ public class FolderExploreActivity extends AppCompatActivity
         mIconHelper.setViewMode(mode);
         mRecyclerView.requestLayout();
         LocalPreferences.setBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, mode);//same as tab type 5
-    }
-
-    private int calculateColumnCount(int mode) {
-        if (mode == Constant.ITEM_LIST) {
-            // List mode is a "grid" with 1 column.
-            return 1;
-        }
-        int cellWidth = getResources().getDimensionPixelSize(R.dimen.grid_width);
-        int viewPadding = 0;
-        int cellMargin = 0;
-        int columnCount = Math.max(2,
-                (mScreenW - viewPadding) / (cellWidth + cellMargin));
-
-        return columnCount;
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        mScreenW = displaymetrics.widthPixels;
-        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
-        updateLayout(layout_mode);
     }
 
     private boolean isOnTop(){
@@ -1257,6 +1239,122 @@ public class FolderExploreActivity extends AppCompatActivity
         }
     }
 
+    private int calculateColumnCount(int mode) {
+        if (mode == Constant.ITEM_LIST) {
+            // List mode is a "grid" with 1 column.
+            return 1;
+        }
+        int cellWidth = getResources().getDimensionPixelSize(R.dimen.grid_width);
+        int viewPadding = 0;
+        int cellMargin = 0;
+        int columnCount = Math.max(2,
+                (mScreenW - viewPadding) / (cellWidth + cellMargin));
 
+        return columnCount;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        mScreenW = displaymetrics.widthPixels;
+        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
+        updateLayout(layout_mode);
+    }
+
+    private final View.OnClickListener mOnSortClickListener = new View.OnClickListener() {
+
+        public void onClick(View v) {
+            int sort_by = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+            if (v.getTag().equals("date") && sort_by != Constant.SORT_BY_DATE) {
+                v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.VISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
+                LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+                Collections.sort(mFileList, FileInfoSort.comparator(mContext));
+                FileFactory.getInstance().addFileTypeSortRule(mFileList);
+                updateScreen();
+            } else if (v.getTag().equals("name") && sort_by != Constant.SORT_BY_NAME) {
+                v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.VISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
+                LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_NAME);
+                Collections.sort(mFileList, FileInfoSort.comparator(mContext));
+                FileFactory.getInstance().addFileTypeSortRule(mFileList);
+                updateScreen();
+            } else if (v.getTag().equals("size") && sort_by != Constant.SORT_BY_SIZE) {
+                v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
+                v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.VISIBLE);
+                LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_SIZE);
+                Collections.sort(mFileList, FileInfoSort.comparator(mContext));
+                //don't need this when sort by size
+                //FileFactory.getInstance().addFileTypeSortRule(mFileList);
+                updateScreen();
+            } else {
+                boolean sortOrderAsc = LocalPreferences.getPref(mContext,
+                        LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS) == Constant.SORT_ORDER_AS;
+                LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, sortOrderAsc ? Constant.SORT_ORDER_DES : Constant.SORT_ORDER_AS);
+                Collections.sort(mFileList, FileInfoSort.comparator(mContext));
+                if (!v.getTag().equals("size"))
+                    FileFactory.getInstance().addFileTypeSortRule(mFileList);
+                updateScreen();
+                updateSortArrow(v.getRootView(), mContext);
+            }
+        }
+    };
+
+    private void createPopupWindow(View toolBarView, final Context context) {
+        int xy[] = {0,0};
+        toolBarView.getLocationOnScreen(xy);
+
+        View layout = getLayoutInflater().inflate(R.layout.easy_sort_layout, null, false);
+        PopupWindow easySortView = new PopupWindow(layout, toolBarView.getWidth(), toolBarView.getHeight(), true);
+        easySortView.setBackgroundDrawable(new BitmapDrawable());
+        easySortView.setOutsideTouchable(true);
+        View rootView = ((ViewGroup) (getWindow().getDecorView().findViewById(android.R.id.content))).getChildAt(0);
+        easySortView.setAnimationStyle(R.style.PopupWindowAnimation);
+        easySortView.showAtLocation(rootView, Gravity.LEFT|Gravity.TOP, xy[0], xy[1]);
+
+        RadioButton b_date = (RadioButton) layout.findViewById(R.id.btn_sort_date);
+        RadioButton b_name = (RadioButton) layout.findViewById(R.id.btn_sort_name);
+        RadioButton b_size = (RadioButton) layout.findViewById(R.id.btn_sort_size);
+        int sort_by = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+        switch (sort_by) {
+            case Constant.SORT_BY_DATE:
+                b_date.setChecked(true);
+                layout.findViewById(R.id.arrow_sort_date).setVisibility(View.VISIBLE);
+                break;
+            case Constant.SORT_BY_NAME:
+                b_name.setChecked(true);
+                layout.findViewById(R.id.arrow_sort_name).setVisibility(View.VISIBLE);
+                break;
+            case Constant.SORT_BY_SIZE:
+                b_size.setChecked(true);
+                layout.findViewById(R.id.arrow_sort_size).setVisibility(View.VISIBLE);
+                break;
+        }
+        updateSortArrow(layout, mContext);
+        b_date.setOnClickListener(mOnSortClickListener);
+        b_name.setOnClickListener(mOnSortClickListener);
+        b_size.setOnClickListener(mOnSortClickListener);
+    }
+
+    private void updateSortArrow (final View layout, Context context) {
+        String arrow = getSortArrow(context);
+        ((TextView) layout.findViewById(R.id.arrow_sort_date)).setText(arrow);
+        ((TextView) layout.findViewById(R.id.arrow_sort_name)).setText(arrow);
+        ((TextView) layout.findViewById(R.id.arrow_sort_size)).setText(arrow);
+    }
+
+    private String getSortArrow(Context context) {
+        int order = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS);
+        if (order == Constant.SORT_ORDER_AS) {
+            return context.getResources().getString(R.string.top_arrow);
+        } else {
+            return context.getResources().getString(R.string.bottom_arrow);
+        }
+    }
 }
 
