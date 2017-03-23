@@ -1103,6 +1103,8 @@ public class MainActivity extends AppCompatActivity
                 EncryptUtil.setEncryptFileName(newName);
                 EncryptUtil.setPassword(password);
                 doLocalEncryptNewFolder();
+                if(mActionMode != null)
+                    mActionMode.finish();
             }
         };
     }
@@ -1130,8 +1132,6 @@ public class MainActivity extends AppCompatActivity
         encryptList.add(afterEncryptPath);
         encryptList.add(password);
         mFileActionManager.encrypt(encryptList);
-        if(mActionMode != null)
-            mActionMode.finish();
     }
 
     private void doLocalDecryptDialog(FileInfo selectedfile){
@@ -1155,8 +1155,6 @@ public class MainActivity extends AppCompatActivity
         decryptList.add(password);
         decryptList.add(encryptPath);
         mFileActionManager.decrypt(decryptList);
-
-        Log.d("","");
     }
 
     private void doLocalNewFolder(){

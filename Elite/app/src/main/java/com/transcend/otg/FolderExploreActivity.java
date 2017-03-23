@@ -43,7 +43,9 @@ import com.transcend.otg.Browser.PagerSwipeRefreshLayout;
 import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Dialog.LocalDecryptDialog;
 import com.transcend.otg.Dialog.LocalDeleteDialog;
+import com.transcend.otg.Dialog.LocalEncryptDialog;
 import com.transcend.otg.Dialog.LocalNewFolderDialog;
 import com.transcend.otg.Dialog.LocalRenameDialog;
 import com.transcend.otg.Dialog.OTGDeleteDialog;
@@ -51,16 +53,21 @@ import com.transcend.otg.Dialog.OTGRenameDialog;
 import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
+import com.transcend.otg.Loader.LocalEncryptCopyLoader;
+import com.transcend.otg.Loader.LocalEncryptNewFolderLoader;
 import com.transcend.otg.Loader.LocalListLoader;
 import com.transcend.otg.Loader.OTGFileLoader;
 import com.transcend.otg.Photo.PhotoActivity;
 import com.transcend.otg.Task.ComputeFilsNumberTask;
 import com.transcend.otg.Task.ComputeFilsTotalSizeTask;
+import com.transcend.otg.Utils.EncryptUtil;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
 import java.io.File;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -467,6 +474,40 @@ public class FolderExploreActivity extends AppCompatActivity
 
     }
 
+    public void updateLayout(int mode) {
+        int count = calculateColumnCount(mode);
+        if (mLayout != null) {
+            mLayout.setSpanCount(count);
+        }
+        mIconHelper.setViewMode(mode);
+        mRecyclerView.requestLayout();
+        LocalPreferences.setBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, mode);//same as tab type 5
+    }
+
+    private int calculateColumnCount(int mode) {
+        if (mode == Constant.ITEM_LIST) {
+            // List mode is a "grid" with 1 column.
+            return 1;
+        }
+        int cellWidth = getResources().getDimensionPixelSize(R.dimen.grid_width);
+        int viewPadding = 0;
+        int cellMargin = 0;
+        int columnCount = Math.max(2,
+                (mScreenW - viewPadding) / (cellWidth + cellMargin));
+
+        return columnCount;
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        mScreenW = displaymetrics.widthPixels;
+        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
+        updateLayout(layout_mode);
+    }
+
     private boolean isOnTop(){
         if (mMode == Constant.STORAGEMODE_LOCAL)
             return mPath.equals(Constant.ROOT_LOCAL);
@@ -631,43 +672,7 @@ public class FolderExploreActivity extends AppCompatActivity
         return tmpDesFiles;
     }
 
-    @Override
-    public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-        //loadingContainer.setVisibility(View.VISIBLE);
-        Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
 
-        return loader;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
-        mFileActionManager.onLoadFinished(loader, success);
-        if (success) {
-            if (loader instanceof LocalListLoader) {
-                mPath = ((LocalListLoader) loader).getPath();
-                mFileList = ((LocalListLoader) loader).getFileList();
-                updateScreen();
-            }else if (loader instanceof OTGFileLoader){
-                mPath = ((OTGFileLoader) loader).getPath();
-                mFileList = ((OTGFileLoader) loader).getFileList();
-                Constant.mCurrentDocumentFileExplore = mCurrentDocumentFile = ((OTGFileLoader)loader).getCurrentDocumentFile();
-                updateScreen();
-            }else{
-                doRefresh();
-            }
-            if(mActionMode != null){
-                mActionMode.finish();
-            }
-
-        }
-        mSwipeRefreshLayout.setRefreshing(false);
-        //loadingContainer.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Boolean> loader) {
-
-    }
 
     @Override
     public void onDropdownItemSelected(int position) {
@@ -723,9 +728,9 @@ public class FolderExploreActivity extends AppCompatActivity
                     }
                     break;
                 case Constant.TYPE_ENCRYPT:
-                    if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD){
-
-                    }else if (mMode == Constant.STORAGEMODE_OTG){
+                    if(mMode == Constant.STORAGEMODE_LOCAL){
+                        doLocalDecryptDialog(file);
+                    }else if (mMode == Constant.STORAGEMODE_SD || mMode == Constant.STORAGEMODE_OTG){
 
                     }
                     break;
@@ -883,6 +888,11 @@ public class FolderExploreActivity extends AppCompatActivity
             case R.id.action_move:
                 startDestinationActivity(R.id.action_move);
                 break;
+            case R.id.action_encrypt:
+                if(Constant.nowMODE == Constant.MODE.LOCAL){
+                    doLocalEncryptDialog();
+                }
+                break;
         }
         return false;
     }
@@ -901,6 +911,119 @@ public class FolderExploreActivity extends AppCompatActivity
         mFolderExploreAdapter.clearAllSelection();
         toggleFabSelectAll(false);
         mActionMode = null;
+    }
+
+    @Override
+    public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+        //loadingContainer.setVisibility(View.VISIBLE);
+        Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
+
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
+        mFileActionManager.onLoadFinished(loader, success);
+        if (success) {
+            if (loader instanceof LocalListLoader) {
+                mPath = ((LocalListLoader) loader).getPath();
+                mFileList = ((LocalListLoader) loader).getFileList();
+                updateScreen();
+            }else if (loader instanceof OTGFileLoader){
+                mPath = ((OTGFileLoader) loader).getPath();
+                mFileList = ((OTGFileLoader) loader).getFileList();
+                Constant.mCurrentDocumentFileExplore = mCurrentDocumentFile = ((OTGFileLoader)loader).getCurrentDocumentFile();
+                updateScreen();
+            }else if (loader instanceof LocalEncryptNewFolderLoader) {
+                doLocalEncryptCopy();
+            } else if (loader instanceof LocalEncryptCopyLoader){
+                doLocalEncrypt();
+            }else{
+                doRefresh();
+            }
+            if(mActionMode != null){
+                mActionMode.finish();
+            }
+
+        }
+        mSwipeRefreshLayout.setRefreshing(false);
+        //loadingContainer.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Boolean> loader) {
+
+    }
+
+    private void doLocalEncryptDialog() {
+        List<String> names = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
+                names.add(file.name.toLowerCase());
+        }
+        new LocalEncryptDialog(this, names) {
+            @Override
+            public void onConfirm(String newName, String password) {
+                ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
+                File child = new File(selectedFiles.get(0).path);
+                EncryptUtil.setAfterEncryptPath(child.getParent() + File.separator + newName);
+                EncryptUtil.setSelectLocalFile(selectedFiles);
+                EncryptUtil.setEncryptFileName(newName);
+                EncryptUtil.setPassword(password);
+                doLocalEncryptNewFolder();
+                if(mActionMode != null)
+                    mActionMode.finish();
+            }
+        };
+    }
+
+    private void doLocalEncryptNewFolder(){
+        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
+        EncryptUtil.setBeforeEncryptPath(folderName);
+        mFileActionManager.newFolderEncrypt(folderName);
+    }
+
+    private void doLocalEncryptCopy(){
+        ArrayList<FileInfo> selectedFiles = EncryptUtil.getSelectLocalFile();
+        mFileActionManager.copyEncrypt(selectedFiles, EncryptUtil.getBeforeEncryptPath());
+    }
+
+    private void doLocalEncrypt(){
+        String password = EncryptUtil.getPassword();
+        String beforeEncryptPath = EncryptUtil.getBeforeEncryptPath();
+        String afterEncryptPath = EncryptUtil.getAfterEncryptPath();
+        if(afterEncryptPath.equals("")||afterEncryptPath.equals(null))
+            afterEncryptPath = Constant.ROOT_LOCAL + File.separator + EncryptUtil.getEncryptFileName();
+        ArrayList<String> encryptList = new ArrayList<>();
+        encryptList.add(beforeEncryptPath);
+        encryptList.add(afterEncryptPath);
+        encryptList.add(password);
+        mFileActionManager.encrypt(encryptList);
+    }
+
+    private void doLocalDecryptDialog(FileInfo selectedfile){
+        ArrayList<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        new LocalDecryptDialog(this, folderNames, selectedfile.path) {
+            @Override
+            public void onConfirm(String newFolderpath, String password, String filePath) {
+                doLocalDecrypt(newFolderpath, password, filePath);
+            }
+        };
+    }
+
+    private void doLocalDecrypt(String decryptPath, String password, String encryptPath){
+        ArrayList<String> decryptList = new ArrayList<>();
+        decryptList.add(decryptPath);
+        decryptList.add(password);
+        decryptList.add(encryptPath);
+        mFileActionManager.decrypt(decryptList);
     }
 
     private void doLocalNewFolder(){
@@ -1134,38 +1257,6 @@ public class FolderExploreActivity extends AppCompatActivity
         }
     }
 
-    public void updateLayout(int mode) {
-        int count = calculateColumnCount(mode);
-        if (mLayout != null) {
-            mLayout.setSpanCount(count);
-        }
-        mIconHelper.setViewMode(mode);
-        mRecyclerView.requestLayout();
-        LocalPreferences.setBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, mode);//same as tab type 5
-    }
 
-    private int calculateColumnCount(int mode) {
-        if (mode == Constant.ITEM_LIST) {
-            // List mode is a "grid" with 1 column.
-            return 1;
-        }
-        int cellWidth = getResources().getDimensionPixelSize(R.dimen.grid_width);
-        int viewPadding = 0;
-        int cellMargin = 0;
-        int columnCount = Math.max(2,
-                (mScreenW - viewPadding) / (cellWidth + cellMargin));
-
-        return columnCount;
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        DisplayMetrics displaymetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-        mScreenW = displaymetrics.widthPixels;
-        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
-        updateLayout(layout_mode);
-    }
 }
 
