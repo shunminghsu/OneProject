@@ -153,6 +153,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
                     MediaUtils.execute(mContext, file.path, mContext.getResources().getString(R.string.openin_title));
                 break;
             case Constant.TYPE_ENCRYPT:
+                mCallback.onItemClick(file);
                 break;
             case Constant.TYPE_DIR:
                 mCallback.onItemClick(file);

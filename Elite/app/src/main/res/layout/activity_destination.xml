@@ -150,11 +150,12 @@
 
             <Button
                 android:id="@+id/check_sdbtn"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/no_sd_storage"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="20dp" />
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/colorWhite"/>
+
         </RelativeLayout>
 
         <RelativeLayout
@@ -172,11 +173,12 @@
 
             <Button
                 android:id="@+id/check_otgbtn"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/no_otg_storage"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="20dp" />
+                android:layout_alignParentBottom="true"
+                android:background="@color/colorPrimary"
+                android:textColor="@color/colorWhite"/>
+
         </RelativeLayout>
 
         <RelativeLayout

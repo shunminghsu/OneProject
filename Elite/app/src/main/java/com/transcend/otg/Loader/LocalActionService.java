@@ -36,6 +36,10 @@ public class LocalActionService extends FileActionService{
         MOVE_OTG = LoaderID.OTG_MOVE;
         MOVE_LOCAL_OTG = LoaderID.LOCAL_OTG_MOVE;
         MOVE_OTG_LOCAL = LoaderID.OTG_LOCAL_MOVE;
+        NEWFOLDER_ENCRYPT = LoaderID.LOCAL_NEW_FOLDER_ENCRYPT;
+        COPY_ENCRYPT = LoaderID.LOCAL_COPY_ENCRYPT;
+        ENCRYPT = LoaderID.LOCAL_ENCRYPT;
+        DECRYPT = LoaderID.LOCAL_DECRYPT;
     }
 
     @Override
@@ -86,6 +90,21 @@ public class LocalActionService extends FileActionService{
     @Override
     protected AsyncTaskLoader copy(Context context, List<String> sources, String dest) {
         return new LocalCopyLoader(context, sources, dest);
+    }
+
+    @Override
+    protected AsyncTaskLoader copyEncrypt(Context context, List<String> sources, String dest) {
+        return new LocalEncryptCopyLoader(context, sources, dest);
+    }
+
+    @Override
+    protected AsyncTaskLoader encrypt(Context context, List<String> list) {
+        return new LocalEncryptLoader(context, list);
+    }
+
+    @Override
+    protected AsyncTaskLoader decrypt(Context context, List<String> list) {
+        return new LocalDecryptLoader(context, list);
     }
 
     @Override
@@ -141,6 +160,11 @@ public class LocalActionService extends FileActionService{
     @Override
     protected AsyncTaskLoader newFolderOTG(Context context, String name, ArrayList<DocumentFile> dFiles) {
         return new OTGNewFolderLoader(context, name, dFiles);
+    }
+
+    @Override
+    protected AsyncTaskLoader newFolderEncrypt(Context context, String path) {
+        return new LocalEncryptNewFolderLoader(context, path);
     }
 
     @Override

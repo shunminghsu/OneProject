@@ -40,10 +40,15 @@ public abstract class FileActionService {
     protected int MOVE_OTG;
     protected int MOVE_LOCAL_OTG;
     protected int MOVE_OTG_LOCAL;
+    protected int NEWFOLDER_ENCRYPT;
+    protected int COPY_ENCRYPT;
+    protected int ENCRYPT;
+    protected int DECRYPT;
 
     public enum FileAction {
         OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, NEWFOLDER, SHARE, LIST_ALL_TYPE, OTGLIST, RENAME_OTG, DELETE_OTG,
-        NEWFOLDER_OTG, COPY_OTG, COPY_LOCAL_OTG, COPY_OTG_LOCAL, MOVE_OTG, MOVE_LOCAL_OTG, MOVE_OTG_LOCAL
+        NEWFOLDER_OTG, COPY_OTG, COPY_LOCAL_OTG, COPY_OTG_LOCAL, MOVE_OTG, MOVE_LOCAL_OTG, MOVE_OTG_LOCAL, NEWFOLDER_ENCRYPT, COPY_ENCRYPT,
+        ENCRYPT, DECRYPT
     }
 
     public String getMode(Context context){
@@ -112,6 +117,14 @@ public abstract class FileActionService {
             fileAction = FileAction.MOVE_LOCAL_OTG;
         else if(action == MOVE_OTG_LOCAL)
             fileAction = FileAction.MOVE_OTG_LOCAL;
+        else if(action == NEWFOLDER_ENCRYPT)
+            fileAction = FileAction.NEWFOLDER_ENCRYPT;
+        else if(action == COPY_ENCRYPT)
+            fileAction = FileAction.COPY_ENCRYPT;
+        else if(action == ENCRYPT)
+            fileAction = FileAction.ENCRYPT;
+        else if(action == DECRYPT)
+            fileAction = FileAction.DECRYPT;
         return fileAction;
     }
 
@@ -181,6 +194,18 @@ public abstract class FileActionService {
             case MOVE_OTG_LOCAL:
                 id = MOVE_OTG_LOCAL;
                 break;
+            case NEWFOLDER_ENCRYPT:
+                id = NEWFOLDER_ENCRYPT;
+                break;
+            case COPY_ENCRYPT:
+                id = COPY_ENCRYPT;
+                break;
+            case ENCRYPT:
+                id = ENCRYPT;
+                break;
+            case DECRYPT:
+                id = DECRYPT;
+                break;
         }
 
         return id;
@@ -234,6 +259,14 @@ public abstract class FileActionService {
                 return moveLocaltoOTG(context, paths, dFiles);
             case MOVE_OTG_LOCAL:
                 return moveOTGtoLocal(context, dFiles, path);
+            case NEWFOLDER_ENCRYPT:
+                return newFolderEncrypt(context, path);
+            case COPY_ENCRYPT:
+                return copyEncrypt(context, paths, path);
+            case ENCRYPT:
+                return encrypt(context, paths);
+            case DECRYPT:
+                return decrypt(context, paths);
         }
 
         return null;
@@ -282,4 +315,12 @@ public abstract class FileActionService {
     protected abstract AsyncTaskLoader moveLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles);
 
     protected abstract AsyncTaskLoader moveOTGtoLocal(Context context, ArrayList<DocumentFile> dFiles, String dest);
+
+    protected abstract AsyncTaskLoader newFolderEncrypt(Context context, String path);
+
+    protected abstract AsyncTaskLoader copyEncrypt(Context context, List<String> list, String dest);
+
+    protected abstract AsyncTaskLoader encrypt(Context context, List<String> list);
+
+    protected abstract AsyncTaskLoader decrypt(Context context, List<String> list);
 }

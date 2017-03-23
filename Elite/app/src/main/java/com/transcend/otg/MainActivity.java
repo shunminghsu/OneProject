@@ -49,7 +49,9 @@ import com.transcend.otg.Browser.TabInfo;
 import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Dialog.LocalDecryptDialog;
 import com.transcend.otg.Dialog.LocalDeleteDialog;
+import com.transcend.otg.Dialog.LocalEncryptDialog;
 import com.transcend.otg.Dialog.LocalNewFolderDialog;
 import com.transcend.otg.Dialog.LocalRenameDialog;
 import com.transcend.otg.Dialog.OTGDeleteDialog;
@@ -58,10 +60,16 @@ import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
+import com.transcend.otg.Loader.LocalEncryptCopyLoader;
+import com.transcend.otg.Loader.LocalEncryptNewFolderLoader;
+import com.transcend.otg.Utils.EncryptUtil;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
+import java.io.File;
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -132,6 +140,7 @@ public class MainActivity extends AppCompatActivity
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mScreenW = displaymetrics.widthPixels;
         nowAction = -1;
+        Constant.ROOT_CACHE = getCacheDir().getAbsolutePath();
     }
 
     private void showHomeOrFragment(boolean home) {
@@ -366,6 +375,11 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_move:
                 startDestinationActivity(R.id.action_move);
                 break;
+            case R.id.action_encrypt:
+                if(Constant.nowMODE == Constant.MODE.LOCAL){
+                    doLocalEncryptDialog();
+                }
+                break;
 
         }
         return false;
@@ -383,6 +397,12 @@ public class MainActivity extends AppCompatActivity
     public void onItemClick(FileInfo file) {
         if(file.type == Constant.TYPE_DIR)
             startFolderExploreActivity(file);
+        else if(file.type == Constant.TYPE_ENCRYPT){
+            if(Constant.nowMODE == Constant.MODE.LOCAL){
+                doLocalDecryptDialog(file);
+            }
+        }
+
     }
 
     @Override
@@ -718,34 +738,6 @@ public class MainActivity extends AppCompatActivity
         mFileActionManager.listAllType();
     }
 
-    @Override
-    public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-        mLoaderID = id;
-        Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
-
-        return loader;
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
-        mFileActionManager.onLoadFinished(loader, success);
-        if (success) {
-            if(mActionMode != null){
-                mActionMode.finish();
-                Constant.mActionMode = mActionMode = null;
-            }
-            getBrowserFragment().restartLoaderforCurrentTab();
-        }else{
-            snackBarShow(R.string.fail);
-        }
-
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Boolean> loader) {
-
-    }
-
     private Fragment switchToFragment(String fragmentName, boolean addToBackStack) {
         mFab.setVisibility(View.GONE);
         Fragment f = Fragment.instantiate(this, fragmentName);
@@ -1056,6 +1048,115 @@ public class MainActivity extends AppCompatActivity
             default:
                 break;
         }
+    }
+
+    @Override
+    public Loader<Boolean> onCreateLoader(int id, Bundle args) {
+        mLoaderID = id;
+        Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
+
+        return loader;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
+        mFileActionManager.onLoadFinished(loader, success);
+        if (success) {
+            if (loader instanceof LocalEncryptNewFolderLoader) {
+                doLocalEncryptCopy();
+            } else if (loader instanceof LocalEncryptCopyLoader){
+                doLocalEncrypt();
+            } else{
+                if(mActionMode != null){
+                    mActionMode.finish();
+                    Constant.mActionMode = mActionMode = null;
+                }
+                getBrowserFragment().restartLoaderforCurrentTab();
+            }
+
+        }else{
+            snackBarShow(R.string.fail);
+        }
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Boolean> loader) {}
+
+    private void doLocalEncryptDialog() {
+        final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+        List<String> names = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
+                names.add(file.name.toLowerCase());
+        }
+        new LocalEncryptDialog(this, names) {
+            @Override
+            public void onConfirm(String newName, String password) {
+                ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+                if(tabPostiion == 5){
+                    File child = new File(selectedFiles.get(0).path);
+                    EncryptUtil.setAfterEncryptPath(child.getParent() + File.separator + newName);
+                }
+                EncryptUtil.setSelectLocalFile(selectedFiles);
+                EncryptUtil.setEncryptFileName(newName);
+                EncryptUtil.setPassword(password);
+                doLocalEncryptNewFolder();
+            }
+        };
+    }
+
+    private void doLocalEncryptNewFolder(){
+        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
+        EncryptUtil.setBeforeEncryptPath(folderName);
+        mFileActionManager.newFolderEncrypt(folderName);
+    }
+
+    private void doLocalEncryptCopy(){
+        ArrayList<FileInfo> selectedFiles = EncryptUtil.getSelectLocalFile();
+        mFileActionManager.copyEncrypt(selectedFiles, EncryptUtil.getBeforeEncryptPath());
+    }
+
+    private void doLocalEncrypt(){
+        String password = EncryptUtil.getPassword();
+        String beforeEncryptPath = EncryptUtil.getBeforeEncryptPath();
+        String afterEncryptPath = EncryptUtil.getAfterEncryptPath();
+        if(afterEncryptPath.equals("")||afterEncryptPath.equals(null))
+            afterEncryptPath = Constant.ROOT_LOCAL + File.separator + EncryptUtil.getEncryptFileName();
+        ArrayList<String> encryptList = new ArrayList<>();
+        encryptList.add(beforeEncryptPath);
+        encryptList.add(afterEncryptPath);
+        encryptList.add(password);
+        mFileActionManager.encrypt(encryptList);
+        if(mActionMode != null)
+            mActionMode.finish();
+    }
+
+    private void doLocalDecryptDialog(FileInfo selectedfile){
+        ArrayList<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        new LocalDecryptDialog(this, folderNames, selectedfile.path) {
+            @Override
+            public void onConfirm(String newFolderpath, String password, String filePath) {
+                doLocalDecrypt(newFolderpath, password, filePath);
+            }
+        };
+    }
+
+    private void doLocalDecrypt(String decryptPath, String password, String encryptPath){
+        ArrayList<String> decryptList = new ArrayList<>();
+        decryptList.add(decryptPath);
+        decryptList.add(password);
+        decryptList.add(encryptPath);
+        mFileActionManager.decrypt(decryptList);
+
+        Log.d("","");
     }
 
     private void doLocalNewFolder(){

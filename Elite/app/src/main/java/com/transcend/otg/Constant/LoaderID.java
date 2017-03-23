@@ -14,6 +14,10 @@ public class LoaderID {
     public static final int LOCAL_OTG_COPY = 7;
     public static final int LOCAL_MOVE = 8;
     public static final int LOCAL_OTG_MOVE = 9;
+    public static final int LOCAL_NEW_FOLDER_ENCRYPT = 10;
+    public static final int LOCAL_COPY_ENCRYPT = 11;
+    public static final int LOCAL_ENCRYPT = 12;
+    public static final int LOCAL_DECRYPT = 13;
 
 
     public static final int OTG_FILE_LIST = 21;

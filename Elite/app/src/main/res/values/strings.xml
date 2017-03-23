@@ -86,6 +86,14 @@
     <string name="done">Action Finished</string>
     <string name="select_folder_error">Destination folder cannot be same as the source folder.</string>
     <string name="select_destination">Please select directory where you want to paste.</string>
+    <string name="encryptfilename">Encrypt File Name</string>
+    <string name="password">Password</string>
+    <string name="encrypt_subfilename" translatable="false">.enc</string>
+    <string name="encrypting">Encrypting...</string>
+    <string name="decrypt">Decryption</string>
+    <string name="decrypting">Decrypting...</string>
+    <string name="filename">Decrypt Folder Name</string>
+    <string name="password_incorrect">Incorrect password</string>
 
     <!-- File information -->
     <string name="info_title">Information</string>

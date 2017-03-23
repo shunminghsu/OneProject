@@ -21,6 +21,7 @@ public class Constant {
     public static DocumentFile mCurrentDocumentFile, mRootDocumentFile, mSDCurrentDocumentFile, mSDRootDocumentFile;
     public static Uri rootUri;
     public static final String ROOT_LOCAL = Environment.getExternalStorageDirectory().getAbsolutePath();
+    public static String ROOT_CACHE;
     public static ActionMode mActionMode;
     public static FileInfo mCurrentFile;
     public static DocumentFile mCurrentDocumentFileExplore, mCurrentDocumentFileDestination;

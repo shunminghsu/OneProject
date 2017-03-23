@@ -178,6 +178,26 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.MOVE_OTG_LOCAL, null, desinationPath, null, null, srcDFiles, null);
     }
 
+    public void newFolderEncrypt(String path){
+        createLoader(FileActionService.FileAction.NEWFOLDER_ENCRYPT, null, path, null, null, null, null);
+    }
+
+    public void copyEncrypt(ArrayList<FileInfo> selectedFiles, String destinationPath){
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectedFiles) {
+            paths.add(info.path);
+        }
+        createLoader(FileActionService.FileAction.COPY_ENCRYPT, null, destinationPath, paths, null, null, null);
+    }
+
+    public void encrypt(ArrayList<String> encryptList){
+        createLoader(FileActionService.FileAction.ENCRYPT, null, null, encryptList, null, null, null);
+    }
+
+    public void decrypt(ArrayList<String> decryptList){
+        createLoader(FileActionService.FileAction.DECRYPT, null, null, decryptList, null, null, null);
+    }
+
     private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths, FileInfo file, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2) {
         int id = mFileActionService.getLoaderID(mode);
         Bundle args = new Bundle();
