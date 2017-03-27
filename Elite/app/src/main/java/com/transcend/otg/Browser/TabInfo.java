@@ -287,7 +287,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         builder.setIcon(R.mipmap.test_info);
         AlertDialog dialog = builder.create();
         dialog.show();
-        dialog.getWindow().setLayout(dialog_size, dialog_size);
+        dialog.getWindow().setLayout(dialog_size, dialog_size*6/5);
     }
 
     private String getFileTypeString(Context context, int type) {
