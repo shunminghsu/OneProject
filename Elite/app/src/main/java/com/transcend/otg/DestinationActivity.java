@@ -9,6 +9,8 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -32,6 +34,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -40,6 +43,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
+import com.transcend.otg.Adapter.DestinationAdapter;
 import com.transcend.otg.Adapter.FolderExploreAdapter;
 import com.transcend.otg.Adapter.FolderExploreDropDownAdapter;
 import com.transcend.otg.Bitmap.IconHelper;
@@ -56,7 +60,9 @@ import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalListLoader;
+import com.transcend.otg.Loader.LocalListOnlyFolderLoader;
 import com.transcend.otg.Loader.OTGFileLoader;
+import com.transcend.otg.Loader.OTGFileOnlyFolderLoader;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.FileInfoSort;
 import com.transcend.otg.Utils.MediaUtils;
@@ -74,7 +80,7 @@ import java.util.List;
 public class DestinationActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Boolean>,
         FolderExploreDropDownAdapter.OnDropdownItemSelectedListener,
-        FolderExploreAdapter.OnRecyclerItemCallbackListener{
+        DestinationAdapter.OnRecyclerItemCallbackListener{
 
     private String TAG = DestinationActivity.class.getSimpleName();
     public static final int REQUEST_CODE = DestinationActivity.class.hashCode() & 0xFFFF;
@@ -83,7 +89,7 @@ public class DestinationActivity extends AppCompatActivity
     private PagerSwipeRefreshLayout mSwipeRefreshLayout;
     private TextView mEmptyView;
    // private LinearLayout loadingContainer;
-    private FolderExploreAdapter mFolderExploreAdapter;
+    private DestinationAdapter mDestinationAdapter;
     private RecyclerView mRecyclerView;
     private GridLayoutManager mLayout;
     private IconHelper mIconHelper;
@@ -212,15 +218,15 @@ public class DestinationActivity extends AppCompatActivity
         //loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
         mLayoutMode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
         mIconHelper = new IconHelper(this, mLayoutMode);
-        mFolderExploreAdapter = new FolderExploreAdapter(this, mIconHelper);
-        mFolderExploreAdapter.setOnRecyclerItemCallbackListener(this);
+        mDestinationAdapter = new DestinationAdapter(this, mIconHelper);
+        mDestinationAdapter.setOnRecyclerItemCallbackListener(this);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
         int ColumnCount = calculateColumnCount(mLayoutMode);
         mLayout = new GridLayoutManager(this, ColumnCount);
         mLayout.setSpanCount(ColumnCount);
         mRecyclerView.setLayoutManager(mLayout);
-        mRecyclerView.setAdapter(mFolderExploreAdapter);
+        mRecyclerView.setAdapter(mDestinationAdapter);
     }
 
     private void initDropdown() {
@@ -447,7 +453,7 @@ public class DestinationActivity extends AppCompatActivity
 
     private void doLoad(String path) {
         mFileActionManager.checkServiceMode(path);
-        mFileActionManager.list(path);
+        mFileActionManager.listFolder(path);
     }
 
     private void doLoadOTG(boolean bInitial) {
@@ -455,10 +461,10 @@ public class DestinationActivity extends AppCompatActivity
         if(bInitial){
             resetDropDownMapAndList();
             Constant.mCurrentDocumentFileDestination = rootDir;
-            mFileActionManager.otgList(null);
+            mFileActionManager.otgListFolder(null);
         }else{
             Constant.mCurrentDocumentFileDestination = mCurrentDocumentFile;
-            mFileActionManager.otgList(null);
+            mFileActionManager.otgListFolder(null);
         }
 
     }
@@ -466,14 +472,14 @@ public class DestinationActivity extends AppCompatActivity
         if(nowMode == Constant.MODE.LOCAL || nowMode == Constant.MODE.SD){
             mDropdownAdapter.updateList(mPath);
             mDropdownAdapter.notifyDataSetChanged();
-            mFolderExploreAdapter.update(mFileList);
+            mDestinationAdapter.update(mFileList);
             checkEmpty();
         }else if (nowMode == Constant.MODE.OTG){
             dropDownMapOTG.put(mCurrentDocumentFile.getName(), mCurrentDocumentFile);
             updateDropDownList(mCurrentDocumentFile);
             mDropdownAdapter.updateList(dropDownListOTG);
             mDropdownAdapter.notifyDataSetChanged();
-            mFolderExploreAdapter.update(mFileList);
+            mDestinationAdapter.update(mFileList);
             checkEmpty();
         }
     }
@@ -675,16 +681,6 @@ public class DestinationActivity extends AppCompatActivity
     }
 
     @Override
-    public void onRecyclerItemLongClick(int position) {
-
-    }
-
-    @Override
-    public void onRecyclerItemInfoClick(int position) {
-
-    }
-
-    @Override
     public Loader<Boolean> onCreateLoader(int id, Bundle args) {
         //loadingContainer.setVisibility(View.VISIBLE);
         Loader<Boolean> loader = mFileActionManager.onCreateLoader(id, args);
@@ -696,14 +692,14 @@ public class DestinationActivity extends AppCompatActivity
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
         mFileActionManager.onLoadFinished(loader, success);
         if (success) {
-            if (loader instanceof LocalListLoader) {
-                mPath = ((LocalListLoader) loader).getPath();
-                mFileList = ((LocalListLoader) loader).getFileList();
+            if (loader instanceof LocalListOnlyFolderLoader) {
+                mPath = ((LocalListOnlyFolderLoader) loader).getPath();
+                mFileList = ((LocalListOnlyFolderLoader) loader).getFileList();
                 updateScreen();
-            }else if (loader instanceof OTGFileLoader){
-                mPath = ((OTGFileLoader) loader).getPath();
-                mFileList = ((OTGFileLoader) loader).getFileList();
-                Constant.mCurrentDocumentFileDestination = mCurrentDocumentFile = ((OTGFileLoader)loader).getCurrentDocumentFile();
+            }else if (loader instanceof OTGFileOnlyFolderLoader){
+                mPath = ((OTGFileOnlyFolderLoader) loader).getPath();
+                mFileList = ((OTGFileOnlyFolderLoader) loader).getFileList();
+                Constant.mCurrentDocumentFileDestination = mCurrentDocumentFile = ((OTGFileOnlyFolderLoader)loader).getCurrentDocumentFile();
                 updateScreen();
             }else{
                 doRefresh();
@@ -721,7 +717,7 @@ public class DestinationActivity extends AppCompatActivity
 
     private void doLocalNewFolder(){
         List<String> folderNames = new ArrayList<String>();
-        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        ArrayList<FileInfo> allFiles = mDestinationAdapter.getAllFiles();
         for (FileInfo file : allFiles) {
             if (file.type == Constant.TYPE_DIR)
                 folderNames.add(file.name.toLowerCase());
@@ -742,7 +738,7 @@ public class DestinationActivity extends AppCompatActivity
 
     private void doOTGNewFolder(final boolean bSDCard) {
         List<String> folderNames = new ArrayList<String>();
-        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        ArrayList<FileInfo> allFiles = mDestinationAdapter.getAllFiles();
         for (FileInfo file : allFiles) {
             if (file.type == Constant.TYPE_DIR)
                 folderNames.add(file.name.toLowerCase());

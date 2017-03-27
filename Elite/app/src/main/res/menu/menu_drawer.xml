@@ -10,11 +10,11 @@
             android:title="@string/drawer_home"/>
         <item
             android:id="@+id/nav_browser"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@mipmap/ic_drawer_browser"
             android:title="@string/drawer_browser" />
         <item
             android:id="@+id/nav_backup"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@mipmap/ic_drawer_backup"
             android:title="@string/drawer_backup" />
     </group>
 

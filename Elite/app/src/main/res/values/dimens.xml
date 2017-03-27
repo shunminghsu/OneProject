@@ -12,4 +12,7 @@
     <dimen name="grid_height">135dp</dimen>
     <dimen name="list_item_thumbnail_size">40dp</dimen>
     <dimen name="design_navigation_icon_size">36dp</dimen>
+
+    <dimen name="storage_text_size">16sp</dimen>
+    <dimen name="no_storage_textsize">30sp</dimen>
 </resources>

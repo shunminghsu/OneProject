@@ -56,9 +56,6 @@ public class LocalDecryptLoader extends AsyncTaskLoader<Boolean> {
         } catch (ZipException e) {
             updateResult(getContext().getString(R.string.password_incorrect));
             closeProgressWatcher();
-            File extractFile = new File(mFolderPath);
-            if (extractFile.exists())
-                deleteDirectory(extractFile);
             e.printStackTrace();
         }
         return false;
@@ -79,7 +76,7 @@ public class LocalDecryptLoader extends AsyncTaskLoader<Boolean> {
             zipFile.extractAll(extractFile.getPath());
             closeProgressWatcher();
         }
-        updateResult(getContext().getString(R.string.done));
+
         mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(extractFile)));
         File[] broadcastFiles = extractFile.listFiles();
         for (File file : broadcastFiles) {
@@ -89,6 +86,7 @@ public class LocalDecryptLoader extends AsyncTaskLoader<Boolean> {
             else
                 mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
         }
+        updateResult(getContext().getString(R.string.done));
         return true;
     }
 
@@ -174,15 +172,5 @@ public class LocalDecryptLoader extends AsyncTaskLoader<Boolean> {
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
         ntfMgr.notify(mNotificationID, builder.build());
-    }
-
-    private void deleteDirectory(File dir) {
-        for (File target : dir.listFiles()) {
-            if (target.isDirectory())
-                deleteDirectory(target);
-            else
-                target.delete();
-        }
-        dir.delete();
     }
 }

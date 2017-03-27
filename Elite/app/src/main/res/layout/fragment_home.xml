@@ -19,8 +19,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.3"
-            android:background="@color/colorBlack" />
+            android:background="@drawable/bg_home_browser" />
 
         <TextView
             android:id="@+id/home_browser"
@@ -51,8 +50,7 @@
         <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:alpha="0.3"
-            android:background="@color/colorBlack" />
+            android:background="@drawable/bg_home_backup" />
 
         <TextView
             android:id="@+id/home_backup"

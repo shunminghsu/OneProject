@@ -17,6 +17,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,7 +61,8 @@ public class NoOtgFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.no_outer_storage_layout, container, false);
-        ((TextView)view.findViewById(R.id.no_outer_storage)).setText(getResources().getText(R.string.no_otg));
+        ((TextView)view.findViewById(R.id.no_storage_title)).setText(R.string.no_otg);
+        ((ImageView)view.findViewById(R.id.no_outer_storage)).setBackgroundResource(R.drawable.img_notfoundpic_otg);
         (view.findViewById(R.id.check_btn)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

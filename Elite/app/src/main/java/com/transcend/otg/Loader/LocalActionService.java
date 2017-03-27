@@ -20,6 +20,7 @@ public class LocalActionService extends FileActionService{
     public LocalActionService(){
         TAG = LocalActionService.class.getSimpleName();
         LIST = LoaderID.LOCAL_FILE_LIST;
+        LIST_FOLDER = LoaderID.LOCAL_FILE_LIST_ONLYFOLDER;
         LIST_ALL_TYPE = LoaderID.LOCAL_ALL_TYPE_LIST;
         NEWFOLDER = LoaderID.LOCAL_NEW_FOLDER;
         RENAME = LoaderID.LOCAL_FILE_RENAME;
@@ -27,6 +28,7 @@ public class LocalActionService extends FileActionService{
         MOVE = LoaderID.LOCAL_MOVE;
         DELETE = LoaderID.LOCAL_FILE_DELETE;
         OTGLIST = LoaderID.OTG_FILE_LIST;
+        OTGLIST_FOLDER = LoaderID.OTG_FILE_LIST_ONLYFOLDER;
         RENAME_OTG = LoaderID.OTG_RENAME;
         DELETE_OTG = LoaderID.OTG_DELETE;
         NEWFOLDER_OTG = LoaderID.OTG_NEW_FOLDER;
@@ -40,6 +42,14 @@ public class LocalActionService extends FileActionService{
         COPY_ENCRYPT = LoaderID.LOCAL_COPY_ENCRYPT;
         ENCRYPT = LoaderID.LOCAL_ENCRYPT;
         DECRYPT = LoaderID.LOCAL_DECRYPT;
+        NEWFOLDER_ENCRYPT_OTG = LoaderID.OTG_NEW_FOLDER_ENCRYPT;
+        COPY_OTG_LOCAL_ENCRYPT = LoaderID.OTG_LOCAL_COPY_ENCRYPT;
+        ENCRYPT_OTG = LoaderID.OTG_ENCRYPT;
+        COPY_LOCAL_OTG_ENCRYPT = LoaderID.LOCAL_OTG_COPY_ENCRYPT;
+        NEWFOLDER_DECRYPT_OTG = LoaderID.OTG_NEW_FOLDER_DECRYPT;
+        COPY_OTG_LOCAL_DECRYPT = LoaderID.OTG_LOCAL_COPY_DECRYPT;
+        DECRYPT_OTG = LoaderID.OTG_DECRYPT;
+        COPY_LOCAL_OTG_DECRYPT = LoaderID.LOCAL_OTG_COPY_DECRYPT;
     }
 
     @Override
@@ -58,6 +68,11 @@ public class LocalActionService extends FileActionService{
     }
 
     @Override
+    protected AsyncTaskLoader listFolder(Context context, String path) {
+        return new LocalListOnlyFolderLoader(context, path);
+    }
+
+    @Override
     protected AsyncTaskLoader listAllType(Context context) {
         return new LocalTypeListLoader(context);
     }
@@ -65,6 +80,11 @@ public class LocalActionService extends FileActionService{
     @Override
     protected AsyncTaskLoader otglist(Context context, Uri uri, String selectName) {
         return new OTGFileLoader(context, uri, selectName);
+    }
+
+    @Override
+    protected AsyncTaskLoader otglistFolder(Context context, Uri uri, String selectName) {
+        return new OTGFileOnlyFolderLoader(context, uri, selectName);
     }
 
     @Override
@@ -100,6 +120,36 @@ public class LocalActionService extends FileActionService{
     @Override
     protected AsyncTaskLoader encrypt(Context context, List<String> list) {
         return new LocalEncryptLoader(context, list);
+    }
+
+    @Override
+    protected AsyncTaskLoader encryptOTG(Context context, List<String> list) {
+        return new OTGEncryptLoader(context, list);
+    }
+
+    @Override
+    protected AsyncTaskLoader copyLocaltoOTGEncrypt(Context context, List<String> list, ArrayList<DocumentFile> dFiles) {
+        return new LocalCopytoOTGEncryptLoader(context, list, dFiles);
+    }
+
+    @Override
+    protected AsyncTaskLoader newFolderDecryptOTG(Context context, String path) {
+        return new OTGDecryptNewFolderLoader(context, path);
+    }
+
+    @Override
+    protected AsyncTaskLoader copyOTGtoLocalDecrypt(Context context, ArrayList<DocumentFile> dFiles, String dest) {
+        return new OTGCopytoLocalDecryptLoader(context, dFiles, dest);
+    }
+
+    @Override
+    protected AsyncTaskLoader decryptOTG(Context context, List<String> list) {
+        return new OTGDecryptLoader(context, list);
+    }
+
+    @Override
+    protected AsyncTaskLoader copyLocaltoOTGDecrypt(Context context, List<String> list, ArrayList<DocumentFile> dFiles) {
+        return new LocalCopytoOTGDecryptLoader(context, list, dFiles);
     }
 
     @Override
@@ -165,6 +215,16 @@ public class LocalActionService extends FileActionService{
     @Override
     protected AsyncTaskLoader newFolderEncrypt(Context context, String path) {
         return new LocalEncryptNewFolderLoader(context, path);
+    }
+
+    @Override
+    protected AsyncTaskLoader newFolderEncryptOTG(Context context, String path) {
+        return new OTGEncryptNewFolderLoader(context, path);
+    }
+
+    @Override
+    protected AsyncTaskLoader copyOTGtoLocalEncrypt(Context context, ArrayList<DocumentFile> dFiles, String dest) {
+        return new OTGCopytoLocalEncryptLoader(context, dFiles, dest);
     }
 
     @Override

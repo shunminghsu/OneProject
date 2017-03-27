@@ -42,19 +42,7 @@
 
             </android.support.v7.widget.Toolbar>
 
-            <TextView
-                android:id="@+id/hint_tv"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/toolbar"
-                android:gravity="center"
-                android:text="@string/select_destination"
-                android:textColor="@color/colorWhite"
-                android:textSize="16sp"
-                android:theme="@style/AppTheme.DropDown" />
-
         </android.support.design.widget.AppBarLayout>
-
 
 
         <LinearLayout
@@ -69,53 +57,61 @@
                 android:id="@+id/btn_local"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/storage_btn_selector"
                 android:layout_weight="1"
+                android:background="@drawable/storage_btn_selector"
+                android:textSize="@dimen/storage_text_size"
                 android:text="@string/nav_local" />
 
             <Button
                 android:id="@+id/btn_sd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/storage_btn_selector"
                 android:layout_weight="1"
+                android:background="@drawable/storage_btn_selector"
+                android:textSize="@dimen/storage_text_size"
                 android:text="@string/nav_sd" />
 
             <Button
                 android:id="@+id/btn_otg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/storage_btn_selector"
                 android:layout_weight="1"
+                android:background="@drawable/storage_btn_selector"
+                android:textSize="@dimen/storage_text_size"
                 android:text="@string/nav_otg" />
         </LinearLayout>
 
-
-        <View
-            android:id="@+id/toolbar_shadow"
+        <TextView
+            android:id="@+id/hint_tv"
             android:layout_width="match_parent"
-            android:layout_height="6dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/select_destination"
             android:layout_below="@+id/layout_storage"
-            android:background="@drawable/toolbar_dropshadow" />
+            android:textColor="@color/colorWhite"
+            android:textSize="16sp"
+            android:background="@color/colorDarkGray" />
 
         <com.transcend.otg.Browser.PagerSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swiperefresh"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/toolbar_shadow">
+            android:layout_below="@+id/hint_tv">
+
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="2dp"
                 android:layout_marginLeft="2dp"
-                android:layout_marginRight="2dp">
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="2dp">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="vertical"
-                    android:layout_marginTop="2dp"
                     android:layout_marginLeft="2dp"
-                    android:layout_marginRight="2dp" >
+                    android:layout_marginRight="2dp"
+                    android:layout_marginTop="2dp"
+                    android:orientation="vertical">
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/recycler_view"
@@ -125,6 +121,7 @@
                 </LinearLayout>
             </FrameLayout>
         </com.transcend.otg.Browser.PagerSwipeRefreshLayout>
+
 
         <TextView
             android:id="@+id/empty_view"
@@ -154,7 +151,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:background="@color/colorPrimary"
-                android:textColor="@color/colorWhite"/>
+                android:textColor="@color/colorWhite" />
 
         </RelativeLayout>
 
@@ -177,7 +174,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:background="@color/colorPrimary"
-                android:textColor="@color/colorWhite"/>
+                android:textColor="@color/colorWhite" />
 
         </RelativeLayout>
 

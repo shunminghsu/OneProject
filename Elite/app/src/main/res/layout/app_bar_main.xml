@@ -52,6 +52,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/storage_btn_selector"
             android:layout_weight="1"
+            android:textSize="@dimen/storage_text_size"
             android:text="@string/nav_local" />
 
         <Button
@@ -60,6 +61,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/storage_btn_selector"
             android:layout_weight="1"
+            android:textSize="@dimen/storage_text_size"
             android:text="@string/nav_sd" />
 
         <Button
@@ -67,6 +69,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/storage_btn_selector"
+            android:textSize="@dimen/storage_text_size"
             android:layout_weight="1"
             android:text="@string/nav_otg" />
     </LinearLayout>

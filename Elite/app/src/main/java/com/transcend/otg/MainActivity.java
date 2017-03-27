@@ -59,15 +59,26 @@ import com.transcend.otg.Dialog.LocalDeleteDialog;
 import com.transcend.otg.Dialog.LocalEncryptDialog;
 import com.transcend.otg.Dialog.LocalNewFolderDialog;
 import com.transcend.otg.Dialog.LocalRenameDialog;
+import com.transcend.otg.Dialog.OTGDecryptDialog;
 import com.transcend.otg.Dialog.OTGDeleteDialog;
+import com.transcend.otg.Dialog.OTGEncryptDialog;
 import com.transcend.otg.Dialog.OTGRenameDialog;
 import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
+import com.transcend.otg.Feedback.FeedbackFragment;
+import com.transcend.otg.Help.HelpFragment;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalEncryptCopyLoader;
 import com.transcend.otg.Loader.LocalEncryptNewFolderLoader;
-import com.transcend.otg.Utils.EncryptUtil;
+import com.transcend.otg.Loader.OTGCopytoLocalDecryptLoader;
+import com.transcend.otg.Loader.OTGCopytoLocalEncryptLoader;
+import com.transcend.otg.Loader.OTGDecryptLoader;
+import com.transcend.otg.Loader.OTGDecryptNewFolderLoader;
+import com.transcend.otg.Loader.OTGEncryptLoader;
+import com.transcend.otg.Loader.OTGEncryptNewFolderLoader;
+import com.transcend.otg.Utils.DecryptUtils;
+import com.transcend.otg.Utils.EncryptUtils;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
@@ -100,6 +111,8 @@ public class MainActivity extends AppCompatActivity
     private SdFragment sdFragment;
     private OTGFragment otgFragment;
     private LocalFragment localFragment;
+    private FeedbackFragment feedbackFragment;
+    private HelpFragment helpFragment;
     private int mLoaderID, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private FileActionManager mFileActionManager;
     private String mPath;
@@ -108,7 +121,7 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton mFab;
     private ActionMode mActionMode;
     private RelativeLayout mActionModeView;
-    private TextView mActionModeTitle;
+    private TextView mActionModeTitle, mToolbarTitle;
     private int nowAction;
 
     //home page
@@ -148,29 +161,15 @@ public class MainActivity extends AppCompatActivity
         Constant.ROOT_CACHE = getCacheDir().getAbsolutePath();
     }
 
-    private void showHomeOrFragment(boolean home) {
-        if (home) {
-            home_container.setVisibility(View.VISIBLE);
-            container.setVisibility(View.GONE);
-            layout_storage.setVisibility(View.GONE);
-            mFab.setVisibility(View.GONE);
-            invalidateOptionsMenu(); //all menu item should be disabled, and the empty menu will be hided after invalidated
-        } else {
-            home_container.setVisibility(View.GONE);
-            container.setVisibility(View.VISIBLE);
-            layout_storage.setVisibility(View.VISIBLE);
-            mFab.setVisibility(View.VISIBLE);
-            replaceFragment(localFragment);
-            invalidateOptionsMenu();
-        }
-    }
     private void initHome() {
         home_container = (LinearLayout) findViewById(R.id.home_page);
         setDrawerCheckItem(R.id.nav_home);
+        mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
         tv_Browser = (TextView) findViewById(R.id.home_browser);
         tv_Browser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
                 setDrawerCheckItem(R.id.nav_browser);
                 showHomeOrFragment(false);
                 markSelectedBtn(mLocalButton);
@@ -183,7 +182,7 @@ public class MainActivity extends AppCompatActivity
         tv_Backup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
             }
         });
     }
@@ -192,6 +191,7 @@ public class MainActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        mToolbarTitle = (TextView) findViewById(R.id.toolbar_title);
     }
 
     private void initBroadcast(){
@@ -244,6 +244,8 @@ public class MainActivity extends AppCompatActivity
         sdFragment = new SdFragment();
         localFragment = new LocalFragment();
         otgFragment = new OTGFragment();
+        helpFragment = new HelpFragment();
+        feedbackFragment = new FeedbackFragment();
     }
 
     private void initActionModeView() {
@@ -265,6 +267,41 @@ public class MainActivity extends AppCompatActivity
     protected void onPause() {
         super.onPause();
         unregisterReceiver(usbReceiver);
+    }
+
+    private void showHomeOrFragment(boolean home) {
+        if (home) {
+            home_container.setVisibility(View.VISIBLE);
+            container.setVisibility(View.GONE);
+            layout_storage.setVisibility(View.GONE);
+            mFab.setVisibility(View.GONE);
+            invalidateOptionsMenu(); //all menu item should be disabled, and the empty menu will be hided after invalidated
+        } else {
+            home_container.setVisibility(View.GONE);
+            container.setVisibility(View.VISIBLE);
+            layout_storage.setVisibility(View.VISIBLE);
+            mFab.setVisibility(View.VISIBLE);
+            replaceFragment(localFragment);
+            invalidateOptionsMenu();
+        }
+    }
+
+    private void showHelpFragment(){
+        home_container.setVisibility(View.GONE);
+        container.setVisibility(View.VISIBLE);
+        layout_storage.setVisibility(View.GONE);
+        mFab.setVisibility(View.INVISIBLE);
+        replaceFragment(helpFragment);
+        invalidateOptionsMenu();
+    }
+
+    private void showFeedbackFragment(){
+        home_container.setVisibility(View.GONE);
+        container.setVisibility(View.VISIBLE);
+        layout_storage.setVisibility(View.GONE);
+        mFab.setVisibility(View.INVISIBLE);
+        replaceFragment(feedbackFragment);
+        invalidateOptionsMenu();
     }
 
     private void markSelectedBtn(Button selected) {
@@ -383,6 +420,8 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_encrypt:
                 if(Constant.nowMODE == Constant.MODE.LOCAL){
                     doLocalEncryptDialog();
+                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                    doOTGEncryptDialog();
                 }
                 break;
 
@@ -405,6 +444,8 @@ public class MainActivity extends AppCompatActivity
         else if(file.type == Constant.TYPE_ENCRYPT){
             if(Constant.nowMODE == Constant.MODE.LOCAL){
                 doLocalDecryptDialog(file);
+            }else if(Constant.nowMODE == Constant.MODE.OTG){
+                doOTGDecryptDialog(file);
             }
         }
 
@@ -666,15 +707,19 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_home) {
+            mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
             showHomeOrFragment(true);
         } else if (id == R.id.nav_browser) {
-            //doLoad(Pref.getMainPageLocation(this));
+            mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
             showHomeOrFragment(false);
-
         } else if (id == R.id.nav_backup) {
-
+            mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
         } else if (id == R.id.nav_help){
-
+            mToolbarTitle.setText(getResources().getString(R.string.drawer_help));
+            showHelpFragment();
+        } else if(id == R.id.nav_feedback){
+            mToolbarTitle.setText(getResources().getString(R.string.drawer_feedback));
+            showFeedbackFragment();
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -1050,7 +1095,21 @@ public class MainActivity extends AppCompatActivity
                 doLocalEncryptCopy();
             } else if (loader instanceof LocalEncryptCopyLoader){
                 doLocalEncrypt();
-            } else{
+            }else if(loader instanceof OTGEncryptNewFolderLoader){
+                doOTGEncryptCopy();
+            }else if(loader instanceof OTGCopytoLocalEncryptLoader){
+                doOTGEncrypt();
+            }else if(loader instanceof OTGEncryptLoader){
+                doLocalCopytoOTGEncrypt(false);
+            }else if(loader instanceof OTGDecryptNewFolderLoader){
+                doOTGDecryptCopy();
+            }else if(loader instanceof OTGCopytoLocalDecryptLoader){
+                doOTGDecrypt();
+            }else if(loader instanceof OTGDecryptLoader){
+                doLocalCopytoOTGDecrypt(false);
+            }
+
+            else{
                 if(mActionMode != null){
                     mActionMode.finish();
                     Constant.mActionMode = mActionMode = null;
@@ -1067,6 +1126,86 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onLoaderReset(Loader<Boolean> loader) {}
 
+    private void doOTGEncryptDialog() {
+        final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+        ArrayList<String> names = new ArrayList<String>();
+        ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
+                names.add(file.name.toLowerCase());
+        }
+        new OTGEncryptDialog(this, names, selectedFiles) {
+            @Override
+            public void onConfirm(String newName, String password, ArrayList<DocumentFile> mSelectedDFiles) {
+                if(tabPostiion == 5){
+                    DocumentFile child = mSelectedDFiles.get(0).getParentFile();
+                    EncryptUtils.setAfterEncryptDFile(child);
+                }
+                EncryptUtils.setSelectedDocumentFile(mSelectedDFiles);
+                EncryptUtils.setEncryptFileName(newName);
+                EncryptUtils.setPassword(password);
+                doOTGEncryptNewFolder();
+                if(mActionMode != null)
+                    mActionMode.finish();
+            }
+        };
+    }
+
+    private void doOTGEncryptNewFolder(){
+        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
+        EncryptUtils.setBeforeEncryptPath(folderName);
+        mFileActionManager.newFolderEncryptOTG(folderName);
+    }
+
+    private void doOTGEncryptCopy(){
+        ArrayList<DocumentFile> selectedDFiles = EncryptUtils.getSelectedDocumentFile();
+        mFileActionManager.copyOTGtoLocalEncrypt(selectedDFiles, EncryptUtils.getBeforeEncryptPath());
+    }
+
+    private void doOTGEncrypt(){
+        String password = EncryptUtils.getPassword();
+        String beforeEncryptPath = EncryptUtils.getBeforeEncryptPath();
+        String afterEncryptPath = EncryptUtils.getBeforeEncryptPath() + File.separator + EncryptUtils.getEncryptFileName();
+        EncryptUtils.setAfterEncryptPath(afterEncryptPath);
+        ArrayList<String> encryptList = new ArrayList<>();
+        encryptList.add(beforeEncryptPath);
+        encryptList.add(afterEncryptPath);
+        encryptList.add(password);
+        mFileActionManager.encryptOTG(encryptList);
+    }
+
+    private void doLocalCopytoOTGEncrypt(boolean isSrcSDCard){
+        if(isSrcSDCard){
+//            String sdKey = LocalPreferences.getSDKey(mContext);
+//            if(sdKey != ""){
+//                Uri uriSDKey = Uri.parse(sdKey);
+//                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+//                Constant.mSDCurrentDocumentFile = tmpDFile;
+//                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+//                ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
+//                ArrayList<DocumentFile> destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
+//                if(actionId == R.id.action_copy)
+//                    mFileActionManager.copyFromLocaltoOTG(selectedFiles, destDFiles);
+//                else if(actionId == R.id.action_move)
+//                    mFileActionManager.moveFromLocaltoOTG(selectedFiles, destDFiles);
+//            }
+        }else {
+            String getLocalEncryptFilePath = EncryptUtils.getAfterEncryptPath();
+            FileInfo tmpFile = new FileInfo();
+            tmpFile.path = getLocalEncryptFilePath + getResources().getString(R.string.encrypt_subfilename);
+            ArrayList<FileInfo> selectedFiles = new ArrayList<>();
+            selectedFiles.add(tmpFile);
+            DocumentFile tmpDFile = EncryptUtils.getAfterEncryptDFile();
+            if(tmpDFile == null)
+                tmpDFile = Constant.mRootDocumentFile;
+            ArrayList<DocumentFile> destinationDFiles = new ArrayList<>();
+            destinationDFiles.add(tmpDFile);
+            mFileActionManager.copyFromLocaltoOTGEncrypt(selectedFiles, destinationDFiles);
+        }
+    }
+
     private void doLocalEncryptDialog() {
         final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
         List<String> names = new ArrayList<String>();
@@ -1081,11 +1220,11 @@ public class MainActivity extends AppCompatActivity
                 ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
                 if(tabPostiion == 5){
                     File child = new File(selectedFiles.get(0).path);
-                    EncryptUtil.setAfterEncryptPath(child.getParent() + File.separator + newName);
+                    EncryptUtils.setAfterEncryptPath(child.getParent() + File.separator + newName);
                 }
-                EncryptUtil.setSelectLocalFile(selectedFiles);
-                EncryptUtil.setEncryptFileName(newName);
-                EncryptUtil.setPassword(password);
+                EncryptUtils.setSelectLocalFile(selectedFiles);
+                EncryptUtils.setEncryptFileName(newName);
+                EncryptUtils.setPassword(password);
                 doLocalEncryptNewFolder();
                 if(mActionMode != null)
                     mActionMode.finish();
@@ -1096,21 +1235,21 @@ public class MainActivity extends AppCompatActivity
     private void doLocalEncryptNewFolder(){
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
-        EncryptUtil.setBeforeEncryptPath(folderName);
+        EncryptUtils.setBeforeEncryptPath(folderName);
         mFileActionManager.newFolderEncrypt(folderName);
     }
 
     private void doLocalEncryptCopy(){
-        ArrayList<FileInfo> selectedFiles = EncryptUtil.getSelectLocalFile();
-        mFileActionManager.copyEncrypt(selectedFiles, EncryptUtil.getBeforeEncryptPath());
+        ArrayList<FileInfo> selectedFiles = EncryptUtils.getSelectLocalFile();
+        mFileActionManager.copyEncrypt(selectedFiles, EncryptUtils.getBeforeEncryptPath());
     }
 
     private void doLocalEncrypt(){
-        String password = EncryptUtil.getPassword();
-        String beforeEncryptPath = EncryptUtil.getBeforeEncryptPath();
-        String afterEncryptPath = EncryptUtil.getAfterEncryptPath();
+        String password = EncryptUtils.getPassword();
+        String beforeEncryptPath = EncryptUtils.getBeforeEncryptPath();
+        String afterEncryptPath = EncryptUtils.getAfterEncryptPath();
         if(afterEncryptPath.equals("")||afterEncryptPath.equals(null))
-            afterEncryptPath = Constant.ROOT_LOCAL + File.separator + EncryptUtil.getEncryptFileName();
+            afterEncryptPath = Constant.ROOT_LOCAL + File.separator + EncryptUtils.getEncryptFileName();
         ArrayList<String> encryptList = new ArrayList<>();
         encryptList.add(beforeEncryptPath);
         encryptList.add(afterEncryptPath);
@@ -1118,14 +1257,14 @@ public class MainActivity extends AppCompatActivity
         mFileActionManager.encrypt(encryptList);
     }
 
-    private void doLocalDecryptDialog(FileInfo selectedfile){
+    private void doLocalDecryptDialog(FileInfo selectedFile){
         ArrayList<String> folderNames = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
         for (FileInfo file : allFiles) {
             if (file.type == Constant.TYPE_DIR)
                 folderNames.add(file.name.toLowerCase());
         }
-        new LocalDecryptDialog(this, folderNames, selectedfile.path) {
+        new LocalDecryptDialog(this, folderNames, selectedFile.path) {
             @Override
             public void onConfirm(String newFolderpath, String password, String filePath) {
                 doLocalDecrypt(newFolderpath, password, filePath);
@@ -1139,6 +1278,85 @@ public class MainActivity extends AppCompatActivity
         decryptList.add(password);
         decryptList.add(encryptPath);
         mFileActionManager.decrypt(decryptList);
+    }
+
+    private void doOTGDecryptDialog(FileInfo clickFile){
+        final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+        ArrayList<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        ArrayList<FileInfo> selectedFile = new ArrayList<>();
+        selectedFile.add(clickFile);
+        new OTGDecryptDialog(this, folderNames, selectedFile){
+            @Override
+            public void onConfirm(String newFolderName, String password, ArrayList<DocumentFile> selectedDFiles) {
+                if(tabPostiion == 5){
+                    DocumentFile child = selectedDFiles.get(0).getParentFile();
+                    DecryptUtils.setAfterDecryptDFile(child);
+                }
+                DecryptUtils.setSelectedDocumentFile(selectedDFiles);
+                DecryptUtils.setDecryptFileName(newFolderName);
+                DecryptUtils.setPassword(password);
+                doOTGDecryptNewFolder();
+            }
+        };
+    }
+
+    private void doOTGDecryptNewFolder(){
+        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
+        DecryptUtils.setBeforeDecryptPath(folderName);
+        mFileActionManager.newFolderDecryptOTG(folderName);
+    }
+
+    private void doOTGDecryptCopy(){
+        ArrayList<DocumentFile> selectedDFiles = DecryptUtils.getSelectedDocumentFile();
+        mFileActionManager.copyOTGtoLocalDecrypt(selectedDFiles, DecryptUtils.getBeforeDecryptPath());
+    }
+
+    private void doOTGDecrypt(){
+        String password = DecryptUtils.getPassword();
+        String beforeEncryptPath = DecryptUtils.getBeforeDecryptPath() + File.separator + DecryptUtils.getSelectedDocumentFile().get(0).getName();
+        String afterDecryptPath = DecryptUtils.getBeforeDecryptPath() + File.separator + DecryptUtils.getDecryptFileName();
+        DecryptUtils.setAfterDecryptPath(afterDecryptPath);
+        ArrayList<String> decryptList = new ArrayList<>();
+        decryptList.add(afterDecryptPath);
+        decryptList.add(password);
+        decryptList.add(beforeEncryptPath);
+        mFileActionManager.decryptOTG(decryptList);
+    }
+
+    private void doLocalCopytoOTGDecrypt(boolean isSrcSDCard){
+        if(isSrcSDCard){
+//            String sdKey = LocalPreferences.getSDKey(mContext);
+//            if(sdKey != ""){
+//                Uri uriSDKey = Uri.parse(sdKey);
+//                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+//                Constant.mSDCurrentDocumentFile = tmpDFile;
+//                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+//                ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
+//                ArrayList<DocumentFile> destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
+//                if(actionId == R.id.action_copy)
+//                    mFileActionManager.copyFromLocaltoOTG(selectedFiles, destDFiles);
+//                else if(actionId == R.id.action_move)
+//                    mFileActionManager.moveFromLocaltoOTG(selectedFiles, destDFiles);
+//            }
+        }else {
+            String getLocalDecryptFilePath = DecryptUtils.getAfterDecryptPath();
+            FileInfo tmpFile = new FileInfo();
+            tmpFile.path = getLocalDecryptFilePath;
+            ArrayList<FileInfo> selectedFiles = new ArrayList<>();
+            selectedFiles.add(tmpFile);
+            DocumentFile tmpDFile = DecryptUtils.getAfterDecryptDFile();
+            if(tmpDFile == null)
+                tmpDFile = Constant.mRootDocumentFile;
+            ArrayList<DocumentFile> destinationDFiles = new ArrayList<>();
+            destinationDFiles.add(tmpDFile);
+            mFileActionManager.copyFromLocaltoOTGDecrypt(selectedFiles, destinationDFiles);
+        }
     }
 
     private void doLocalNewFolder(){

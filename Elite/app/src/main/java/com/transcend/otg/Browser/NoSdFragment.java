@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.transcend.otg.R;
@@ -20,7 +21,8 @@ public class NoSdFragment extends Fragment{
                              Bundle savedInstanceState) {
 
         final View view = inflater.inflate(R.layout.no_outer_storage_layout, container, false);
-        ((TextView)view.findViewById(R.id.no_outer_storage)).setText(R.string.no_sd);
+        ((ImageView)view.findViewById(R.id.no_outer_storage)).setBackgroundResource(R.drawable.img_notfoundpic_sd);
+        ((TextView)view.findViewById(R.id.no_storage_title)).setText(R.string.no_sd);
         (view.findViewById(R.id.check_btn)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

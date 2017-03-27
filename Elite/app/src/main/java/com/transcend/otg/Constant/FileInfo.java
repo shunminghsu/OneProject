@@ -113,14 +113,16 @@ public class FileInfo implements Durable, Parcelable {
 
     public static ArrayList<String> getSDCardFileName(String mPath) {
         ArrayList<String> sdName = new ArrayList<String>();
-        File dir = new File(mPath);
+        if(mPath != null){
+            File dir = new File(mPath);
 
-        File files[] = dir.listFiles();
-        for (File file : files) {
-            if (file.isHidden())
-                continue;
-            String name = file.getName();
-            sdName.add(name);
+            File files[] = dir.listFiles();
+            for (File file : files) {
+                if (file.isHidden())
+                    continue;
+                String name = file.getName();
+                sdName.add(name);
+            }
         }
         return sdName;
     }

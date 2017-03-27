@@ -97,7 +97,6 @@ public class LocalEncryptLoader extends AsyncTaskLoader<Boolean> {
         File target = new File(dst);
         mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(target)));
         closeProgressWatcher();
-        updateResult(getContext().getString(R.string.done));
         return true;
     }
 

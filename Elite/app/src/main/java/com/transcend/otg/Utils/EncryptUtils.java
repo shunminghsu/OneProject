@@ -9,21 +9,29 @@ import java.util.ArrayList;
 /**
  * Created by wangbojie on 2017/3/22.
  */
-public class EncryptUtil {
-    public static ArrayList<DocumentFile> selectDocumentFile = new ArrayList<DocumentFile>();
+public class EncryptUtils {
+    public static ArrayList<DocumentFile> selectedDocumentFile = new ArrayList<DocumentFile>();
+    public static DocumentFile afterEncryptDFile = null;
     public static String encryptFileName = "";
     public static String password = "";
     public static String afterEncryptPath = "";
     public static String beforeEncryptPath = "";
-
     public static ArrayList<FileInfo> selectLocalFile = new ArrayList<FileInfo>();
 
-    public static ArrayList<DocumentFile> getSelectDocumentFile() {
-        return selectDocumentFile;
+    public static ArrayList<DocumentFile> getSelectedDocumentFile() {
+        return selectedDocumentFile;
     }
 
-    public static void setSelectDocumentFile(ArrayList<DocumentFile> selectDocumentFile) {
-        EncryptUtil.selectDocumentFile = selectDocumentFile;
+    public static void setSelectedDocumentFile(ArrayList<DocumentFile> selectedDocumentFile) {
+        EncryptUtils.selectedDocumentFile = selectedDocumentFile;
+    }
+
+    public static DocumentFile getAfterEncryptDFile() {
+        return afterEncryptDFile;
+    }
+
+    public static void setAfterEncryptDFile(DocumentFile afterEncryptDFile) {
+        EncryptUtils.afterEncryptDFile = afterEncryptDFile;
     }
 
     public static String getEncryptFileName() {
@@ -31,7 +39,7 @@ public class EncryptUtil {
     }
 
     public static void setEncryptFileName(String encryptFileName) {
-        EncryptUtil.encryptFileName = encryptFileName;
+        EncryptUtils.encryptFileName = encryptFileName;
     }
 
     public static String getPassword() {
@@ -39,7 +47,7 @@ public class EncryptUtil {
     }
 
     public static void setPassword(String password) {
-        EncryptUtil.password = password;
+        EncryptUtils.password = password;
     }
 
     public static String getAfterEncryptPath() {
@@ -47,7 +55,7 @@ public class EncryptUtil {
     }
 
     public static void setAfterEncryptPath(String afterEncryptPath) {
-        EncryptUtil.afterEncryptPath = afterEncryptPath;
+        EncryptUtils.afterEncryptPath = afterEncryptPath;
     }
 
     public static String getBeforeEncryptPath() {
@@ -55,7 +63,7 @@ public class EncryptUtil {
     }
 
     public static void setBeforeEncryptPath(String beforeEncryptPath) {
-        EncryptUtil.beforeEncryptPath = beforeEncryptPath;
+        EncryptUtils.beforeEncryptPath = beforeEncryptPath;
     }
 
     public static ArrayList<FileInfo> getSelectLocalFile() {
@@ -63,6 +71,6 @@ public class EncryptUtil {
     }
 
     public static void setSelectLocalFile(ArrayList<FileInfo> selectLocalFile) {
-        EncryptUtil.selectLocalFile = selectLocalFile;
+        EncryptUtils.selectLocalFile = selectLocalFile;
     }
 }

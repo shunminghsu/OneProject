@@ -91,11 +91,22 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.LIST, null, path, null, null, null, null);
     }
 
+    public void listFolder(String path) {
+        createLoader(FileActionService.FileAction.LIST_FOLDER, null, path, null, null, null, null);
+    }
+
     public void otgList(FileInfo file) {
         if (file != null)
             createLoader(FileActionService.FileAction.OTGLIST, file.name, null, null, file, null, null);
         else
             createLoader(FileActionService.FileAction.OTGLIST, null, null, null, file, null, null);
+    }
+
+    public void otgListFolder(FileInfo file) {
+        if (file != null)
+            createLoader(FileActionService.FileAction.OTGLIST_FOLDER, file.name, null, null, file, null, null);
+        else
+            createLoader(FileActionService.FileAction.OTGLIST_FOLDER, null, null, null, file, null, null);
     }
 
     public void rename(String path, String newName) {
@@ -144,6 +155,22 @@ public class FileActionManager {
             paths.add(info.path);
         }
         createLoader(FileActionService.FileAction.COPY_LOCAL_OTG, null, null, paths, null, destinationDFiles, null);
+    }
+
+    public void copyFromLocaltoOTGEncrypt(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles){
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectedFiles) {
+            paths.add(info.path);
+        }
+        createLoader(FileActionService.FileAction.COPY_LOCAL_OTG_ENCRYPT, null, null, paths, null, destinationDFiles, null);
+    }
+
+    public void copyFromLocaltoOTGDecrypt(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles){
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectedFiles) {
+            paths.add(info.path);
+        }
+        createLoader(FileActionService.FileAction.COPY_LOCAL_OTG_DECRYPT, null, null, paths, null, destinationDFiles, null);
     }
 
     public void copyOTG(ArrayList<DocumentFile> srcDFiles, ArrayList<DocumentFile> destinationDFiles){
@@ -196,6 +223,30 @@ public class FileActionManager {
 
     public void decrypt(ArrayList<String> decryptList){
         createLoader(FileActionService.FileAction.DECRYPT, null, null, decryptList, null, null, null);
+    }
+
+    public void decryptOTG(ArrayList<String> decryptList){
+        createLoader(FileActionService.FileAction.DECRYPT_OTG, null, null, decryptList, null, null, null);
+    }
+
+    public void newFolderEncryptOTG(String path){
+        createLoader(FileActionService.FileAction.NEWFOLDER_ENCRYPT_OTG, null, path, null, null, null, null);
+    }
+
+    public void newFolderDecryptOTG(String path){
+        createLoader(FileActionService.FileAction.NEWFOLDER_DECRYPT_OTG, null, path, null, null, null, null);
+    }
+
+    public void copyOTGtoLocalEncrypt(ArrayList<DocumentFile> srcDFiles, String desinationPath){
+        createLoader(FileActionService.FileAction.COPY_OTG_LOCAL_ENCRYPT, null, desinationPath, null, null, srcDFiles, null);
+    }
+
+    public void copyOTGtoLocalDecrypt(ArrayList<DocumentFile> srcDFiles, String desinationPath){
+        createLoader(FileActionService.FileAction.COPY_OTG_LOCAL_DECRYPT, null, desinationPath, null, null, srcDFiles, null);
+    }
+
+    public void encryptOTG(ArrayList<String> encryptList){
+        createLoader(FileActionService.FileAction.ENCRYPT_OTG, null, null, encryptList, null, null, null);
     }
 
     private void createLoader(FileActionService.FileAction mode, String name, String dest, ArrayList<String> paths, FileInfo file, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2) {

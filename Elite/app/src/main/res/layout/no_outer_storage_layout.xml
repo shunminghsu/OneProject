@@ -2,13 +2,27 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/no_outer_storage_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/no_outer_storage"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:gravity="center">
+
+        <TextView
+            android:id="@+id/no_storage_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/no_storage_textsize" />
+
+        <ImageView
+            android:id="@+id/no_outer_storage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/design_navigation_icon_size" />
+    </RelativeLayout>
 
     <Button
         android:id="@+id/check_btn"
@@ -16,5 +30,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/colorPrimary"
-        android:textColor="@color/colorWhite"/>
+        android:text="@string/refresh"
+        android:textSize="@dimen/storage_text_size"
+        android:textColor="@color/colorWhite" />
 </RelativeLayout>

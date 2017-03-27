@@ -3,15 +3,15 @@
 
     <item
         android:state_pressed="true"
-        android:drawable="@color/colorWhite" />
+        android:drawable="@drawable/btn_browser_select_bg" />
 
     <item
         android:state_selected="true"
-        android:drawable="@color/colorGray" />
+        android:drawable="@drawable/btn_browser_select_bg" />
 
     <item
         android:state_enabled="true"
-        android:drawable="@color/colorWhite" />
+        android:drawable="@drawable/btn_browser_notselect_bg" />
 
 
 </selector>
