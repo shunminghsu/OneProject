@@ -143,4 +143,8 @@
     <string name="setting_cleancache">Clean Cache</string>
     <string name="setting_information">Information</string>
     <string name="setting_about">About</string>
+    <string name="about_copyright" translatable="false">Copyright \u00A9 2017 Transcend Information Inc.\nAll rights reserved.</string>
+    <string name="about_enduser">End-User License Agreement</string>
+    <string name="about_opensource">Open Source Statement</string>
+    <string name="about_version">App Version</string>
 </resources>

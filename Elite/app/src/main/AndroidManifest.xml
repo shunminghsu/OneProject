@@ -42,6 +42,8 @@
             android:label="@string/app_name"
             android:theme = "@style/NoTitleDialog"
             android:configChanges="orientation|keyboardHidden|screenSize" />
+        <activity android:name=".Setting.AboutActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

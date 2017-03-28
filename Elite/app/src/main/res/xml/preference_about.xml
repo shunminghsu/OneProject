@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout="@layout/preference_item">
+
+    <Preference
+        android:key="@string/about_version"
+        android:layout="@layout/preference_item"
+        android:textColor="@color/colorDarkGray"
+        android:title="@string/about_version" />
+
+    <Preference
+        android:key="@string/about_enduser"
+        android:layout="@layout/preference_item"
+        android:textColor="@color/colorDarkGray"
+        android:title="@string/about_enduser" />
+
+    <Preference
+        android:key="@string/about_opensource"
+        android:layout="@layout/preference_item"
+        android:textColor="@color/colorDarkGray"
+        android:title="@string/about_opensource" />
+
+</PreferenceScreen>

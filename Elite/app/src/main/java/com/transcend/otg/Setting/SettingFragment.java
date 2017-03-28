@@ -1,6 +1,7 @@
 package com.transcend.otg.Setting;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -124,6 +125,15 @@ public class SettingFragment extends Fragment {
         dir.delete();
     }
 
+    private void snackBarShow(int resId) {
+        Snackbar.make(root, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+    }
+
+    private void gotoAboutActivity() {
+        Intent intent = new Intent(getActivity(), AboutActivity.class);
+        getActivity().startActivity(intent);
+    }
+
     class LayoutClickListener implements View.OnClickListener {
 
         @Override
@@ -133,13 +143,13 @@ public class SettingFragment extends Fragment {
             } else if (v == layoutCleanCache) {
                 clearCache();
             } else if (v == layoutAbout) {
-                snackBarShow(R.string.setting_about);
+                gotoAboutActivity();
             }
         }
     }
 
-    private void snackBarShow(int resId) {
-        Snackbar.make(root, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
-    }
+
+
+
 
 }
