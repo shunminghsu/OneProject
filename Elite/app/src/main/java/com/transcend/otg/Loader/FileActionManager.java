@@ -209,6 +209,10 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.NEWFOLDER_ENCRYPT, null, path, null, null, null, null);
     }
 
+    public void newFolderEncryptSD(String path){
+        createLoader(FileActionService.FileAction.NEWFOLDER_ENCRYPT_SD, null, path, null, null, null, null);
+    }
+
     public void copyEncrypt(ArrayList<FileInfo> selectedFiles, String destinationPath){
         ArrayList<String> paths = new ArrayList<>();
         for (FileInfo info : selectedFiles) {
@@ -217,8 +221,32 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.COPY_ENCRYPT, null, destinationPath, paths, null, null, null);
     }
 
+    public void copyEncryptSD(ArrayList<FileInfo> selectedFiles, String destinationPath){
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectedFiles) {
+            paths.add(info.path);
+        }
+        createLoader(FileActionService.FileAction.COPY_ENCRYPT_SD, null, destinationPath, paths, null, null, null);
+    }
+
     public void encrypt(ArrayList<String> encryptList){
         createLoader(FileActionService.FileAction.ENCRYPT, null, null, encryptList, null, null, null);
+    }
+
+    public void encryptSD(ArrayList<String> encryptList){
+        createLoader(FileActionService.FileAction.ENCRYPT_SD, null, null, encryptList, null, null, null);
+    }
+
+    public void newFolderDecryptSD(String path){
+        createLoader(FileActionService.FileAction.NEWFOLDER_DECRYPT_SD, null, path, null, null, null, null);
+    }
+
+    public void copySDtoLocalDecrypt(ArrayList<DocumentFile> srcDFiles, String desinationPath){
+        createLoader(FileActionService.FileAction.COPY_SD_LOCAL_DECRYPT, null, desinationPath, null, null, srcDFiles, null);
+    }
+
+    public void decryptSD(ArrayList<String> decryptList){
+        createLoader(FileActionService.FileAction.DECRYPT_SD, null, null, decryptList, null, null, null);
     }
 
     public void decrypt(ArrayList<String> decryptList){

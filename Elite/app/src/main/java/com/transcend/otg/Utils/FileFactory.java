@@ -317,7 +317,7 @@ public class FileFactory {
                 }
             }
         }
-        if (fileCount == tmpDFile.length && fileCount == tmpFile.size()) {
+        if (fileCount == tmpFile.size()) {
             return true;
         } else {
             return false;

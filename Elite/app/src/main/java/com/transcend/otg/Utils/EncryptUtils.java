@@ -17,6 +17,15 @@ public class EncryptUtils {
     public static String afterEncryptPath = "";
     public static String beforeEncryptPath = "";
     public static ArrayList<FileInfo> selectLocalFile = new ArrayList<FileInfo>();
+    public static String copyToSDPath = "";
+
+    public static String getCopyToSDPath() {
+        return copyToSDPath;
+    }
+
+    public static void setCopyToSDPath(String copyToSDPath) {
+        EncryptUtils.copyToSDPath = copyToSDPath;
+    }
 
     public static ArrayList<DocumentFile> getSelectedDocumentFile() {
         return selectedDocumentFile;

@@ -50,6 +50,12 @@ public class LocalActionService extends FileActionService{
         COPY_OTG_LOCAL_DECRYPT = LoaderID.OTG_LOCAL_COPY_DECRYPT;
         DECRYPT_OTG = LoaderID.OTG_DECRYPT;
         COPY_LOCAL_OTG_DECRYPT = LoaderID.LOCAL_OTG_COPY_DECRYPT;
+        NEWFOLDER_ENCRYPT_SD = LoaderID.SD_NEW_FOLDER_ENCRYPT;
+        COPY_ENCRYPT_SD = LoaderID.SD_COPY_ENCRYPT;
+        ENCRYPT_SD = LoaderID.SD_ENCRYPT;
+        NEWFOLDER_DECRYPT_SD = LoaderID.SD_NEW_FOLDER_DECRYPT;
+        COPY_SD_LOCAL_DECRYPT = LoaderID.SD_LOCAL_COPY_DECRYPT;
+        DECRYPT_SD = LoaderID.SD_DECRYPT;
     }
 
     @Override
@@ -153,6 +159,31 @@ public class LocalActionService extends FileActionService{
     }
 
     @Override
+    protected AsyncTaskLoader copyEncryptSD(Context context, List<String> sources, String dest) {
+        return new SDEncryptCopyLoader(context, sources, dest);
+    }
+
+    @Override
+    protected AsyncTaskLoader encryptSD(Context context, List<String> list) {
+        return new SDEncryptLoader(context, list);
+    }
+
+    @Override
+    protected AsyncTaskLoader newFolderDecryptSD(Context context, String path) {
+        return new SDDecryptNewFolderLoader(context, path);
+    }
+
+    @Override
+    protected AsyncTaskLoader copySDtoLocalDecrypt(Context context, ArrayList<DocumentFile> dFiles, String dest) {
+        return new SDCopytoLocalDecryptLoader(context, dFiles, dest);
+    }
+
+    @Override
+    protected AsyncTaskLoader decryptSD(Context context, List<String> list) {
+        return new SDDecryptLoader(context, list);
+    }
+
+    @Override
     protected AsyncTaskLoader decrypt(Context context, List<String> list) {
         return new LocalDecryptLoader(context, list);
     }
@@ -215,6 +246,11 @@ public class LocalActionService extends FileActionService{
     @Override
     protected AsyncTaskLoader newFolderEncrypt(Context context, String path) {
         return new LocalEncryptNewFolderLoader(context, path);
+    }
+
+    @Override
+    protected AsyncTaskLoader newFolderEncryptSD(Context context, String path) {
+        return new SDEncryptNewFolderLoader(context, path);
     }
 
     @Override

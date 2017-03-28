@@ -18,6 +18,16 @@ public class DecryptUtils {
     public static String afterDecryptPath = "";
     public static String beforeDecryptPath = "";
 
+    public static String getCopyToSDPath() {
+        return copyToSDPath;
+    }
+
+    public static void setCopyToSDPath(String copyToSDPath) {
+        DecryptUtils.copyToSDPath = copyToSDPath;
+    }
+
+    public static String copyToSDPath = "";
+
     public static ArrayList<DocumentFile> getSelectedDocumentFile() {
         return selectedDocumentFile;
     }

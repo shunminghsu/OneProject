@@ -38,4 +38,11 @@ public class LoaderID {
     public static final int OTG_DECRYPT = 35;
     public static final int LOCAL_OTG_COPY_DECRYPT = 36;
     public static final int OTG_FILE_LIST_ONLYFOLDER = 37;
+
+    public static final int SD_NEW_FOLDER_ENCRYPT = 50;
+    public static final int SD_COPY_ENCRYPT = 51;
+    public static final int SD_ENCRYPT = 52;
+    public static final int SD_NEW_FOLDER_DECRYPT = 53;
+    public static final int SD_LOCAL_COPY_DECRYPT = 54;
+    public static final int SD_DECRYPT= 55;
 }

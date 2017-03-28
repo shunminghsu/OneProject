@@ -54,35 +54,20 @@ public abstract class FileActionService {
     protected int COPY_LOCAL_OTG_DECRYPT;
     protected int LIST_FOLDER;
     protected int OTGLIST_FOLDER;
+    protected int NEWFOLDER_ENCRYPT_SD;
+    protected int COPY_ENCRYPT_SD;
+    protected int ENCRYPT_SD;
+    protected int NEWFOLDER_DECRYPT_SD;
+    protected int COPY_SD_LOCAL_DECRYPT;
+    protected int DECRYPT_SD;
 
     public enum FileAction {
         OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, NEWFOLDER, SHARE, LIST_ALL_TYPE, OTGLIST, RENAME_OTG, DELETE_OTG,
         NEWFOLDER_OTG, COPY_OTG, COPY_LOCAL_OTG, COPY_OTG_LOCAL, MOVE_OTG, MOVE_LOCAL_OTG, MOVE_OTG_LOCAL, NEWFOLDER_ENCRYPT, COPY_ENCRYPT,
         ENCRYPT, DECRYPT, NEWFOLDER_ENCRYPT_OTG, COPY_OTG_LOCAL_ENCRYPT, ENCRYPT_OTG, COPY_LOCAL_OTG_ENCRYPT, NEWFOLDER_DECRYPT_OTG,
-        COPY_OTG_LOCAL_DECRYPT, DECRYPT_OTG, COPY_LOCAL_OTG_DECRYPT, LIST_FOLDER, OTGLIST_FOLDER
+        COPY_OTG_LOCAL_DECRYPT, DECRYPT_OTG, COPY_LOCAL_OTG_DECRYPT, LIST_FOLDER, OTGLIST_FOLDER, NEWFOLDER_ENCRYPT_SD, COPY_ENCRYPT_SD,
+        ENCRYPT_SD, NEWFOLDER_DECRYPT_SD, COPY_SD_LOCAL_DECRYPT, DECRYPT_SD
     }
-
-    public String getMode(Context context){
-        return mMode;
-    }
-
-    public String getRootPath(Context context){
-        return mRoot;
-    }
-
-    public void setCurrentPath(String path){
-        mPath = path;
-    }
-
-//    public void setExternalStorageController(ExternalStorageController controller){
-//        mExternalStorageController = controller;
-//    }
-//
-//    protected boolean isWritePermissionRequired(Context context, String path) {
-//        if(mExternalStorageController != null)
-//            return mExternalStorageController.isWritePermissionRequired(path);
-//        return false;
-//    }
 
     public FileAction getFileAction(int action){
         FileAction fileAction = null;
@@ -156,6 +141,18 @@ public abstract class FileActionService {
             fileAction = FileAction.LIST_FOLDER;
         else if(action == OTGLIST_FOLDER)
             fileAction = FileAction.OTGLIST_FOLDER;
+        else if(action == NEWFOLDER_ENCRYPT_SD)
+            fileAction = FileAction.NEWFOLDER_ENCRYPT_SD;
+        else if(action == COPY_ENCRYPT_SD)
+            fileAction = FileAction.COPY_ENCRYPT_SD;
+        else if(action == ENCRYPT_SD)
+            fileAction = FileAction.ENCRYPT_SD;
+        else if(action == NEWFOLDER_DECRYPT_SD)
+            fileAction = FileAction.NEWFOLDER_DECRYPT_SD;
+        else if(action == COPY_SD_LOCAL_DECRYPT)
+            fileAction = FileAction.COPY_SD_LOCAL_DECRYPT;
+        else if(action == DECRYPT_SD)
+            fileAction = FileAction.DECRYPT_SD;
         return fileAction;
     }
 
@@ -267,6 +264,24 @@ public abstract class FileActionService {
             case OTGLIST_FOLDER:
                 id = OTGLIST_FOLDER;
                 break;
+            case NEWFOLDER_ENCRYPT_SD:
+                id = NEWFOLDER_ENCRYPT_SD;
+                break;
+            case COPY_ENCRYPT_SD:
+                id = COPY_ENCRYPT_SD;
+                break;
+            case ENCRYPT_SD:
+                id = ENCRYPT_SD;
+                break;
+            case NEWFOLDER_DECRYPT_SD:
+                id = NEWFOLDER_DECRYPT_SD;
+                break;
+            case COPY_SD_LOCAL_DECRYPT:
+                id = COPY_SD_LOCAL_DECRYPT;
+                break;
+            case DECRYPT_SD:
+                id = DECRYPT_SD;
+                break;
         }
 
         return id;
@@ -348,6 +363,18 @@ public abstract class FileActionService {
                 return decryptOTG(context, paths);
             case COPY_LOCAL_OTG_DECRYPT:
                 return copyLocaltoOTGDecrypt(context, paths, dFiles);
+            case NEWFOLDER_ENCRYPT_SD:
+                return newFolderEncryptSD(context, path);
+            case COPY_ENCRYPT_SD:
+                return copyEncryptSD(context, paths, path);
+            case ENCRYPT_SD:
+                return encryptSD(context, paths);
+            case NEWFOLDER_DECRYPT_SD:
+                return newFolderDecryptSD(context, path);
+            case COPY_SD_LOCAL_DECRYPT:
+                return copySDtoLocalDecrypt(context, dFiles, path);
+            case DECRYPT_SD:
+                return decryptSD(context, paths);
         }
 
         return null;
@@ -403,6 +430,8 @@ public abstract class FileActionService {
 
     protected abstract AsyncTaskLoader newFolderEncrypt(Context context, String path);
 
+    protected abstract AsyncTaskLoader newFolderEncryptSD(Context context, String path);
+
     protected abstract AsyncTaskLoader copyEncrypt(Context context, List<String> list, String dest);
 
     protected abstract AsyncTaskLoader encrypt(Context context, List<String> list);
@@ -424,4 +453,14 @@ public abstract class FileActionService {
     protected abstract AsyncTaskLoader decryptOTG(Context context, List<String> list);
 
     protected abstract AsyncTaskLoader copyLocaltoOTGDecrypt(Context context, List<String> list, ArrayList<DocumentFile> dFiles);
+
+    protected abstract AsyncTaskLoader copyEncryptSD(Context context, List<String> list, String dest);
+
+    protected abstract AsyncTaskLoader encryptSD(Context context, List<String> list);
+
+    protected abstract AsyncTaskLoader newFolderDecryptSD(Context context, String path);
+
+    protected abstract AsyncTaskLoader copySDtoLocalDecrypt(Context context, ArrayList<DocumentFile> dFiles, String dest);
+
+    protected abstract AsyncTaskLoader decryptSD(Context context, List<String> list);
 }

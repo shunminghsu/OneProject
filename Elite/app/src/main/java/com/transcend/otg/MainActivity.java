@@ -65,6 +65,7 @@ import com.transcend.otg.Dialog.OTGEncryptDialog;
 import com.transcend.otg.Dialog.OTGRenameDialog;
 import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
+import com.transcend.otg.Dialog.SDDecryptDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Feedback.FeedbackFragment;
 import com.transcend.otg.Help.HelpFragment;
@@ -77,6 +78,12 @@ import com.transcend.otg.Loader.OTGDecryptLoader;
 import com.transcend.otg.Loader.OTGDecryptNewFolderLoader;
 import com.transcend.otg.Loader.OTGEncryptLoader;
 import com.transcend.otg.Loader.OTGEncryptNewFolderLoader;
+import com.transcend.otg.Loader.SDCopytoLocalDecryptLoader;
+import com.transcend.otg.Loader.SDDecryptLoader;
+import com.transcend.otg.Loader.SDDecryptNewFolderLoader;
+import com.transcend.otg.Loader.SDEncryptCopyLoader;
+import com.transcend.otg.Loader.SDEncryptLoader;
+import com.transcend.otg.Loader.SDEncryptNewFolderLoader;
 import com.transcend.otg.Utils.DecryptUtils;
 import com.transcend.otg.Utils.EncryptUtils;
 import com.transcend.otg.Utils.FileFactory;
@@ -84,7 +91,9 @@ import com.transcend.otg.Utils.MediaUtils;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -123,6 +132,8 @@ public class MainActivity extends AppCompatActivity
     private RelativeLayout mActionModeView;
     private TextView mActionModeTitle, mToolbarTitle;
     private int nowAction;
+    private Calendar calendar;
+    private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss");
 
     //home page
     private LinearLayout home_container;
@@ -159,6 +170,7 @@ public class MainActivity extends AppCompatActivity
         mScreenW = displaymetrics.widthPixels;
         nowAction = -1;
         Constant.ROOT_CACHE = getCacheDir().getAbsolutePath();
+        calendar = Calendar.getInstance();
     }
 
     private void initHome() {
@@ -422,6 +434,8 @@ public class MainActivity extends AppCompatActivity
                     doLocalEncryptDialog();
                 }else if(Constant.nowMODE == Constant.MODE.OTG){
                     doOTGEncryptDialog();
+                }else if(Constant.nowMODE == Constant.MODE.SD){
+                    doSDEncryptDialog();
                 }
                 break;
 
@@ -446,6 +460,8 @@ public class MainActivity extends AppCompatActivity
                 doLocalDecryptDialog(file);
             }else if(Constant.nowMODE == Constant.MODE.OTG){
                 doOTGDecryptDialog(file);
+            }else if(Constant.nowMODE == Constant.MODE.SD){
+                doSDDecryptDialog(file);
             }
         }
 
@@ -1107,6 +1123,18 @@ public class MainActivity extends AppCompatActivity
                 doOTGDecrypt();
             }else if(loader instanceof OTGDecryptLoader){
                 doLocalCopytoOTGDecrypt(false);
+            }else if(loader instanceof SDEncryptNewFolderLoader){
+                doSDEncryptCopy();
+            }else if(loader instanceof SDEncryptCopyLoader){
+                doSDEncrypt();
+            }else if(loader instanceof SDEncryptLoader){
+                doLocalCopytoOTGEncrypt(true);
+            }else if(loader instanceof SDDecryptNewFolderLoader){
+                doSDDecryptCopy();
+            }else if(loader instanceof SDCopytoLocalDecryptLoader){
+                doSDDecrypt();
+            }else if(loader instanceof SDDecryptLoader){
+                doLocalCopytoOTGDecrypt(true);
             }
 
             else{
@@ -1153,7 +1181,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doOTGEncryptNewFolder(){
-        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         EncryptUtils.setBeforeEncryptPath(folderName);
         mFileActionManager.newFolderEncryptOTG(folderName);
@@ -1178,19 +1206,23 @@ public class MainActivity extends AppCompatActivity
 
     private void doLocalCopytoOTGEncrypt(boolean isSrcSDCard){
         if(isSrcSDCard){
-//            String sdKey = LocalPreferences.getSDKey(mContext);
-//            if(sdKey != ""){
-//                Uri uriSDKey = Uri.parse(sdKey);
-//                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
-//                Constant.mSDCurrentDocumentFile = tmpDFile;
-//                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
-//                ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
-//                ArrayList<DocumentFile> destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
-//                if(actionId == R.id.action_copy)
-//                    mFileActionManager.copyFromLocaltoOTG(selectedFiles, destDFiles);
-//                else if(actionId == R.id.action_move)
-//                    mFileActionManager.moveFromLocaltoOTG(selectedFiles, destDFiles);
-//            }
+            String sdKey = LocalPreferences.getSDKey(mContext);
+            if(sdKey != ""){
+                Uri uriSDKey = Uri.parse(sdKey);
+                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+                Constant.mSDCurrentDocumentFile = tmpDFile;
+                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+
+                String getLocalEncryptFilePath = EncryptUtils.getAfterEncryptPath();
+                FileInfo tmpFile = new FileInfo();
+                tmpFile.path = getLocalEncryptFilePath + getResources().getString(R.string.encrypt_subfilename);
+                ArrayList<FileInfo> selectedFiles = new ArrayList<>();
+                selectedFiles.add(tmpFile);
+                String copyToSDPath = EncryptUtils.getCopyToSDPath() != null ? EncryptUtils.getCopyToSDPath() : sdPath;
+                ArrayList<FileInfo> files = createListFileInfoFromPath(copyToSDPath);
+                ArrayList<DocumentFile> destinationDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
+                mFileActionManager.copyFromLocaltoOTGEncrypt(selectedFiles, destinationDFiles);
+            }
         }else {
             String getLocalEncryptFilePath = EncryptUtils.getAfterEncryptPath();
             FileInfo tmpFile = new FileInfo();
@@ -1204,6 +1236,56 @@ public class MainActivity extends AppCompatActivity
             destinationDFiles.add(tmpDFile);
             mFileActionManager.copyFromLocaltoOTGEncrypt(selectedFiles, destinationDFiles);
         }
+    }
+
+    private void doSDEncryptDialog(){
+        final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+        List<String> names = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
+                names.add(file.name.toLowerCase());
+        }
+        new LocalEncryptDialog(this, names) {
+            @Override
+            public void onConfirm(String newName, String password) {
+                ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+                if(tabPostiion == 5){
+                    File child = new File(selectedFiles.get(0).path);
+                    EncryptUtils.setCopyToSDPath(child.getParent());
+                }
+                EncryptUtils.setSelectLocalFile(selectedFiles);
+                EncryptUtils.setEncryptFileName(newName);
+                EncryptUtils.setPassword(password);
+                doSDEncryptNewFolder();
+                if(mActionMode != null)
+                    mActionMode.finish();
+            }
+        };
+    }
+
+    private void doSDEncryptNewFolder(){
+        String currentDateTimeString = sdf.format(calendar.getTime());
+        String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
+        EncryptUtils.setBeforeEncryptPath(folderName);
+        mFileActionManager.newFolderEncryptSD(folderName);
+    }
+
+    private void doSDEncryptCopy(){
+        ArrayList<FileInfo> selectedFiles = EncryptUtils.getSelectLocalFile();
+        mFileActionManager.copyEncryptSD(selectedFiles, EncryptUtils.getBeforeEncryptPath());
+    }
+
+    private void doSDEncrypt(){
+        String password = EncryptUtils.getPassword();
+        String beforeEncryptPath = EncryptUtils.getBeforeEncryptPath();
+        String afterEncryptPath = EncryptUtils.getBeforeEncryptPath() + File.separator + EncryptUtils.getEncryptFileName();
+        EncryptUtils.setAfterEncryptPath(afterEncryptPath);
+        ArrayList<String> encryptList = new ArrayList<>();
+        encryptList.add(beforeEncryptPath);
+        encryptList.add(afterEncryptPath);
+        encryptList.add(password);
+        mFileActionManager.encryptSD(encryptList);
     }
 
     private void doLocalEncryptDialog() {
@@ -1233,7 +1315,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doLocalEncryptNewFolder(){
-        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         EncryptUtils.setBeforeEncryptPath(folderName);
         mFileActionManager.newFolderEncrypt(folderName);
@@ -1280,6 +1362,55 @@ public class MainActivity extends AppCompatActivity
         mFileActionManager.decrypt(decryptList);
     }
 
+    private void doSDDecryptDialog(FileInfo clickFile){
+        final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+        ArrayList<String> folderNames = new ArrayList<String>();
+        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
+        for (FileInfo file : allFiles) {
+            if (file.type == Constant.TYPE_DIR)
+                folderNames.add(file.name.toLowerCase());
+        }
+        ArrayList<FileInfo> selectedFile = new ArrayList<>();
+        selectedFile.add(clickFile);
+        new SDDecryptDialog(this, folderNames, selectedFile){
+            @Override
+            public void onConfirm(String newFolderName, String password, ArrayList<DocumentFile> selectedDFiles) {
+                if(tabPostiion == 5){
+                    DocumentFile child = selectedDFiles.get(0).getParentFile();
+                    DecryptUtils.setAfterDecryptDFile(child);
+                }
+                DecryptUtils.setSelectedDocumentFile(selectedDFiles);
+                DecryptUtils.setDecryptFileName(newFolderName);
+                DecryptUtils.setPassword(password);
+                doSDDecryptNewFolder();
+            }
+        };
+    }
+
+    private void doSDDecryptNewFolder(){
+        String currentDateTimeString = sdf.format(calendar.getTime());
+        String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
+        DecryptUtils.setBeforeDecryptPath(folderName);
+        mFileActionManager.newFolderDecryptSD(folderName);
+    }
+
+    private void doSDDecryptCopy(){
+        ArrayList<DocumentFile> selectedDFiles = DecryptUtils.getSelectedDocumentFile();
+        mFileActionManager.copySDtoLocalDecrypt(selectedDFiles, DecryptUtils.getBeforeDecryptPath());
+    }
+
+    private void doSDDecrypt(){
+        String password = DecryptUtils.getPassword();
+        String beforeEncryptPath = DecryptUtils.getBeforeDecryptPath() + File.separator + DecryptUtils.getSelectedDocumentFile().get(0).getName();
+        String afterDecryptPath = DecryptUtils.getBeforeDecryptPath() + File.separator + DecryptUtils.getDecryptFileName();
+        DecryptUtils.setAfterDecryptPath(afterDecryptPath);
+        ArrayList<String> decryptList = new ArrayList<>();
+        decryptList.add(afterDecryptPath);
+        decryptList.add(password);
+        decryptList.add(beforeEncryptPath);
+        mFileActionManager.decryptSD(decryptList);
+    }
+
     private void doOTGDecryptDialog(FileInfo clickFile){
         final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
         ArrayList<String> folderNames = new ArrayList<String>();
@@ -1306,7 +1437,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doOTGDecryptNewFolder(){
-        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         DecryptUtils.setBeforeDecryptPath(folderName);
         mFileActionManager.newFolderDecryptOTG(folderName);
@@ -1331,19 +1462,18 @@ public class MainActivity extends AppCompatActivity
 
     private void doLocalCopytoOTGDecrypt(boolean isSrcSDCard){
         if(isSrcSDCard){
-//            String sdKey = LocalPreferences.getSDKey(mContext);
-//            if(sdKey != ""){
-//                Uri uriSDKey = Uri.parse(sdKey);
-//                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
-//                Constant.mSDCurrentDocumentFile = tmpDFile;
-//                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
-//                ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
-//                ArrayList<DocumentFile> destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
-//                if(actionId == R.id.action_copy)
-//                    mFileActionManager.copyFromLocaltoOTG(selectedFiles, destDFiles);
-//                else if(actionId == R.id.action_move)
-//                    mFileActionManager.moveFromLocaltoOTG(selectedFiles, destDFiles);
-//            }
+            String sdKey = LocalPreferences.getSDKey(mContext);
+            if(sdKey != ""){
+                String getLocalDecryptFilePath = DecryptUtils.getAfterDecryptPath();
+                FileInfo tmpFile = new FileInfo();
+                tmpFile.path = getLocalDecryptFilePath;
+                ArrayList<FileInfo> selectedFiles = new ArrayList<>();
+                selectedFiles.add(tmpFile);
+                DocumentFile tmpDFile = DecryptUtils.getSelectedDocumentFile().get(0).getParentFile();
+                ArrayList<DocumentFile> destinationDFiles = new ArrayList<>();
+                destinationDFiles.add(tmpDFile);
+                mFileActionManager.copyFromLocaltoOTGDecrypt(selectedFiles, destinationDFiles);
+            }
         }else {
             String getLocalDecryptFilePath = DecryptUtils.getAfterDecryptPath();
             FileInfo tmpFile = new FileInfo();
