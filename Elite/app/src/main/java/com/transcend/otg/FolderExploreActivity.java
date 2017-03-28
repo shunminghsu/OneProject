@@ -610,6 +610,8 @@ public class FolderExploreActivity extends AppCompatActivity
                     doOTGCopyorMove(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
                 }
                 break;
+            case R.id.action_encrypt:
+                doSDEncryptNewFolder();
             default:
                 break;
         }
@@ -898,6 +900,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 }else if(Constant.nowMODE == Constant.MODE.OTG){
                     doOTGEncryptDialog();
                 }else if(Constant.nowMODE == Constant.MODE.SD){
+                    nowAction = R.id.action_encrypt;
                     doSDEncryptDialog();
                 }
                 break;
@@ -1159,7 +1162,10 @@ public class FolderExploreActivity extends AppCompatActivity
                 EncryptUtils.setSelectLocalFile(selectedFiles);
                 EncryptUtils.setEncryptFileName(newName);
                 EncryptUtils.setPassword(password);
-                doSDEncryptNewFolder();
+                if(checkSDWritePermission()){
+                    doSDEncryptNewFolder();
+                }
+
                 if(mActionMode != null)
                     mActionMode.finish();
             }

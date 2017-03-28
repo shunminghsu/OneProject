@@ -9,6 +9,7 @@
     <color name="colorGray">#BDBDBD</color>
     <color name="colorDarkGray">#424242</color>
     <color name="colorLightGray">#848484</color>
+    <color name="colorLightLightGray">#E0E0E0</color>
 
 
 </resources>

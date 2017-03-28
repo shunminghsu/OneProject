@@ -122,6 +122,7 @@
 
     <string name="top_arrow">&#9650;</string>
     <string name="bottom_arrow">&#9660;</string>
+
     <!-- Feedback -->
     <string name="feedback_done">Done</string>
     <string name="feedback_fail">Try again</string>
@@ -136,5 +137,10 @@
     <string name="feedback_edittext_require">Required</string>
     <string name="feedback_send_btn">Send</string>
 
->>>>>>> Stashed changes
+    <!-- Setting -->
+    <string name="setting_storage">Storage</string>
+    <string name="setting_capacity">Capacity</string>
+    <string name="setting_cleancache">Clean Cache</string>
+    <string name="setting_information">Information</string>
+    <string name="setting_about">About</string>
 </resources>

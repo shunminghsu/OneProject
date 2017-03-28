@@ -84,6 +84,7 @@ import com.transcend.otg.Loader.SDDecryptNewFolderLoader;
 import com.transcend.otg.Loader.SDEncryptCopyLoader;
 import com.transcend.otg.Loader.SDEncryptLoader;
 import com.transcend.otg.Loader.SDEncryptNewFolderLoader;
+import com.transcend.otg.Setting.SettingFragment;
 import com.transcend.otg.Utils.DecryptUtils;
 import com.transcend.otg.Utils.EncryptUtils;
 import com.transcend.otg.Utils.FileFactory;
@@ -122,6 +123,7 @@ public class MainActivity extends AppCompatActivity
     private LocalFragment localFragment;
     private FeedbackFragment feedbackFragment;
     private HelpFragment helpFragment;
+    private SettingFragment settingFragment;
     private int mLoaderID, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private FileActionManager mFileActionManager;
     private String mPath;
@@ -258,6 +260,7 @@ public class MainActivity extends AppCompatActivity
         otgFragment = new OTGFragment();
         helpFragment = new HelpFragment();
         feedbackFragment = new FeedbackFragment();
+        settingFragment = new SettingFragment();
     }
 
     private void initActionModeView() {
@@ -313,6 +316,15 @@ public class MainActivity extends AppCompatActivity
         layout_storage.setVisibility(View.GONE);
         mFab.setVisibility(View.INVISIBLE);
         replaceFragment(feedbackFragment);
+        invalidateOptionsMenu();
+    }
+
+    private void showSettingFragment(){
+        home_container.setVisibility(View.GONE);
+        container.setVisibility(View.VISIBLE);
+        layout_storage.setVisibility(View.GONE);
+        mFab.setVisibility(View.INVISIBLE);
+        replaceFragment(settingFragment);
         invalidateOptionsMenu();
     }
 
@@ -435,6 +447,7 @@ public class MainActivity extends AppCompatActivity
                 }else if(Constant.nowMODE == Constant.MODE.OTG){
                     doOTGEncryptDialog();
                 }else if(Constant.nowMODE == Constant.MODE.SD){
+                    nowAction = R.id.action_encrypt;
                     doSDEncryptDialog();
                 }
                 break;
@@ -736,6 +749,9 @@ public class MainActivity extends AppCompatActivity
         } else if(id == R.id.nav_feedback){
             mToolbarTitle.setText(getResources().getString(R.string.drawer_feedback));
             showFeedbackFragment();
+        } else if(id == R.id.nav_setting){
+            mToolbarTitle.setText(getResources().getString(R.string.drawer_setting));
+            showSettingFragment();
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -763,10 +779,10 @@ public class MainActivity extends AppCompatActivity
     public void replaceFragment(Fragment fragment) {
         if (fragment instanceof BrowserFragment) {
             mFab.setVisibility(View.VISIBLE);
-            //showSearchIcon(true);
+            if(fragment instanceof LocalFragment)
+                Constant.nowMODE = Constant.MODE.LOCAL;
         } else {
             mFab.setVisibility(View.GONE);
-            //showSearchIcon(false);
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -1090,6 +1106,9 @@ public class MainActivity extends AppCompatActivity
                     doOTGCopyorMove(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
                 }
                 break;
+            case R.id.action_encrypt:
+                doSDEncryptNewFolder();
+                break;
             default:
                 break;
         }
@@ -1142,7 +1161,8 @@ public class MainActivity extends AppCompatActivity
                     mActionMode.finish();
                     Constant.mActionMode = mActionMode = null;
                 }
-                getBrowserFragment().restartLoaderforCurrentTab();
+                if(getBrowserFragment() !=null)
+                    getBrowserFragment().restartLoaderforCurrentTab();
             }
 
         }else{
@@ -1257,7 +1277,9 @@ public class MainActivity extends AppCompatActivity
                 EncryptUtils.setSelectLocalFile(selectedFiles);
                 EncryptUtils.setEncryptFileName(newName);
                 EncryptUtils.setPassword(password);
-                doSDEncryptNewFolder();
+                if(checkSDWritePermission()){
+                    doSDEncryptNewFolder();
+                }
                 if(mActionMode != null)
                     mActionMode.finish();
             }
