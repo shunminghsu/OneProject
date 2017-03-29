@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/more"
+        android:icon="@mipmap/ic_more_white"
+        android:title="@string/more"
+        app:showAsAction="always">
+
+        <menu>
+            <item
+                android:id="@+id/search"
+                android:title="@string/menu_search"
+                android:icon="@mipmap/ic_search_gray"
+                android:visible="false"
+                app:showAsAction="collapseActionView|never"
+                app:actionViewClass="android.support.v7.widget.SearchView" />
+            <item
+                android:id="@+id/menu_grid"
+                android:title="@string/menu_grid"
+                android:icon="@mipmap/ic_view_grid_gray"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/menu_list"
+                android:title="@string/menu_list"
+                android:icon="@mipmap/ic_view_list_gray"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/menu_new_folder"
+                android:title="@string/menu_new_folder"
+                android:icon="@drawable/ic_menu_send"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/menu_easy_sort"
+                android:title="@string/menu_sort"
+                android:icon="@mipmap/ic_sort_gray"
+                app:showAsAction="never" />
+        </menu>
+    </item>
+</menu>

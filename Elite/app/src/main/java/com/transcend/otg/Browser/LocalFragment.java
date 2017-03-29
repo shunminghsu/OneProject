@@ -19,27 +19,27 @@ public class LocalFragment extends BrowserFragment {
 
     private void initTabInfos(Bundle savedInstanceState) {
         TabInfo tab = new TabInfo(
-                LIST_TYPE_IMAGE, R.mipmap.ic_browser_filetype_image_gray, savedInstanceState, mContext);
+                LIST_TYPE_IMAGE, R.drawable.ic_browser_filetype_image, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_VIDEO, R.mipmap.ic_browser_filetype_video_gray, savedInstanceState, mContext);
+                LIST_TYPE_VIDEO, R.drawable.ic_browser_filetype_video, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_MUSIC, R.mipmap.ic_browser_filetype_music_gray, savedInstanceState, mContext);
+                LIST_TYPE_MUSIC, R.drawable.ic_browser_filetype_music, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_DOCUMENT, R.mipmap.ic_browser_filetype_document_gray, savedInstanceState, mContext);
+                LIST_TYPE_DOCUMENT, R.drawable.ic_browser_filetype_document, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_ENCRYPTION, R.mipmap.ic_browser_filetype_encryption_gray, savedInstanceState, mContext);
+                LIST_TYPE_ENCRYPTION, R.drawable.ic_browser_filetype_encryption, savedInstanceState, mContext);
         mTabs.add(tab);
 
         tab = new TabInfo(
-                LIST_TYPE_FOLDER, R.mipmap.ic_browser_filetype_all_gray, savedInstanceState, mContext);
+                LIST_TYPE_FOLDER, R.drawable.ic_browser_filetype_all, savedInstanceState, mContext);
         mTabs.add(tab);
     }
 }

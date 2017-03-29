@@ -147,6 +147,10 @@ public class MainActivity extends AppCompatActivity
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
     private UsbMassStorageDevice device;
 
+    //Menu
+    private MenuItem.OnMenuItemClickListener mCustomMenuItemClicked;
+    private boolean mShowCustomMenuIcon = false;
+
     public static int mScreenW;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,6 +210,7 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         mToolbarTitle = (TextView) findViewById(R.id.toolbar_title);
+        mCustomMenuItemClicked = new CustomMenuItemClicked();
     }
 
     private void initBroadcast(){
@@ -290,14 +295,15 @@ public class MainActivity extends AppCompatActivity
             container.setVisibility(View.GONE);
             layout_storage.setVisibility(View.GONE);
             mFab.setVisibility(View.GONE);
-            invalidateOptionsMenu(); //all menu item should be disabled, and the empty menu will be hided after invalidated
+            showCustomMenuIcon(false);
+            //invalidateOptionsMenu(); //all menu item should be disabled, and the empty menu will be hided after invalidated
         } else {
             home_container.setVisibility(View.GONE);
             container.setVisibility(View.VISIBLE);
             layout_storage.setVisibility(View.VISIBLE);
             mFab.setVisibility(View.VISIBLE);
-            replaceFragment(localFragment);
-            invalidateOptionsMenu();
+            //showCustomMenuIcon(getBrowserFragment() == null ? false : true);
+            //invalidateOptionsMenu();
         }
     }
 
@@ -519,11 +525,9 @@ public class MainActivity extends AppCompatActivity
                     if (FileFactory.getMountedState(mContext, sdpath)) {
                         replaceFragment(sdFragment);
                     } else {
-                        //showSearchIcon(false);
                         switchToFragment(NoSdFragment.class.getName(), false);
                     }
                 } else {
-                    //showSearchIcon(false);
                     if(mActionMode != null)
                         mActionMode.finish();
                     switchToFragment(NoSdFragment.class.getName(), false);
@@ -567,7 +571,6 @@ public class MainActivity extends AppCompatActivity
 
         if (devices.length == 0) {
             Log.w(TAG, "no device found!");
-            //showSearchIcon(false);
             Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = null;
             Constant.rootUri = null;
             switchToFragment(NoOtgFragment.class.getName(), false);
@@ -623,7 +626,10 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_custom_main, menu);
+        MenuItem customMenu = menu.findItem(R.id.more);
+        customMenu.setOnMenuItemClickListener(mCustomMenuItemClicked);
+        customMenu.setVisible(mShowCustomMenuIcon);
 
         mSearchMenuItem = menu.findItem(R.id.search);
         //mSearchMenuItem.setVisible(mShowSearchIcon);
@@ -648,6 +654,7 @@ public class MainActivity extends AppCompatActivity
                         if (mSearchMenuItemExpanded) {
                             revertToInitialFragment();
                             layout_storage.setVisibility(View.VISIBLE);
+                            showCustomMenuIcon(true);
                             drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                         }
                         return true;
@@ -661,7 +668,44 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
+    class CustomMenuItemClicked implements MenuItem.OnMenuItemClickListener {
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            Menu menu = item.getSubMenu();
+
+            final MenuItem search = menu.findItem(R.id.search);
+            final MenuItem sort = menu.findItem(R.id.menu_easy_sort);
+
+            final MenuItem grid = menu.findItem(R.id.menu_grid);
+            grid.setIcon(R.mipmap.ic_view_grid_gray);
+            final MenuItem list = menu.findItem(R.id.menu_list);
+            final MenuItem newFolder = menu.findItem(R.id.menu_new_folder);
+
+            BrowserFragment fragment = getBrowserFragment();
+            if (fragment != null && fragment.mCurTab != null) {
+                int layout_mode = LocalPreferences.getBrowserViewMode(mContext,
+                        fragment.mCurTab.mType, Constant.ITEM_LIST);
+                grid.setVisible(layout_mode == Constant.ITEM_LIST);
+                list.setVisible(layout_mode == Constant.ITEM_GRID);
+                sort.setVisible(true);
+                search.setVisible(true);
+                if (fragment.getCurrentTabPosition() == 5)
+                    newFolder.setVisible(true);
+                else
+                    newFolder.setVisible(false);
+            } else {
+                grid.setVisible(false);
+                list.setVisible(false);
+                sort.setVisible(false);
+                search.setVisible(false);
+                newFolder.setVisible(false);
+            }
+
+            return false;
+        }
+    }
+    /*@Override Since we suing custom menu, this fun won't be called
     public boolean onPrepareOptionsMenu(Menu menu) { // called every time the menu opens
         super.onPrepareOptionsMenu(menu);
 
@@ -694,7 +738,7 @@ public class MainActivity extends AppCompatActivity
 
 
         return true;
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -717,16 +761,6 @@ public class MainActivity extends AppCompatActivity
             case R.id.menu_list:
                 setViewMode(Constant.ITEM_LIST);
                 return true;
-            case R.id.menu_paste_from_clipboard:
-               // DirectoryFragment dir = getDirectoryFragment();
-                //if (dir != null) {
-                //    dir.pasteFromClipboard();
-                //}
-                return true;
-            case R.id.menu_settings:
-                //final Intent intent = new Intent();
-                //startActivity(intent);
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -741,6 +775,9 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_browser) {
             mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
             showHomeOrFragment(false);
+            markSelectedBtn(mLocalButton);
+            replaceFragment(localFragment);
+            Constant.nowMODE = Constant.MODE.LOCAL;
         } else if (id == R.id.nav_backup) {
             mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
         } else if (id == R.id.nav_help){
@@ -779,10 +816,10 @@ public class MainActivity extends AppCompatActivity
     public void replaceFragment(Fragment fragment) {
         if (fragment instanceof BrowserFragment) {
             mFab.setVisibility(View.VISIBLE);
-            if(fragment instanceof LocalFragment)
-                Constant.nowMODE = Constant.MODE.LOCAL;
+            showCustomMenuIcon(true);
         } else {
             mFab.setVisibility(View.GONE);
+            showCustomMenuIcon(false);
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -800,6 +837,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private Fragment switchToFragment(String fragmentName, boolean addToBackStack) {
+        showCustomMenuIcon(false);
         mFab.setVisibility(View.GONE);
         Fragment f = Fragment.instantiate(this, fragmentName);
         android.support.v4.app.FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -862,10 +900,10 @@ public class MainActivity extends AppCompatActivity
                 });
     }
 
-    /*private void showSearchIcon(boolean show) {
-        mShowSearchIcon = show;
+    private void showCustomMenuIcon(boolean show) {
+        mShowCustomMenuIcon = show;
         invalidateOptionsMenu();
-    }*/
+    }
 
     private BrowserFragment getBrowserFragment() {
         if (container != null && container.getVisibility() == View.GONE)
