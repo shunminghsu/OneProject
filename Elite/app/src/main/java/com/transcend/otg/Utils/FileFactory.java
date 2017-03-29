@@ -457,19 +457,34 @@ public class FileFactory {
         }
         return tmp;
     }
-//    public static String getStorageSize(String filePath) {
-//        StatFs stat = new StatFs(filePath);
-//        long bytesAvailable = (long) stat.getBlockSize() * (long) stat.getBlockCount();
-//        String size = MathUtils.getStorageSize(bytesAvailable);
-//        return size;
-//    }
-//
-//    public static String getUsedStorageSize(String filePath) {
-//        StatFs stat = new StatFs(filePath);
-//        long bytesAvailable = (long) stat.getBlockSize() * (long) stat.getBlockCount();
-//        long bytesLeftAvailable = (long) stat.getBlockSize() * (long) stat.getAvailableBlocks();
-//        String size = MathUtils.getStorageSize(bytesAvailable - bytesLeftAvailable);
-//        return size;
-//
-//    }
+
+    public static long getStorageFreeSizeLong(String filePath) {
+        StatFs stat = new StatFs(filePath);
+        long bytesLeftAvailable = (long) stat.getBlockSize() * (long) stat.getAvailableBlocks();
+        return bytesLeftAvailable;
+    }
+
+    public static long getUsedStorageSizeLong(String filePath) {
+        StatFs stat = new StatFs(filePath);
+        long bytesAvailable = (long) stat.getBlockSize() * (long) stat.getBlockCount();
+        long bytesLeftAvailable = (long) stat.getBlockSize() * (long) stat.getAvailableBlocks();
+        return bytesAvailable - bytesLeftAvailable;
+
+    }
+
+    public static String getStorageFreeSize(String filePath) {
+        StatFs stat = new StatFs(filePath);
+        long bytesAvailable = (long) stat.getBlockSize() * (long) stat.getBlockCount();
+        String size = MathUtils.getStorageSize(bytesAvailable);
+        return size;
+    }
+
+    public static String getUsedStorageSize(String filePath) {
+        StatFs stat = new StatFs(filePath);
+        long bytesAvailable = (long) stat.getBlockSize() * (long) stat.getBlockCount();
+        long bytesLeftAvailable = (long) stat.getBlockSize() * (long) stat.getAvailableBlocks();
+        String size = MathUtils.getStorageSize(bytesAvailable - bytesLeftAvailable);
+        return size;
+
+    }
 }

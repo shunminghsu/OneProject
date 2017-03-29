@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.transcend.otg.Constant.Constant;
@@ -39,6 +40,7 @@ public class SettingFragment extends Fragment {
     private Context mContext;
     private TextView tvCleancacheaction;
     private long totalSize;
+    private ProgressBar pbCleancache;
 
     public SettingFragment() {
     }
@@ -64,15 +66,25 @@ public class SettingFragment extends Fragment {
         layoutCleanCache.setOnClickListener(listener);
         layoutAbout.setOnClickListener(listener);
         tvCleancacheaction = (TextView) root.findViewById(R.id.cleancacheaction);
+        pbCleancache = (ProgressBar) root.findViewById(R.id.cleancacheprogress);
         fileCache = new File(Constant.ROOT_CACHE);
         getCacheSize();
 
         return root;
     }
 
-
+    private void setProgressBarVisibility(boolean visible){
+        if(visible){
+            tvCleancacheaction.setVisibility(View.GONE);
+            pbCleancache.setVisibility(View.VISIBLE);
+        }else {
+            tvCleancacheaction.setVisibility(View.VISIBLE);
+            pbCleancache.setVisibility(View.GONE);
+        }
+    }
 
     private boolean getCacheSize() {
+        setProgressBarVisibility(true);
         File[] mFiles = fileCache.listFiles();
         totalSize = 0;
         for (File file : mFiles) {
@@ -82,6 +94,7 @@ public class SettingFragment extends Fragment {
                 totalSize += file.length();
         }
         tvCleancacheaction.setText(Formatter.formatFileSize(mContext, totalSize));
+        setProgressBarVisibility(false);
         return true;
     }
 
@@ -95,13 +108,14 @@ public class SettingFragment extends Fragment {
     }
 
     private void clearCache(){
+        setProgressBarVisibility(true);
         File[] files = fileCache.listFiles();
         if(delete(files)){
             getCacheSize();
-            snackBarShow(R.string.ok);
         }else {
             snackBarShow(R.string.fail);
         }
+        setProgressBarVisibility(false);
     }
 
     private boolean delete(File[] mFiles) {
@@ -134,12 +148,17 @@ public class SettingFragment extends Fragment {
         getActivity().startActivity(intent);
     }
 
+    private void gotoCapacityActivity(){
+        Intent intent = new Intent(getActivity(), CapacityActivity.class);
+        getActivity().startActivity(intent);
+    }
+
     class LayoutClickListener implements View.OnClickListener {
 
         @Override
         public void onClick(View v) {
             if (v == layoutCapacity) {
-                snackBarShow(R.string.setting_capacity);
+                gotoCapacityActivity();
             } else if (v == layoutCleanCache) {
                 clearCache();
             } else if (v == layoutAbout) {

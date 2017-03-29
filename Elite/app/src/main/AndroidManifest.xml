@@ -44,6 +44,8 @@
             android:configChanges="orientation|keyboardHidden|screenSize" />
         <activity android:name=".Setting.AboutActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Setting.CapacityActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

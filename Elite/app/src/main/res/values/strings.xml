@@ -147,4 +147,7 @@
     <string name="about_enduser">End-User License Agreement</string>
     <string name="about_opensource">Open Source Statement</string>
     <string name="about_version">App Version</string>
+    <string name="used">Used</string>
+    <string name="free">Free</string>
+
 </resources>

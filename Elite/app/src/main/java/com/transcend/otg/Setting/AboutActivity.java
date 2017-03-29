@@ -99,7 +99,7 @@ public class AboutActivity extends AppCompatActivity {
         window.setStatusBarColor(Color.BLACK);
         Toolbar toolbar = (Toolbar) findViewById(R.id.about_toolbar);
         toolbar.setTitle("");
-        toolbar.setNavigationIcon(R.mipmap.ic_copy_gray);
+        toolbar.setNavigationIcon(R.mipmap.ic_navigation_arrow_white);
         mTitle =(TextView) toolbar.findViewById(R.id.about_title);
         mTitle.setText(mContext.getResources().getString(R.string.setting_about));
         mTitle.setTextColor(Color.WHITE);

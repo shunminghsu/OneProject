@@ -80,6 +80,17 @@
                 android:textColor="@color/colorDarkGray"
                 android:textSize="@dimen/setting_textsize" />
 
+            <ProgressBar
+                android:id="@+id/cleancacheprogress"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginTop="2dp"
+                android:layout_weight="1"
+                android:background="@color/colorWhite"
+                android:padding="10dp"
+                android:gravity="center_vertical|right"
+                android:visibility="gone" />
+
         </LinearLayout>
 
 
