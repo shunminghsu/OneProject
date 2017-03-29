@@ -28,6 +28,7 @@ public class HelpFragment extends Fragment {
         LinearLayout root = (LinearLayout) inflater.inflate(R.layout.fragment_help, container, false);
 
         mWebView = (WebView) root.findViewById(R.id.webview);
+        mWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         mWebView.setWebViewClient(mWebViewClient);
         mWebView.loadUrl("https://tw.transcend-info.com/support/cate-3");
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

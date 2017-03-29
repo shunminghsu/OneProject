@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Formatter;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -16,8 +17,6 @@ import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.formatter.PercentFormatter;
-import com.github.mikephil.charting.utils.ColorTemplate;
 import com.github.mikephil.charting.utils.MPPointF;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.R;
@@ -145,7 +144,7 @@ public class CapacityActivity extends AppCompatActivity {
         ArrayList<Integer> colors = new ArrayList<Integer>();
 
         colors.add(Color.rgb(211, 211, 211));
-        colors.add(Color.rgb(150, 0, 20));
+        colors.add(Color.rgb(135, 206, 250));
 
         dataSet.setColors(colors);
         //dataSet.setSelectionShift(0f);
@@ -158,5 +157,15 @@ public class CapacityActivity extends AppCompatActivity {
         pieChart.highlightValues(null);
 
         pieChart.invalidate();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
