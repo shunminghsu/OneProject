@@ -87,7 +87,7 @@ public class DestinationActivity extends AppCompatActivity
     private Toolbar toolbar;
     private CoordinatorLayout mCoordinatorlayout;
     private PagerSwipeRefreshLayout mSwipeRefreshLayout;
-    private TextView mEmptyView;
+    private View mEmptyView;
    // private LinearLayout loadingContainer;
     private DestinationAdapter mDestinationAdapter;
     private RecyclerView mRecyclerView;
@@ -114,6 +114,9 @@ public class DestinationActivity extends AppCompatActivity
     private int actionId;
     private int mScreenW;
     private int mLayoutMode;
+
+    //Menu
+    private MenuItem.OnMenuItemClickListener mCustomMenuItemClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +147,7 @@ public class DestinationActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        mCustomMenuItemClicked = new CustomMenuItemClicked();
     }
 
     private void initButtons() {
@@ -214,7 +218,7 @@ public class DestinationActivity extends AppCompatActivity
                 doRefresh();
             }
         });
-        mEmptyView = (TextView) findViewById(R.id.empty_view);
+        mEmptyView = findViewById(R.id.empty_view);
         //loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
         mLayoutMode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
         mIconHelper = new IconHelper(this, mLayoutMode);
@@ -411,19 +415,11 @@ public class DestinationActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_destination, menu);
+        getMenuInflater().inflate(R.menu.menu_custom_main, menu);
+        MenuItem customMenu = menu.findItem(R.id.more);
+        customMenu.setOnMenuItemClickListener(mCustomMenuItemClicked);
+        customMenu.setVisible(true);
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) { // called every time the menu opens
-        super.onPrepareOptionsMenu(menu);
-        final MenuItem grid = menu.findItem(R.id.menu_grid);
-        final MenuItem list = menu.findItem(R.id.menu_list);
-        grid.setVisible(mLayoutMode == Constant.ITEM_LIST);
-        list.setVisible(mLayoutMode == Constant.ITEM_GRID);
-
-        return true;
     }
 
     @Override
@@ -889,6 +885,21 @@ public class DestinationActivity extends AppCompatActivity
             return context.getResources().getString(R.string.top_arrow);
         } else {
             return context.getResources().getString(R.string.bottom_arrow);
+        }
+    }
+
+    class CustomMenuItemClicked implements MenuItem.OnMenuItemClickListener {
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            Menu menu = item.getSubMenu();
+
+            final MenuItem grid = menu.findItem(R.id.menu_grid);
+            final MenuItem list = menu.findItem(R.id.menu_list);
+            grid.setVisible(mLayoutMode == Constant.ITEM_LIST);
+            list.setVisible(mLayoutMode == Constant.ITEM_GRID);
+
+            return false;
         }
     }
 }

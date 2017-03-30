@@ -28,7 +28,7 @@ import java.util.Collections;
 
 public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     private String TAG = TabInfoLoader.class.getSimpleName();
-    private ArrayList<FileInfo> mFileList, mImageList;
+    private ArrayList<FileInfo> mFileList;
     private Context mContext;
     private int mType;
     private int mSortBy;
@@ -123,7 +123,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 } else if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {
                     FileInfo item = new FileInfo();
                     item.name = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
-                    item.name = item.name.substring(0, item.name.lastIndexOf("."));
+                    //item.name = item.name.substring(0, item.name.lastIndexOf("."));
                     item.time = FileInfo.getTime(imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = imageCursor.getString(cursor_index_ID).split(":");
@@ -137,7 +137,6 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             }
         }
         imageCursor.close();
-        mImageList = mFileList;
         return mFileList;
     }
 
@@ -157,7 +156,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 } else if (type.contains(VIDEO)) {
                     FileInfo item = new FileInfo();
                     item.name = videoCursor.getString(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
-                    item.name = item.name.substring(0, item.name.lastIndexOf("."));
+                    //item.name = item.name.substring(0, item.name.lastIndexOf("."));
                     item.time = FileInfo.getTime(videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = videoCursor.getString(cursor_index_ID).split(":");
@@ -190,7 +189,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 } else if (type.contains(AUDIO)) {
                     FileInfo item = new FileInfo();
                     item.name = musicCursor.getString(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
-                    item.name = item.name.substring(0, item.name.lastIndexOf("."));
+                    //item.name = item.name.substring(0, item.name.lastIndexOf("."));
                     item.time = FileInfo.getTime(musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = musicCursor.getString(cursor_index_ID).split(":");
@@ -330,10 +329,10 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 //////local & sd card function start//////
 
     private ArrayList<FileInfo> getAllImages() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && Constant.mSDRootDocumentFile != null && mOuterStoragePath != null) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mOuterStoragePath != null) {
             Uri uriSDKey = Uri.parse(LocalPreferences.getSDKey(mContext));
             Uri sdBaseRootUri = null;
-            if (uriSDKey != null)
+            if (uriSDKey != null && uriSDKey.toString() != "")
                 sdBaseRootUri = DocumentsContract.buildChildDocumentsUriUsingTree(uriSDKey, DocumentsContract.getTreeDocumentId(uriSDKey));
             if (sdBaseRootUri != null) {
                 return getSortList(getOtgAllImages(sdBaseRootUri, Constant.STORAGEMODE_SD));
@@ -373,7 +372,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     if (picFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = picPath;
-                        picName = picName.substring(0, picName.lastIndexOf("."));
+                        //picName = picName.substring(0, picName.lastIndexOf("."));
                         fileInfo.name = picName;
                         fileInfo.time = FileInfo.getTime(picTime);
                         fileInfo.type = Constant.TYPE_PHOTO;
@@ -438,7 +437,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     if (musicFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = musicPath;
-                        musicName = musicName.substring(0, musicName.lastIndexOf("."));
+                        //musicName = musicName.substring(0, musicName.lastIndexOf("."));
                         fileInfo.name = musicName;
                         fileInfo.time = FileInfo.getTime(musicTime);
                         fileInfo.type = Constant.TYPE_MUSIC;
@@ -500,7 +499,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     if (videoFile.exists()) {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = videoPath;
-                        videoName = videoName.substring(0, videoName.lastIndexOf("."));
+                        //videoName = videoName.substring(0, videoName.lastIndexOf("."));
                         fileInfo.name = videoName;
                         fileInfo.time = FileInfo.getTime(videoTime);
                         fileInfo.type = Constant.TYPE_VIDEO;

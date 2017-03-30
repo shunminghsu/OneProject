@@ -122,7 +122,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private RecyclerView mRecyclerView;
     private GridLayoutManager mLayout;
     private IconHelper mIconHelper;
-    private TextView mEmptyView;
+    private View mEmptyView;
     private Context mContext;
     private HashMap<String, DocumentFile> dropDownMapOTG;
     private ArrayList<String> dropDownListOTG;
@@ -138,6 +138,9 @@ public class FolderExploreActivity extends AppCompatActivity
     private int mScreenW;
     private Calendar calendar;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss");
+
+    //Menu
+    private MenuItem.OnMenuItemClickListener mCustomMenuItemClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,19 +159,10 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) { // called every time the menu opens
-        super.onPrepareOptionsMenu(menu);
-        final MenuItem grid = menu.findItem(R.id.menu_grid);
-        final MenuItem list = menu.findItem(R.id.menu_list);
-        int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
-        grid.setVisible(layout_mode == Constant.ITEM_LIST);
-        list.setVisible(layout_mode == Constant.ITEM_GRID);
-
+        getMenuInflater().inflate(R.menu.menu_custom_main, menu);
+        MenuItem customMenu = menu.findItem(R.id.more);
+        customMenu.setOnMenuItemClickListener(mCustomMenuItemClicked);
+        customMenu.setVisible(true);
         return true;
     }
 
@@ -201,6 +195,7 @@ public class FolderExploreActivity extends AppCompatActivity
         toolbar = (Toolbar) findViewById(R.id.explore_toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
+        mCustomMenuItemClicked = new CustomMenuItemClicked();
     }
 
     private void initRecyclerViewAndAdapter() {
@@ -215,7 +210,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 doRefresh();
             }
         });
-        mEmptyView = (TextView) findViewById(R.id.empty_view);
+        mEmptyView = findViewById(R.id.empty_view);
         //loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
         int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
         mIconHelper = new IconHelper(this, layout_mode);
@@ -1659,6 +1654,22 @@ public class FolderExploreActivity extends AppCompatActivity
             return context.getResources().getString(R.string.top_arrow);
         } else {
             return context.getResources().getString(R.string.bottom_arrow);
+        }
+    }
+
+    class CustomMenuItemClicked implements MenuItem.OnMenuItemClickListener {
+
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+            Menu menu = item.getSubMenu();
+
+            final MenuItem grid = menu.findItem(R.id.menu_grid);
+            final MenuItem list = menu.findItem(R.id.menu_list);
+            int layout_mode = LocalPreferences.getBrowserViewMode(mContext, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
+            grid.setVisible(layout_mode == Constant.ITEM_LIST);
+            list.setVisible(layout_mode == Constant.ITEM_GRID);
+
+            return false;
         }
     }
 }

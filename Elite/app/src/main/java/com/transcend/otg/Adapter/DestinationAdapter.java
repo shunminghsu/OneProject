@@ -71,7 +71,10 @@ public class DestinationAdapter extends RecyclerView.Adapter<DestinationAdapter.
 
         FileInfo fileInfo = mList.get(position);
 
-        holder.title.setText(fileInfo.name);
+        if (fileInfo.type == Constant.TYPE_DIR || fileInfo.type == Constant.TYPE_OTHER_FILE || fileInfo.type == Constant.TYPE_DOC)
+            holder.title.setText(fileInfo.name);
+        else
+            holder.title.setText(fileInfo.name.substring(0, fileInfo.name.lastIndexOf(".")));
         if (holder.subtitle != null)
             holder.subtitle.setText(mShowSize ? fileInfo.format_size : fileInfo.time);
 

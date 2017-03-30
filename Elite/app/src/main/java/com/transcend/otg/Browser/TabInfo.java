@@ -91,6 +91,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         mRecyclerAdapter = new RecyclerViewAdapter(this, mIconHelper, mContext);
         mRootView = inflater.inflate(R.layout.pager_layout, null);
         mEmpty = mRootView.findViewById(R.id.empty_view);
+        setFileTypeEmptyBackground(mType);
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view);
 
         mLayout = new GridLayoutManager(mContext, mColumnCount);
@@ -306,6 +307,28 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
                 return context.getResources().getString(R.string.info_folder);
             default: //Constant.TYPE_OTHER_FILE:
                 return context.getResources().getString(R.string.info_other);
+        }
+    }
+
+    private void setFileTypeEmptyBackground(int type) {
+        switch (type) {
+            case BrowserFragment.LIST_TYPE_IMAGE:
+                mEmpty.setBackgroundResource(R.drawable.img_empty_image);
+                break;
+            case BrowserFragment.LIST_TYPE_VIDEO:
+                mEmpty.setBackgroundResource(R.drawable.img_empty_video);
+                break;
+            case BrowserFragment.LIST_TYPE_MUSIC:
+                mEmpty.setBackgroundResource(R.drawable.img_empty_music);
+                break;
+            case BrowserFragment.LIST_TYPE_DOCUMENT:
+                mEmpty.setBackgroundResource(R.drawable.img_empty_file);
+                break;
+            case BrowserFragment.LIST_TYPE_ENCRYPTION:
+                mEmpty.setBackgroundResource(R.drawable.img_empty_encryption);
+                break;
+            case BrowserFragment.LIST_TYPE_FOLDER:
+                mEmpty.setBackgroundResource(R.drawable.img_empty_directory);
         }
     }
 }

@@ -678,7 +678,6 @@ public class MainActivity extends AppCompatActivity
             final MenuItem sort = menu.findItem(R.id.menu_easy_sort);
 
             final MenuItem grid = menu.findItem(R.id.menu_grid);
-            grid.setIcon(R.mipmap.ic_view_grid_gray);
             final MenuItem list = menu.findItem(R.id.menu_list);
             final MenuItem newFolder = menu.findItem(R.id.menu_new_folder);
 
@@ -690,7 +689,7 @@ public class MainActivity extends AppCompatActivity
                 list.setVisible(layout_mode == Constant.ITEM_GRID);
                 sort.setVisible(true);
                 search.setVisible(true);
-                if (fragment.getCurrentTabPosition() == 5)
+                if (fragment.getCurrentTabPosition() == BrowserFragment.LIST_TYPE_FOLDER)
                     newFolder.setVisible(true);
                 else
                     newFolder.setVisible(false);
