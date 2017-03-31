@@ -27,6 +27,7 @@ import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
+import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalBackuptoOTGLoader;
 import com.transcend.otg.Loader.LocalCopytoOTGLoader;
@@ -48,7 +49,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
     private Button btnBackup;
     private Context mContext;
     protected LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
-    private int TAB_LOADER_ID = 119, mOTGDocumentTreeID = 1000;
+    private int TAB_LOADER_ID = 119, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private boolean[] bCheckbox;
     private CheckBox cbPhoto, cbVideo, cbMusic, cbDoc;
     private ArrayList<FileInfo> mPhotoList, mVideoList, mMusicList, mDocList;
@@ -58,6 +59,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
     private UsbMassStorageDevice device;
     private DocumentFile rootDir;
     private RelativeLayout root;
+    private String sdPath;
 
 
 
@@ -88,7 +90,12 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         if(reqCode == mOTGDocumentTreeID && resCode == RESULT_OK){
             Uri uriTree = data.getData();
             if(checkStorage(uriTree)){
-                doOTGBackup();
+                doBackup();
+            }
+        }else if(reqCode == mSDDocumentTreeID && resCode == RESULT_OK){
+            Uri uriTree = data.getData();
+            if(checkSD(uriTree)){
+                doBackup();
             }
         }
     }
@@ -146,7 +153,10 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                     }
                     if(!bCheckbox[0] && !bCheckbox[1] && !bCheckbox[2] && !bCheckbox[3]){
                         loading_container.setVisibility(View.GONE);
-                        doLocalBackuptoOTG(destinationDFiles, "", false);
+                        if(radioButtonOTG.isChecked())
+                            doLocalBackuptoOTG(destinationDFiles, "", false);
+                        else if(radioButtonSD.isChecked())
+                            doLocalBackuptoOTG(destinationDFiles, sdPath, true);
                     }
                 }
 
@@ -197,14 +207,22 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                             snackBarShow(R.string.no_otg);
                             break;
                         case 1:
-                            doOTGBackup();
+                            doBackup();
                             break;
                         case 2:
                             intentDocumentTree();
                             break;
                     }
                 }else if(radioButtonSD.isChecked()){
-
+                    sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                    if(sdPath != null){
+                        if(checkSDWritePermission()){
+                            doBackup();
+                        }else {
+                            intentDocumentTreeSD();
+                        }
+                    }else
+                        snackBarShow(R.string.no_sd);
                 }
 
 
@@ -212,7 +230,31 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         });
     }
 
-    private void doOTGBackup(){
+    private boolean checkSDWritePermission(){
+        String sdKey = LocalPreferences.getSDKey(mContext);
+        if(sdKey != ""){
+            Uri uriSDKey = Uri.parse(sdKey);
+            Constant.mSDCurrentDocumentFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+            return true;
+        }else{
+
+            return false;
+        }
+    }
+
+    private void intentDocumentTreeSD() {
+        new SDPermissionGuideDialog(mContext) {
+            @Override
+            public void onConfirm(Boolean isClick) {
+                if (isClick) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    startActivityForResult(intent, mSDDocumentTreeID);
+                }
+            }
+        };
+    }
+
+    private void doBackup(){
         loading_container.setVisibility(View.VISIBLE);
         bCheckbox[0] = cbPhoto.isChecked();
         bCheckbox[1] = cbVideo.isChecked();
@@ -220,6 +262,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         bCheckbox[3] = cbDoc.isChecked();
         getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
     }
+
 
     private int checkOTGExist(){
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
@@ -272,6 +315,33 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         return false;
     }
 
+    private boolean checkSD(Uri uri){
+        if (!uri.toString().contains("primary")) {
+            if (uri != null) {
+                if(uri.getPath().toString().split(":").length > 1){
+                    snackBarShow(R.string.snackbar_plz_select_top);
+                }else{
+                    rootDir = DocumentFile.fromTreeUri(mContext, uri);//sd root path
+                    ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    if(bSDCard){
+                        mContext.getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        LocalPreferences.setSDKey(mContext, uri.toString());
+                        Constant.mSDCurrentDocumentFile = rootDir;
+                        return true;
+                    }else{
+                        snackBarShow(R.string.snackbar_plz_select_sd);
+                    }
+                }
+            }
+
+        }else {
+            snackBarShow(R.string.snackbar_plz_select_sd);
+        }
+        return false;
+    }
+
     private void snackBarShow(int resId) {
         Snackbar.make(root, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
@@ -288,21 +358,40 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         };
     }
 
-    private void doLocalBackuptoOTG(ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard){
+    private void doLocalBackuptoOTG(ArrayList<DocumentFile> destDFiles, String sdPath, boolean isSrcSDCard){
         if(isSrcSDCard){
-
+            ArrayList<FileInfo> files = createListFileInfoFromPath(sdPath);
+            destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, 0);
+            destinationDFiles = destDFiles;
+            if(mPhotoList.size() != 0){
+                mFileActionManager.backupFromLocaltoOTG(mPhotoList, destDFiles, "Photo");
+            }else if(mVideoList.size() != 0){
+                mFileActionManager.backupFromLocaltoOTG(mVideoList, destDFiles, "Video");
+            }else if(mMusicList.size() != 0){
+                mFileActionManager.backupFromLocaltoOTG(mMusicList, destDFiles, "Music");
+            }else if(mDocList.size() != 0){
+                mFileActionManager.backupFromLocaltoOTG(mDocList, destDFiles, "Document");
+            }
         }else {
             if(mPhotoList.size() != 0){
-                mFileActionManager.backupFromLocaltoOTG(mPhotoList, destinationDFiles, "Photo");
+                mFileActionManager.backupFromLocaltoOTG(mPhotoList, destDFiles, "Photo");
             }else if(mVideoList.size() != 0){
-                mFileActionManager.backupFromLocaltoOTG(mVideoList, destinationDFiles, "Video");
+                mFileActionManager.backupFromLocaltoOTG(mVideoList, destDFiles, "Video");
             }else if(mMusicList.size() != 0){
-                mFileActionManager.backupFromLocaltoOTG(mMusicList, destinationDFiles, "Music");
+                mFileActionManager.backupFromLocaltoOTG(mMusicList, destDFiles, "Music");
             }else if(mDocList.size() != 0){
-                mFileActionManager.backupFromLocaltoOTG(mDocList, destinationDFiles, "Document");
+                mFileActionManager.backupFromLocaltoOTG(mDocList, destDFiles, "Document");
             }
 
         }
+    }
+
+    private ArrayList<FileInfo> createListFileInfoFromPath(String path){
+        ArrayList<FileInfo> tmpDesFiles = new ArrayList<>();
+        FileInfo file = new FileInfo();
+        file.path = path;
+        tmpDesFiles.add(file);
+        return tmpDesFiles;
     }
 
 
