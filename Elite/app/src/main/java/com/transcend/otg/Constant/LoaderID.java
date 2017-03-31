@@ -20,7 +20,6 @@ public class LoaderID {
     public static final int LOCAL_DECRYPT = 13;
     public static final int LOCAL_FILE_LIST_ONLYFOLDER = 14;
 
-
     public static final int OTG_FILE_LIST = 21;
     public static final int OTG_RENAME = 22;
     public static final int OTG_DELETE = 23;
@@ -45,4 +44,6 @@ public class LoaderID {
     public static final int SD_NEW_FOLDER_DECRYPT = 53;
     public static final int SD_LOCAL_COPY_DECRYPT = 54;
     public static final int SD_DECRYPT= 55;
+
+    public static final int BACKUP_LOCAL_OTG= 70;
 }

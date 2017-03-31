@@ -56,6 +56,7 @@ public class LocalActionService extends FileActionService{
         NEWFOLDER_DECRYPT_SD = LoaderID.SD_NEW_FOLDER_DECRYPT;
         COPY_SD_LOCAL_DECRYPT = LoaderID.SD_LOCAL_COPY_DECRYPT;
         DECRYPT_SD = LoaderID.SD_DECRYPT;
+        BACKUP_LOCAL_OTG = LoaderID.BACKUP_LOCAL_OTG;
     }
 
     @Override
@@ -181,6 +182,11 @@ public class LocalActionService extends FileActionService{
     @Override
     protected AsyncTaskLoader decryptSD(Context context, List<String> list) {
         return new SDDecryptLoader(context, list);
+    }
+
+    @Override
+    protected AsyncTaskLoader backupLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles, String name) {
+        return new LocalBackuptoOTGLoader(context, list, dFiles, name);
     }
 
     @Override

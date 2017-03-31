@@ -30,11 +30,29 @@
 
     </android.support.design.widget.AppBarLayout>
 
+    <RelativeLayout
+        android:id="@+id/re"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_refresh"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:text="@string/refresh"
+            android:textSize="@dimen/storage_text_size"
+            android:textColor="@color/colorWhite" />
+    </RelativeLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/app_bar"
-        android:orientation="horizontal">
+        android:layout_above="@+id/re"
+        android:orientation="vertical">
 
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/piechartlocal"
@@ -49,5 +67,7 @@
             android:layout_weight="1" />
 
     </LinearLayout>
+
+
 
 </RelativeLayout>

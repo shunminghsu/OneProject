@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.animation.Easing;
@@ -34,6 +35,7 @@ public class CapacityActivity extends AppCompatActivity {
     private String sUsed, sFree;
     private long localUsedSize, localFreeSize, sdUsedSize, sdFreeSize;
     private TextView mTitle;
+    private Button btnRefresh;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +54,14 @@ public class CapacityActivity extends AppCompatActivity {
         localChart = (PieChart) findViewById(R.id.piechartlocal);
         sdChart = (PieChart) findViewById(R.id.piechartsd);
         sUsed = getResources().getString(R.string.used) + " : ";
-        sFree = getResources().getString(R.string.free) + " : ";
+        sFree = getResources().getString(R.string.free) + " :  ";
+        btnRefresh = (Button) findViewById(R.id.btn_refresh);
+        btnRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getStorageSize();
+            }
+        });
     }
 
     private void initToolbar() {
@@ -86,38 +95,38 @@ public class CapacityActivity extends AppCompatActivity {
     private void setStorageSize(PieChart pieChart, long usedSize, long freeSize) {
         pieChart.setUsePercentValues(true);
         pieChart.getDescription().setEnabled(false);
-        pieChart.setExtraOffsets(0, 0, 0, 50);
+        pieChart.setExtraOffsets(0, 0, 0, 0);
         pieChart.setDragDecelerationFrictionCoef(0.95f);
         if (pieChart.equals(localChart))
             pieChart.setCenterText(getResources().getString(R.string.nav_local));
         else
-            pieChart.setCenterText(getResources().getString(R.string.nav_sd));
+            pieChart.setCenterText(getResources().getString(R.string.sdcard_name));
         pieChart.setCenterTextSize(20f);
         pieChart.setDrawHoleEnabled(true);
         pieChart.setHoleColor(getResources().getColor(R.color.colorWhite));
 
 
-        pieChart.setHoleRadius(60f);
-        pieChart.setTransparentCircleRadius(60f);
+        pieChart.setHoleRadius(72f);
+        pieChart.setTransparentCircleRadius(75f);
 
         pieChart.setDrawCenterText(true);
 
         pieChart.setRotationAngle(0);
         pieChart.setRotationEnabled(true);
-        pieChart.setHighlightPerTapEnabled(true);
+        pieChart.setHighlightPerTapEnabled(false);
         pieChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
         setData(pieChart, usedSize, freeSize);
 
 
         Legend l = pieChart.getLegend();
-        l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
-        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
+        l.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        l.setHorizontalAlignment(Legend.LegendHorizontalAlignment.RIGHT);
         l.setOrientation(Legend.LegendOrientation.VERTICAL);
         l.setDrawInside(true);
         l.setXEntrySpace(0f);
         l.setYEntrySpace(0f);
         l.setYOffset(0f);
-        l.setTextSize(20f);
+        l.setTextSize(15f);
 
         pieChart.setDrawEntryLabels(false);
     }
@@ -136,8 +145,7 @@ public class CapacityActivity extends AppCompatActivity {
 
         dataSet.setDrawIcons(false);
 
-        dataSet.setSliceSpace(3f);
-        dataSet.setIconsOffset(new MPPointF(0, 40));
+        dataSet.setSliceSpace(0f);
         dataSet.setSelectionShift(5f);
         // add a lot of colors
 

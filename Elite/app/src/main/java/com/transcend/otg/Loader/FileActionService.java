@@ -60,13 +60,14 @@ public abstract class FileActionService {
     protected int NEWFOLDER_DECRYPT_SD;
     protected int COPY_SD_LOCAL_DECRYPT;
     protected int DECRYPT_SD;
+    protected int BACKUP_LOCAL_OTG;
 
     public enum FileAction {
         OPEN, LIST, DOWNLOAD, UPLOAD, RENAME, COPY, MOVE, DELETE, NEWFOLDER, SHARE, LIST_ALL_TYPE, OTGLIST, RENAME_OTG, DELETE_OTG,
         NEWFOLDER_OTG, COPY_OTG, COPY_LOCAL_OTG, COPY_OTG_LOCAL, MOVE_OTG, MOVE_LOCAL_OTG, MOVE_OTG_LOCAL, NEWFOLDER_ENCRYPT, COPY_ENCRYPT,
         ENCRYPT, DECRYPT, NEWFOLDER_ENCRYPT_OTG, COPY_OTG_LOCAL_ENCRYPT, ENCRYPT_OTG, COPY_LOCAL_OTG_ENCRYPT, NEWFOLDER_DECRYPT_OTG,
         COPY_OTG_LOCAL_DECRYPT, DECRYPT_OTG, COPY_LOCAL_OTG_DECRYPT, LIST_FOLDER, OTGLIST_FOLDER, NEWFOLDER_ENCRYPT_SD, COPY_ENCRYPT_SD,
-        ENCRYPT_SD, NEWFOLDER_DECRYPT_SD, COPY_SD_LOCAL_DECRYPT, DECRYPT_SD
+        ENCRYPT_SD, NEWFOLDER_DECRYPT_SD, COPY_SD_LOCAL_DECRYPT, DECRYPT_SD, BACKUP_LOCAL_OTG
     }
 
     public FileAction getFileAction(int action){
@@ -153,6 +154,8 @@ public abstract class FileActionService {
             fileAction = FileAction.COPY_SD_LOCAL_DECRYPT;
         else if(action == DECRYPT_SD)
             fileAction = FileAction.DECRYPT_SD;
+        else if(action == BACKUP_LOCAL_OTG)
+            fileAction = FileAction.BACKUP_LOCAL_OTG;
         return fileAction;
     }
 
@@ -282,6 +285,9 @@ public abstract class FileActionService {
             case DECRYPT_SD:
                 id = DECRYPT_SD;
                 break;
+            case BACKUP_LOCAL_OTG:
+                id = BACKUP_LOCAL_OTG;
+                break;
         }
 
         return id;
@@ -375,6 +381,8 @@ public abstract class FileActionService {
                 return copySDtoLocalDecrypt(context, dFiles, path);
             case DECRYPT_SD:
                 return decryptSD(context, paths);
+            case BACKUP_LOCAL_OTG:
+                return backupLocaltoOTG(context, paths, dFiles, name);
         }
 
         return null;
@@ -463,4 +471,6 @@ public abstract class FileActionService {
     protected abstract AsyncTaskLoader copySDtoLocalDecrypt(Context context, ArrayList<DocumentFile> dFiles, String dest);
 
     protected abstract AsyncTaskLoader decryptSD(Context context, List<String> list);
+
+    protected abstract AsyncTaskLoader backupLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles, String name);
 }

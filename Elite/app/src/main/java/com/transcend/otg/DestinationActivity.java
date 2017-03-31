@@ -324,7 +324,12 @@ public class DestinationActivity extends AppCompatActivity
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
                     ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
-                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    boolean bSDCard = false;
+                    if(sdCardFileName.size() != 0){
+                        bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    }else {
+                        bSDCard = false;
+                    }
                     if(!bSDCard){
                         getContentResolver().takePersistableUriPermission(uri,
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);

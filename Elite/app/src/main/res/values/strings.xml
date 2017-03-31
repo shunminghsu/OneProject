@@ -150,4 +150,14 @@
     <string name="used">Used</string>
     <string name="free">Free</string>
 
+    <!-- Backup -->
+    <string name="backup_filetype">Choose file type</string>
+    <string name="backup_destination">Select backup destination</string>
+    <string name="backup_photo">Photo</string>
+    <string name="backup_video">Video</string>
+    <string name="backup_music">Music</string>
+    <string name="backup_doc">Files</string>
+    <string name="backup_folder">Elite Backup</string>
+
+
 </resources>

@@ -44,6 +44,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
+import com.transcend.otg.Backup.BackupFragment;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.LocalFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
@@ -124,6 +125,7 @@ public class MainActivity extends AppCompatActivity
     private FeedbackFragment feedbackFragment;
     private HelpFragment helpFragment;
     private SettingFragment settingFragment;
+    private BackupFragment backupFragment;
     private int mLoaderID, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private FileActionManager mFileActionManager;
     private String mPath;
@@ -201,6 +203,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
+                setDrawerCheckItem(R.id.nav_backup);
+                replaceFragment(backupFragment);
             }
         });
     }
@@ -266,6 +270,7 @@ public class MainActivity extends AppCompatActivity
         helpFragment = new HelpFragment();
         feedbackFragment = new FeedbackFragment();
         settingFragment = new SettingFragment();
+        backupFragment = new BackupFragment();
     }
 
     private void initActionModeView() {
@@ -305,6 +310,15 @@ public class MainActivity extends AppCompatActivity
             //showCustomMenuIcon(getBrowserFragment() == null ? false : true);
             //invalidateOptionsMenu();
         }
+    }
+
+    private void showFragment(Fragment fragment){
+        home_container.setVisibility(View.GONE);
+        container.setVisibility(View.VISIBLE);
+        layout_storage.setVisibility(View.GONE);
+        mFab.setVisibility(View.INVISIBLE);
+        replaceFragment(fragment);
+        invalidateOptionsMenu();
     }
 
     private void showHelpFragment(){
@@ -779,15 +793,16 @@ public class MainActivity extends AppCompatActivity
             Constant.nowMODE = Constant.MODE.LOCAL;
         } else if (id == R.id.nav_backup) {
             mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
+            showFragment(backupFragment);
         } else if (id == R.id.nav_help){
             mToolbarTitle.setText(getResources().getString(R.string.drawer_help));
-            showHelpFragment();
+            showFragment(helpFragment);
         } else if(id == R.id.nav_feedback){
             mToolbarTitle.setText(getResources().getString(R.string.drawer_feedback));
-            showFeedbackFragment();
+            showFragment(feedbackFragment);
         } else if(id == R.id.nav_setting){
             mToolbarTitle.setText(getResources().getString(R.string.drawer_setting));
-            showSettingFragment();
+            showFragment(settingFragment);
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -1085,7 +1100,12 @@ public class MainActivity extends AppCompatActivity
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
                     ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
-                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    boolean bSDCard = false;
+                    if(sdCardFileName.size() != 0){
+                        bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    }else {
+                        bSDCard = false;
+                    }
                     if(!bSDCard){
                         getContentResolver().takePersistableUriPermission(uri,
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
@@ -1098,7 +1118,6 @@ public class MainActivity extends AppCompatActivity
                         snackBarShow(R.string.snackbar_plz_select_otg);
                     }
                 }
-
             }
 
         }else {

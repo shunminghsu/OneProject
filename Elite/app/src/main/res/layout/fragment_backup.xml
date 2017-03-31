@@ -1,0 +1,290 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_relativelayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorLightLightGray"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/design_navigation_icon_size"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:gravity="bottom"
+            android:text="@string/backup_filetype"
+            android:textColor="@color/colorDarkGray"
+            android:textSize="@dimen/storage_text_size" />
+
+        <RelativeLayout
+            android:id="@+id/layout_photo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/img_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:background="@color/colorWhite"
+                android:padding="10dp"
+                android:src="@mipmap/ic_browser_filetype_image_red" />
+
+            <TextView
+                android:id="@+id/photo"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_toRightOf="@id/img_photo"
+                android:background="@color/colorWhite"
+                android:gravity="center_vertical"
+                android:text="@string/backup_photo"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/setting_textsize" />
+
+            <CheckBox
+                android:id="@+id/cb_photo"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_video"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+            <ImageView
+                android:id="@+id/img_video"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:background="@color/colorWhite"
+                android:padding="10dp"
+                android:src="@mipmap/ic_browser_filetype_video_red" />
+
+            <TextView
+                android:id="@+id/video"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_toRightOf="@id/img_video"
+                android:background="@color/colorWhite"
+                android:gravity="center_vertical"
+                android:text="@string/backup_video"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/setting_textsize" />
+
+            <CheckBox
+                android:id="@+id/cb_video"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_music"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/img_music"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:background="@color/colorWhite"
+                android:padding="10dp"
+                android:src="@mipmap/ic_browser_filetype_music_red" />
+
+            <TextView
+                android:id="@+id/music"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_toRightOf="@id/img_music"
+                android:background="@color/colorWhite"
+                android:gravity="center_vertical"
+                android:text="@string/backup_music"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/setting_textsize" />
+
+            <CheckBox
+                android:id="@+id/cb_music"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_doc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/img_doc"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:background="@color/colorWhite"
+                android:padding="10dp"
+                android:src="@mipmap/ic_browser_filetype_document_red" />
+
+            <TextView
+                android:id="@+id/doc"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_toRightOf="@id/img_doc"
+                android:background="@color/colorWhite"
+                android:gravity="center_vertical"
+                android:text="@string/backup_doc"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/setting_textsize" />
+
+            <CheckBox
+                android:id="@+id/cb_doc"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:gravity="bottom"
+            android:text="@string/backup_destination"
+            android:textColor="@color/colorDarkGray"
+            android:textSize="@dimen/storage_text_size" />
+
+        <RelativeLayout
+            android:id="@+id/layout_otg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/img_otg"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:background="@color/colorWhite"
+                android:padding="10dp"
+                android:src="@mipmap/ic_otg_gray" />
+
+            <TextView
+                android:id="@+id/otg"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_toRightOf="@id/img_otg"
+                android:gravity="center_vertical"
+                android:text="@string/nav_otg"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/setting_textsize" />
+
+
+            <RadioButton
+                android:id="@+id/radiootg"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layout_sd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/img_sd"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:background="@color/colorWhite"
+                android:padding="10dp"
+                android:src="@mipmap/ic_sdcard_gray" />
+
+            <TextView
+                android:id="@+id/sd"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:layout_toRightOf="@id/img_sd"
+                android:gravity="center_vertical"
+                android:text="@string/sdcard_name"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/setting_textsize" />
+
+            <RadioButton
+                android:id="@+id/radiosd"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="@dimen/activity_horizontal_margin" />
+
+        </RelativeLayout>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_backup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:text="@string/drawer_backup"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/storage_text_size" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/loading_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+
+    </LinearLayout>
+
+
+</RelativeLayout>

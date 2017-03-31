@@ -141,6 +141,14 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.LIST_ALL_TYPE, null, null, null, null, null, null);
     }
 
+    public void backupFromLocaltoOTG(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String type){
+        ArrayList<String> paths = new ArrayList<>();
+        for (FileInfo info : selectedFiles) {
+            paths.add(info.path);
+        }
+        createLoader(FileActionService.FileAction.BACKUP_LOCAL_OTG, type, null, paths, null, destinationDFiles, null);
+    }
+
     public void copy(ArrayList<FileInfo> selectedFiles, String destinationPath){
         ArrayList<String> paths = new ArrayList<>();
         for (FileInfo info : selectedFiles) {
