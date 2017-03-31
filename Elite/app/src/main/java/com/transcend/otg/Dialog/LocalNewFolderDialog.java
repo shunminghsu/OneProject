@@ -40,7 +40,7 @@ public abstract class LocalNewFolderDialog implements TextWatcher, View.OnClickL
     private void initDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mContext.getResources().getString(R.string.menu_new_folder));
-        builder.setIcon(R.drawable.ic_menu_camera);
+        builder.setIcon(R.mipmap.ic_new_folder_gray);
         builder.setView(R.layout.dialog_new_folder);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setPositiveButton(R.string.confirm, null);

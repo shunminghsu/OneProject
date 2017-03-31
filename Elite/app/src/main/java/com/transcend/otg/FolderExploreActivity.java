@@ -254,7 +254,6 @@ public class FolderExploreActivity extends AppCompatActivity
     };
 
     private void initData() {
-        calendar = Calendar.getInstance();
         mContext = this;
         Constant.Activity = 1;
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
@@ -1214,6 +1213,7 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doSDDecryptNewFolder(){
+        calendar = Calendar.getInstance();
         String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         DecryptUtils.setBeforeDecryptPath(folderName);

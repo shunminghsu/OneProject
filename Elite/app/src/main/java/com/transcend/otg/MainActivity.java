@@ -178,7 +178,6 @@ public class MainActivity extends AppCompatActivity
         mScreenW = displaymetrics.widthPixels;
         nowAction = -1;
         Constant.ROOT_CACHE = getCacheDir().getAbsolutePath();
-        calendar = Calendar.getInstance();
     }
 
     private void initHome() {
@@ -1257,6 +1256,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doOTGEncryptNewFolder(){
+        calendar = Calendar.getInstance();
         String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         EncryptUtils.setBeforeEncryptPath(folderName);
@@ -1343,6 +1343,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doSDEncryptNewFolder(){
+        calendar = Calendar.getInstance();
         String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         EncryptUtils.setBeforeEncryptPath(folderName);
@@ -1393,6 +1394,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doLocalEncryptNewFolder(){
+        calendar = Calendar.getInstance();
         String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         EncryptUtils.setBeforeEncryptPath(folderName);
@@ -1466,6 +1468,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doSDDecryptNewFolder(){
+        calendar = Calendar.getInstance();
         String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         DecryptUtils.setBeforeDecryptPath(folderName);
@@ -1515,6 +1518,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doOTGDecryptNewFolder(){
+        calendar = Calendar.getInstance();
         String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         DecryptUtils.setBeforeDecryptPath(folderName);
