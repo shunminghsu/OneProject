@@ -444,8 +444,7 @@ public class PhotoActivity extends AppCompatActivity {
                     mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
                 DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
                 return dfile.renameTo(mNewDisplayName);
-            } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
-                    mFileInfo.storagemode == Constant.STORAGEMODE_SD) {
+            } else if (mFileInfo.storagemode == Constant.STORAGEMODE_SD || mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
                 File f = new File(mFileInfo.path);
                 File parent = f.getParentFile();
                 File f2 = new File(parent, mNewDisplayName);
@@ -473,8 +472,7 @@ public class PhotoActivity extends AppCompatActivity {
                 SparseArray<ViewGroup> photoInfo = mAdapter.getPhotoInfo();
                 TextView photoName = (TextView) photoInfo.get(mPosition).findViewById(R.id.name);
                 TextView photoPath = (TextView) photoInfo.get(mPosition).findViewById(R.id.path);
-                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
-                        mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
+                if (mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
                     String newPath = mFileInfo.path.replace(mFileInfo.name, mNewDisplayName);
                     photoName.setText(mNewDisplayName);
                     photoPath.setText(newPath);

@@ -425,46 +425,76 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        FileInfo fileInfo = getActionSeletedFiles().get(0);
+        boolean isFromSearch = getBrowserFragment() == null;
+        boolean isMultiStorageSelected = false;
+        if (isFromSearch) {
+            for (FileInfo f : getActionSeletedFiles()) {
+                if (f.storagemode != fileInfo.storagemode) {
+                    isMultiStorageSelected = true;
+                    break;
+                }
+            }
+        }
+
         switch (item.getItemId()) {
             case R.id.action_rename:
-                if (Constant.nowMODE == Constant.MODE.LOCAL) {
+                if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
                     doLocalRename();
-                }else if(Constant.nowMODE == Constant.MODE.SD) {
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
                     nowAction = R.id.action_rename;
                     doOTGRename(true);
-                }else if (Constant.nowMODE == Constant.MODE.OTG) {
+                }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
                     doOTGRename(false);
                 }
                 break;
             case R.id.action_delete:
-                if (Constant.nowMODE == Constant.MODE.LOCAL) {
+                if (isMultiStorageSelected)
+                    return false;
+                if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
                     doLocalDelete();
-                }else if(Constant.nowMODE == Constant.MODE.SD){
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
                     nowAction = R.id.action_delete;
                     doOTGDelete(true);
-                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
                     doOTGDelete(false);
                 }
                 break;
             case R.id.action_share:
-                if(Constant.nowMODE == Constant.MODE.LOCAL || Constant.nowMODE == Constant.MODE.SD){
+                if(fileInfo.storagemode == Constant.STORAGEMODE_LOCAL || fileInfo.storagemode == Constant.STORAGEMODE_SD){
                     doLocalShare();
-                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_OTG){
                     doOTGShare();
                 }
                 break;
             case R.id.action_copy:
+                if (isMultiStorageSelected)
+                    return false;
                 startDestinationActivity(R.id.action_copy);
                 break;
             case R.id.action_move:
+                if (isMultiStorageSelected)
+                    return false;
                 startDestinationActivity(R.id.action_move);
                 break;
             case R.id.action_encrypt:
-                if(Constant.nowMODE == Constant.MODE.LOCAL){
+                if (isMultiStorageSelected)
+                    return false;
+                if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
                     doLocalEncryptDialog();
-                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
+                    if (isFromSearch) {
+                        //from search page, since following function has bug,
+                        // so we just return utils bug be fixed
+                        return false;
+                    }
                     doOTGEncryptDialog();
-                }else if(Constant.nowMODE == Constant.MODE.SD){
+                }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
+                    if (isFromSearch) {
+                        //from search page, since following function has bug,
+                        // so we just return utils bug be fixed
+                        return false;
+                    }
                     nowAction = R.id.action_encrypt;
                     doSDEncryptDialog();
                 }
@@ -1249,6 +1279,7 @@ public class MainActivity extends AppCompatActivity
     public void onLoaderReset(Loader<Boolean> loader) {}
 
     private void doOTGEncryptDialog() {
+        Log.d("henry","doOTGEncryptDialog");
         ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
         /*final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
         ArrayList<String> names = new ArrayList<String>();
