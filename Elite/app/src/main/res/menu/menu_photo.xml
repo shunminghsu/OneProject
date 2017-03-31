@@ -5,7 +5,7 @@
     <item
         android:id="@+id/share"
         android:title="@string/share"
-        android:icon="@android:drawable/ic_menu_share"
+        android:icon="@mipmap/ic_share_white"
         app:showAsAction="always" />
 
     <item
@@ -17,28 +17,28 @@
     <item
         android:id="@+id/delete"
         android:title="@string/delete"
-        android:icon="@android:drawable/ic_menu_delete"
+        android:icon="@mipmap/ic_delete_white"
         app:showAsAction="always" />
     <item
         android:id="@+id/more"
         android:title="@string/more"
-        android:icon="@android:drawable/ic_menu_help"
+        android:icon="@mipmap/ic_more_white"
         app:showAsAction="always" >
         <menu>
         <item
             android:id="@+id/set_photo_as"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@mipmap/ic_browser_filetype_image_gray"
             android:title="@string/set_photo_as"
             app:showAsAction="never" />
         <item
             android:id="@+id/action_rename"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@mipmap/ic_rename_gray"
             android:title="@string/rename"
             app:showAsAction="never" />
 
         <item
             android:id="@+id/action_copy"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@mipmap/ic_copy_gray"
             android:title="@string/copy"
             app:showAsAction="never" />
 

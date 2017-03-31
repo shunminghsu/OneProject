@@ -982,14 +982,14 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doOTGEncryptDialog() {
-        ArrayList<String> names = new ArrayList<String>();
+        //ArrayList<String> names = new ArrayList<String>();
         ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
-        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
+        /*ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
         for (FileInfo file : allFiles) {
             if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
                 names.add(file.name.toLowerCase());
-        }
-        new OTGEncryptDialog(this, names, selectedFiles) {
+        }*/
+        new OTGEncryptDialog(this, selectedFiles) {
             @Override
             public void onConfirm(String newName, String password, ArrayList<DocumentFile> mSelectedDFiles) {
                 DocumentFile child = mSelectedDFiles.get(0).getParentFile();
@@ -1138,13 +1138,13 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doSDEncryptDialog(){
-        List<String> names = new ArrayList<String>();
+        /*List<String> names = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
         for (FileInfo file : allFiles) {
             if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
                 names.add(file.name.toLowerCase());
-        }
-        new LocalEncryptDialog(this, names) {
+        }*/
+        new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
                 ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
@@ -1235,13 +1235,13 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doLocalEncryptDialog() {
-        List<String> names = new ArrayList<String>();
+        /*List<String> names = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
         for (FileInfo file : allFiles) {
             if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
                 names.add(file.name.toLowerCase());
-        }
-        new LocalEncryptDialog(this, names) {
+        }*/
+        new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
                 ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
@@ -1353,19 +1353,11 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doLocalRename(){
-        List<String> names = new ArrayList<String>();
-        ArrayList<FileInfo> allFiles = mFolderExploreAdapter.getAllFiles();
-        FileInfo target = new FileInfo();
-        for (FileInfo file : allFiles) {
-            if (file.checked)
-                target = file;
-            else
-                names.add(file.name.toLowerCase());
-        }
+        FileInfo target = mFolderExploreAdapter.getSelectedFiles().get(0);
         final String path = target.path;
         final String name = target.name;
         boolean ignoreType = (target.type == Constant.TYPE_DIR);
-        new LocalRenameDialog(this,ignoreType, name, names) {
+        new LocalRenameDialog(this,ignoreType, name) {
             @Override
             public void onConfirm(String newName) {
                 if (newName.equals(name))

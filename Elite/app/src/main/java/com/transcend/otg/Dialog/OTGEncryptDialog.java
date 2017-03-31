@@ -32,13 +32,13 @@ public abstract class OTGEncryptDialog implements TextWatcher, View.OnClickListe
     private Button mDlgBtnPos;
     private TextInputLayout mFieldName, mFieldPassword;
 
-    private ArrayList<String> mEncryptFileNames;
+    //private ArrayList<String> mEncryptFileNames;
     private ArrayList<FileInfo> mSelectedFiles;
     private ArrayList<DocumentFile> mSelectedDFiles;
 
-    public OTGEncryptDialog(Context context, ArrayList<String> encryptFileNames, ArrayList<FileInfo> selectedFiles) {
+    public OTGEncryptDialog(Context context, ArrayList<FileInfo> selectedFiles) {
         mContext = context;
-        mEncryptFileNames = encryptFileNames;
+        //mEncryptFileNames = encryptFileNames;
         mSelectedFiles = selectedFiles;
         init();
         initDialog();
@@ -90,10 +90,10 @@ public abstract class OTGEncryptDialog implements TextWatcher, View.OnClickListe
             error = mContext.getResources().getString(R.string.invalid_name);
             enabled = false;
         }
-        if (isDuplicated(name)) {
+        /*if (isDuplicated(name)) {
             error = mContext.getResources().getString(R.string.duplicate_name);
             enabled = false;
-        }
+        }*/
 
         if (!isIlleagal(name)) {
             error = mContext.getResources().getString(R.string.illegal_name);
@@ -124,9 +124,9 @@ public abstract class OTGEncryptDialog implements TextWatcher, View.OnClickListe
         int index = 1;
         String name = mContext.getResources().getString(R.string.untitled_folder);
         String unique = name;
-        while (mEncryptFileNames.contains(unique)) {
-            unique = String.format(name + " (%d)", index++);
-        }
+        //while (mEncryptFileNames.contains(unique)) {
+        //    unique = String.format(name + " (%d)", index++);
+        //}
         return unique;
     }
 
@@ -134,10 +134,10 @@ public abstract class OTGEncryptDialog implements TextWatcher, View.OnClickListe
         return (name == null) || (name.isEmpty());
     }
 
-    private boolean isDuplicated(String name) {
+    /*private boolean isDuplicated(String name) {
         if (isInvalid(name)) return false;
         return mEncryptFileNames.contains(name.toLowerCase() + mContext.getResources().getString(R.string.encrypt_subfilename));
-    }
+    }*/
 
     private boolean isIlleagal(String name){
         if (isInvalid(name)) return true;

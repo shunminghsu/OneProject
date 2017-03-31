@@ -40,6 +40,10 @@ public class LocalRenameLoader extends AsyncTaskLoader<Boolean> {
         File parent = target.getParentFile();
         File rename = new File(parent, mName);
 
+        if (rename.exists()) {
+            //Log.d("henry","new name file exist");
+            return false;
+        }
         if (target.exists()) {
             if (target.renameTo(rename)) {
                 mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(rename)));

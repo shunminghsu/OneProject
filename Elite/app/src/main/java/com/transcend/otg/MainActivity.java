@@ -393,7 +393,7 @@ public class MainActivity extends AppCompatActivity
 
     private void toggleActionModeAction(int count) {
         boolean visible = false;
-        int position = getBrowserFragment().getCurrentTabPosition();
+
         if (count == 0) {
             mActionMode.getMenu().findItem(R.id.action_rename).setVisible(visible);
             mActionMode.getMenu().findItem(R.id.action_share).setVisible(visible);
@@ -425,7 +425,6 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        boolean isEmpty = getBrowserFragment().getSelectedFiles().size() == 0;
         switch (item.getItemId()) {
             case R.id.action_rename:
                 if (Constant.nowMODE == Constant.MODE.LOCAL) {
@@ -478,9 +477,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        getBrowserFragment().clearAllSelect();
-        mFab.setImageResource(R.mipmap.ic_floating_browser_intoaction);
+        
+        clearActionAllSelected();
+        toggleFabSelectAll(false);
         Constant.mActionMode = mActionMode = null;
+        mFab.setImageResource(R.mipmap.ic_floating_browser_intoaction);
     }
 
     @Override
@@ -503,11 +504,11 @@ public class MainActivity extends AppCompatActivity
     public void onItemClick(int count) {
         updateActionModeTitle(count);
         toggleActionModeAction(count);
-        int totalCount = getBrowserFragment().getItemsCount();
-        if(totalCount == count)
-            toggleFabSelectAll(true);
-        else
-            toggleFabSelectAll(false);
+//        int totalCount = getBrowserFragment().getItemsCount();
+//        if(totalCount == count)
+//            toggleFabSelectAll(true);
+//        else
+//            toggleFabSelectAll(false);
     }
 
     @Override
@@ -564,15 +565,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void toggleSelectAll() {
-        boolean b_SelectAll = getBrowserFragment().getSelectedAllorNot();
+        boolean b_SelectAll;
+        if (getBrowserFragment() == null) { //for search page
+            b_SelectAll = ((SearchResults) getFragment()).getSelectedAllorNot();
+        } else {
+            b_SelectAll = getBrowserFragment().getSelectedAllorNot();
+        }
         if(b_SelectAll){
-            getBrowserFragment().clearAllSelect();
+            clearActionAllSelected();
             updateActionModeTitle(0);
             toggleActionModeAction(0);
         }else{
-            getBrowserFragment().selectAll();
-            updateActionModeTitle(getBrowserFragment().getItemsCount());
-            toggleActionModeAction(getBrowserFragment().getItemsCount());
+            if (getBrowserFragment() == null) { //for search page
+                ((SearchResults) getFragment()).selectAll();
+            } else {
+                getBrowserFragment().selectAll();
+            }
+            updateActionModeTitle(getActionSelectedCount());
+            toggleActionModeAction(getActionSelectedCount());
         }
 
         toggleFabSelectAll(!b_SelectAll);
@@ -927,6 +937,15 @@ public class MainActivity extends AppCompatActivity
         return fragment instanceof BrowserFragment? (BrowserFragment)fragment : null;
     }
 
+    private Fragment getFragment() {
+        if (container != null && container.getVisibility() == View.GONE)
+            return null;
+        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
+        if (fragment == null)
+            return null;
+        return fragment;
+    }
+
     private void setViewMode(int mode) {
         Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
         if (fragment != null) {
@@ -1015,7 +1034,7 @@ public class MainActivity extends AppCompatActivity
 
     private void doDestinationAction(int actionId, String destinationPath, Constant.MODE actionMode, ArrayList<DocumentFile> destinationDFiles){
         Constant.Activity = 0;
-        ArrayList<FileInfo> mSelectedFiles = getBrowserFragment().getSelectedFiles();
+        ArrayList<FileInfo> mSelectedFiles = getActionSeletedFiles();
         if(actionMode == Constant.MODE.LOCAL){
             if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> Local
                 doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
@@ -1230,20 +1249,23 @@ public class MainActivity extends AppCompatActivity
     public void onLoaderReset(Loader<Boolean> loader) {}
 
     private void doOTGEncryptDialog() {
-        final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+        ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
+        /*final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
         ArrayList<String> names = new ArrayList<String>();
-        ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
         ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
         for (FileInfo file : allFiles) {
             if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
                 names.add(file.name.toLowerCase());
-        }
-        new OTGEncryptDialog(this, names, selectedFiles) {
+        }*/
+        new OTGEncryptDialog(this, selectedFiles) {
             @Override
             public void onConfirm(String newName, String password, ArrayList<DocumentFile> mSelectedDFiles) {
-                if(tabPostiion == 5){
-                    DocumentFile child = mSelectedDFiles.get(0).getParentFile();
-                    EncryptUtils.setAfterEncryptDFile(child);
+                if (getBrowserFragment() != null) {
+                    int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+                    if (tabPostiion == BrowserFragment.LIST_TYPE_FOLDER) {
+                        DocumentFile child = mSelectedDFiles.get(0).getParentFile();
+                        EncryptUtils.setAfterEncryptDFile(child);
+                    }
                 }
                 EncryptUtils.setSelectedDocumentFile(mSelectedDFiles);
                 EncryptUtils.setEncryptFileName(newName);
@@ -1315,20 +1337,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doSDEncryptDialog(){
-        final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+        /*final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
         List<String> names = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
         for (FileInfo file : allFiles) {
             if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
                 names.add(file.name.toLowerCase());
-        }
-        new LocalEncryptDialog(this, names) {
+        }*/
+        new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
-                ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
-                if(tabPostiion == 5){
-                    File child = new File(selectedFiles.get(0).path);
-                    EncryptUtils.setCopyToSDPath(child.getParent());
+                ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
+                if (getBrowserFragment() != null) {
+                    int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+                    if (tabPostiion == BrowserFragment.LIST_TYPE_FOLDER) {
+                        File child = new File(selectedFiles.get(0).path);
+                        EncryptUtils.setCopyToSDPath(child.getParent());
+                    }
                 }
                 EncryptUtils.setSelectLocalFile(selectedFiles);
                 EncryptUtils.setEncryptFileName(newName);
@@ -1368,20 +1393,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doLocalEncryptDialog() {
-        final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+        /*final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
         List<String> names = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
         for (FileInfo file : allFiles) {
             if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
                 names.add(file.name.toLowerCase());
-        }
-        new LocalEncryptDialog(this, names) {
+        }*/
+        new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
-                ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
-                if(tabPostiion == 5){
-                    File child = new File(selectedFiles.get(0).path);
-                    EncryptUtils.setAfterEncryptPath(child.getParent() + File.separator + newName);
+                ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
+                if (getBrowserFragment() != null) {
+                    int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+                    if (tabPostiion == BrowserFragment.LIST_TYPE_FOLDER) {
+                        File child = new File(selectedFiles.get(0).path);
+                        EncryptUtils.setAfterEncryptPath(child.getParent() + File.separator + newName);
+                    }
                 }
                 EncryptUtils.setSelectLocalFile(selectedFiles);
                 EncryptUtils.setEncryptFileName(newName);
@@ -1618,19 +1646,11 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doLocalRename(){
-        List<String> names = new ArrayList<String>();
-        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
-        FileInfo target = new FileInfo();
-        for (FileInfo file : allFiles) {
-            if (file.checked)
-                target = file;
-            else
-                names.add(file.name.toLowerCase());
-        }
+        FileInfo target = getActionSeletedFiles().get(0);
         final String path = target.path;
         final String name = target.name;
         boolean ignoreType = (target.type == Constant.TYPE_DIR);
-        new LocalRenameDialog(this,ignoreType, name, names) {
+        new LocalRenameDialog(this,ignoreType, name) {
             @Override
             public void onConfirm(String newName) {
                 if (newName.equals(name))
@@ -1642,10 +1662,14 @@ public class MainActivity extends AppCompatActivity
 
     private void doOTGRename(final boolean bSDCard) {
         boolean fromName = false;
-        int postion = getBrowserFragment().getCurrentTabPosition();
-        if(postion == 5)
-            fromName = true;
-        final ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+        if (getBrowserFragment() == null) {
+
+        } else {
+            int postion = getBrowserFragment().getCurrentTabPosition();
+            if (postion == BrowserFragment.LIST_TYPE_FOLDER)
+                fromName = true;
+        }
+        final ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
         new OTGRenameDialog(this, selectedFiles, fromName, false) {
             @Override
             public void onConfirm(String newName, String oldName, ArrayList<DocumentFile> selectedDocumentFile) {
@@ -1669,7 +1693,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doLocalDelete(){
-        ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+        ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
         new LocalDeleteDialog(this, selectedFiles) {
             @Override
             public void onConfirm(ArrayList<FileInfo> selectedFiles) {
@@ -1681,9 +1705,9 @@ public class MainActivity extends AppCompatActivity
     private void doOTGDelete(final boolean bSDCard){
         boolean fromName = false;
         int postion = getBrowserFragment().getCurrentTabPosition();
-        if(postion == 5)
+        if(postion == BrowserFragment.LIST_TYPE_FOLDER)
             fromName = true;
-        final ArrayList<FileInfo> selectedFiles = getBrowserFragment().getSelectedFiles();
+        final ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
         new OTGDeleteDialog(this, selectedFiles, fromName, false) {
             @Override
             public void onConfirm(ArrayList<DocumentFile> selectedDocumentFile) {
@@ -1793,7 +1817,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doLocalShare() {
-        String selectPath = getBrowserFragment().getSelectedFiles().get(0).path;
+        String selectPath = getActionSeletedFiles().get(0).path;
         boolean shareSuccess = MediaUtils.localShare(this, selectPath);
         if(!shareSuccess)
             snackBarShow(R.string.snackbar_not_support_share);
@@ -1804,7 +1828,7 @@ public class MainActivity extends AppCompatActivity
 
     private void doOTGShare(){
         int position = getBrowserFragment().getCurrentTabPosition();
-        ArrayList<FileInfo> selectFiles = getBrowserFragment().getSelectedFiles();
+        ArrayList<FileInfo> selectFiles = getActionSeletedFiles();
         ArrayList<DocumentFile> selectDFiles = new ArrayList<>();
         if(position == 5){
             selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, Constant.Activity);
@@ -1904,6 +1928,30 @@ public class MainActivity extends AppCompatActivity
             return context.getResources().getString(R.string.top_arrow);
         } else {
             return context.getResources().getString(R.string.bottom_arrow);
+        }
+    }
+
+    private ArrayList<FileInfo> getActionSeletedFiles() {
+        if (getBrowserFragment() == null) { //for search page
+            return ((SearchResults) getFragment()).getSelectedFiles();
+        } else {
+            return getBrowserFragment().getSelectedFiles();
+        }
+    }
+
+    private void clearActionAllSelected() {
+        if (getBrowserFragment() == null) { //for search page
+            ((SearchResults) getFragment()).actionFinish();
+        } else {
+            getBrowserFragment().clearAllSelect();
+        }
+    }
+
+    private int getActionSelectedCount() {
+        if (getBrowserFragment() == null) { //for search page
+            return ((SearchResults) getFragment()).getItemsCount();
+        } else {
+            return getBrowserFragment().getItemsCount();
         }
     }
 }

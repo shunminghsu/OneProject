@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.transcend.otg.Bitmap.IconHelper;
+import com.transcend.otg.Browser.TabInfo;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Loader.SearchLoader;
@@ -68,6 +69,8 @@ public class SearchResults extends Fragment {
     private LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
     IconHelper mIconHelper;
 
+    private TabInfo.OnItemCallbackListener mActionCallback;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +83,7 @@ public class SearchResults extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mIconHelper = new IconHelper(getActivity(), Constant.ITEM_LIST);
+        mActionCallback = (TabInfo.OnItemCallbackListener) getActivity();
     }
 
     @Override
@@ -111,6 +115,7 @@ public class SearchResults extends Fragment {
         mUpdateSuggestionsTask = null;
 
         mSearchView = null;
+        mActionCallback = null;
         super.onDestroy();
     }
 
@@ -293,6 +298,11 @@ public class SearchResults extends Fragment {
                     new SearchResults.ViewHolder.OnRecyclerItemListener() {
                 @Override
                 public void onRecyclerItemClick(int position) {
+                    if (Constant.mActionMode != null) {
+                        selectAtPosition(position);
+                        mActionCallback.onItemClick(getSelectedCount());
+                        return;
+                    }
                     FileInfo fileInfo = mList.get(position);
                     switch (fileInfo.type) {
                         case Constant.TYPE_PHOTO:
@@ -323,7 +333,8 @@ public class SearchResults extends Fragment {
 
                 @Override
                 public void onRecyclerItemLongClick(int position) {
-
+                    selectAtPosition(position);
+                    mActionCallback.onItemLongClick(getSelectedCount());
                 }
 
                 @Override
@@ -332,6 +343,48 @@ public class SearchResults extends Fragment {
                 }
                     });
             return vh;
+        }
+
+        private void selectAtPosition(int position) {
+            mList.get(position).checked = !(mList.get(position).checked);
+            notifyItemChanged(position);
+        }
+
+        private int getSelectedCount() {
+            int count = 0;
+            for (FileInfo file : mList) {
+                if (file.checked) count++;
+            }
+            return count;
+        }
+
+        private ArrayList<FileInfo> getSelectedFiles(){
+            ArrayList<FileInfo> list = new ArrayList<>();
+            for (FileInfo file : mList) {
+                if (file.checked)
+                    list.add(file);
+            }
+            return list;
+        }
+
+        private void clearAllSelection(){
+            for (FileInfo file : mList)
+                file.checked = false;
+            notifyDataSetChanged();
+        }
+
+        private void setAllSelection(){
+            for (FileInfo file : mList)
+                file.checked = true;
+            notifyDataSetChanged();
+        }
+
+        private boolean getSelectedAllorNot() {
+            for (FileInfo file : mList) {
+                if (!file.checked)
+                    return false;
+            }
+            return true;
         }
 
         @Override
@@ -352,6 +405,8 @@ public class SearchResults extends Fragment {
             } else
                 mIconHelper.loadThumbnail(fileInfo.path, fileInfo.type, holder.icon, holder.iconMime);
 
+            holder.itemView.setSelected(fileInfo.checked);
+            holder.mark.setVisibility(fileInfo.checked ? View.VISIBLE : View.INVISIBLE);
         }
 
         @Override
@@ -596,5 +651,26 @@ public class SearchResults extends Fragment {
             default: //Constant.TYPE_OTHER_FILE:
                 return context.getResources().getString(R.string.info_other);
         }
+    }
+
+    public ArrayList<FileInfo> getSelectedFiles() {
+        return mResultsAdapter.getSelectedFiles();
+    }
+
+    public void actionFinish() {
+        mResultsAdapter.clearAllSelection();
+        updateSearchResults();
+    }
+
+    public void selectAll() {
+        mResultsAdapter.setAllSelection();
+    }
+
+    public boolean getSelectedAllorNot() {
+        return mResultsAdapter.getSelectedAllorNot();
+    }
+
+    public int getItemsCount(){
+        return mResultsAdapter.getItemCount();
     }
 }

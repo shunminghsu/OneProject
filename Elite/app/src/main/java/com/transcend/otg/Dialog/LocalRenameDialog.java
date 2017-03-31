@@ -30,9 +30,8 @@ public abstract class LocalRenameDialog implements TextWatcher, View.OnClickList
 
     private String mName, mType;
     private boolean mIgnoreType;
-    private List<String> mNames;
 
-    public LocalRenameDialog(Context context, boolean ignoreType, String name, List<String> names) {
+    public LocalRenameDialog(Context context, boolean ignoreType, String name) {
         mContext = context;
         mIgnoreType = ignoreType;
         if(!ignoreType){
@@ -41,7 +40,6 @@ public abstract class LocalRenameDialog implements TextWatcher, View.OnClickList
         } else {
             mName = name;
         }
-        mNames = names;
         initDialog();
         initFieldName();
     }
@@ -81,10 +79,6 @@ public abstract class LocalRenameDialog implements TextWatcher, View.OnClickList
             error = mContext.getResources().getString(R.string.invalid_name);
             enabled = false;
         }
-        if (isDuplicated(name.toLowerCase())) {
-            error = mContext.getResources().getString(R.string.duplicate_name);
-            enabled = false;
-        }
 
         if (!isIlleagal(name.toLowerCase())) {
             error = mContext.getResources().getString(R.string.illegal_name);
@@ -111,12 +105,6 @@ public abstract class LocalRenameDialog implements TextWatcher, View.OnClickList
 
     private boolean isInvalid(String name) {
         return (name == null) || (name.isEmpty());
-    }
-
-    private boolean isDuplicated(String name) {
-        if (isInvalid(name)) return false;
-
-        return mNames.contains(name);
     }
 
     private boolean isIlleagal(String name){

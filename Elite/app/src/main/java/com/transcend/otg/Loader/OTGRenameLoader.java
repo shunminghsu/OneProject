@@ -40,9 +40,14 @@ public class OTGRenameLoader extends AsyncTaskLoader<Boolean> {
     }
 
     private boolean rename() throws InterruptedException {
-        if (mSelectFiles.get(0).exists()) {
-            String oldName = mSelectFiles.get(0).getName();
-            if(mSelectFiles.get(0).renameTo(mNewName)){
+        DocumentFile dfile = mSelectFiles.get(0);
+        if (dfile.exists()) {
+            if (dfile.getParentFile().findFile(mNewName) != null) {
+                //Log.d("henry", "new file exist");
+                return false;
+            }
+            String oldName = dfile.getName();
+            if(dfile.renameTo(mNewName)){
                 if(Constant.nowMODE == Constant.MODE.SD){
                     String newName = mNewName;
                     String path = ActionParameter.files.get(0).path;

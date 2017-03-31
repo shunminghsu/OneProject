@@ -28,11 +28,11 @@ public abstract class LocalEncryptDialog implements TextWatcher, View.OnClickLis
     private Button mDlgBtnPos;
     private TextInputLayout mFieldName, mFieldPassword;
 
-    private List<String> mFolderNames;
+    //private List<String> mFolderNames;
 
-    public LocalEncryptDialog(Context context, List<String> folderNames) {
+    public LocalEncryptDialog(Context context) {
         mContext = context;
-        mFolderNames = folderNames;
+        //mFolderNames = folderNames;
         initDialog();
         initFieldName();
     }
@@ -73,10 +73,6 @@ public abstract class LocalEncryptDialog implements TextWatcher, View.OnClickLis
             error = mContext.getResources().getString(R.string.invalid_name);
             enabled = false;
         }
-        if (isDuplicated(name)) {
-            error = mContext.getResources().getString(R.string.duplicate_name);
-            enabled = false;
-        }
         if(!isIlleagal(name)){
             error = mContext.getResources().getString(R.string.illegal_name);
             enabled = false;
@@ -106,9 +102,9 @@ public abstract class LocalEncryptDialog implements TextWatcher, View.OnClickLis
         int index = 1;
         String name = mContext.getResources().getString(R.string.untitled_folder);
         String unique = name;
-        while (mFolderNames.contains(unique)) {
-            unique = String.format(name + " (%d)", index++);
-        }
+        //while (mFolderNames.contains(unique)) {
+        //    unique = String.format(name + " (%d)", index++);
+        //}
         return unique;
     }
 
@@ -116,10 +112,10 @@ public abstract class LocalEncryptDialog implements TextWatcher, View.OnClickLis
         return (name == null) || (name.isEmpty());
     }
 
-    private boolean isDuplicated(String name) {
+    /*private boolean isDuplicated(String name) {
         if (isInvalid(name)) return false;
         return mFolderNames.contains(name.toLowerCase() + mContext.getResources().getString(R.string.encrypt_subfilename));
-    }
+    }*/
 
     private boolean isIlleagal(String name){
         if (isInvalid(name)) return true;

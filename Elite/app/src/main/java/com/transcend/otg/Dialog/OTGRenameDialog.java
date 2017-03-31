@@ -38,13 +38,11 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
     private String mName, mType;
     private ArrayList<DocumentFile> mDFiles;
     private boolean mIgnoreType, bFromName, bFromExploreActivity;
-    private List<String> mNames;
     private ArrayList<FileInfo> mFiles;
 
     public OTGRenameDialog(Context context, ArrayList<FileInfo> files, boolean fromName, boolean fromExploreActivity) {
         mContext = context;
         mFiles = files;
-        mNames = new ArrayList<>();
         mIgnoreType = false;
         bFromName = fromName;
         bFromExploreActivity = fromExploreActivity;
@@ -67,11 +65,7 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
                     mDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, Constant.Activity);
                 String name = mFiles.get(0).name;
                 mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
-                DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();
-                for (DocumentFile file : parentFiles) {
-                    if(file.exists())
-                        mNames.add(file.getName().toLowerCase());
-                }
+
                 if (!mIgnoreType) {
                     mName = FilenameUtils.getBaseName(name);
                     mType = FilenameUtils.getExtension(name);
@@ -97,11 +91,7 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
             }
             String name = mFiles.get(0).name;
             mIgnoreType = (mFiles.get(0).type == Constant.TYPE_DIR);
-            DocumentFile[] parentFiles = mDFiles.get(0).getParentFile().listFiles();
-            for (DocumentFile file : parentFiles) {
-                if(file.exists())
-                    mNames.add(file.getName().toLowerCase());
-            }
+
             if (!mIgnoreType) {
                 mName = FilenameUtils.getBaseName(name);
                 mType = FilenameUtils.getExtension(name);
@@ -160,10 +150,10 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
             enabled = false;
         }
 
-        if (isDuplicated(name)) {
-            error = mContext.getResources().getString(R.string.duplicate_name);
-            enabled = false;
-        }
+        //if (isDuplicated(name)) {
+        //    error = mContext.getResources().getString(R.string.duplicate_name);
+        //    enabled = false;
+        //}
 
         if (!isIlleagal(name)) {
             error = mContext.getResources().getString(R.string.illegal_name);
@@ -180,13 +170,6 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
 
     private boolean isInvalid(String name) {
         return (name == null) || (name.isEmpty());
-    }
-
-    private boolean isDuplicated(String name) {
-        if (isInvalid(name)) return false;
-        if(!mIgnoreType)
-            name = name + "." + mType;
-        return mNames.contains(name.toLowerCase());
     }
 
     private boolean isIlleagal(String name){

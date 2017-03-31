@@ -176,8 +176,7 @@ public class PhotoActivity extends AppCompatActivity {
             case R.id.action_rename:
                 if (!checkSDWritePermission())
                     return false;
-                List<String> empty_list = new ArrayList<String>();
-                new LocalRenameDialog(this,false, fileinfo.name, empty_list) {
+                new LocalRenameDialog(this,false, fileinfo.name) {
                     @Override
                     public void onConfirm(String newName) {
                         if (newName.equals(fileinfo.name))
@@ -452,6 +451,10 @@ public class PhotoActivity extends AppCompatActivity {
                 File f2 = new File(parent, mNewDisplayName);
                 mNewFile = f2;
                 DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
+                if (dfile.getParentFile().findFile(mNewDisplayName) != null) {
+                    Log.d("henry", "new file exist");
+                    return false;
+                }
                 return dfile.renameTo(mNewDisplayName);
             } else {
                 File f = new File(mFileInfo.path);

@@ -75,6 +75,11 @@ public class LocalEncryptLoader extends AsyncTaskLoader<Boolean> {
         }
         String dst = mDes + mActivity.getString(R.string.encrypt_subfilename);
 
+        File check_file = new File(dst);
+        if (check_file.exists()) {
+            Log.d("henry", "same enc file exist");
+            return false;
+        }
         try {
             ZipFile zipFile = new ZipFile(dst);
             ZipParameters parameters = new ZipParameters();
