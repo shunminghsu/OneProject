@@ -40,7 +40,7 @@
             android:layout_height="match_parent"
             android:clickable="true"
             android:padding="20dp"
-            android:src="@mipmap/test_info"
+            android:src="@mipmap/ic_info"
             android:visibility="visible"/>
 
     </FrameLayout>

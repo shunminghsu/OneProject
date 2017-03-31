@@ -16,7 +16,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +24,6 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.transcend.otg.Bitmap.IconHelper;
@@ -575,7 +573,7 @@ public class SearchResults extends Fragment {
 
         builder.setView(mInfoDialogView);
         builder.setTitle(context.getResources().getString(R.string.info_title));
-        builder.setIcon(R.mipmap.test_info);
+        builder.setIcon(R.mipmap.ic_info);
         AlertDialog dialog = builder.create();
         dialog.show();
         dialog.getWindow().setLayout(dialog_size, dialog_size);

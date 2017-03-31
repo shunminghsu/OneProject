@@ -114,7 +114,7 @@
             android:layout_alignParentRight="true"
             android:layout_margin="@dimen/fab_margin"
             android:visibility="gone"
-            android:src="@drawable/ic_menu_camera"
+            android:src="@mipmap/ic_floating_browser_intoaction"
             app:elevation="2dp" />
 
     </RelativeLayout>

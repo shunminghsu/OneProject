@@ -26,18 +26,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
-import android.os.ParcelFileDescriptor;
-import android.provider.DocumentsContract.Document;
 import android.util.Log;
-import android.util.TypedValue;
 
 import com.transcend.otg.R;
 
-import java.io.FileDescriptor;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 
 public class IconUtils {
     public static Bitmap loadAlbumThumbnail(String path) {
@@ -97,22 +92,22 @@ public class IconUtils {
     }
 
     public static Drawable loadImageTypeIcon(Context context, boolean large) {
-        return large ? context.getDrawable(R.mipmap.test_ic_image_l) : context.getDrawable(R.mipmap.test_ic_image_s);
+        return large ? context.getDrawable(R.drawable.ic_image_l) : context.getDrawable(R.mipmap.ic_image_s);
     }
     public static Drawable loadVideoTypeIcon(Context context, boolean large) {
-        return large ? context.getDrawable(R.mipmap.test_ic_movies_l) : context.getDrawable(R.mipmap.test_ic_movies_s);
+        return large ? context.getDrawable(R.drawable.ic_video_l) : context.getDrawable(R.mipmap.ic_video_s);
     }
     public static Drawable loadMusicTypeIcon(Context context, boolean large) {
-        return large ? context.getDrawable(R.mipmap.test_ic_audio_l) : context.getDrawable(R.mipmap.test_ic_audio_s);
+        return large ? context.getDrawable(R.drawable.ic_music_l) : context.getDrawable(R.mipmap.ic_music_s);
     }
     public static Drawable loadFileTypeIcon(Context context, boolean large) {
-        return large ? context.getDrawable(R.mipmap.test_ic_file_l) : context.getDrawable(R.mipmap.test_ic_file_s);
+        return large ? context.getDrawable(R.drawable.ic_file_l) : context.getDrawable(R.mipmap.ic_file_s);
     }
     public static Drawable loadEncryptTypeIcon(Context context, boolean large) {
-        return large ? context.getDrawable(R.mipmap.ic_encrypt_gray_l) : context.getDrawable(R.mipmap.ic_encrypt_gray);
+        return large ? context.getDrawable(R.drawable.ic_encrypt_gray_l) : context.getDrawable(R.mipmap.ic_encrypt_s);
     }
     public static Drawable loadFolderTypeIcon(Context context, boolean large) {
-        return large ? context.getDrawable(R.mipmap.test_ic_folder_l) : context.getDrawable(R.mipmap.test_ic_folder_s);
+        return large ? context.getDrawable(R.drawable.ic_folder_l) : context.getDrawable(R.mipmap.ic_folder_s);
     }
 
     public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth, int reqHeight) {

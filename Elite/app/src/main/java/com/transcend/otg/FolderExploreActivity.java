@@ -8,7 +8,6 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.res.Configuration;
 import android.graphics.drawable.BitmapDrawable;
-import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,14 +25,12 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
@@ -325,7 +322,7 @@ public class FolderExploreActivity extends AppCompatActivity
 
         builder.setView(mInfoDialogView);
         builder.setTitle(context.getResources().getString(R.string.info_title));
-        builder.setIcon(R.mipmap.test_info);
+        builder.setIcon(R.mipmap.ic_info);
         AlertDialog dialog = builder.create();
         dialog.show();
         dialog.getWindow().setLayout(dialog_size, dialog_size*6/5);
@@ -806,8 +803,8 @@ public class FolderExploreActivity extends AppCompatActivity
 
     private void toggleFabSelectAll(boolean selectAll) {
         int resId = selectAll
-                ? R.drawable.ic_menu_manage
-                : R.drawable.ic_menu_camera;
+                ? R.mipmap.ic_floating_browser_cancelselect
+                : R.mipmap.ic_floating_browser_selectall;
         mFab.setImageResource(resId);
         mFab.setVisibility(View.VISIBLE);
     }
@@ -914,7 +911,7 @@ public class FolderExploreActivity extends AppCompatActivity
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         mFolderExploreAdapter.clearAllSelection();
-        toggleFabSelectAll(false);
+        mFab.setImageResource(R.mipmap.ic_floating_browser_intoaction);
         mActionMode = null;
     }
 

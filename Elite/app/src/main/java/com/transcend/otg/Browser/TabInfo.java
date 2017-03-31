@@ -6,10 +6,8 @@ import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.Formatter;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -285,7 +283,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
 
         builder.setView(mInfoDialogView);
         builder.setTitle(context.getResources().getString(R.string.info_title));
-        builder.setIcon(R.mipmap.test_info);
+        builder.setIcon(R.mipmap.ic_info);
         AlertDialog dialog = builder.create();
         dialog.show();
         dialog.getWindow().setLayout(dialog_size, dialog_size*6/5);

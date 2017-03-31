@@ -385,8 +385,8 @@ public class MainActivity extends AppCompatActivity
 
     private void toggleFabSelectAll(boolean selectAll) {
         int resId = selectAll
-                ? R.drawable.ic_menu_manage
-                : R.drawable.ic_menu_camera;
+                ? R.mipmap.ic_floating_browser_cancelselect
+                : R.mipmap.ic_floating_browser_selectall;
         mFab.setImageResource(resId);
         mFab.setVisibility(View.VISIBLE);
     }
@@ -479,7 +479,7 @@ public class MainActivity extends AppCompatActivity
     public void onDestroyActionMode(ActionMode mode) {
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         getBrowserFragment().clearAllSelect();
-        toggleFabSelectAll(false);
+        mFab.setImageResource(R.mipmap.ic_floating_browser_intoaction);
         Constant.mActionMode = mActionMode = null;
     }
 

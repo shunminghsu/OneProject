@@ -48,7 +48,7 @@
         android:id="@+id/item_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/test_info"
+        android:src="@mipmap/ic_info"
         android:layout_marginBottom="4dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"/>
