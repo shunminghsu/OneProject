@@ -14,10 +14,10 @@
 
         <android.support.design.widget.AppBarLayout
             android:id="@+id/explore_app_bar"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:elevation="0dp">
+            android:elevation="0dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/explore_toolbar"
@@ -43,33 +43,33 @@
             android:layout_below="@+id/explore_app_bar"
             android:background="@drawable/toolbar_dropshadow" />
 
-        <com.transcend.otg.Browser.PagerSwipeRefreshLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
+        <com.transcend.otg.Browser.PagerSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/swiperefresh"
-            android:layout_below="@+id/toolbar_shadow"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolbar_shadow">
 
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginTop="2dp"
                 android:layout_marginLeft="2dp"
-                android:layout_marginRight="2dp">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:layout_marginTop="2dp"
-                android:layout_marginLeft="2dp"
-                android:layout_marginRight="2dp" >
+                android:layout_marginRight="2dp"
+                android:layout_marginTop="2dp">
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/explore_recycler_view"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginRight="2dp"
+                    android:layout_marginTop="2dp"
+                    android:orientation="vertical">
 
-            </LinearLayout>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/explore_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                </LinearLayout>
             </FrameLayout>
         </com.transcend.otg.Browser.PagerSwipeRefreshLayout>
 
@@ -78,8 +78,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:visibility="gone"
-            android:src="@drawable/img_empty_directory" />
+            android:src="@drawable/img_empty_directory"
+            android:visibility="gone" />
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -93,6 +93,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_margin="16dp"
+                android:scaleType="center"
                 android:src="@mipmap/ic_floating_browser_intoaction"
                 app:elevation="2dp" />
 
@@ -100,10 +101,11 @@
                 android:id="@+id/explore_fab_exit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
                 android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
                 android:layout_margin="16dp"
-                android:src="@mipmap/ic_exit"
+                android:scaleType="center"
+                android:src="@mipmap/ic_exit_white"
                 app:elevation="2dp" />
 
 
@@ -111,14 +113,16 @@
 
     </RelativeLayout>
 
-    <LinearLayout android:id="@+id/loading_container"
-        android:orientation="vertical"
+    <LinearLayout
+        android:id="@+id/loading_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
 
-        <ProgressBar style="?android:attr/progressBarStyleLarge"
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

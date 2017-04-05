@@ -416,6 +416,10 @@ public class DestinationActivity extends AppCompatActivity
         }
         Bundle args = getIntent().getExtras();
         actionId = args.getInt("actionId");
+        if(actionId == R.id.action_copy)
+            mFab.setImageResource(R.mipmap.ic_copy_white);
+        else if(actionId == R.id.action_move)
+            mFab.setImageResource(R.mipmap.ic_move_white);
     }
 
     @Override

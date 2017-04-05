@@ -61,7 +61,7 @@ public abstract class SDDecryptDialog implements View.OnClickListener, TextWatch
     private void initDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mContext.getResources().getString(R.string.decrypt));
-        builder.setIcon(R.drawable.ic_menu_camera);
+        builder.setIcon(R.mipmap.ic_decrypt_gray);
         builder.setView(R.layout.dialog_decrypt);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setPositiveButton(R.string.confirm, null);

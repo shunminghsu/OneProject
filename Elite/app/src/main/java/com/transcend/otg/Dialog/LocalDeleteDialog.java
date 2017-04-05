@@ -35,7 +35,7 @@ public abstract class LocalDeleteDialog implements View.OnClickListener{
         String message = String.format(format, mFiles.size());
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mContext.getResources().getString(R.string.delete));
-        builder.setIcon(R.drawable.ic_menu_camera);
+        builder.setIcon(R.mipmap.ic_delete_gray);
         builder.setMessage(message);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setPositiveButton(R.string.confirm, null);

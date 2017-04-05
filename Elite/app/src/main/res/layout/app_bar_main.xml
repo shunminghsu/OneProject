@@ -29,8 +29,8 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:text="@string/app_name"
-                android:textSize="20sp"
-                android:textColor="@color/colorWhite"/>
+                android:textColor="@color/colorWhite"
+                android:textSize="20sp" />
 
 
         </android.support.v7.widget.Toolbar>
@@ -43,35 +43,35 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/appbar"
         android:gravity="center"
-        android:visibility="gone"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <Button
             android:id="@+id/btn_local"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/storage_btn_selector"
             android:layout_weight="1"
-            android:textSize="@dimen/storage_text_size"
-            android:text="@string/nav_local" />
+            android:background="@drawable/storage_btn_selector"
+            android:text="@string/nav_local"
+            android:textSize="@dimen/storage_text_size" />
 
         <Button
             android:id="@+id/btn_sd"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/storage_btn_selector"
             android:layout_weight="1"
-            android:textSize="@dimen/storage_text_size"
-            android:text="@string/nav_sd" />
+            android:background="@drawable/storage_btn_selector"
+            android:text="@string/nav_sd"
+            android:textSize="@dimen/storage_text_size" />
 
         <Button
             android:id="@+id/btn_otg"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/storage_btn_selector"
-            android:textSize="@dimen/storage_text_size"
             android:layout_weight="1"
-            android:text="@string/nav_otg" />
+            android:background="@drawable/storage_btn_selector"
+            android:text="@string/nav_otg"
+            android:textSize="@dimen/storage_text_size" />
     </LinearLayout>
 
     <View
@@ -87,9 +87,9 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/appbar"
         android:layout_weight="1.00"
-        android:orientation="vertical" >
-        <include
-            layout="@layout/fragment_home" />
+        android:orientation="vertical">
+
+        <include layout="@layout/fragment_home" />
     </LinearLayout>
 
     <LinearLayout
@@ -98,8 +98,8 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/layout_storage"
         android:layout_weight="1.00"
-        android:visibility="gone"
-        android:orientation="vertical" />
+        android:orientation="vertical"
+        android:visibility="gone" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -110,11 +110,12 @@
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:layout_margin="@dimen/fab_margin"
-            android:visibility="gone"
+            android:scaleType="center"
             android:src="@mipmap/ic_floating_browser_intoaction"
+            android:visibility="gone"
             app:elevation="2dp" />
 
     </RelativeLayout>

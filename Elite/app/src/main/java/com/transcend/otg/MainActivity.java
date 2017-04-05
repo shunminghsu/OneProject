@@ -203,7 +203,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View view) {
                 mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
                 setDrawerCheckItem(R.id.nav_backup);
-                replaceFragment(backupFragment);
+                showFragment(backupFragment);
             }
         });
     }
@@ -317,34 +317,7 @@ public class MainActivity extends AppCompatActivity
         layout_storage.setVisibility(View.GONE);
         mFab.setVisibility(View.INVISIBLE);
         replaceFragment(fragment);
-        invalidateOptionsMenu();
-    }
-
-    private void showHelpFragment(){
-        home_container.setVisibility(View.GONE);
-        container.setVisibility(View.VISIBLE);
-        layout_storage.setVisibility(View.GONE);
-        mFab.setVisibility(View.INVISIBLE);
-        replaceFragment(helpFragment);
-        invalidateOptionsMenu();
-    }
-
-    private void showFeedbackFragment(){
-        home_container.setVisibility(View.GONE);
-        container.setVisibility(View.VISIBLE);
-        layout_storage.setVisibility(View.GONE);
-        mFab.setVisibility(View.INVISIBLE);
-        replaceFragment(feedbackFragment);
-        invalidateOptionsMenu();
-    }
-
-    private void showSettingFragment(){
-        home_container.setVisibility(View.GONE);
-        container.setVisibility(View.VISIBLE);
-        layout_storage.setVisibility(View.GONE);
-        mFab.setVisibility(View.INVISIBLE);
-        replaceFragment(settingFragment);
-        invalidateOptionsMenu();
+//        invalidateOptionsMenu();
     }
 
     private void markSelectedBtn(Button selected) {

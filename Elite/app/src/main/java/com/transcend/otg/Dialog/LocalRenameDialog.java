@@ -47,7 +47,7 @@ public abstract class LocalRenameDialog implements TextWatcher, View.OnClickList
     private void initDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mContext.getResources().getString(R.string.rename));
-        builder.setIcon(R.drawable.ic_menu_camera);
+        builder.setIcon(R.mipmap.ic_rename_gray);
         builder.setView(R.layout.dialog_rename);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setPositiveButton(R.string.confirm, null);
