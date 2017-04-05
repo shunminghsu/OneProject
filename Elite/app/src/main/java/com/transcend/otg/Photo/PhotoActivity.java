@@ -3,6 +3,7 @@ package com.transcend.otg.Photo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -475,8 +476,11 @@ public class PhotoActivity extends AppCompatActivity {
                     String newPath = mFileInfo.path.replace(mFileInfo.name, mNewDisplayName);
                     photoName.setText(mNewDisplayName);
                     photoPath.setText(newPath);
+                } else if (mFileInfo.storagemode == Constant.STORAGEMODE_SD) {
+                    MediaScannerConnection.scanFile(mContext, new String[]{mNewFile.getPath()}, new String[]{"image/*"}, null);
+                    photoName.setText(mNewFile.getName());
+                    photoPath.setText(mNewFile.getPath());
                 } else {
-                    Log.d("henry","U: "+Uri.fromFile(mNewFile));
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mNewFile)));
                     photoName.setText(mNewFile.getName());
                     photoPath.setText(mNewFile.getPath());

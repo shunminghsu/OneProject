@@ -16,6 +16,15 @@ import com.transcend.otg.R;
 
 public class NoSdFragment extends Fragment{
 
+    private OnRefreshClickedListener mListener;
+    public interface OnRefreshClickedListener {
+        void onSdRefreshClick();
+    }
+
+    public void setSdRefreshClickedListener(OnRefreshClickedListener listener) {
+        mListener = listener;
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -26,7 +35,7 @@ public class NoSdFragment extends Fragment{
         (view.findViewById(R.id.check_btn)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                mListener.onSdRefreshClick();
             }
         });
         return view;

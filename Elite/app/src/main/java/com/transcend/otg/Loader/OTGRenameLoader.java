@@ -3,8 +3,11 @@ package com.transcend.otg.Loader;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.provider.DocumentFile;
+import android.util.Log;
 
 import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
@@ -52,8 +55,9 @@ public class OTGRenameLoader extends AsyncTaskLoader<Boolean> {
                     String newName = mNewName;
                     String path = ActionParameter.files.get(0).path;
                     path = path.replace(oldName, newName);
-                    File rename = new File(path);
-                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(rename)));
+                    //File rename = new File(path);
+                    //mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(rename)));
+                    MediaScannerConnection.scanFile(mContext, new String[]{path}, new String[]{dfile.getType()}, null);
                     Thread.sleep(500);
                 }
                 return true;

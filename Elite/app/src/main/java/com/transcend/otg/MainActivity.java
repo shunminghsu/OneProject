@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         LoaderManager.LoaderCallbacks<Boolean>,
         ActionMode.Callback,
+        NoOtgFragment.OnRefreshClickedListener, NoSdFragment.OnRefreshClickedListener,
         TabInfo.OnItemCallbackListener{
 
     private String TAG = MainActivity.class.getSimpleName();
@@ -514,6 +515,33 @@ public class MainActivity extends AppCompatActivity
         toggleActionModeAction(count);
     }
 
+    @Override
+    public void onOtgRefreshClick() {
+        UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
+
+        if (devices.length > 0) {
+            device = devices[0];
+            String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
+            if(otgKey != "" || otgKey == null){
+                Uri uriTree = Uri.parse(otgKey);
+                if(checkStorage(uriTree)){
+                    replaceFragment(otgFragment);
+                }
+            }else{
+                intentDocumentTree();
+            }
+        }
+    }
+
+    @Override
+    public void onSdRefreshClick() {
+        String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+        if (sdpath != null) {
+            if (FileFactory.getMountedState(mContext, sdpath)) {
+                replaceFragment(sdFragment);
+            }
+        }
+    }
 
     class ButtonClickListener implements View.OnClickListener {
 
@@ -867,6 +895,12 @@ public class MainActivity extends AppCompatActivity
         }
         transaction.commitAllowingStateLoss();
         getSupportFragmentManager().executePendingTransactions();
+
+        if (f instanceof NoOtgFragment) {
+            ((NoOtgFragment) f).setOtgRefreshClickedListener(this);
+        } else if (f instanceof NoSdFragment) {
+            ((NoSdFragment) f).setSdRefreshClickedListener(this);
+        }
         return f;
     }
 

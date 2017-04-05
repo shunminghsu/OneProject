@@ -329,7 +329,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 //////local & sd card function start//////
 
     private ArrayList<FileInfo> getAllImages() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mOuterStoragePath != null) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mOuterStoragePath != null) {
             Uri uriSDKey = Uri.parse(LocalPreferences.getSDKey(mContext));
             Uri sdBaseRootUri = null;
             if (uriSDKey != null && uriSDKey.toString() != "")
@@ -337,7 +337,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             if (sdBaseRootUri != null) {
                 return getSortList(getOtgAllImages(sdBaseRootUri, Constant.STORAGEMODE_SD));
             }
-        }
+        }*/
         try {
             String[] proj = {MediaStore.Images.Media.SIZE,
                     MediaStore.Images.Media.DATA,
