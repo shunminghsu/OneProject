@@ -43,8 +43,8 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     public ArrayList<FileInfo> loadInBackground() {
         mFileList.clear();
         mSdCardPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+        mOTGPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
         if (baseRootUri != null) {
-            mOTGPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
             if (mOTGPath != null) {
                 searchAllOtg(baseRootUri);
             }
@@ -105,6 +105,8 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     Long size = cursor.getLong(sizeColumnIndex);
                     File check_file = new File(path);
                     if (check_file.exists() == false)
+                        continue;
+                    if (path.startsWith(mOTGPath)) //dont get OTG file in here
                         continue;
                     if (!path.contains("/.") && name.toLowerCase().contains(mQueryText.toLowerCase())) {
                         FileInfo fileInfo = new FileInfo();

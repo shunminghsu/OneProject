@@ -397,8 +397,7 @@ public class PhotoActivity extends AppCompatActivity {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
-                    mFileInfo.storagemode != Constant.STORAGEMODE_LOCAL) {
+            if (mFileInfo.storagemode != Constant.STORAGEMODE_LOCAL) {
                 DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
                 return dfile.delete();
             } else {

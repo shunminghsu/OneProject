@@ -61,6 +61,7 @@ public class SearchResults extends Fragment {
     private UpdateSuggestionsTask mUpdateSuggestionsTask;
 
     private ViewGroup mLayoutResults;
+    private ViewGroup mLoading;
 
     private String mQuery;
 
@@ -132,6 +133,7 @@ public class SearchResults extends Fragment {
 
             @Override
             public void onLoadFinished(Loader<ArrayList<FileInfo>> loader, ArrayList<FileInfo> data) {
+                mLoading.setVisibility(View.GONE);
                 setResultsVisibility(true);
                 mResultsAdapter.update(data);
             }
@@ -144,6 +146,7 @@ public class SearchResults extends Fragment {
 
         final View view = inflater.inflate(R.layout.search_panel, container, false);
         mLayoutResults = (ViewGroup) view.findViewById(R.id.layout_results);
+        mLoading = (ViewGroup) view.findViewById(R.id.loading_container);
 
         mEmptyView = (TextView) view.findViewById(R.id.empty_view);
         mResultsListView = (RecyclerView) view.findViewById(R.id.list_results);
@@ -527,6 +530,7 @@ public class SearchResults extends Fragment {
     }
 
     private void updateSearchResults() {
+        mLoading.setVisibility(View.VISIBLE);
         getLoaderManager().restartLoader(477, getArguments(), mCallbacks);
     }
 

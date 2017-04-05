@@ -57,7 +57,7 @@ public class IconUtils {
                 in = res.openInputStream(uri);
                 return BitmapFactory.decodeStream(in, null, sBitmapOptions);
             } catch (FileNotFoundException ex) {
-                Log.d("henry", ex.getMessage());
+                //Log.d("henry", ex.getMessage());
                 // The album art thumbnail does not actually exist. Maybe the user deleted it, or
                 // maybe it never existed to begin with.
             } finally {

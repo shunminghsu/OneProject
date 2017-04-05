@@ -238,6 +238,8 @@ public class MainActivity extends AppCompatActivity
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
 
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                if (getBrowserFragment() == null)
+                    return;
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 
                 Log.d(TAG, "USB device detached");
@@ -456,20 +458,10 @@ public class MainActivity extends AppCompatActivity
                 if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
                     doLocalEncryptDialog();
                 }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
-                    if (isFromSearch) {
-                        //from search page, since following function has bug,
-                        // so we just return utils bug be fixed
-                        return false;
-                    }
-                    doOTGEncryptDialog();
-                }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
-                    if (isFromSearch) {
-                        //from search page, since following function has bug,
-                        // so we just return utils bug be fixed
-                        return false;
-                    }
                     nowAction = R.id.action_encrypt;
                     doSDEncryptDialog();
+                }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
+                    doOTGEncryptDialog();
                 }
                 break;
 
@@ -1708,9 +1700,13 @@ public class MainActivity extends AppCompatActivity
 
     private void doOTGDelete(final boolean bSDCard){
         boolean fromName = false;
-        int postion = getBrowserFragment().getCurrentTabPosition();
-        if(postion == BrowserFragment.LIST_TYPE_FOLDER)
-            fromName = true;
+        if (getBrowserFragment() == null) {
+            //from search page
+        } else {
+            int postion = getBrowserFragment().getCurrentTabPosition();
+            if (postion == BrowserFragment.LIST_TYPE_FOLDER)
+                fromName = true;
+        }
         final ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
         new OTGDeleteDialog(this, selectedFiles, fromName, false) {
             @Override
@@ -1831,10 +1827,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doOTGShare(){
-        int position = getBrowserFragment().getCurrentTabPosition();
         ArrayList<FileInfo> selectFiles = getActionSeletedFiles();
-        ArrayList<DocumentFile> selectDFiles = new ArrayList<>();
-        if(position == 5){
+        ArrayList<DocumentFile> selectDFiles;
+        if(getBrowserFragment() != null && getBrowserFragment().getCurrentTabPosition() == BrowserFragment.LIST_TYPE_FOLDER){
             selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, Constant.Activity);
         }else{
             String otgPath = FileFactory.getOTGStoragePath(this, Constant.otg_key_path);
