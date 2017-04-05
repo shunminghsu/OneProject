@@ -628,7 +628,7 @@ public class SearchResults extends Fragment {
 
         builder.setView(mInfoDialogView);
         builder.setTitle(context.getResources().getString(R.string.info_title));
-        builder.setIcon(R.mipmap.ic_info);
+        builder.setIcon(R.mipmap.ic_info_gray);
         AlertDialog dialog = builder.create();
         dialog.show();
         dialog.getWindow().setLayout(dialog_size, dialog_size);
