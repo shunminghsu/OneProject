@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawer;
     private ActionBarDrawerToggle toggle;
     private NavigationView navigationView;
-    private LinearLayout container, layout_storage;
+    private LinearLayout container, layout_storage, loading_container;
     private RelativeLayout main_relativeLayout;
     private SdFragment sdFragment;
     private OTGFragment otgFragment;
@@ -173,6 +173,7 @@ public class MainActivity extends AppCompatActivity
         main_relativeLayout = (RelativeLayout) findViewById(R.id.main_relativelayout);
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
         mPath = mFileActionManager.getLocalRootPath();
+        loading_container = (LinearLayout) findViewById(R.id.loading_container);
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mScreenW = displaymetrics.widthPixels;
@@ -1237,6 +1238,8 @@ public class MainActivity extends AppCompatActivity
         }else{
             snackBarShow(R.string.fail);
         }
+        if(loading_container != null)
+            loading_container.setVisibility(View.GONE);
 
     }
 
@@ -1693,6 +1696,7 @@ public class MainActivity extends AppCompatActivity
         new LocalDeleteDialog(this, selectedFiles) {
             @Override
             public void onConfirm(ArrayList<FileInfo> selectedFiles) {
+                loading_container.setVisibility(View.VISIBLE);
                 mFileActionManager.delete(selectedFiles);
             }
         };
@@ -1713,11 +1717,13 @@ public class MainActivity extends AppCompatActivity
             public void onConfirm(ArrayList<DocumentFile> selectedDocumentFile) {
                 if(bSDCard){
                     if(checkSDWritePermission()){
+                        loading_container.setVisibility(View.VISIBLE);
                         mFileActionManager.deleteOTG(selectedDocumentFile);
                     }else{
                         ActionParameter.files = selectedFiles;
                     }
                 }else{
+                    loading_container.setVisibility(View.VISIBLE);
                     mFileActionManager.deleteOTG(selectedDocumentFile);
                 }
             }

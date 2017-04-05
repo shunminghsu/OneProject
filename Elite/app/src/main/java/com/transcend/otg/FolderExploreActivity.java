@@ -31,6 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
@@ -135,6 +136,7 @@ public class FolderExploreActivity extends AppCompatActivity
     private int mScreenW;
     private Calendar calendar;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss");
+    private LinearLayout loadingContainer;
 
     //Menu
     private MenuItem.OnMenuItemClickListener mCustomMenuItemClicked;
@@ -208,7 +210,7 @@ public class FolderExploreActivity extends AppCompatActivity
             }
         });
         mEmptyView = findViewById(R.id.empty_view);
-        //loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
+        loadingContainer = (LinearLayout) findViewById(R.id.loading_container);
         int layout_mode = LocalPreferences.getBrowserViewMode(this, BrowserFragment.LIST_TYPE_FOLDER, Constant.ITEM_LIST);
         mIconHelper = new IconHelper(this, layout_mode);
         mFolderExploreAdapter = new FolderExploreAdapter(this, mIconHelper);
@@ -973,7 +975,8 @@ public class FolderExploreActivity extends AppCompatActivity
 
         }
         mSwipeRefreshLayout.setRefreshing(false);
-        //loadingContainer.setVisibility(View.GONE);
+        if(loadingContainer != null)
+            loadingContainer.setVisibility(View.GONE);
     }
 
     @Override
@@ -1396,6 +1399,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new LocalDeleteDialog(this, selectedFiles) {
             @Override
             public void onConfirm(ArrayList<FileInfo> selectedFiles) {
+                loadingContainer.setVisibility(View.VISIBLE);
                 mFileActionManager.delete(selectedFiles);
             }
         };
@@ -1408,11 +1412,13 @@ public class FolderExploreActivity extends AppCompatActivity
             public void onConfirm(ArrayList<DocumentFile> selectedDocumentFile) {
                 if(bSDCard){
                     if(checkSDWritePermission()){
+                        loadingContainer.setVisibility(View.VISIBLE);
                         mFileActionManager.deleteOTG(selectedDocumentFile);
                     }else{
                         ActionParameter.files = selectedFiles;
                     }
                 }else{
+                    loadingContainer.setVisibility(View.VISIBLE);
                     mFileActionManager.deleteOTG(selectedDocumentFile);
                 }
             }
