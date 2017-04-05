@@ -428,7 +428,7 @@ public class FileFactory {
             rootPath = getOuterStoragePath(context, Constant.sd_key_path);
         } else {//(fileInfo.storagemode == Constant.STORAGEMODE_OTG)
             tmp = Constant.mRootDocumentFile;
-            rootPath = getOuterStoragePath(context, Constant.otg_key_path);
+            rootPath = getOTGStoragePath(context, Constant.otg_key_path);
         }
 
         String[] rootPath_array = rootPath.split("/");

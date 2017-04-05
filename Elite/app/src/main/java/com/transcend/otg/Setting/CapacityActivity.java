@@ -138,8 +138,8 @@ public class CapacityActivity extends AppCompatActivity {
         String freeString = Formatter.formatFileSize(this, freeSize);
 
         ArrayList<PieEntry> entries = new ArrayList<PieEntry>();
-        entries.add(new PieEntry(usedSize, sUsed += usedString));
         entries.add(new PieEntry(freeSize, sFree += freeString));
+        entries.add(new PieEntry(usedSize, sUsed += usedString));
 
         PieDataSet dataSet = new PieDataSet(entries, "");
 
@@ -150,9 +150,9 @@ public class CapacityActivity extends AppCompatActivity {
         // add a lot of colors
 
         ArrayList<Integer> colors = new ArrayList<Integer>();
-
-        colors.add(Color.rgb(211, 211, 211));
         colors.add(Color.rgb(135, 206, 250));
+        colors.add(Color.rgb(211, 211, 211));
+
 
         dataSet.setColors(colors);
         //dataSet.setSelectionShift(0f);

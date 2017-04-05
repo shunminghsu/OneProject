@@ -89,7 +89,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         super.onActivityResult(reqCode, resCode, data);
         if(reqCode == mOTGDocumentTreeID && resCode == RESULT_OK){
             Uri uriTree = data.getData();
-            if(checkStorage(uriTree)){
+            if(checkStorage(uriTree, true)){
                 doBackup();
             }
         }else if(reqCode == mSDDocumentTreeID && resCode == RESULT_OK){
@@ -273,7 +273,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         String otgKey = LocalPreferences.getOTGKey(mContext, device.getUsbDevice().getSerialNumber());
         if(otgKey != "" || otgKey == null){
             Uri uriTree = Uri.parse(otgKey);
-            if(checkStorage(uriTree)){
+            if(checkStorage(uriTree, false)){
                 return 1;
             }
         }else{
@@ -282,33 +282,32 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         return 0;
     }
 
-    private boolean checkStorage(Uri uri){
+    private boolean checkStorage(Uri uri, boolean b_needCheckSD){
         if (!uri.toString().contains("primary")) {
-            if (uri != null) {
-                if(uri.getPath().toString().split(":").length > 1){
-                    snackBarShow(R.string.snackbar_plz_select_top);
-                }else{
-                    rootDir = DocumentFile.fromTreeUri(mContext, uri);//OTG root path
+            if(uri.getPath().toString().split(":").length > 1){
+                snackBarShow(R.string.snackbar_plz_select_top);
+            }else{
+                rootDir = DocumentFile.fromTreeUri(mContext, uri);//OTG root path
+                boolean bSDCard = false;
+                if(b_needCheckSD){
                     ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
-                    boolean bSDCard = false;
                     if(sdCardFileName.size() != 0){
                         bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
                     }else {
                         bSDCard = false;
                     }
-                    if(!bSDCard){
-                        mContext.getContentResolver().takePersistableUriPermission(uri,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        LocalPreferences.setOTGKey(mContext, device.getUsbDevice().getSerialNumber(), uri.toString());
-                        Constant.mRootDocumentFile = rootDir;
-                        destinationDFiles.add(rootDir);
-                        return true;
-                    }else{
-                        snackBarShow(R.string.snackbar_plz_select_otg);
-                    }
+                }
+                if(!bSDCard){
+                    mContext.getContentResolver().takePersistableUriPermission(uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    LocalPreferences.setOTGKey(mContext, device.getUsbDevice().getSerialNumber(), uri.toString());
+                    Constant.mRootDocumentFile = rootDir;
+                    destinationDFiles.add(rootDir);
+                    return true;
+                }else{
+                    snackBarShow(R.string.snackbar_plz_select_otg);
                 }
             }
-
         }else {
             snackBarShow(R.string.snackbar_plz_select_otg);
         }

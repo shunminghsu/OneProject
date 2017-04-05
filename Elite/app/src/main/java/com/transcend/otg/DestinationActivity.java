@@ -279,7 +279,7 @@ public class DestinationActivity extends AppCompatActivity
         super.onActivityResult(reqCode, resCode, data);
         if(reqCode == mOTGDocumentTreeID && resCode == RESULT_OK){
             Uri uriTree = data.getData();
-            if(checkStorage(uriTree)){
+            if(checkStorage(uriTree, true)){
                 doLoadOTG(true);
             }else{
                 nowMode = Constant.MODE.LOCAL;
@@ -303,7 +303,7 @@ public class DestinationActivity extends AppCompatActivity
         String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
         if(otgKey != "" || otgKey == null){
             Uri uriTree = Uri.parse(otgKey);
-            if(checkStorage(uriTree)) {
+            if(checkStorage(uriTree, false)) {
                 doLoadOTG(true);
             }else{
                 nowMode = Constant.MODE.LOCAL;
@@ -316,34 +316,33 @@ public class DestinationActivity extends AppCompatActivity
         }
     }
 
-    private boolean checkStorage(Uri uri){
+    private boolean checkStorage(Uri uri, boolean b_needCheckSD){
         if (!uri.toString().contains("primary")) {
-            if (uri != null) {
-                if(uri.getPath().toString().split(":").length > 1){
-                    snackBarShow(R.string.snackbar_plz_select_top);
-                }else{
-                    rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
+            if(uri.getPath().toString().split(":").length > 1){
+                snackBarShow(R.string.snackbar_plz_select_top);
+            }else{
+                rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
+                boolean bSDCard = false;
+                if(b_needCheckSD){
                     ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
-                    boolean bSDCard = false;
                     if(sdCardFileName.size() != 0){
                         bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
                     }else {
                         bSDCard = false;
                     }
-                    if(!bSDCard){
-                        getContentResolver().takePersistableUriPermission(uri,
-                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        LocalPreferences.setOTGKey(this, device.getUsbDevice().getSerialNumber(), uri.toString());
-                        Constant.mCurrentDocumentFileDestination = rootDir;
-                        nowMode = Constant.MODE.OTG;
-                        return true;
-                    }else{
-                        snackBarShow(R.string.snackbar_plz_select_otg);
-                    }
                 }
 
+                if(!bSDCard){
+                    getContentResolver().takePersistableUriPermission(uri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    LocalPreferences.setOTGKey(this, device.getUsbDevice().getSerialNumber(), uri.toString());
+                    Constant.mCurrentDocumentFileDestination = rootDir;
+                    nowMode = Constant.MODE.OTG;
+                    return true;
+                }else{
+                    snackBarShow(R.string.snackbar_plz_select_otg);
+                }
             }
-
         }else {
             snackBarShow(R.string.snackbar_plz_select_otg);
         }
