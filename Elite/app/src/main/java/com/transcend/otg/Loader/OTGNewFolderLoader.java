@@ -3,6 +3,7 @@ package com.transcend.otg.Loader;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.support.v4.provider.DocumentFile;
 
@@ -51,8 +52,9 @@ public class OTGNewFolderLoader extends AsyncTaskLoader<Boolean> {
                     if (!path.endsWith("/"))
                         builder.append("/");
                     builder.append(mName);
-                    File file = new File(builder.toString());
-                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+                    MediaScannerConnection.scanFile(mContext, new String[]{builder.toString()}, new String[]{mDocumentFile.findFile(mName).getType()}, null);
+//                    File file = new File(builder.toString());
+//                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
                     Thread.sleep(500);
                 }else{
                     return false;

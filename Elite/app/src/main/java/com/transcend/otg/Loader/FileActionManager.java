@@ -157,12 +157,12 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.COPY, null, destinationPath, paths, null, null, null);
     }
 
-    public void copyFromLocaltoOTG(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles){
+    public void copyFromLocaltoOTG(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath){
         ArrayList<String> paths = new ArrayList<>();
         for (FileInfo info : selectedFiles) {
             paths.add(info.path);
         }
-        createLoader(FileActionService.FileAction.COPY_LOCAL_OTG, null, null, paths, null, destinationDFiles, null);
+        createLoader(FileActionService.FileAction.COPY_LOCAL_OTG, null, destinationPath, paths, null, destinationDFiles, null);
     }
 
     public void copyFromLocaltoOTGEncrypt(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles){
@@ -181,8 +181,8 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.COPY_LOCAL_OTG_DECRYPT, null, null, paths, null, destinationDFiles, null);
     }
 
-    public void copyOTG(ArrayList<DocumentFile> srcDFiles, ArrayList<DocumentFile> destinationDFiles){
-        createLoader(FileActionService.FileAction.COPY_OTG, null, null, null, null, srcDFiles, destinationDFiles);
+    public void copyOTG(ArrayList<DocumentFile> srcDFiles, ArrayList<DocumentFile> destinationDFiles, String path){
+        createLoader(FileActionService.FileAction.COPY_OTG, null, path, null, null, srcDFiles, destinationDFiles);
     }
 
     public void copyOTGtoLocal(ArrayList<DocumentFile> srcDFiles, String desinationPath){
@@ -197,16 +197,16 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.MOVE, null, destinationPath, paths, null, null, null);
     }
 
-    public void moveOTG(ArrayList<DocumentFile> srcDFiles, ArrayList<DocumentFile> destinationDFiles){
-        createLoader(FileActionService.FileAction.MOVE_OTG, null, null, null, null, srcDFiles, destinationDFiles);
+    public void moveOTG(ArrayList<DocumentFile> srcDFiles, ArrayList<DocumentFile> destinationDFiles, String path){
+        createLoader(FileActionService.FileAction.MOVE_OTG, null, path, null, null, srcDFiles, destinationDFiles);
     }
 
-    public void moveFromLocaltoOTG(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles){
+    public void moveFromLocaltoOTG(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath){
         ArrayList<String> paths = new ArrayList<>();
         for (FileInfo info : selectedFiles) {
             paths.add(info.path);
         }
-        createLoader(FileActionService.FileAction.MOVE_LOCAL_OTG, null, null, paths, null, destinationDFiles, null);
+        createLoader(FileActionService.FileAction.MOVE_LOCAL_OTG, null, destinationPath, paths, null, destinationDFiles, null);
     }
 
     public void moveOTGtoLocal(ArrayList<DocumentFile> srcDFiles, String desinationPath){

@@ -7,15 +7,18 @@ import android.content.AsyncTaskLoader;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.MathUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,12 +37,18 @@ public class OTGMoveLoader extends AsyncTaskLoader<Boolean> {
     private Runnable mWatcher;
     private ArrayList<DocumentFile> mSrcDocumentFileList;
     private DocumentFile mDesDocumentFile;
+    private boolean b_SDCard = false;
+    private String destinationPath;
 
-    public OTGMoveLoader(Context context, ArrayList<DocumentFile> src, ArrayList<DocumentFile> des) {
+    public OTGMoveLoader(Context context, ArrayList<DocumentFile> src, ArrayList<DocumentFile> des, String path) {
         super(context);
         mActivity = (Activity) context;
         mSrcDocumentFileList = src;
         mDesDocumentFile = des.get(0);
+        if(mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())){
+            b_SDCard = true;
+            destinationPath = path;
+        }
     }
 
     @Override
@@ -76,6 +85,10 @@ public class OTGMoveLoader extends AsyncTaskLoader<Boolean> {
         try {
             if (srcFileItem.length() > 0 && destFileItem.length() > 0) {
                 DocumentFile destDirectory = destFileItem.createDirectory(srcFileItem.getName());
+                if(b_SDCard){
+                    String sdPath = destinationPath + File.separator + srcFileItem.getName();
+                    MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destDirectory.getType()}, null);
+                }
                 DocumentFile[] files = srcFileItem.listFiles();
                 for (DocumentFile file : files) {
                     if (file.isDirectory()) {
@@ -99,6 +112,10 @@ public class OTGMoveLoader extends AsyncTaskLoader<Boolean> {
                 int total = (int) srcFileItem.length();
                 startProgressWatcher(destfile, total);
                 moveFile(context, srcFileItem, destfile);
+                if(b_SDCard){
+                    String sdPath = destinationPath + File.separator + srcFileItem.getName();
+                    MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destfile.getType()}, null);
+                }
                 closeProgressWatcher();
                 updateProgress(destfile.getName(), total, total);
             } catch (Exception e) {

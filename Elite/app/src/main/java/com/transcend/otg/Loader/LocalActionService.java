@@ -195,13 +195,13 @@ public class LocalActionService extends FileActionService{
     }
 
     @Override
-    protected AsyncTaskLoader copyOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2) {
-        return new OTGCopyLoader(context, dFiles, dFiles2);
+    protected AsyncTaskLoader copyOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2, String path) {
+        return new OTGCopyLoader(context, dFiles, dFiles2, path);
     }
 
     @Override
-    protected AsyncTaskLoader copyLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles) {
-        return new LocalCopytoOTGLoader(context, list, dFiles);
+    protected AsyncTaskLoader copyLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles, String path) {
+        return new LocalCopytoOTGLoader(context, list, dFiles, path);
     }
 
     @Override
@@ -210,13 +210,13 @@ public class LocalActionService extends FileActionService{
     }
 
     @Override
-    protected AsyncTaskLoader moveOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2) {
-        return new OTGMoveLoader(context, dFiles, dFiles2);
+    protected AsyncTaskLoader moveOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2, String path) {
+        return new OTGMoveLoader(context, dFiles, dFiles2, path);
     }
 
     @Override
-    protected AsyncTaskLoader moveLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles) {
-        return new LocalMovetoOTGLoader(context, list, dFiles);
+    protected AsyncTaskLoader moveLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles, String path) {
+        return new LocalMovetoOTGLoader(context, list, dFiles, path);
     }
 
     @Override

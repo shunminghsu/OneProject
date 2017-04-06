@@ -334,15 +334,15 @@ public abstract class FileActionService {
             case NEWFOLDER_OTG:
                 return newFolderOTG(context, name, dFiles);
             case COPY_OTG:
-                return copyOTG(context, dFiles, dFiles2);
+                return copyOTG(context, dFiles, dFiles2, path);
             case COPY_LOCAL_OTG:
-                return copyLocaltoOTG(context, paths, dFiles);
+                return copyLocaltoOTG(context, paths, dFiles, path);
             case COPY_OTG_LOCAL:
                 return copyOTGtoLocal(context, dFiles, path);
             case MOVE_OTG:
-                return moveOTG(context, dFiles, dFiles2);
+                return moveOTG(context, dFiles, dFiles2, path);
             case MOVE_LOCAL_OTG:
-                return moveLocaltoOTG(context, paths, dFiles);
+                return moveLocaltoOTG(context, paths, dFiles, path);
             case MOVE_OTG_LOCAL:
                 return moveOTGtoLocal(context, dFiles, path);
             case NEWFOLDER_ENCRYPT:
@@ -424,15 +424,15 @@ public abstract class FileActionService {
 
     protected abstract AsyncTaskLoader newFolderOTG(Context context, String name, ArrayList<DocumentFile> dFiles);
 
-    protected abstract AsyncTaskLoader copyOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2);
+    protected abstract AsyncTaskLoader copyOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2, String path);
 
-    protected abstract AsyncTaskLoader copyLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles);
+    protected abstract AsyncTaskLoader copyLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles, String path);
 
     protected abstract AsyncTaskLoader copyOTGtoLocal(Context context, ArrayList<DocumentFile> dFiles, String dest);
 
-    protected abstract AsyncTaskLoader moveOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2);
+    protected abstract AsyncTaskLoader moveOTG(Context context, ArrayList<DocumentFile> dFiles, ArrayList<DocumentFile> dFiles2, String path);
 
-    protected abstract AsyncTaskLoader moveLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles);
+    protected abstract AsyncTaskLoader moveLocaltoOTG(Context context, List<String> list, ArrayList<DocumentFile> dFiles, String path);
 
     protected abstract AsyncTaskLoader moveOTGtoLocal(Context context, ArrayList<DocumentFile> dFiles, String dest);
 

@@ -617,7 +617,7 @@ public class FolderExploreActivity extends AppCompatActivity
             if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> Local
                 doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
             }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> Local
-                doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
+                doOTGCopyorMovetoLocal(actionId, mSelectedFiles, destinationPath, true);
             }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> Local
                 doOTGCopyorMovetoLocal(actionId, mSelectedFiles, destinationPath, false);
             }
@@ -1468,15 +1468,15 @@ public class FolderExploreActivity extends AppCompatActivity
                 ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
                 ArrayList<DocumentFile> destDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
                 if(actionId == R.id.action_copy)
-                    mFileActionManager.copyFromLocaltoOTG(selectedFiles, destDFiles);
+                    mFileActionManager.copyFromLocaltoOTG(selectedFiles, destDFiles, destinationPath);
                 else if(actionId == R.id.action_move)
-                    mFileActionManager.moveFromLocaltoOTG(selectedFiles, destDFiles);
+                    mFileActionManager.moveFromLocaltoOTG(selectedFiles, destDFiles, destinationPath);
             }
         }else {
             if(actionId == R.id.action_copy)
-                mFileActionManager.copyFromLocaltoOTG(selectedFiles, destinationDFiles);
+                mFileActionManager.copyFromLocaltoOTG(selectedFiles, destinationDFiles, "");
             else if(actionId == R.id.action_move)
-                mFileActionManager.moveFromLocaltoOTG(selectedFiles, destinationDFiles);
+                mFileActionManager.moveFromLocaltoOTG(selectedFiles, destinationDFiles, "");
         }
     }
 
@@ -1493,9 +1493,9 @@ public class FolderExploreActivity extends AppCompatActivity
                 String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
                 ArrayList<DocumentFile> srcDFiles = FileFactory.findDocumentFilefromPathOTG(selectedFiles, otgPath, Constant.Activity);
                 if(actionId == R.id.action_copy)
-                    mFileActionManager.copyOTG(srcDFiles, destDFiles);
+                    mFileActionManager.copyOTG(srcDFiles, destDFiles, destinationPath);
                 else if(actionId == R.id.action_move)
-                    mFileActionManager.moveOTG(srcDFiles, destDFiles);
+                    mFileActionManager.moveOTG(srcDFiles, destDFiles, destinationPath);
             }
         }else{
             String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
@@ -1514,16 +1514,27 @@ public class FolderExploreActivity extends AppCompatActivity
                 }
             }
             if(actionId == R.id.action_copy)
-                mFileActionManager.copyOTG(srcDFiles, destinationDFiles);
+                mFileActionManager.copyOTG(srcDFiles, destinationDFiles, "");
             else if(actionId == R.id.action_move)
-                mFileActionManager.moveOTG(srcDFiles, destinationDFiles);
+                mFileActionManager.moveOTG(srcDFiles, destinationDFiles, "");
 
         }
     }
 
     private void doOTGCopyorMovetoLocal(int actionId, ArrayList<FileInfo> selectedFiles, String destinationPath, boolean isDesSDCard){
         if(isDesSDCard){
-
+            String sdKey = LocalPreferences.getSDKey(mContext);
+            if(sdKey != ""){
+                Uri uriSDKey = Uri.parse(sdKey);
+                DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+                Constant.mCurrentDocumentFileExplore = tmpDFile;
+                String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                ArrayList<DocumentFile> srcDFiles = FileFactory.findDocumentFilefromPathSD(selectedFiles, sdPath, Constant.Activity);
+                if(actionId == R.id.action_copy)
+                    mFileActionManager.copyOTGtoLocal(srcDFiles, destinationPath);
+                else if(actionId == R.id.action_move)
+                    mFileActionManager.moveOTGtoLocal(srcDFiles, destinationPath);
+            }
         }else {
             String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
             ArrayList<DocumentFile> srcDFiles = FileFactory.findDocumentFilefromPathOTG(selectedFiles, otgPath, Constant.Activity);
