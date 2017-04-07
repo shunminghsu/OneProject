@@ -26,6 +26,15 @@
             android:layout_marginLeft="8dp"
             android:scaleType="fitCenter" />
 
+        <ImageView
+            android:id="@+id/item_mark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="4dp"
+            android:layout_gravity="center"
+            android:src="@mipmap/ic_check_circle_gray"
+            android:visibility="invisible" />
+
     </FrameLayout>
 
     <FrameLayout
@@ -79,15 +88,6 @@
                 android:textSize="14sp" />
 
         </LinearLayout>
-
-        <ImageView
-            android:id="@+id/item_mark"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:src="@mipmap/ic_check_circle_gray"
-            android:tint="@color/colorBlue"
-            android:visibility="invisible" />
 
     </RelativeLayout>
 

@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity
     private int mLoaderID, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private FileActionManager mFileActionManager;
     private String mPath;
-    private Button mLocalButton, mSdButton, mOtgButton;
+    private TextView mLocalButton, mSdButton, mOtgButton;
     private Context mContext;
     private FloatingActionButton mFab;
     private ActionMode mActionMode;
@@ -334,7 +334,7 @@ public class MainActivity extends AppCompatActivity
 //        invalidateOptionsMenu();
     }
 
-    private void markSelectedBtn(Button selected) {
+    private void markSelectedBtn(TextView selected) {
         mLocalButton.setTextColor(getResources().getColor(R.color.colorBlack));
         mSdButton.setTextColor(getResources().getColor(R.color.colorBlack));
         mOtgButton.setTextColor(getResources().getColor(R.color.colorBlack));
@@ -660,9 +660,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void initButtons() {
-        mLocalButton = (Button) findViewById(R.id.btn_local);
-        mSdButton = (Button) findViewById(R.id.btn_sd);
-        mOtgButton = (Button) findViewById(R.id.btn_otg);
+        mLocalButton = (TextView) findViewById(R.id.btn_local);
+        mSdButton = (TextView) findViewById(R.id.btn_sd);
+        mOtgButton = (TextView) findViewById(R.id.btn_otg);
 
         ButtonClickListener listener = new ButtonClickListener();
         mLocalButton.setOnClickListener(listener);
