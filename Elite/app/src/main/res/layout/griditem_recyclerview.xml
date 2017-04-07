@@ -22,12 +22,12 @@
 
     <ImageView
         android:id="@+id/item_mark"
-        android:layout_width="@dimen/mark_width"
-        android:layout_height="@dimen/mark_width"
-        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:src="@mipmap/ic_check_circle_gray"
-        android:tint="@color/colorBlue"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"/>
 
     <TextView
         android:id="@+id/item_title"

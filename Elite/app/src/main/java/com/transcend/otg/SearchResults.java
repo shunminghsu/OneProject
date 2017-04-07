@@ -52,7 +52,7 @@ public class SearchResults extends Fragment {
     private SearchView mSearchView;
     private EditText mEditTextView;
 
-    private TextView mEmptyView;
+    private View mEmptyView, mBackground;
     private RecyclerView mResultsListView;
     private SearchResultsAdapter mResultsAdapter;
 
@@ -148,7 +148,8 @@ public class SearchResults extends Fragment {
         mLayoutResults = (ViewGroup) view.findViewById(R.id.layout_results);
         mLoading = (ViewGroup) view.findViewById(R.id.loading_container);
 
-        mEmptyView = (TextView) view.findViewById(R.id.empty_view);
+        mBackground = view.findViewById(R.id.search_background);
+        mEmptyView = view.findViewById(R.id.empty_view);
         mResultsListView = (RecyclerView) view.findViewById(R.id.list_results);
         mResultsListView.setLayoutManager(new LinearLayoutManager(context));
         mResultsListView.setAdapter(mResultsAdapter);
@@ -496,6 +497,7 @@ public class SearchResults extends Fragment {
     private void setResultsVisibility(boolean visible) {
         if (mLayoutResults != null) {
             mLayoutResults.setVisibility(visible ? View.VISIBLE : View.GONE);
+            mBackground.setVisibility(visible ? View.GONE : View.VISIBLE);
         }
     }
 

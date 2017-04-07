@@ -275,6 +275,15 @@ public class MainActivity extends AppCompatActivity
         feedbackFragment = new FeedbackFragment();
         settingFragment = new SettingFragment();
         backupFragment = new BackupFragment();
+        getSupportFragmentManager().addOnBackStackChangedListener(
+                new FragmentManager.OnBackStackChangedListener() {
+
+                    @Override
+                    public void onBackStackChanged() {
+                        if (getBrowserFragment() != null && mFab.getVisibility() != View.VISIBLE)
+                            mFab.setVisibility(View.VISIBLE);
+                    }
+                });
     }
 
     private void initActionModeView() {

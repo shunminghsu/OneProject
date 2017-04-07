@@ -11,10 +11,11 @@
     <!-- Thumbnail size. -->
     <dimen name="grid_width">120dp</dimen>
     <dimen name="grid_height">135dp</dimen>
+    <dimen name="grid_simple_width">100dp</dimen>
+    <dimen name="grid_simple_height">115dp</dimen>
     <dimen name="list_item_thumbnail_size">40dp</dimen>
     <dimen name="design_navigation_icon_size">36dp</dimen>
 
-    <dimen name="mark_width">60dp</dimen>
 
     <dimen name="storage_text_size">16sp</dimen>
     <dimen name="no_storage_textsize">30sp</dimen>

@@ -10,49 +10,48 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:ellipsize="marquee"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
         android:marqueeRepeatLimit="marquee_forever"
         android:singleLine="true"
         android:textSize="16sp" />
 
-    <RelativeLayout
-        android:layout_above="@id/item_title"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
 
     <ImageView
         android:id="@+id/item_icon"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_above="@id/item_title"
+        android:layout_width="@dimen/grid_simple_width"
+        android:layout_height="@dimen/grid_simple_height"
         android:layout_centerInParent="true"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="0dp"
         android:scaleType="centerCrop" />
 
     <ImageView
         android:id="@+id/item_mime"
+        android:layout_above="@id/item_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"
         android:scaleType="centerInside" />
 
     <ImageView
         android:id="@+id/item_mark"
-        android:layout_width="@dimen/mark_width"
-        android:layout_height="@dimen/mark_width"
-        android:layout_centerInParent="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:src="@mipmap/ic_check_circle_gray"
-        android:tint="@color/colorBlue"
-        android:visibility="invisible" />
+        android:visibility="invisible"
+        android:layout_marginTop="4dp"
+        android:layout_marginRight="4dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"/>
 
-    </RelativeLayout>
+
 
 </com.transcend.otg.Utils.SquareRelativeLayout>
