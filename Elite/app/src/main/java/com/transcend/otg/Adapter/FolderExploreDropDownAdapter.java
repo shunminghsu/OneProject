@@ -34,7 +34,7 @@ public class FolderExploreDropDownAdapter extends BaseAdapter {
 
     private static final String TAG = FolderExploreDropDownAdapter.class.getSimpleName();
 
-    private static final String PREFIX_MAINPAGE = "Local";
+    private static String PREFIX_MAINPAGE = "Local";
     private static final String PREFIX_SD = "SD Card";
 
     private Spinner mDropdown;
@@ -52,6 +52,7 @@ public class FolderExploreDropDownAdapter extends BaseAdapter {
         isActionLocate = actionLocate;
         mList = new ArrayList<String>();
         sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+        PREFIX_MAINPAGE = FileFactory.getDeviceName();
 
     }
 
@@ -176,14 +177,10 @@ public class FolderExploreDropDownAdapter extends BaseAdapter {
         convertView.setOnTouchListener(new OnDropdownItemTouchListener(position));
         TextView tv = ViewHolder.get(convertView, R.id.dropdown_text);
         tv.setText(mList.get(position));
-        if (position > 0) {
-            tv.setTextColor(isActionLocate ? Color.WHITE : Color.GRAY);
-        } else {
-            tv.setTextColor(isActionLocate ? Color.BLACK : Color.RED);
-        }
+        tv.setTextColor(Color.WHITE);
 
         ImageView iv = ViewHolder.get(convertView, R.id.dropdown_icon);
-        iv.setImageResource(isActionLocate ? R.drawable.ic_menu_camera : R.drawable.ic_menu_manage);
+        iv.setImageResource(R.mipmap.ic_folder_white);
         RelativeLayout.LayoutParams margins = new RelativeLayout.LayoutParams(iv.getLayoutParams());
         margins.leftMargin = Math.min(8 * position, 32);
         iv.setLayoutParams(margins);

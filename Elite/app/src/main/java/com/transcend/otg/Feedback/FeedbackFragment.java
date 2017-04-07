@@ -25,6 +25,7 @@ import com.jaredrummler.android.device.DeviceName;
 import com.transcend.otg.Dialog.EmptyNotificationDialog;
 import com.transcend.otg.Dialog.FeedbackOKDialog;
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -243,11 +244,13 @@ public class FeedbackFragment extends Fragment {
         }
     };
 
+
+
     private void getDeviceName() {
-        String deviceName = DeviceName.getDeviceName();
+        String deviceName = FileFactory.getDeviceName();
         String deviceOS = android.os.Build.VERSION.RELEASE;;
         if(deviceName!=""){
-            mEditTextDevice.setText("OS : " + deviceOS + ", " + deviceName );
+            mEditTextDevice.setText(deviceName + ", OS : " + deviceOS);
         }
     }
 

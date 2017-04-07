@@ -105,6 +105,7 @@
                 android:layout_centerVertical="true"
                 android:layout_margin="16dp"
                 android:scaleType="center"
+                android:visibility="gone"
                 android:src="@mipmap/ic_exit_white"
                 app:elevation="2dp" />
 

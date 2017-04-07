@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
@@ -71,11 +72,13 @@ public abstract class OTGDeleteDialog implements OnClickListener {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mContext.getResources().getString(R.string.delete));
         builder.setIcon(R.mipmap.ic_delete_gray);
-        builder.setMessage(message);
+        builder.setView(R.layout.dialog_delete);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setPositiveButton(R.string.confirm, null);
         builder.setCancelable(true);
         mDialog = builder.show();
+        TextView tv = (TextView) mDialog.findViewById(R.id.tv_delete);
+        tv.setText(message);
         mDlgBtnPos = mDialog.getButton(DialogInterface.BUTTON_POSITIVE);
         mDlgBtnPos.setOnClickListener(this);
     }

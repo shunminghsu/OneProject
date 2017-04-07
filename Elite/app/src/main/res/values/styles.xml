@@ -9,6 +9,7 @@
         <item name="windowActionModeOverlay">true</item>
         <item name="android:textAllCaps">false</item>
         <item name="actionModeBackground">@color/colorPrimary</item>
+        <item name="actionModeCloseDrawable">@mipmap/ic_toolbar_close_white</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -23,6 +24,7 @@
     <style name="AppTheme.DropDown" parent="AppTheme">
         <item name="android:background">@color/colorPrimary</item>
         <item name="android:textColor">@color/colorWhite</item>
+        <item name="colorControlNormal">@color/colorWhite</item>
     </style>
 
     <style name="AppTheme.PhotoActionBar" parent="Base.ThemeOverlay.AppCompat.ActionBar">

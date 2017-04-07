@@ -55,6 +55,7 @@ import com.transcend.otg.Browser.TabInfo;
 import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Dialog.AskExitDialog;
 import com.transcend.otg.Dialog.LocalDecryptDialog;
 import com.transcend.otg.Dialog.LocalDeleteDialog;
 import com.transcend.otg.Dialog.LocalEncryptDialog;
@@ -402,72 +403,74 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-        FileInfo fileInfo = getActionSeletedFiles().get(0);
-        boolean isFromSearch = getBrowserFragment() == null;
-        boolean isMultiStorageSelected = false;
-        if (isFromSearch) {
-            for (FileInfo f : getActionSeletedFiles()) {
-                if (f.storagemode != fileInfo.storagemode) {
-                    isMultiStorageSelected = true;
-                    break;
+        if(getActionSeletedFiles().size() > 0){
+            FileInfo fileInfo = getActionSeletedFiles().get(0);
+            boolean isFromSearch = getBrowserFragment() == null;
+            boolean isMultiStorageSelected = false;
+            if (isFromSearch) {
+                for (FileInfo f : getActionSeletedFiles()) {
+                    if (f.storagemode != fileInfo.storagemode) {
+                        isMultiStorageSelected = true;
+                        break;
+                    }
                 }
+            }
+
+            switch (item.getItemId()) {
+                case R.id.action_rename:
+                    if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
+                        doLocalRename();
+                    }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
+                        nowAction = R.id.action_rename;
+                        doOTGRename(true);
+                    }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
+                        doOTGRename(false);
+                    }
+                    break;
+                case R.id.action_delete:
+                    if (isMultiStorageSelected)
+                        return false;
+                    if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
+                        doLocalDelete();
+                    }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
+                        nowAction = R.id.action_delete;
+                        doOTGDelete(true);
+                    }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
+                        doOTGDelete(false);
+                    }
+                    break;
+                case R.id.action_share:
+                    if(fileInfo.storagemode == Constant.STORAGEMODE_LOCAL || fileInfo.storagemode == Constant.STORAGEMODE_SD){
+                        doLocalShare();
+                    }else if(fileInfo.storagemode == Constant.STORAGEMODE_OTG){
+                        doOTGShare();
+                    }
+                    break;
+                case R.id.action_copy:
+                    if (isMultiStorageSelected)
+                        return false;
+                    startDestinationActivity(R.id.action_copy);
+                    break;
+                case R.id.action_move:
+                    if (isMultiStorageSelected)
+                        return false;
+                    startDestinationActivity(R.id.action_move);
+                    break;
+                case R.id.action_encrypt:
+                    if (isMultiStorageSelected)
+                        return false;
+                    if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
+                        doLocalEncryptDialog();
+                    }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
+                        nowAction = R.id.action_encrypt;
+                        doSDEncryptDialog();
+                    }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
+                        doOTGEncryptDialog();
+                    }
+                    break;
             }
         }
 
-        switch (item.getItemId()) {
-            case R.id.action_rename:
-                if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
-                    doLocalRename();
-                }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
-                    nowAction = R.id.action_rename;
-                    doOTGRename(true);
-                }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
-                    doOTGRename(false);
-                }
-                break;
-            case R.id.action_delete:
-                if (isMultiStorageSelected)
-                    return false;
-                if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
-                    doLocalDelete();
-                }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
-                    nowAction = R.id.action_delete;
-                    doOTGDelete(true);
-                }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
-                    doOTGDelete(false);
-                }
-                break;
-            case R.id.action_share:
-                if(fileInfo.storagemode == Constant.STORAGEMODE_LOCAL || fileInfo.storagemode == Constant.STORAGEMODE_SD){
-                    doLocalShare();
-                }else if(fileInfo.storagemode == Constant.STORAGEMODE_OTG){
-                    doOTGShare();
-                }
-                break;
-            case R.id.action_copy:
-                if (isMultiStorageSelected)
-                    return false;
-                startDestinationActivity(R.id.action_copy);
-                break;
-            case R.id.action_move:
-                if (isMultiStorageSelected)
-                    return false;
-                startDestinationActivity(R.id.action_move);
-                break;
-            case R.id.action_encrypt:
-                if (isMultiStorageSelected)
-                    return false;
-                if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
-                    doLocalEncryptDialog();
-                }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
-                    nowAction = R.id.action_encrypt;
-                    doSDEncryptDialog();
-                }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
-                    doOTGEncryptDialog();
-                }
-                break;
-
-        }
         return false;
     }
 
@@ -666,8 +669,15 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+        }else {
+            new AskExitDialog(this) {
+                @Override
+                public void onConfirm(boolean bExit) {
+                    if(bExit)
+                        finish();
+                }
+            };
+//            super.onBackPressed();
         }
     }
 

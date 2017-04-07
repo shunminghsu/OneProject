@@ -5,55 +5,51 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
 
+
 /**
- * Created by wangbojie on 2017/3/7.
+ * Created by wangbojie on 2016/12/8.
  */
 
-public abstract class LocalDeleteDialog implements View.OnClickListener{
-    public abstract void onConfirm(ArrayList<FileInfo> paths);
+public abstract class AskExitDialog implements View.OnClickListener {
+    public abstract void onConfirm(boolean bExit);
 
     private Context mContext;
     private AlertDialog mDialog;
     private Button mDlgBtnPos;
 
-    private ArrayList<FileInfo> mFiles;
-
-    public LocalDeleteDialog(Context context, ArrayList<FileInfo> paths) {
+    public AskExitDialog(Context context) {
         mContext = context;
-        mFiles = paths;
         initDialog();
     }
 
     private void initDialog() {
-        String format = mContext.getResources().getString(R.string.conj_deleted);
-        String message = String.format(format, mFiles.size());
+        String  message = mContext.getResources().getString(R.string.ask_exit);
+
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle(mContext.getResources().getString(R.string.delete));
-        builder.setIcon(R.mipmap.ic_delete_gray);
-        builder.setView(R.layout.dialog_delete);
+        builder.setTitle(mContext.getResources().getString(R.string.app_name));
+        builder.setIcon(R.mipmap.icon_elite_logo);
+        builder.setView(R.layout.dialog_ask_exit);
         builder.setNegativeButton(R.string.cancel, null);
-        builder.setPositiveButton(R.string.confirm, null);
+        builder.setPositiveButton(R.string.yes, null);
         builder.setCancelable(true);
         mDialog = builder.show();
-        TextView tv = (TextView) mDialog.findViewById(R.id.tv_delete);
-        tv.setText(message);
         mDlgBtnPos = mDialog.getButton(DialogInterface.BUTTON_POSITIVE);
         mDlgBtnPos.setOnClickListener(this);
     }
 
+
     @Override
     public void onClick(View v) {
         if (v.equals(mDlgBtnPos)) {
-            onConfirm(mFiles);
+            onConfirm(true);
             mDialog.dismiss();
         }
     }
-
 }
+

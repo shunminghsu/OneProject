@@ -26,7 +26,8 @@
     <string name="openin_title">Please Choose App</string>
     <string name="conj_selected">%1$d file(s) selected</string>
     <string name="conj_deleted">%1$d item(s) will be deleted.</string>
-    <string name="snackbar_not_support_share">This File does not support Share function</string>"
+    <string name="snackbar_not_support_share">This File does not support Share function</string>
+    <string name="ask_exit">Are you sure ?</string>
 
     <!-- Drawer -->
     <string name="drawer_home">Home</string>

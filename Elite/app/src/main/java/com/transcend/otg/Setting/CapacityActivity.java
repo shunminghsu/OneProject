@@ -98,7 +98,7 @@ public class CapacityActivity extends AppCompatActivity {
         pieChart.setExtraOffsets(0, 0, 0, 0);
         pieChart.setDragDecelerationFrictionCoef(0.95f);
         if (pieChart.equals(localChart))
-            pieChart.setCenterText(getResources().getString(R.string.nav_local));
+            pieChart.setCenterText(FileFactory.getDeviceName());
         else
             pieChart.setCenterText(getResources().getString(R.string.sdcard_name));
         pieChart.setCenterTextSize(20f);

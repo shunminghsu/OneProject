@@ -141,7 +141,8 @@
                 android:id="@+id/no_sd_storage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true" />
+                android:layout_centerInParent="true"
+                android:background="@drawable/img_notfoundpic_sd" />
 
             <Button
                 android:id="@+id/check_sdbtn"
@@ -149,7 +150,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:background="@color/colorPrimary"
-                android:textColor="@color/colorWhite" />
+                android:text="@string/refresh"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/storage_text_size" />
 
         </RelativeLayout>
 
@@ -164,7 +167,8 @@
                 android:id="@+id/no_otg_storage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true" />
+                android:layout_centerInParent="true"
+                android:background="@drawable/img_notfoundpic_otg" />
 
             <Button
                 android:id="@+id/check_otgbtn"
@@ -172,7 +176,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
                 android:background="@color/colorPrimary"
-                android:textColor="@color/colorWhite" />
+                android:text="@string/refresh"
+                android:textColor="@color/colorWhite"
+                android:textSize="@dimen/storage_text_size" />
 
         </RelativeLayout>
 
@@ -201,6 +207,7 @@
                 android:layout_margin="16dp"
                 android:scaleType="center"
                 android:src="@mipmap/ic_exit_white"
+                android:visibility="gone"
                 app:elevation="2dp" />
 
 

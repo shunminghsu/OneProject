@@ -17,7 +17,7 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:gravity="bottom"
             android:text="@string/setting_storage"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorDarkGray"
             android:textSize="@dimen/storage_text_size" />
 
         <LinearLayout
@@ -101,7 +101,7 @@
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:gravity="bottom"
             android:text="@string/setting_information"
-            android:textColor="@color/colorPrimary"
+            android:textColor="@color/colorDarkGray"
             android:textSize="@dimen/storage_text_size" />
 
         <LinearLayout

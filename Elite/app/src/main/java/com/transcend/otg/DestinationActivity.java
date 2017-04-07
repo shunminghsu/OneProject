@@ -150,6 +150,7 @@ public class DestinationActivity extends AppCompatActivity
 
     private void initToolbar() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setNavigationIcon(R.mipmap.ic_navigation_arrow_white);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         mCustomMenuItemClicked = new CustomMenuItemClicked();
@@ -428,8 +429,8 @@ public class DestinationActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_custom_main, menu);
-        MenuItem customMenu = menu.findItem(R.id.more);
+        getMenuInflater().inflate(R.menu.menu_destination, menu);
+        MenuItem customMenu = menu.findItem(R.id.menu_new_folder);
         customMenu.setOnMenuItemClickListener(mCustomMenuItemClicked);
         customMenu.setVisible(true);
         return super.onCreateOptionsMenu(menu);
@@ -455,6 +456,9 @@ public class DestinationActivity extends AppCompatActivity
                 return true;
             case R.id.menu_easy_sort:
                 createPopupWindow(toolbar, this);
+                return true;
+            case android.R.id.home:
+                finish();
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -908,13 +912,13 @@ public class DestinationActivity extends AppCompatActivity
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             Menu menu = item.getSubMenu();
-            final MenuItem sort = menu.findItem(R.id.menu_easy_sort);
-            sort.setVisible(false);
+//            final MenuItem sort = menu.findItem(R.id.menu_easy_sort);
+//            sort.setVisible(false);
 
-            final MenuItem grid = menu.findItem(R.id.menu_grid);
-            final MenuItem list = menu.findItem(R.id.menu_list);
-            grid.setVisible(mLayoutMode == Constant.ITEM_LIST);
-            list.setVisible(mLayoutMode == Constant.ITEM_GRID);
+//            final MenuItem grid = menu.findItem(R.id.menu_grid);
+//            final MenuItem list = menu.findItem(R.id.menu_list);
+//            grid.setVisible(mLayoutMode == Constant.ITEM_LIST);
+//            list.setVisible(mLayoutMode == Constant.ITEM_GRID);
 
             return false;
         }

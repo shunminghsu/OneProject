@@ -2,31 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/search"
-        android:title="@string/menu_search"
-        android:icon="@android:drawable/ic_menu_search"
-        android:visible="false"
-        app:showAsAction="collapseActionView|never"
-        app:actionViewClass="android.support.v7.widget.SearchView" />
-    <!-- This group is being hidden when searching is in full bar mode-->
-    <group android:id="@+id/group_hide_when_searching">
-        <item
-            android:id="@+id/menu_grid"
-            android:title="@string/menu_grid"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/menu_list"
-            android:title="@string/menu_list"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/menu_new_folder"
-            android:title="@string/menu_new_folder"
-            android:icon="@drawable/ic_menu_send"
-            app:showAsAction="never" />
-        <item
-            android:id="@+id/menu_easy_sort"
-            android:title="@string/menu_sort"
-            app:showAsAction="never" />
-
-    </group>
+        android:id="@+id/menu_new_folder"
+        android:icon="@mipmap/ic_new_folder_white"
+        android:title="@string/menu_new_folder"
+        app:showAsAction="always" />
 </menu>

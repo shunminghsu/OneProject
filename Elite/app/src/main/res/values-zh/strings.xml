@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Transcend Elite</string>
+    <string name="select_destination">選擇目的地資料夾並按下貼上鍵</string>
+    <string name="ask_exit">確定要離開嗎？</string>
+</resources>

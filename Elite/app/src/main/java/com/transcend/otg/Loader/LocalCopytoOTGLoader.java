@@ -119,33 +119,24 @@ public class LocalCopytoOTGLoader extends AsyncTaskLoader<Boolean> {
     }
 
     public boolean copyFile(Context context, File srcFileItem, DocumentFile destFileItem) {
-        Log.d("henry", "copyFile "+srcFileItem.isFile());
         if (srcFileItem.isFile()) {
             OutputStream out = null;
             InputStream in = null;
             ContentResolver resolver = context.getContentResolver();
             try {
-                Log.d("henry", "in: "+srcFileItem.getName());
-                Log.d("henry", ""+srcFileItem.getPath());
-                Log.d("henry", "out: "+destFileItem.getName());
-                Log.d("henry", ""+destFileItem.getUri());
-                Log.d("henry", "len: "+destFileItem.length());
                 in = new FileInputStream(srcFileItem);
                 //in = resolver.openInputStream(Uri.fromFile(srcFileItem));
                 out = resolver.openOutputStream(destFileItem.getUri());
                 byte[] buf = new byte[8192];
                 int len;
                 while ((len = in.read(buf)) > 0) {
-                    Log.d("henry", "read");
                     out.write(buf, 0, len);
                 }
                 in.close();
                 out.close();
             } catch (IOException e) {
-                Log.d("henry", "e: "+e.getMessage());
                 e.printStackTrace();
             }
-            Log.d("henry", "after len: "+destFileItem.length());
 
             return true;
         } else if (srcFileItem.isDirectory()) {

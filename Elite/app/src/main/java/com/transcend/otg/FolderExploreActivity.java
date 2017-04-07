@@ -186,12 +186,16 @@ public class FolderExploreActivity extends AppCompatActivity
             case R.id.menu_easy_sort:
                 createPopupWindow(toolbar, this);
                 return true;
+            case android.R.id.home:
+                finish();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
     private void initToolbar(){
         toolbar = (Toolbar) findViewById(R.id.explore_toolbar);
+        toolbar.setNavigationIcon(R.mipmap.ic_navigation_arrow_white);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         mCustomMenuItemClicked = new CustomMenuItemClicked();
