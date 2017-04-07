@@ -13,6 +13,8 @@
     <dimen name="list_item_thumbnail_size">40dp</dimen>
     <dimen name="design_navigation_icon_size">36dp</dimen>
 
+    <dimen name="mark_width">60dp</dimen>
+
     <dimen name="storage_text_size">16sp</dimen>
     <dimen name="no_storage_textsize">30sp</dimen>
     <dimen name="setting_textsize">18sp</dimen>

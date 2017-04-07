@@ -21,6 +21,7 @@ import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MathUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -111,29 +112,41 @@ public class LocalCopytoOTGLoader extends AsyncTaskLoader<Boolean> {
         if(b_SDCard){
             String sdPath = destinationPath + File.separator + srcFileItem.getName();
             MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destFile.getType()}, null);
+            //mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(destinationPath))));
         }
         closeProgressWatcher();
         updateProgress(destFile.getName(), total, total);
     }
 
     public boolean copyFile(Context context, File srcFileItem, DocumentFile destFileItem) {
+        Log.d("henry", "copyFile "+srcFileItem.isFile());
         if (srcFileItem.isFile()) {
             OutputStream out = null;
             InputStream in = null;
             ContentResolver resolver = context.getContentResolver();
             try {
-                in = resolver.openInputStream(Uri.fromFile(srcFileItem));
+                Log.d("henry", "in: "+srcFileItem.getName());
+                Log.d("henry", ""+srcFileItem.getPath());
+                Log.d("henry", "out: "+destFileItem.getName());
+                Log.d("henry", ""+destFileItem.getUri());
+                Log.d("henry", "len: "+destFileItem.length());
+                in = new FileInputStream(srcFileItem);
+                //in = resolver.openInputStream(Uri.fromFile(srcFileItem));
                 out = resolver.openOutputStream(destFileItem.getUri());
                 byte[] buf = new byte[8192];
                 int len;
                 while ((len = in.read(buf)) > 0) {
+                    Log.d("henry", "read");
                     out.write(buf, 0, len);
                 }
                 in.close();
                 out.close();
             } catch (IOException e) {
+                Log.d("henry", "e: "+e.getMessage());
                 e.printStackTrace();
             }
+            Log.d("henry", "after len: "+destFileItem.length());
+
             return true;
         } else if (srcFileItem.isDirectory()) {
             return true;

@@ -114,6 +114,8 @@ public class DestinationActivity extends AppCompatActivity
     private int actionId;
     private int mScreenW;
     private int mLayoutMode;
+    private int mOriginalSortValue;
+    private int mOriginalSortOrderValue;
 
     //Menu
     private MenuItem.OnMenuItemClickListener mCustomMenuItemClicked;
@@ -129,7 +131,10 @@ public class DestinationActivity extends AppCompatActivity
         initDropdown();
         initBroadcast();
         initData();
-
+        mOriginalSortValue = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+        mOriginalSortOrderValue = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS);
+        LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_NAME);
+        LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS);
     }
 
     private void init(){
@@ -651,6 +656,8 @@ public class DestinationActivity extends AppCompatActivity
         super.onDestroy();
         Constant.mCurrentDocumentFileDestination = null;
         unregisterReceiver(usbReceiver);
+        LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, mOriginalSortValue);
+        LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, mOriginalSortOrderValue);
     }
 
     @Override
@@ -901,6 +908,8 @@ public class DestinationActivity extends AppCompatActivity
         @Override
         public boolean onMenuItemClick(MenuItem item) {
             Menu menu = item.getSubMenu();
+            final MenuItem sort = menu.findItem(R.id.menu_easy_sort);
+            sort.setVisible(false);
 
             final MenuItem grid = menu.findItem(R.id.menu_grid);
             final MenuItem list = menu.findItem(R.id.menu_list);

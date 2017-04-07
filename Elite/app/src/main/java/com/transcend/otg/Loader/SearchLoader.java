@@ -118,11 +118,11 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
                         fileInfo.name = name;
                         fileInfo.time = FileInfo.getTime(time);
+                        fileInfo.format_size = Formatter.formatFileSize(mContext, size);
                         switch (cursor.getInt(typeColumnIndex)) {
                             case MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE:
                                 fileInfo.type = Constant.TYPE_PHOTO;
                                 fileInfo.uri = fileUri;
-                                fileInfo.format_size = Formatter.formatFileSize(mContext, size);
                                 break;
                             case MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO:
                                 fileInfo.type = Constant.TYPE_MUSIC;

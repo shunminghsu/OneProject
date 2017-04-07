@@ -22,11 +22,11 @@
 
     <ImageView
         android:id="@+id/item_mark"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="@dimen/mark_width"
+        android:layout_height="@dimen/mark_width"
         android:layout_centerInParent="true"
-        android:scaleType="centerInside"
         android:src="@mipmap/ic_check_circle_gray"
+        android:tint="@color/colorBlue"
         android:visibility="invisible" />
 
     <TextView
@@ -48,7 +48,7 @@
         android:id="@+id/item_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/ic_info"
+        android:src="@mipmap/ic_info_white"
         android:layout_marginBottom="4dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"/>

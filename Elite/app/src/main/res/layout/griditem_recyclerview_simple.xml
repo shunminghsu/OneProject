@@ -16,11 +16,16 @@
         android:singleLine="true"
         android:textSize="16sp" />
 
+    <RelativeLayout
+        android:layout_above="@id/item_title"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
     <ImageView
         android:id="@+id/item_icon"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/item_title"
         android:layout_centerInParent="true"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
@@ -32,7 +37,6 @@
         android:id="@+id/item_mime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@id/item_title"
         android:layout_centerInParent="true"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
@@ -42,12 +46,13 @@
 
     <ImageView
         android:id="@+id/item_mark"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@id/item_title"
+        android:layout_width="@dimen/mark_width"
+        android:layout_height="@dimen/mark_width"
         android:layout_centerInParent="true"
-        android:scaleType="centerInside"
         android:src="@mipmap/ic_check_circle_gray"
+        android:tint="@color/colorBlue"
         android:visibility="invisible" />
+
+    </RelativeLayout>
 
 </com.transcend.otg.Utils.SquareRelativeLayout>
