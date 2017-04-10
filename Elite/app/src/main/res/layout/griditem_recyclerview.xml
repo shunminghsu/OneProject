@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="2dp"
-    android:background="@color/colorLightGray">
+    android:background="@color/colorLightLightGray">
 
     <ImageView
         android:id="@+id/item_icon"
@@ -20,12 +20,22 @@
         android:layout_centerInParent="true"
         android:scaleType="centerInside" />
 
+    <RelativeLayout
+        android:id="@+id/item_mark_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="invisible"
+        android:alpha="0.5"
+        android:background="@color/colorLightGray">
+
+    </RelativeLayout>
+
     <ImageView
         android:id="@+id/item_mark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@mipmap/ic_check_circle_gray"
         android:visibility="invisible"
+        android:src="@mipmap/ic_check_circle_gray"
         android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"/>
 

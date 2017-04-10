@@ -25,7 +25,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private String TAG = RecyclerViewAdapter.class.getSimpleName();
     private ArrayList<FileInfo> mList;
-    private HashMap<String, ArrayList<String>> mPathMap;
     private TabInfo mTab;
     private OnRecyclerItemCallbackListener mCallback;
     public Boolean mShowSize = false;
@@ -38,7 +37,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     public interface OnRecyclerItemCallbackListener {
         void onRecyclerItemClick(FileInfo file, int position);
 
-        void onRecyclerItemLongClick(FileInfo file);
+        //void onRecyclerItemLongClick(FileInfo file);
 
         void onRecyclerItemInfoClick(FileInfo file);
     }
@@ -106,10 +105,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         if (holder.subtitle != null)
             holder.subtitle.setText(mShowSize ? fileInfo.format_size : fileInfo.time);
 
-        if (holder.info != null) {
-            //holder.info.setVisibility(fileInfo.type == Constant.TYPE_DIR ? View.GONE : View.VISIBLE);
-        }
-
         if (fileInfo.type == Constant.TYPE_MUSIC) {
             mIconHelper.loadMusicThumbnail(fileInfo.path, fileInfo.album_id, holder.icon, holder.iconMime);
         } else if (fileInfo.type == Constant.TYPE_PHOTO && fileInfo.uri != null) {
@@ -118,15 +113,10 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             mIconHelper.loadThumbnail(fileInfo.path, fileInfo.type, holder.icon, holder.iconMime);
 
 
-        if (holder.viewType == Constant.ITEM_GRID) {
-            int resId = R.drawable.ic_menu_camera;
-
-        } else { //holder.viewType == Constant.ITEM_LIST
-
-        }
-
         holder.itemView.setSelected(fileInfo.checked);
         holder.mark.setVisibility(fileInfo.checked ? View.VISIBLE : View.INVISIBLE);
+        if (holder.mark_background != null)
+            holder.mark_background.setVisibility(fileInfo.checked ? View.VISIBLE : View.INVISIBLE);
     }
 
     @Override
@@ -153,10 +143,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     public boolean hasFooter() {
         return mList.size() > 0;
-    }
-
-    private void setIconForAllType() {
-
     }
 
     public void setAllSelection(){
@@ -198,7 +184,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         int viewType;
 
         View itemView;
-        ImageView mark;
+        View mark;
+        ViewGroup mark_background;
         ImageView icon;
         ImageView iconMime;
         ImageView info;
@@ -210,7 +197,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             this.viewType = viewType;
             this.itemView = itemView;
 
-            mark = (ImageView) itemView.findViewById(R.id.item_mark);
+            mark = (View) itemView.findViewById(R.id.item_mark);
+            mark_background = (ViewGroup) itemView.findViewById(R.id.item_mark_background);
             icon = (ImageView) itemView.findViewById(R.id.item_icon);
             iconMime = (ImageView) itemView.findViewById(R.id.item_mime);
             title = (TextView) itemView.findViewById(R.id.item_title);
@@ -221,9 +209,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             itemView.setOnClickListener(this);
             itemView.setOnLongClickListener(this);
 
-            if (viewType == Constant.ITEM_FOOTER) {
+            //if (viewType == Constant.ITEM_FOOTER) {
                 // do nothing
-            }
+            //}
         }
 
         @Override

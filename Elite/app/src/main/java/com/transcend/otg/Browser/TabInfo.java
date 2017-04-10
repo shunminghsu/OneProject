@@ -161,11 +161,6 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     }
 
     @Override
-    public void onRecyclerItemLongClick(FileInfo file) {
-
-    }
-
-    @Override
     public void onRecyclerItemInfoClick(FileInfo fileInfo) {
         createInfoDialog(mContext, fileInfo, MainActivity.mScreenW);
     }

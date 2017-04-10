@@ -80,7 +80,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         mFileList.clear();
         switch (mType) {
             case BrowserFragment.LIST_TYPE_IMAGE:
-                return mIsOtg ? getSortList(getOtgAllImages(baseRootUri, Constant.STORAGEMODE_OTG)) : getAllImages();
+                return mIsOtg ? getSortList(getOtgAllImages(baseRootUri)) : getAllImages();
             case BrowserFragment.LIST_TYPE_VIDEO:
                 return mIsOtg ? getSortList(getOtgAllVideos(baseRootUri)) : getAllVideos();
             case BrowserFragment.LIST_TYPE_MUSIC:
@@ -107,7 +107,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
         cancelLoad();
     }
 
-    private ArrayList<FileInfo> getOtgAllImages(Uri _rootUri, int storage_mode) {
+    private ArrayList<FileInfo> getOtgAllImages(Uri _rootUri) {
 
         Cursor imageCursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
         if (imageCursor == null) {
@@ -119,7 +119,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             if (!imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME)).substring(0, 1).equals(".")) {
                 String type = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_MIME_TYPE));
                 if (type.contains(DIR)) {
-                    getOtgAllImages(DocumentsContract.buildChildDocumentsUriUsingTree(_rootUri, imageCursor.getString(cursor_index_ID)), storage_mode);
+                    getOtgAllImages(DocumentsContract.buildChildDocumentsUriUsingTree(_rootUri, imageCursor.getString(cursor_index_ID)));
                 } else if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {
                     FileInfo item = new FileInfo();
                     item.name = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
@@ -131,7 +131,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, imageCursor.getString(cursor_index_ID));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
                     item.type = Constant.TYPE_PHOTO;
-                    item.storagemode = storage_mode;
+                    item.storagemode = Constant.STORAGEMODE_OTG;
                     mFileList.add(item);
                 }
             }

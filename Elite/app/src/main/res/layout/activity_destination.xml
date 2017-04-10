@@ -52,29 +52,35 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
+            <TextView
                 android:id="@+id/btn_local"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="center"
+                android:textStyle="bold"
                 android:background="@drawable/storage_btn_selector"
                 android:text="@string/nav_local"
                 android:textSize="@dimen/storage_text_size" />
 
-            <Button
+            <TextView
                 android:id="@+id/btn_sd"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="center"
+                android:textStyle="bold"
                 android:background="@drawable/storage_btn_selector"
                 android:text="@string/nav_sd"
                 android:textSize="@dimen/storage_text_size" />
 
-            <Button
+            <TextView
                 android:id="@+id/btn_otg"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="center"
+                android:textStyle="bold"
                 android:background="@drawable/storage_btn_selector"
                 android:text="@string/nav_otg"
                 android:textSize="@dimen/storage_text_size" />

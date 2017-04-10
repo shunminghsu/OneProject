@@ -10,6 +10,7 @@ import android.text.format.Formatter;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.FileInfoSort;
 
@@ -67,7 +68,11 @@ public class OTGFileLoader extends AsyncTaskLoader<Boolean> {
     @Override
     public Boolean loadInBackground() {
         Uri baseRootUri = DocumentsContract.buildChildDocumentsUriUsingTree(dFile.getUri(), DocumentsContract.getDocumentId(dFile.getUri()));
-        return getOtgFileList(baseRootUri);
+        if (getOtgFileList(baseRootUri)) {
+            SortList(mFileList);
+            return true;
+        }
+        return false;
     }
 
     /*public boolean DocumentFileConvertFileInfo() {
@@ -160,6 +165,13 @@ public class OTGFileLoader extends AsyncTaskLoader<Boolean> {
         }
         cursor.close();
         return true;
+    }
+
+    private void SortList(ArrayList<FileInfo> _list) {
+        Collections.sort(_list, FileInfoSort.comparator(mContext));
+        int sort_by = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
+        if (sort_by != Constant.SORT_BY_SIZE)
+            FileFactory.getInstance().addFileTypeSortRule(_list);
     }
 
     public String getPath() {

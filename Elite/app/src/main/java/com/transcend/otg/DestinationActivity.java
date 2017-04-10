@@ -105,7 +105,7 @@ public class DestinationActivity extends AppCompatActivity
     private Constant.MODE nowMode;
     private FloatingActionButton mFab, mFabExit;
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
-    private Button mLocalButton, mSdButton, mOtgButton, mCheckSDButton, mCheckOTGButton;
+    private TextView mLocalButton, mSdButton, mOtgButton, mLastSelected;
     private Context mContext;
     private RelativeLayout mNoSDLayout, mNoOTGLayout;
     private UsbMassStorageDevice device;
@@ -117,8 +117,6 @@ public class DestinationActivity extends AppCompatActivity
     private int mOriginalSortValue;
     private int mOriginalSortOrderValue;
 
-    //Menu
-    private MenuItem.OnMenuItemClickListener mCustomMenuItemClicked;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,26 +151,33 @@ public class DestinationActivity extends AppCompatActivity
         toolbar.setNavigationIcon(R.mipmap.ic_navigation_arrow_white);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        mCustomMenuItemClicked = new CustomMenuItemClicked();
     }
 
     private void initButtons() {
-        mLocalButton = (Button) findViewById(R.id.btn_local);
-        mSdButton = (Button) findViewById(R.id.btn_sd);
-        mOtgButton = (Button) findViewById(R.id.btn_otg);
-
+        mLocalButton = (TextView) findViewById(R.id.btn_local);
+        mSdButton = (TextView) findViewById(R.id.btn_sd);
+        mOtgButton = (TextView) findViewById(R.id.btn_otg);
         DestinationActivity.ButtonClickListener listener = new DestinationActivity.ButtonClickListener();
         mLocalButton.setOnClickListener(listener);
-        mSdButton.setOnClickListener(listener);
-        mOtgButton.setOnClickListener(listener);
+        String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+        if (sdpath == null || !FileFactory.getMountedState(mContext, sdpath)) {
+            mSdButton.setTextColor(getResources().getColor(R.color.colorGray));
+        } else {
+            mSdButton.setOnClickListener(listener);
+        }
+        if (Constant.rootUri == null) {
+            mOtgButton.setTextColor(getResources().getColor(R.color.colorGray));
+        } else {
+            mOtgButton.setOnClickListener(listener);
+        }
         mFab = (FloatingActionButton) findViewById(R.id.fab);
         mFab.setOnClickListener(listener);
         mFabExit = (FloatingActionButton) findViewById(R.id.fab_exit);
         mFabExit.setOnClickListener(listener);
-        mCheckSDButton = (Button) findViewById(R.id.check_sdbtn);
-        mCheckSDButton.setOnClickListener(listener);
-        mCheckOTGButton = (Button) findViewById(R.id.check_otgbtn);
-        mCheckOTGButton.setOnClickListener(listener);
+        //mCheckSDButton = (Button) findViewById(R.id.check_sdbtn);
+        //mCheckSDButton.setOnClickListener(listener);
+        //mCheckOTGButton = (Button) findViewById(R.id.check_otgbtn);
+        //mCheckOTGButton.setOnClickListener(listener);
     }
 
     class ButtonClickListener implements View.OnClickListener {
@@ -205,11 +210,11 @@ public class DestinationActivity extends AppCompatActivity
                 finish();
             } else if (view == mFab){
                 popupConfirmDialog();
-            } else if (view == mCheckSDButton){
+            //} else if (view == mCheckSDButton){
 
-            } else if (view == mCheckOTGButton){
-                markSelectedBtn(mOtgButton);
-                discoverDevice();
+            //} else if (view == mCheckOTGButton){
+            //    markSelectedBtn(mOtgButton);
+            //    discoverDevice();
             }
         }
     }
@@ -406,16 +411,19 @@ public class DestinationActivity extends AppCompatActivity
         mFileActionManager = new FileActionManager(this, FileActionManager.MODE.LOCAL, this);
         if(Constant.nowMODE == Constant.MODE.LOCAL){
             nowMode = Constant.MODE.LOCAL;
+            mLastSelected = mLocalButton;
             markSelectedBtn(mLocalButton);
             mPath = Constant.ROOT_LOCAL;
             doLoad(mPath);
         }else if(Constant.nowMODE == Constant.MODE.SD){
             nowMode = Constant.MODE.SD;
+            mLastSelected = mSdButton;
             markSelectedBtn(mSdButton);
             mPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
             doLoad(mPath);
         }else if(Constant.nowMODE == Constant.MODE.OTG){
             nowMode = Constant.MODE.OTG;
+            mLastSelected = mOtgButton;
             markSelectedBtn(mOtgButton);
             discoverDevice();
         }
@@ -431,7 +439,6 @@ public class DestinationActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_destination, menu);
         MenuItem customMenu = menu.findItem(R.id.menu_new_folder);
-        customMenu.setOnMenuItemClickListener(mCustomMenuItemClicked);
         customMenu.setVisible(true);
         return super.onCreateOptionsMenu(menu);
     }
@@ -453,9 +460,6 @@ public class DestinationActivity extends AppCompatActivity
                 return true;
             case R.id.menu_list:
                 updateLayout(Constant.ITEM_LIST);
-                return true;
-            case R.id.menu_easy_sort:
-                createPopupWindow(toolbar, this);
                 return true;
             case android.R.id.home:
                 finish();
@@ -542,15 +546,18 @@ public class DestinationActivity extends AppCompatActivity
         }
     }
 
-    private void markSelectedBtn(Button selected) {
-        mLocalButton.setTextColor(getResources().getColor(R.color.colorBlack));
-        mSdButton.setTextColor(getResources().getColor(R.color.colorBlack));
-        mOtgButton.setTextColor(getResources().getColor(R.color.colorBlack));
+    private void markSelectedBtn(TextView selected) {
+        //mLocalButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        //mSdButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        //mOtgButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        mLastSelected.setTextColor(getResources().getColor(R.color.colorBlack));
         selected.setTextColor(getResources().getColor(R.color.colorPrimary));
+
         mLocalButton.setSelected(false);
         mSdButton.setSelected(false);
         mOtgButton.setSelected(false);
         selected.setSelected(true);
+        mLastSelected = selected;
     }
 
     private void markSelectView(View view){
@@ -811,116 +818,5 @@ public class DestinationActivity extends AppCompatActivity
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mScreenW = displaymetrics.widthPixels;
         updateLayout(mLayoutMode);
-    }
-
-    private final View.OnClickListener mOnSortClickListener = new View.OnClickListener() {
-
-        public void onClick(View v) {
-            int sort_by = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
-            if (v.getTag().equals("date") && sort_by != Constant.SORT_BY_DATE) {
-                v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.VISIBLE);
-                v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
-                v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
-                LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
-                Collections.sort(mFileList, FileInfoSort.comparator(mContext));
-                FileFactory.getInstance().addFileTypeSortRule(mFileList);
-                updateScreen();
-            } else if (v.getTag().equals("name") && sort_by != Constant.SORT_BY_NAME) {
-                v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
-                v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.VISIBLE);
-                v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
-                LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_NAME);
-                Collections.sort(mFileList, FileInfoSort.comparator(mContext));
-                FileFactory.getInstance().addFileTypeSortRule(mFileList);
-                updateScreen();
-            } else if (v.getTag().equals("size") && sort_by != Constant.SORT_BY_SIZE) {
-                v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
-                v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
-                v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.VISIBLE);
-                LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_SIZE);
-                Collections.sort(mFileList, FileInfoSort.comparator(mContext));
-                //don't need this when sort by size
-                //FileFactory.getInstance().addFileTypeSortRule(mFileList);
-                updateScreen();
-            } else {
-                boolean sortOrderAsc = LocalPreferences.getPref(mContext,
-                        LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS) == Constant.SORT_ORDER_AS;
-                LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, sortOrderAsc ? Constant.SORT_ORDER_DES : Constant.SORT_ORDER_AS);
-                Collections.sort(mFileList, FileInfoSort.comparator(mContext));
-                if (!v.getTag().equals("size"))
-                    FileFactory.getInstance().addFileTypeSortRule(mFileList);
-                updateScreen();
-                updateSortArrow(v.getRootView(), mContext);
-            }
-        }
-    };
-
-    private void createPopupWindow(View toolBarView, final Context context) {
-        int xy[] = {0,0};
-        toolBarView.getLocationOnScreen(xy);
-
-        View layout = getLayoutInflater().inflate(R.layout.easy_sort_layout, null, false);
-        PopupWindow easySortView = new PopupWindow(layout, toolBarView.getWidth(), toolBarView.getHeight(), true);
-        easySortView.setBackgroundDrawable(new BitmapDrawable());
-        easySortView.setOutsideTouchable(true);
-        View rootView = ((ViewGroup) (getWindow().getDecorView().findViewById(android.R.id.content))).getChildAt(0);
-        easySortView.setAnimationStyle(R.style.PopupWindowAnimation);
-        easySortView.showAtLocation(rootView, Gravity.LEFT|Gravity.TOP, xy[0], xy[1]);
-
-        RadioButton b_date = (RadioButton) layout.findViewById(R.id.btn_sort_date);
-        RadioButton b_name = (RadioButton) layout.findViewById(R.id.btn_sort_name);
-        RadioButton b_size = (RadioButton) layout.findViewById(R.id.btn_sort_size);
-        int sort_by = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
-        switch (sort_by) {
-            case Constant.SORT_BY_DATE:
-                b_date.setChecked(true);
-                layout.findViewById(R.id.arrow_sort_date).setVisibility(View.VISIBLE);
-                break;
-            case Constant.SORT_BY_NAME:
-                b_name.setChecked(true);
-                layout.findViewById(R.id.arrow_sort_name).setVisibility(View.VISIBLE);
-                break;
-            case Constant.SORT_BY_SIZE:
-                b_size.setChecked(true);
-                layout.findViewById(R.id.arrow_sort_size).setVisibility(View.VISIBLE);
-                break;
-        }
-        updateSortArrow(layout, mContext);
-        b_date.setOnClickListener(mOnSortClickListener);
-        b_name.setOnClickListener(mOnSortClickListener);
-        b_size.setOnClickListener(mOnSortClickListener);
-    }
-
-    private void updateSortArrow (final View layout, Context context) {
-        String arrow = getSortArrow(context);
-        ((TextView) layout.findViewById(R.id.arrow_sort_date)).setText(arrow);
-        ((TextView) layout.findViewById(R.id.arrow_sort_name)).setText(arrow);
-        ((TextView) layout.findViewById(R.id.arrow_sort_size)).setText(arrow);
-    }
-
-    private String getSortArrow(Context context) {
-        int order = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS);
-        if (order == Constant.SORT_ORDER_AS) {
-            return context.getResources().getString(R.string.top_arrow);
-        } else {
-            return context.getResources().getString(R.string.bottom_arrow);
-        }
-    }
-
-    class CustomMenuItemClicked implements MenuItem.OnMenuItemClickListener {
-
-        @Override
-        public boolean onMenuItemClick(MenuItem item) {
-            Menu menu = item.getSubMenu();
-//            final MenuItem sort = menu.findItem(R.id.menu_easy_sort);
-//            sort.setVisible(false);
-
-//            final MenuItem grid = menu.findItem(R.id.menu_grid);
-//            final MenuItem list = menu.findItem(R.id.menu_list);
-//            grid.setVisible(mLayoutMode == Constant.ITEM_LIST);
-//            list.setVisible(mLayoutMode == Constant.ITEM_GRID);
-
-            return false;
-        }
     }
 }
