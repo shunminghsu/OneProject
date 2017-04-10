@@ -100,7 +100,7 @@ public class CapacityActivity extends AppCompatActivity {
         if (pieChart.equals(localChart))
             pieChart.setCenterText(FileFactory.getDeviceName());
         else
-            pieChart.setCenterText(getResources().getString(R.string.sdcard_name));
+            pieChart.setCenterText(getResources().getString(R.string.nav_sd));
         pieChart.setCenterTextSize(20f);
         pieChart.setDrawHoleEnabled(true);
         pieChart.setHoleColor(getResources().getColor(R.color.colorWhite));

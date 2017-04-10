@@ -6,8 +6,8 @@
 
     <string name="action_settings">Settings</string>
 
-    <string name="empty">Empty</string>
-    <string name="loading">Loading\u2026</string>
+    <string name="empty">Empty Folder</string>
+    <string name="loading">Now loading\u2026</string>
 
     <string name="pref_name" translatable="false">PREFERENCE</string>
     <string name="pref_file_sort_type" translatable="false">FILE SORT TYPE</string>
@@ -27,7 +27,6 @@
     <string name="conj_selected">%1$d file(s) selected</string>
     <string name="conj_deleted">%1$d item(s) will be deleted.</string>
     <string name="snackbar_not_support_share">This File does not support Share function</string>
-    <string name="ask_exit">Are you sure ?</string>
 
     <!-- Drawer -->
     <string name="drawer_home">Home</string>
@@ -41,8 +40,7 @@
     <string name="nav_local">Local</string>
 
     <!-- SD -->
-    <string name="nav_sd">SD</string>
-    <string name="sdcard_name">SD Card</string>
+    <string name="nav_sd">SD Card</string>
     <string name="no_sd">SD card is not found.</string>
     <string name="refresh">Refresh</string>
 
@@ -64,12 +62,11 @@
     <string name="move">Move</string>
     <string name="delete">Delete</string>
     <string name="newfolder">New Folder</string>
-    <string name="encrypt">Encrypt</string>
+    <string name="encrypt">Encryption</string>
 
     <!-- Photo information -->
-    <string name="name">Name</string>
     <string name="photo_size">Size</string>
-    <string name="photo_time">Last Modified</string>
+    <string name="photo_time">Last modified time</string>
     <string name="photo_location_phone">Located in Phone</string>
     <string name="photo_location_sd">Located in SD Card</string>
     <string name="photo_location_otg">Located in OTG</string>
@@ -84,18 +81,18 @@
     <string name="untitled_folder">Untitled folder</string>
 
     <!-- Action -->
-    <string name="title_copy_to">Copy to…</string>
-    <string name="title_move_to">Move to…</string>
+    <string name="title_copy_to" translatable="false">Copy to…</string>
+    <string name="title_move_to" translatable="false">Move to…</string>
     <string name="error">Error</string>
     <string name="done">Action Finished</string>
     <string name="select_folder_error">Destination folder cannot be same as the source folder.</string>
-    <string name="select_destination">Please select directory where you want to paste.</string>
+    <string name="select_destination">Select a destination folder then tap the button in the bottom right corner to paste</string>
     <string name="encryptfilename">Encrypt File Name</string>
     <string name="password">Password</string>
     <string name="encrypt_subfilename" translatable="false">.enc</string>
-    <string name="encrypting">Encrypting...</string>
+    <string name="encrypting">Encrypting</string>
     <string name="decrypt">Decryption</string>
-    <string name="decrypting">Decrypting...</string>
+    <string name="decrypting">Decrypting</string>
     <string name="filename">Decrypt Folder Name</string>
     <string name="password_incorrect">Incorrect password</string>
 
@@ -111,20 +108,17 @@
     <string name="info_folder">Directory</string>
     <string name="info_other">Others</string>
     <string name="info_size">Size:</string>
-    <string name="info_file_number">Files Numbers:</string>
+    <string name="info_file_number">File/Folder counts:</string>
     <string name="info_file_number_text1">file</string>
     <string name="info_dir_number_text1">directory</string>
     <string name="info_file_number_text2">files</string>
     <string name="info_dir_number_text2">directories</string>
-    <string name="info_file_number_computing">Computing...</string>
+    <string name="info_file_number_computing">Calculating\u2026</string>
     <string name="info_mtime">Modified Time:</string>
-    <string name="info_location_phone">Located in Phone</string>
-    <string name="info_location_sd">Located in SD Card</string>
-    <string name="info_location_otg">Located in OTG</string>
     <string name="info_path">Path:</string>
 
-    <string name="top_arrow">&#9650;</string>
-    <string name="bottom_arrow">&#9660;</string>
+    <string name="top_arrow" translatable="false">&#9650;</string>
+    <string name="bottom_arrow" translatable="false">&#9660;</string>
 
     <!-- Feedback -->
     <string name="feedback_done">Done</string>
@@ -150,8 +144,7 @@
     <string name="about_enduser">End-User License Agreement</string>
     <string name="about_opensource">Open Source Statement</string>
     <string name="about_version">App Version</string>
-    <string name="used">Used</string>
-    <string name="free">Free</string>
+    <string name="used">Used capacity</string>
 
     <!-- Backup -->
     <string name="backup_filetype">Choose file type</string>
@@ -160,7 +153,13 @@
     <string name="backup_video">Video</string>
     <string name="backup_music">Music</string>
     <string name="backup_doc">Files</string>
-    <string name="backup_folder">Elite Backup</string>
+    <string name="backup_folder" translatable="false">Elite Backup</string>
+    <string name="free">Free capacity</string>
+    <string name="sdcard_name">SD Card</string>
+    <string name="menu_settings">Setting</string>
+    <string name="menu_delete">Delete</string>
+    <string name="menu_copy_to_clipboard">Copy</string>
+    <string name="ask_exit">Are you sure you want to quit Transcend Elite?</string>
 
 
 </resources>

@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="Browser"
+            android:text="@string/drawer_browser"
             android:textColor="@color/colorWhite"
             android:textSize="30sp"
             android:textStyle="bold" />
@@ -58,7 +58,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="Backup"
+            android:text="@string/drawer_backup"
             android:textColor="@color/colorWhite"
             android:textSize="30sp"
             android:textStyle="bold" />

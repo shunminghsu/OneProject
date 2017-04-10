@@ -240,7 +240,7 @@
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
                 android:layout_toRightOf="@id/img_sd"
                 android:gravity="center_vertical"
-                android:text="@string/sdcard_name"
+                android:text="@string/nav_sd"
                 android:textColor="@color/colorDarkGray"
                 android:textSize="@dimen/setting_textsize" />
 

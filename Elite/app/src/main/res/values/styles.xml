@@ -52,4 +52,16 @@
         <item name="android:textColor">@color/colorDarkGray</item>
     </style>
 
+    <style name="NavigationTheme" parent="MyMaterialTheme.Base">
+        <item name="android:textSize">18sp</item>
+    </style>
+
+    <style name="MyMaterialTheme.Base" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorBlack</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+    </style>
+
 </resources>

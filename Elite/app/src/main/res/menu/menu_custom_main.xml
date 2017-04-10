@@ -28,7 +28,7 @@
                 app:showAsAction="never" />
             <item
                 android:id="@+id/menu_new_folder"
-                android:title="@string/menu_new_folder"
+                android:title="@string/newfolder"
                 android:icon="@mipmap/ic_newfolder_gray"
                 app:showAsAction="never" />
             <item

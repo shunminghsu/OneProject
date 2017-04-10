@@ -89,7 +89,7 @@ public abstract class OTGNewFolderDialog implements TextWatcher, View.OnClickLis
 
     private void initDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setTitle(mContext.getResources().getString(R.string.menu_new_folder));
+        builder.setTitle(mContext.getResources().getString(R.string.newfolder));
         builder.setIcon(R.mipmap.ic_newfolder_gray);
         builder.setView(R.layout.dialog_new_folder);
         builder.setNegativeButton(R.string.cancel, null);
