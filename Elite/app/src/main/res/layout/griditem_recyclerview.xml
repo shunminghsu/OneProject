@@ -52,6 +52,7 @@
         android:shadowDx="1"
         android:shadowDy="1"
         android:singleLine="true"
+        android:visibility="gone"
         android:textSize="18sp" />
 
     <ImageView
