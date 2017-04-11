@@ -12,7 +12,6 @@
         android:id="@+id/edit"
         android:title="@string/share"
         android:icon="@android:drawable/ic_menu_edit"
-        android:visible="false"
         app:showAsAction="always" />
 
     <item
@@ -30,7 +29,6 @@
             android:id="@+id/set_photo_as"
             android:icon="@mipmap/ic_browser_filetype_image_gray"
             android:title="@string/set_photo_as"
-            android:visible="false"
             app:showAsAction="never" />
         <item
             android:id="@+id/action_rename"
