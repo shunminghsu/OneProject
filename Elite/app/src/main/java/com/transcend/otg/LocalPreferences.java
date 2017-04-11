@@ -41,13 +41,13 @@ public class LocalPreferences {
         getPrefs(context).edit().putString(createKey(key), uri).apply();
     }
 
-    public static String getSDKey(Context context) {
-        String key = SD_KEY;
+    public static String getSDKey(Context context, String uid) {
+        String key = SD_KEY + uid;
         return getPrefs(context).getString(createKey(key), "");
     }
 
-    public static void setSDKey(Context context, String uri) {
-        String key = SD_KEY;
+    public static void setSDKey(Context context, String uid, String uri) {
+        String key = SD_KEY + uid;
         getPrefs(context).edit().putString(createKey(key), uri).apply();
     }
 

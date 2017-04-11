@@ -116,6 +116,7 @@ public class DestinationActivity extends AppCompatActivity
     private int mLayoutMode;
     private int mOriginalSortValue;
     private int mOriginalSortOrderValue;
+    private int nowAction;
 
 
     @Override
@@ -141,6 +142,7 @@ public class DestinationActivity extends AppCompatActivity
         mNoOTGLayout = (RelativeLayout) findViewById(R.id.no_otg_layout);
         Constant.Activity = 2;
         actionId = -1;
+        nowAction = -1;
         DisplayMetrics displaymetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         mScreenW = displaymetrics.widthPixels;
@@ -298,6 +300,11 @@ public class DestinationActivity extends AppCompatActivity
                 mPath = Constant.ROOT_LOCAL;
                 doLoad(mPath);
             }
+        }else if(reqCode == mSDDocumentTreeID && resCode == RESULT_OK){
+            Uri uriTree = data.getData();
+            if(checkSD(uriTree)){
+                doAction();
+            }
         }
     }
 
@@ -325,6 +332,45 @@ public class DestinationActivity extends AppCompatActivity
         }else{
             intentDocumentTree();
         }
+    }
+
+    private void doAction(){
+        switch (nowAction) {
+            case R.id.menu_new_folder:
+                ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
+                tmpDFiles.add(rootDir);
+                ActionParameter.dFiles = tmpDFiles;
+                mFileActionManager.newFolderOTG(ActionParameter.name, ActionParameter.dFiles);
+                break;
+        }
+    }
+
+    private boolean checkSD(Uri uri){
+        if (!uri.toString().contains("primary")) {
+            if (uri != null) {
+                if(uri.getPath().toString().split(":").length > 1){
+                    snackBarShow(R.string.snackbar_plz_select_top);
+                }else{
+                    rootDir = DocumentFile.fromTreeUri(this, uri);//sd root path
+                    ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    if(bSDCard){
+                        getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        String uid = FileFactory.getSDCardUniqueId();
+                        LocalPreferences.setSDKey(this, uid, uri.toString());
+                        Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
+                        return true;
+                    }else{
+                        snackBarShow(R.string.snackbar_plz_select_sd);
+                    }
+                }
+            }
+
+        }else {
+            snackBarShow(R.string.snackbar_plz_select_sd);
+        }
+        return false;
     }
 
     private boolean checkStorage(Uri uri, boolean b_needCheckSD){
@@ -390,7 +436,8 @@ public class DestinationActivity extends AppCompatActivity
     }
 
     private boolean checkSDWritePermission(){
-        String sdKey = LocalPreferences.getSDKey(this);
+        String uid = FileFactory.getSDCardUniqueId();
+        String sdKey = LocalPreferences.getSDKey(mContext, uid);
         if(sdKey != ""){
             Uri uriSDKey = Uri.parse(sdKey);
             Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
@@ -450,7 +497,7 @@ public class DestinationActivity extends AppCompatActivity
                 if(nowMode == Constant.MODE.LOCAL)
                     doLocalNewFolder();
                 else if(nowMode == Constant.MODE.SD){
-//                    nowAction = R.id.menu_new_folder;
+                    nowAction = R.id.menu_new_folder;
                     doOTGNewFolder(true);
                 }else if(nowMode == Constant.MODE.OTG)
                     doOTGNewFolder(false);

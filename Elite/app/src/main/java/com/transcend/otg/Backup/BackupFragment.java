@@ -231,7 +231,8 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
     }
 
     private boolean checkSDWritePermission(){
-        String sdKey = LocalPreferences.getSDKey(mContext);
+        String uid = FileFactory.getSDCardUniqueId();
+        String sdKey = LocalPreferences.getSDKey(mContext, uid);
         if(sdKey != ""){
             Uri uriSDKey = Uri.parse(sdKey);
             Constant.mSDCurrentDocumentFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
@@ -326,7 +327,8 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                     if(bSDCard){
                         mContext.getContentResolver().takePersistableUriPermission(uri,
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        LocalPreferences.setSDKey(mContext, uri.toString());
+                        String uid = FileFactory.getSDCardUniqueId();
+                        LocalPreferences.setSDKey(mContext, uid, uri.toString());
                         Constant.mSDCurrentDocumentFile = rootDir;
                         return true;
                     }else{

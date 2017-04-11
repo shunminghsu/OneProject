@@ -15,7 +15,10 @@ import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.R;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -508,5 +511,26 @@ public class FileFactory {
         } else {
             return Character.toUpperCase(first) + s.substring(1);
         }
+    }
+
+    public static String getSDCardUniqueId() {
+        String sd_cid = "";
+        try {
+
+            File file = new File("/sys/block/mmcblk1");
+            String memBlk;
+            if (file.exists() && file.isDirectory()) {
+                memBlk = "mmcblk1";
+            } else {
+                memBlk = "mmcblk0";
+            }
+            Process cmd = Runtime.getRuntime().exec("cat /sys/block/"+memBlk+"/device/cid");
+            BufferedReader br = new BufferedReader(new InputStreamReader(cmd.getInputStream()));
+            sd_cid = br.readLine();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return sd_cid;
     }
 }

@@ -92,7 +92,10 @@ import com.transcend.otg.Utils.EncryptUtils;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -648,7 +651,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private boolean checkSDWritePermission(){
-        String sdKey = LocalPreferences.getSDKey(this);
+        String sdId = FileFactory.getSDCardUniqueId();
+
+        String sdKey = LocalPreferences.getSDKey(this, sdId);
         if(sdKey != ""){
             Uri uriSDKey = Uri.parse(sdKey);
             Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
@@ -1144,7 +1149,8 @@ public class MainActivity extends AppCompatActivity
                     if(bSDCard){
                         getContentResolver().takePersistableUriPermission(uri,
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                        LocalPreferences.setSDKey(this, uri.toString());
+                        String uid = FileFactory.getSDCardUniqueId();
+                        LocalPreferences.setSDKey(this, uid, uri.toString());
                         Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
                         return true;
                     }else{
@@ -1355,7 +1361,8 @@ public class MainActivity extends AppCompatActivity
 
     private void doLocalCopytoOTGEncrypt(boolean isSrcSDCard){
         if(isSrcSDCard){
-            String sdKey = LocalPreferences.getSDKey(mContext);
+            String uid = FileFactory.getSDCardUniqueId();
+            String sdKey = LocalPreferences.getSDKey(mContext, uid);
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
                 DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
@@ -1623,7 +1630,8 @@ public class MainActivity extends AppCompatActivity
 
     private void doLocalCopytoOTGDecrypt(boolean isSrcSDCard){
         if(isSrcSDCard){
-            String sdKey = LocalPreferences.getSDKey(mContext);
+            String uid = FileFactory.getSDCardUniqueId();
+            String sdKey = LocalPreferences.getSDKey(mContext, uid);
             if(sdKey != ""){
                 String getLocalDecryptFilePath = DecryptUtils.getAfterDecryptPath();
                 FileInfo tmpFile = new FileInfo();
@@ -1799,7 +1807,8 @@ public class MainActivity extends AppCompatActivity
 
     private void doLocalCopyorMovetoOTG(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard){
         if(isSrcSDCard){
-            String sdKey = LocalPreferences.getSDKey(mContext);
+            String uid = FileFactory.getSDCardUniqueId();
+            String sdKey = LocalPreferences.getSDKey(mContext, uid);
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
                 DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
@@ -1822,7 +1831,8 @@ public class MainActivity extends AppCompatActivity
 
     private void doOTGCopyorMove(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard) {
         if(isSrcSDCard){
-            String sdKey = LocalPreferences.getSDKey(mContext);
+            String uid = FileFactory.getSDCardUniqueId();
+            String sdKey = LocalPreferences.getSDKey(mContext, uid);
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
                 DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
@@ -1863,7 +1873,8 @@ public class MainActivity extends AppCompatActivity
 
     private void doOTGCopyorMovetoLocal(int actionId, ArrayList<FileInfo> selectedFiles, String destinationPath, boolean isDesSDCard){
         if(isDesSDCard){
-            String sdKey = LocalPreferences.getSDKey(mContext);
+            String uid = FileFactory.getSDCardUniqueId();
+            String sdKey = LocalPreferences.getSDKey(mContext, uid);
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
                 DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);

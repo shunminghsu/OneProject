@@ -45,7 +45,8 @@ public abstract class OTGDeleteDialog implements OnClickListener {
 
     private void initData(){
         if(Constant.nowMODE == Constant.MODE.SD){
-            String sdKey = LocalPreferences.getSDKey(mContext);
+            String uid = FileFactory.getSDCardUniqueId();
+            String sdKey = LocalPreferences.getSDKey(mContext, uid);
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
                 DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);

@@ -51,7 +51,8 @@ public abstract class OTGNewFolderDialog implements TextWatcher, View.OnClickLis
     private void initData(){
         mDFiles = new ArrayList<>();
         if(Constant.nowMODE == Constant.MODE.SD){
-            String sdKey = LocalPreferences.getSDKey(mContext);
+            String uid = FileFactory.getSDCardUniqueId();
+            String sdKey = LocalPreferences.getSDKey(mContext, uid);
             if(sdKey != ""){
                 Uri uriSDKey = Uri.parse(sdKey);
                 if(mFromWhichActivity == 1){
