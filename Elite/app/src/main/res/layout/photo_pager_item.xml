@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:scaleType="centerInside"
+        android:scaleType="fitCenter"
         />
     <LinearLayout
         android:id="@+id/info"

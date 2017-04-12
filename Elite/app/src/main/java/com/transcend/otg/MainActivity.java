@@ -489,8 +489,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onDestroyActionMode(ActionMode mode) {
         drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-        
-        clearActionAllSelected();
+
+        if (getBrowserFragment() == null) { //for search page
+            ((SearchResults) getFragment()).actionFinish();
+        } else {
+            getBrowserFragment().clearAllSelect();
+        }
         toggleFabSelectAll(false);
         Constant.mActionMode = mActionMode = null;
         mFab.setImageResource(R.mipmap.ic_floating_browser_intoaction);
@@ -606,6 +610,8 @@ public class MainActivity extends AppCompatActivity
     private void toggleSelectAll() {
         boolean b_SelectAll;
         if (getBrowserFragment() == null) { //for search page
+            if (((SearchResults) getFragment()).getItemsCount() == 0)
+                return;
             b_SelectAll = ((SearchResults) getFragment()).getSelectedAllorNot();
         } else {
             b_SelectAll = getBrowserFragment().getSelectedAllorNot();
@@ -2062,7 +2068,7 @@ public class MainActivity extends AppCompatActivity
 
     private void clearActionAllSelected() {
         if (getBrowserFragment() == null) { //for search page
-            ((SearchResults) getFragment()).actionFinish();
+            ((SearchResults) getFragment()).clearAll();
         } else {
             getBrowserFragment().clearAllSelect();
         }

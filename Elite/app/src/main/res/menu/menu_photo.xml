@@ -3,49 +3,52 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/share"
-        android:title="@string/share"
-        android:icon="@mipmap/ic_share_white"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/edit"
-        android:title="@string/share"
-        android:icon="@android:drawable/ic_menu_edit"
-        app:showAsAction="always" />
-
-    <item
-        android:id="@+id/delete"
-        android:title="@string/delete"
-        android:icon="@mipmap/ic_delete_white"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/more"
         android:title="@string/more"
         android:icon="@mipmap/ic_more_white"
         app:showAsAction="always" >
         <menu>
         <item
+            android:id="@+id/action_copy"
+            android:icon="@mipmap/ic_copy_gray"
+            android:title="@string/copy"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/action_move"
+            android:icon="@mipmap/ic_move_gray"
+            android:title="@string/move"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/delete"
+            android:title="@string/delete"
+            android:icon="@mipmap/ic_delete_gray"
+            app:showAsAction="never" />
+        <item
             android:id="@+id/set_photo_as"
-            android:icon="@mipmap/ic_browser_filetype_image_gray"
-            android:title="@string/set_photo_as"
+            android:title="set as"
+            android:visible="false"
             app:showAsAction="never" />
         <item
             android:id="@+id/action_rename"
             android:icon="@mipmap/ic_rename_gray"
             android:title="@string/rename"
             app:showAsAction="never" />
-
-        <item
-            android:id="@+id/action_copy"
-            android:icon="@mipmap/ic_copy_gray"
-            android:title="@string/copy"
-            app:showAsAction="never" />
-
         <item
             android:id="@+id/action_encrypt"
             android:icon="@mipmap/ic_encrypt_s"
             android:title="@string/encrypt"
+            android:visible="false"
+            app:showAsAction="never" />
+        <item
+            android:id="@+id/share"
+            android:title="@string/share"
+            android:icon="@mipmap/ic_share_gray"
+            app:showAsAction="never" />
+
+        <item
+            android:id="@+id/edit"
+            android:title="edit"
+            android:visible="false"
             app:showAsAction="never" />
         </menu>
     </item>>

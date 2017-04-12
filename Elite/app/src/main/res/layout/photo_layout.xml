@@ -16,9 +16,21 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
+        android:background="@color/colorBlackTrans"
         android:gravity="top|start"
         app:layout_scrollFlags="scroll|enterAlways"
+        app:popupTheme="@style/AppTheme.PopupOverlay"
         app:theme="@style/AppTheme.PhotoActionBar">
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:maxLines="1"
+            android:ellipsize="marquee"
+            android:textColor="@color/colorWhite"
+            android:textSize="20sp" />
+        <!--
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -34,5 +46,51 @@
             android:layout_height="match_parent"
             android:theme="@style/ThemeOverlay.PhotoMenu"/>
         </LinearLayout>
+        -->
     </android.support.v7.widget.Toolbar>
+
+    <LinearLayout
+        android:id="@+id/bottom_toolbar_background"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorBlack"
+        android:alpha="0.5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:visibility="invisible"
+            android:src="@mipmap/ic_delete_white"/>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/bottom_toolbar"
+        android:orientation="horizontal"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/delete"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/ic_delete_white"/>
+        <ImageView
+            android:id="@+id/information"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/ic_info_white"/>
+        <ImageView
+            android:id="@+id/share"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/ic_share_white"/>
+
+    </LinearLayout>
 </RelativeLayout>

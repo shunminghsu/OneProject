@@ -94,7 +94,8 @@ public class SearchResults extends Fragment {
         if (!mShowResults) {
             showSomeSuggestions();
         } else {
-            updateSearchResults();
+            if (mQuery != null)
+                updateSearchResults();
         }
     }
 
@@ -294,6 +295,13 @@ public class SearchResults extends Fragment {
             notifyDataSetChanged();
         }
 
+        public void clear() {
+            if (mList != null) {
+                mList.clear();
+                notifyDataSetChanged();
+            }
+        }
+
         @Override
         public SearchResults.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             final Context context = parent.getContext();
@@ -356,37 +364,47 @@ public class SearchResults extends Fragment {
 
         private int getSelectedCount() {
             int count = 0;
-            for (FileInfo file : mList) {
-                if (file.checked) count++;
+            if (mList != null) {
+                for (FileInfo file : mList) {
+                    if (file.checked) count++;
+                }
             }
             return count;
         }
 
         private ArrayList<FileInfo> getSelectedFiles(){
             ArrayList<FileInfo> list = new ArrayList<>();
-            for (FileInfo file : mList) {
-                if (file.checked)
-                    list.add(file);
+            if (mList != null) {
+                for (FileInfo file : mList) {
+                    if (file.checked)
+                        list.add(file);
+                }
             }
             return list;
         }
 
         private void clearAllSelection(){
-            for (FileInfo file : mList)
-                file.checked = false;
-            notifyDataSetChanged();
+            if (mList != null) {
+                for (FileInfo file : mList)
+                    file.checked = false;
+                notifyDataSetChanged();
+            }
         }
 
         private void setAllSelection(){
-            for (FileInfo file : mList)
-                file.checked = true;
-            notifyDataSetChanged();
+            if (mList != null) {
+                for (FileInfo file : mList)
+                    file.checked = true;
+                notifyDataSetChanged();
+            }
         }
 
         private boolean getSelectedAllorNot() {
-            for (FileInfo file : mList) {
-                if (!file.checked)
-                    return false;
+            if (mList != null) {
+                for (FileInfo file : mList) {
+                    if (!file.checked)
+                        return false;
+                }
             }
             return true;
         }
@@ -519,6 +537,7 @@ public class SearchResults extends Fragment {
 
         mQuery = newQuery;
         if (TextUtils.isEmpty(mQuery)) {
+            mResultsAdapter.clear();
             mShowResults = false;
             setResultsVisibility(false);
             updateSuggestions();
@@ -665,7 +684,12 @@ public class SearchResults extends Fragment {
 
     public void actionFinish() {
         mResultsAdapter.clearAllSelection();
-        updateSearchResults();
+        if (mResultsAdapter.getItemCount() > 0)
+            updateSearchResults();
+    }
+
+    public void clearAll() {
+        mResultsAdapter.clearAllSelection();
     }
 
     public void selectAll() {

@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#960014</color>
     <color name="colorAccent">#960014</color>
 
+    <color name="colorBlackTrans">#77000000</color>
     <color name="colorBlack">#000000</color>
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorGray">#BDBDBD</color>
