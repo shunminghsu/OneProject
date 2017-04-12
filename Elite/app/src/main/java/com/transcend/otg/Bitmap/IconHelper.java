@@ -68,10 +68,6 @@ public class IconHelper {
         return thumbSize;
     }
 
-    public Drawable getIcon() {
-        return IconUtils.loadIcon(mContext, mMode);
-    }
-
     public Drawable getIconMime(int type) {
         switch (type) {
             case Constant.TYPE_DIR:
@@ -87,7 +83,7 @@ public class IconHelper {
             case Constant.TYPE_ENCRYPT:
                 return IconUtils.loadEncryptTypeIcon(mContext, mMode==Constant.ITEM_GRID);
             default:
-                return IconUtils.loadImageTypeIcon(mContext, mMode==Constant.ITEM_GRID);
+                return IconUtils.loadOthersTypeIcon(mContext, mMode==Constant.ITEM_GRID);
         }
     }
 

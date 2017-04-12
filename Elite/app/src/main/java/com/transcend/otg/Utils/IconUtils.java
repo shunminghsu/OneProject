@@ -87,10 +87,6 @@ public class IconUtils {
         return null;
     }
 
-    public static Drawable loadIcon(Context context, int mode) {
-        return context.getDrawable(R.drawable.ic_menu_camera);
-    }
-
     public static Drawable loadImageTypeIcon(Context context, boolean large) {
         return large ? context.getDrawable(R.drawable.ic_image_l) : context.getDrawable(R.mipmap.ic_image_s);
     }
@@ -109,7 +105,9 @@ public class IconUtils {
     public static Drawable loadFolderTypeIcon(Context context, boolean large) {
         return large ? context.getDrawable(R.drawable.ic_folder_l) : context.getDrawable(R.mipmap.ic_folder_s);
     }
-
+    public static Drawable loadOthersTypeIcon(Context context, boolean large) {
+        return large ? context.getDrawable(R.drawable.ic_others_l) : context.getDrawable(R.mipmap.ic_others_s);
+    }
     public static Bitmap decodeSampledBitmapFromPath(String path, int reqWidth, int reqHeight) {
 
         // First decode with inJustDecodeBounds=true to check dimensions
