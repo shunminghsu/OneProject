@@ -100,7 +100,7 @@ public class IconUtils {
         return large ? context.getDrawable(R.drawable.ic_file_l) : context.getDrawable(R.mipmap.ic_file_s);
     }
     public static Drawable loadEncryptTypeIcon(Context context, boolean large) {
-        return large ? context.getDrawable(R.drawable.ic_encrypt_gray_l) : context.getDrawable(R.mipmap.ic_encrypt_s);
+        return large ? context.getDrawable(R.drawable.ic_encrypt_l) : context.getDrawable(R.mipmap.ic_encrypt_s);
     }
     public static Drawable loadFolderTypeIcon(Context context, boolean large) {
         return large ? context.getDrawable(R.drawable.ic_folder_l) : context.getDrawable(R.mipmap.ic_folder_s);

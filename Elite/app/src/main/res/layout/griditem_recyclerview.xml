@@ -3,9 +3,13 @@
     android:id="@+id/griditem_file_manage"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_margin="2dp"
-    android:background="@color/colorLightLightGray">
+    android:layout_margin="0dp">
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="2dp"
+        android:background="@color/colorLightLightGray">
     <ImageView
         android:id="@+id/item_icon"
         android:layout_width="match_parent"
@@ -19,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:scaleType="centerInside" />
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/item_mark_background"
@@ -34,6 +39,7 @@
         android:id="@+id/item_mark"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="2dp"
         android:visibility="invisible"
         android:src="@mipmap/ic_check_circle_gray"
         android:layout_alignParentRight="true"
@@ -52,13 +58,13 @@
         android:shadowDx="1"
         android:shadowDy="1"
         android:singleLine="true"
-        android:visibility="gone"
         android:textSize="18sp" />
 
     <ImageView
         android:id="@+id/item_info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="2dp"
         android:src="@mipmap/ic_info_white"
         android:layout_marginBottom="4dp"
         android:layout_alignParentRight="true"
