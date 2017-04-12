@@ -78,4 +78,11 @@
     <string name="more">Daha Fazla</string>
     <string name="photo_size">Boyut</string>
     <string name="loading">Now loading</string>
+    <string name="backup_doc">Dosya</string>
+    <string name="fail">Eylem Başarısız</string>
+    <string name="info_other">diğer</string>
+    <string name="info_path">Yol:</string>
+    <string name="info_size">Boyut:</string>
+    <string name="info_title">Bilgi</string>
+    <string name="info_type">Tip:</string>
 </resources>

@@ -604,7 +604,12 @@ public class FolderExploreActivity extends AppCompatActivity
                 if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> SD
                     doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
                 }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> SD
-                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                    String otgPath = FileFactory.getOTGStoragePath(this, Constant.otg_key_path);
+                    if(otgPath.contains(ActionParameter.path))
+                        doSDMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
+                    else
+                        doOTGCopyorMovetoLocal(nowAction, ActionParameter.files, ActionParameter.path, true);
+//                    doLocalCopyorMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
                 }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> SD
                     doOTGCopyorMove(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
                 }
@@ -623,7 +628,18 @@ public class FolderExploreActivity extends AppCompatActivity
             if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> Local
                 doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
             }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> Local
-                doOTGCopyorMovetoLocal(actionId, mSelectedFiles, destinationPath, true);
+                if(actionId == R.id.action_copy)
+                    doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);//copy doesnt need permission
+                else {
+                    if(checkSDWritePermission()){
+                        doOTGCopyorMovetoLocal(actionId, mSelectedFiles, destinationPath, true);
+                    }else {
+                        nowAction = actionId;
+                        ActionParameter.path = destinationPath;
+                        ActionParameter.files = mSelectedFiles;
+                        ActionParameter.dFiles = destinationDFiles;
+                    }
+                }
             }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> Local
                 doOTGCopyorMovetoLocal(actionId, mSelectedFiles, destinationPath, false);
             }
@@ -660,7 +676,18 @@ public class FolderExploreActivity extends AppCompatActivity
             if(Constant.nowMODE == Constant.MODE.LOCAL){//Local -> OTG
                 doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
             }else if(Constant.nowMODE == Constant.MODE.SD){//SD -> OTG
-                doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
+                if(actionId == R.id.action_copy)
+                    doLocalCopyorMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
+                else{
+                    if(checkSDWritePermission()){
+                        doSDMovetoOTG(actionId, mSelectedFiles, destinationDFiles, destinationPath, true);
+                    }else{
+                        nowAction = actionId;
+                        ActionParameter.path = destinationPath;
+                        ActionParameter.files = mSelectedFiles;
+                        ActionParameter.dFiles = destinationDFiles;
+                    }
+                }
             }else if(Constant.nowMODE == Constant.MODE.OTG){//OTG -> OTG
                 doOTGCopyorMove(actionId, mSelectedFiles, destinationDFiles, destinationPath, false);
             }
@@ -1487,6 +1514,19 @@ public class FolderExploreActivity extends AppCompatActivity
             else if(actionId == R.id.action_move)
                 mFileActionManager.moveFromLocaltoOTG(selectedFiles, destinationDFiles, "");
         }
+    }
+
+    private void doSDMovetoOTG(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard){
+        String uid = FileFactory.getSDCardUniqueId();
+        String sdKey = LocalPreferences.getSDKey(mContext, uid);
+        Uri uriSDKey = Uri.parse(sdKey);
+        DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+        Constant.mSDCurrentDocumentFile = tmpDFile;
+        String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+        ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
+        ArrayList<DocumentFile> srcDFiles = FileFactory.findDocumentFilefromPathSD(selectedFiles, sdPath, Constant.Activity);
+        mFileActionManager.moveOTG(srcDFiles, destinationDFiles, destinationPath);
+
     }
 
     private void doOTGCopyorMove(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard) {

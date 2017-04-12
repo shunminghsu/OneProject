@@ -78,5 +78,11 @@
     <string name="more">Mehr</string>
     <string name="photo_size">Größe</string>
     <string name="loading">Now loading</string>
-    <string name="name"></string>
+    <string name="backup_doc">Dateien</string>
+    <string name="fail">Aktion fehlgeschlagen</string>
+    <string name="info_other">weitere</string>
+    <string name="info_path">Weg:</string>
+    <string name="info_size">Größe:</string>
+    <string name="info_title">Information</string>
+    <string name="info_type">Typ:</string>
 </resources>

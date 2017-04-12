@@ -78,4 +78,11 @@
     <string name="more">もっと</string>
     <string name="photo_size">サイズ</string>
     <string name="loading">Now loading</string>
+    <string name="backup_doc">ファイル</string>
+    <string name="fail">失敗しました</string>
+    <string name="info_other">その他</string>
+    <string name="info_path">パス:</string>
+    <string name="info_size">サイズ:</string>
+    <string name="info_title">情報</string>
+    <string name="info_type">種類:</string>
 </resources>

@@ -49,9 +49,11 @@ public class LocalMovetoOTGLoader extends AsyncTaskLoader<Boolean> {
         mActivity = (Activity) context;
         mSrcFile = src;
         mDesDocumentFile = des.get(0);
-        if(mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())){
-            b_SDCard = true;
-            destinationPath = path;
+        if(Constant.mSDRootDocumentFile != null){
+            if(mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())){
+                b_SDCard = true;
+                destinationPath = path;
+            }
         }
     }
 

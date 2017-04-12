@@ -78,4 +78,11 @@
     <string name="more">Ещё</string>
     <string name="photo_size">Размер</string>
     <string name="loading">Now loading</string>
+    <string name="backup_doc">файлы</string>
+    <string name="fail">Ошибка выполнения</string>
+    <string name="info_other">Другое</string>
+    <string name="info_path">Путь:</string>
+    <string name="info_size">Размер:</string>
+    <string name="info_title">Информация</string>
+    <string name="info_type">Тип:</string>
 </resources>

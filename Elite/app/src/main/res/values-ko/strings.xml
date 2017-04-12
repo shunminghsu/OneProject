@@ -78,4 +78,11 @@
     <string name="more">파일 더보기</string>
     <string name="photo_size">크기</string>
     <string name="loading">Now loading</string>
+    <string name="backup_doc">파일</string>
+    <string name="fail">작업이 중단되었습니다</string>
+    <string name="info_other">기타</string>
+    <string name="info_path">경로:</string>
+    <string name="info_size">크기:</string>
+    <string name="info_title">정보</string>
+    <string name="info_type">유형:</string>
 </resources>

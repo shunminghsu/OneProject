@@ -78,4 +78,11 @@
     <string name="more">更多</string>
     <string name="photo_size">大小</string>
     <string name="loading">加载中</string>
+    <string name="backup_doc">文件</string>
+    <string name="fail">操作失败</string>
+    <string name="info_other">其他</string>
+    <string name="info_path">路径:</string>
+    <string name="info_size">大小:</string>
+    <string name="info_title">信息</string>
+    <string name="info_type">类型:</string>
 </resources>

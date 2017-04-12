@@ -78,7 +78,6 @@
     <string name="backup_doc">文件</string>
     <string name="documenttree_guide">請依照下面三步驟取得裝置權限</string>
     <string name="documenttree_guide_title">需要權限寫入</string>
-    <string name="fail">失敗</string>
     <string name="free">可用空間</string>
     <string name="illegal_name">不正確的字元</string>
     <string name="info_file_number_computing">計算中\u2026</string>
@@ -100,4 +99,10 @@
     <string name="no_otg">OTG 不存在</string>
     <string name="no_sd">SD 卡不存在</string>
     <string name="loading">讀取中</string>
+    <string name="fail">動作失敗</string>
+    <string name="info_other">其他</string>
+    <string name="info_path">路徑:</string>
+    <string name="info_size">大小:</string>
+    <string name="info_title">資訊</string>
+    <string name="info_type">類型:</string>
 </resources>

@@ -78,4 +78,11 @@
     <string name="more">Altri</string>
     <string name="photo_size">Per Dimensione</string>
     <string name="loading">Now loading</string>
+    <string name="backup_doc">File</string>
+    <string name="fail">Processo Fallito</string>
+    <string name="info_other">Altri</string>
+    <string name="info_path">Percorso:</string>
+    <string name="info_size">Per Dimensione:</string>
+    <string name="info_title">Informazioni</string>
+    <string name="info_type">Per Tipo:</string>
 </resources>
