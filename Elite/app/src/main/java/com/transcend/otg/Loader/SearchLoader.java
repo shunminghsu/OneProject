@@ -171,7 +171,7 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     String TEXT = "text";
     String VIDEO = "video";
     String AUDIO = "audio";
-    String ENCRYPT = "enc";
+    String ENCRYPT = ".enc";
     String DIR = "directory";
     String PNG = "png";
     String JPG = "jpg";
@@ -209,10 +209,10 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         item.type = Constant.TYPE_MUSIC;
                     } else if (type.contains(TEXT) || type.contains(PDF) || type.contains(WORD) || type.contains(PPT) || type.contains(EXCEL)) {
                         item.type = Constant.TYPE_DOC;
-                    } else if (name.contains(ENCRYPT)) {
-                        item.type = Constant.TYPE_ENCRYPT;
                     } else if (type.contains(DIR)) {
                         item.type = Constant.TYPE_DIR;
+                    } else if (name.contains(ENCRYPT)) {
+                        item.type = Constant.TYPE_ENCRYPT;
                     } else {
                         item.type = Constant.TYPE_OTHER_FILE;
                     }

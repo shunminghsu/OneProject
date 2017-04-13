@@ -413,10 +413,8 @@ public class SearchResults extends Fragment {
         public void onBindViewHolder(ViewHolder holder, int position) {
             FileInfo fileInfo = mList.get(position);
 
-            if (fileInfo.type == Constant.TYPE_DIR || fileInfo.type == Constant.TYPE_OTHER_FILE || fileInfo.type == Constant.TYPE_DOC)
-                holder.title.setText(fileInfo.name);
-            else
-                holder.title.setText(fileInfo.name.substring(0, fileInfo.name.lastIndexOf(".")));
+            holder.title.setText(fileInfo.name);
+
             if (holder.subtitle != null)
                 holder.subtitle.setText(fileInfo.time);
 
@@ -538,6 +536,7 @@ public class SearchResults extends Fragment {
         mQuery = newQuery;
         if (TextUtils.isEmpty(mQuery)) {
             mResultsAdapter.clear();
+            cancelSearch();
             mShowResults = false;
             setResultsVisibility(false);
             updateSuggestions();
@@ -548,6 +547,13 @@ public class SearchResults extends Fragment {
         }
 
         return true;
+    }
+
+    private void cancelSearch() {
+        if (getLoaderManager().getLoader(477) != null) {
+            mLoading.setVisibility(View.GONE);
+            getLoaderManager().getLoader(477).cancelLoad();
+        }
     }
 
     private void updateSearchResults() {

@@ -76,6 +76,9 @@ public class PhotoActivity extends AppCompatActivity {
     private RelativeLayout mRootLayout;
     private static final int SD_PERMISSION_REQUEST_CODE = 2017;
     private static final int EDIT_REQUEST_CODE = 101;
+    private static final int ACTION_RESULT_DEFAUT = 0;
+    private static final int ACTION_RESULT_FILE_EXIST = 1;
+    private static final int ACTION_RESULT_NEED_PERMISSION = 2;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -151,8 +154,6 @@ public class PhotoActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.delete:
-                if (!checkSDWritePermission())
-                    return false;
                 ArrayList<FileInfo> deleteOneFiles = new ArrayList<FileInfo>();
                 deleteOneFiles.add(fileinfo);
                 new LocalDeleteDialog(this, deleteOneFiles) {
@@ -174,8 +175,6 @@ public class PhotoActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.action_rename:
-                if (!checkSDWritePermission())
-                    return false;
                 new LocalRenameDialog(this,false, fileinfo.name) {
                     @Override
                     public void onConfirm(String newName) {
@@ -204,7 +203,9 @@ public class PhotoActivity extends AppCompatActivity {
         if(requestCode == SD_PERMISSION_REQUEST_CODE && resultCode == RESULT_OK){
             Uri uriTree = data.getData();
             if(checkSD(uriTree)){
-                //Log.d("henry", "checkSD OK");
+                createDialog(mContext, "get permission success");
+            } else {
+                createDialog(mContext, "get permission fail");
             }
         } else if(requestCode == DestinationActivity.REQUEST_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
@@ -430,6 +431,7 @@ public class PhotoActivity extends AppCompatActivity {
 
     private class DeleteTask extends AsyncTask<Void, Void, Boolean> {
         private final FileInfo mFileInfo;
+        int result_code = ACTION_RESULT_DEFAUT;
 
         public DeleteTask(FileInfo fileInfo) {
             mFileInfo = fileInfo;
@@ -442,6 +444,10 @@ public class PhotoActivity extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             if (mFileInfo.storagemode != Constant.STORAGEMODE_LOCAL) {
+                if (mFileInfo.storagemode == Constant.STORAGEMODE_SD && !hasSDPermission()) {
+                    result_code = ACTION_RESULT_NEED_PERMISSION;
+                    return false;
+                }
                 DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
                 return dfile.delete();
             } else {
@@ -467,13 +473,19 @@ public class PhotoActivity extends AppCompatActivity {
                     FileInfo fileInfo = mPhotoList.get(mPosition);
                     mToolBarTitle.setText(fileInfo.name.substring(0, fileInfo.name.lastIndexOf(".")));
                 }
+            } else {
+                if (result_code == ACTION_RESULT_NEED_PERMISSION) {
+                    intentDocumentTreeSD();
+                } else {
+                    createDialog(mContext, "Delete Fail");
+                }
             }
         }
     }
 
     private class RenameTask extends AsyncTask<String, Void, Boolean> {
         private final FileInfo mFileInfo;
-        int result_code = 0;
+        int result_code = ACTION_RESULT_DEFAUT;
         String mimeType;//be used for sendBroadcast Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
         private String mNewDisplayName;
         File mNewFile;//be used for sendBroadcast Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
@@ -493,20 +505,22 @@ public class PhotoActivity extends AppCompatActivity {
                     mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
                 DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
                 if (dfile.getParentFile().findFile(mNewDisplayName) != null) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 return dfile.renameTo(mNewDisplayName);
             } else if (mFileInfo.storagemode == Constant.STORAGEMODE_SD || mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
+                if (mFileInfo.storagemode == Constant.STORAGEMODE_SD && !hasSDPermission()) {
+                    result_code = ACTION_RESULT_NEED_PERMISSION;
+                    return false;
+                }
                 File f = new File(mFileInfo.path);
                 File parent = f.getParentFile();
                 File f2 = new File(parent, mNewDisplayName);
                 mNewFile = f2;
-                if (mFileInfo.storagemode == Constant.STORAGEMODE_SD && !checkSDWritePermission())
-                    return false;
                 DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
                 if (dfile.getParentFile().findFile(mNewDisplayName) != null) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 mimeType = dfile.getType();
@@ -517,7 +531,7 @@ public class PhotoActivity extends AppCompatActivity {
                 File f2 = new File(parent, mNewDisplayName);
                 mNewFile = f2;
                 if (f2.exists()) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 return f.renameTo(f2);
@@ -551,7 +565,11 @@ public class PhotoActivity extends AppCompatActivity {
                     //photoPath.setText(mNewFile.getPath());
                 }
             } else {
-                createFailDialog(mContext, result_code == 1 ? "File exist" : "Fail");
+                if (result_code == ACTION_RESULT_NEED_PERMISSION) {
+                    intentDocumentTreeSD();
+                } else {
+                    createDialog(mContext, result_code == ACTION_RESULT_FILE_EXIST ? "File exist" : "Fail");
+                }
             }
         }
     }
@@ -560,7 +578,7 @@ public class PhotoActivity extends AppCompatActivity {
         FileInfo mSource;
         DocumentFile desDfile;//for sendBroadcast Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
         int mDesStorageMode;
-        int result_code = 0;
+        int result_code = ACTION_RESULT_DEFAUT;
         String mDesDirPath;
         File mNewFile;//for sendBroadcast Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
         boolean mDeleteSource;//use for move action
@@ -588,8 +606,10 @@ public class PhotoActivity extends AppCompatActivity {
                 return copyFile(new File(mSource.path), mNewFile);
             } else if (mSource.storagemode == Constant.STORAGEMODE_LOCAL &&
                     mDesStorageMode == Constant.STORAGEMODE_SD) {//local to sd
-                if (!checkSDWritePermission())
+                if (!hasSDPermission()) {
+                    result_code = ACTION_RESULT_NEED_PERMISSION;
                     return false;
+                }
                 DocumentFile destDDir = findDocumentFilefromPath(mDesDirPath, sdPath, Constant.mSDRootDocumentFile);
 
                 if (destDDir.findFile(mSource.name) != null) {
@@ -612,8 +632,10 @@ public class PhotoActivity extends AppCompatActivity {
                 return copydFile(new File(mSource.path), destDDir.createFile("image", mSource.name));
             } else if (mSource.storagemode == Constant.STORAGEMODE_SD &&
                     mDesStorageMode == Constant.STORAGEMODE_LOCAL) {//sd to local
-                if (!checkSDWritePermission())
+                if (mDeleteSource && !hasSDPermission()) {
+                    result_code = ACTION_RESULT_NEED_PERMISSION;
                     return false;
+                }
                 DocumentFile sourceDfile = FileFactory.findDocumentFilefromName(mContext, mSource);
 
                 File parent = new File(mDesDirPath);
@@ -626,8 +648,10 @@ public class PhotoActivity extends AppCompatActivity {
                 return copydFile(sourceDfile, mNewFile);
             } else if (mSource.storagemode == Constant.STORAGEMODE_SD &&
                     mDesStorageMode == Constant.STORAGEMODE_SD) {//sd to sd
-                if (!checkSDWritePermission())
+                if (!hasSDPermission()) {
+                    result_code = ACTION_RESULT_NEED_PERMISSION;
                     return false;
+                }
                 DocumentFile sourceDfile = FileFactory.findDocumentFilefromName(mContext, mSource);
                 DocumentFile destDDir = findDocumentFilefromPath(mDesDirPath, sdPath, Constant.mSDRootDocumentFile);
                 if (destDDir.findFile(mSource.name) != null) {
@@ -640,8 +664,10 @@ public class PhotoActivity extends AppCompatActivity {
                 return copydFile(sourceDfile, destDDir.createFile("image", mSource.name));
             } else if (mSource.storagemode == Constant.STORAGEMODE_SD &&
                     mDesStorageMode == Constant.STORAGEMODE_OTG) {//sd to otg
-                if (!checkSDWritePermission())
+                if (mDeleteSource && !hasSDPermission()) {
+                    result_code = ACTION_RESULT_NEED_PERMISSION;
                     return false;
+                }
                 DocumentFile sourceDfile = FileFactory.findDocumentFilefromName(mContext, mSource);
                 DocumentFile destDDir = params[0];
                 if (destDDir.findFile(mSource.name) != null) {
@@ -664,10 +690,11 @@ public class PhotoActivity extends AppCompatActivity {
                 return copydFile(sourceDfile, mNewFile);
             } else if (mSource.storagemode == Constant.STORAGEMODE_OTG &&
                     mDesStorageMode == Constant.STORAGEMODE_SD) {//otg to sd
-
-                DocumentFile sourceDfile = FileFactory.findDocumentFilefromName(mContext, mSource);
-                if (!checkSDWritePermission())
+                if (!hasSDPermission()) {
+                    result_code = ACTION_RESULT_NEED_PERMISSION;
                     return false;
+                }
+                DocumentFile sourceDfile = FileFactory.findDocumentFilefromName(mContext, mSource);
                 DocumentFile destDDir = findDocumentFilefromPath(mDesDirPath, sdPath, Constant.mSDRootDocumentFile);
 
                 if (destDDir.findFile(mSource.name) != null) {
@@ -732,9 +759,13 @@ public class PhotoActivity extends AppCompatActivity {
                     FileInfo fileInfo = mPhotoList.get(mPosition);
                     mToolBarTitle.setText(fileInfo.name.substring(0, fileInfo.name.lastIndexOf(".")));
                 }
-                createFailDialog(mContext, "Action finish");
+                createDialog(mContext, "Action finish");
             } else {
-                createFailDialog(mContext, result_code == 1 ? "File exist" : "Fail");
+                if (result_code == ACTION_RESULT_NEED_PERMISSION) {
+                    intentDocumentTreeSD();
+                } else {
+                    createDialog(mContext, result_code == 1 ? "File exist" : "Fail");
+                }
             }
         }
 
@@ -851,17 +882,15 @@ public class PhotoActivity extends AppCompatActivity {
         }
     }
 
-    private boolean checkSDWritePermission(){
+    private boolean hasSDPermission(){
         String uid = FileFactory.getSDCardUniqueId();
         String sdKey = LocalPreferences.getSDKey(mContext, uid);
         if(sdKey != ""){
             Uri uriSDKey = Uri.parse(sdKey);
             Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
             return true;
-        }else{
-            intentDocumentTreeSD();
-            return false;
         }
+        return false;
     }
 
     private void intentDocumentTreeSD() {
@@ -928,17 +957,12 @@ public class PhotoActivity extends AppCompatActivity {
         dialog.getWindow().setLayout(dialog_size, dialog_size);
     }
 
-    private void createFailDialog(Context context, final String message) {
+    private void createDialog(Context context, final String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setIcon(R.mipmap.ic_info_gray);
 
         builder.setMessage(message);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                MediaScannerConnection.scanFile(mContext, new String[]{message}, new String[]{"image/*"}, null);
-            }
-        });
+        builder.setPositiveButton(android.R.string.ok, null);
         AlertDialog dialog = builder.create();
         dialog.show();
     }
@@ -960,8 +984,6 @@ public class PhotoActivity extends AppCompatActivity {
             if (view == mInfoView) {
                 createInfoDialog(mContext, fileinfo, MainActivity.mScreenW);
             } else if (view == mDeleteView) {
-                if (!checkSDWritePermission())
-                    return;
                 ArrayList<FileInfo> deleteOneFiles = new ArrayList<FileInfo>();
                 deleteOneFiles.add(fileinfo);
                 new LocalDeleteDialog(mContext, deleteOneFiles) {
