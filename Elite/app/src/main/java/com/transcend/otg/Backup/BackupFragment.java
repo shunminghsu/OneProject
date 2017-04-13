@@ -27,6 +27,7 @@ import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
+import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalBackuptoOTGLoader;
@@ -210,7 +211,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                             doBackup();
                             break;
                         case 2:
-                            intentDocumentTree();
+                            preGuideDialog("otg");
                             break;
                     }
                 }else if(radioButtonSD.isChecked()){
@@ -219,7 +220,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                         if(checkSDWritePermission()){
                             doBackup();
                         }else {
-                            intentDocumentTreeSD();
+                            preGuideDialog("sd");
                         }
                     }else
                         snackBarShow(R.string.no_sd);
@@ -345,6 +346,18 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
 
     private void snackBarShow(int resId) {
         Snackbar.make(root, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+    }
+
+    private void preGuideDialog(String type) {
+        new PreGuideDialog(mContext, type){
+            @Override
+            public void onConfirm(String type) {
+                if(type.equals("otg"))
+                    intentDocumentTree();
+                else if(type.equals("sd"))
+                    intentDocumentTreeSD();
+            }
+        };
     }
 
     private void intentDocumentTree() {

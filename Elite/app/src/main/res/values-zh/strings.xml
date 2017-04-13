@@ -105,4 +105,6 @@
     <string name="info_size">大小:</string>
     <string name="info_title">資訊</string>
     <string name="info_type">類型:</string>
+    <string name="preguide_message">由於Android版本上的限制，若要對檔案執行存取，則必須您提供裝置的權限給Elite，以便進行操作。</string>
+    <string name="preguide_knowhow">如何獲取</string>
 </resources>

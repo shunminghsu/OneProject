@@ -67,6 +67,7 @@ import com.transcend.otg.Dialog.OTGEncryptDialog;
 import com.transcend.otg.Dialog.OTGRenameDialog;
 import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
+import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDDecryptDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Feedback.FeedbackFragment;
@@ -139,7 +140,7 @@ public class MainActivity extends AppCompatActivity
     private FloatingActionButton mFab;
     private ActionMode mActionMode;
     private RelativeLayout mActionModeView;
-    private TextView mActionModeTitle, mToolbarTitle;
+    public TextView mActionModeTitle, mToolbarTitle;
     private int nowAction;
     private Calendar calendar;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss");
@@ -238,7 +239,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 
-                    intentDocumentTree();
+                    preGuideDialog("otg");
                 }
 
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
@@ -310,7 +311,7 @@ public class MainActivity extends AppCompatActivity
         unregisterReceiver(usbReceiver);
     }
 
-    private void showHomeOrFragment(boolean home) {
+    public void showHomeOrFragment(boolean home) {
         if (home) {
             home_container.setVisibility(View.VISIBLE);
             container.setVisibility(View.GONE);
@@ -541,13 +542,13 @@ public class MainActivity extends AppCompatActivity
         if (devices.length > 0) {
             device = devices[0];
             String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
-            if(otgKey != "" || otgKey == null){
+            if(otgKey != ""){
                 Uri uriTree = Uri.parse(otgKey);
                 if(checkStorage(uriTree, false)){
                     replaceFragment(otgFragment);
                 }
             }else{
-                intentDocumentTree();
+                preGuideDialog("otg");
             }
         }
     }
@@ -646,13 +647,13 @@ public class MainActivity extends AppCompatActivity
         }
         device = devices[0];
         String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
-        if(otgKey != "" || otgKey == null){
+        if(otgKey != ""){
             Uri uriTree = Uri.parse(otgKey);
             if(checkStorage(uriTree, false)){
                 replaceFragment(otgFragment);
             }
         }else{
-            intentDocumentTree();
+            preGuideDialog("otg");
         }
     }
 
@@ -665,7 +666,7 @@ public class MainActivity extends AppCompatActivity
             Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
             return true;
         }else{
-            intentDocumentTreeSD();
+            preGuideDialog("sd");
             return false;
         }
     }
@@ -1031,6 +1032,18 @@ public class MainActivity extends AppCompatActivity
 
     private void snackBarShow(int resId) {
         Snackbar.make(main_relativeLayout, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+    }
+
+    private void preGuideDialog(String type) {
+        new PreGuideDialog(this, type){
+            @Override
+            public void onConfirm(String type) {
+                if(type.equals("otg"))
+                    intentDocumentTree();
+                else if(type.equals("sd"))
+                    intentDocumentTreeSD();
+            }
+        };
     }
 
     private void intentDocumentTree() {

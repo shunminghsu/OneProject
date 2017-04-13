@@ -37,6 +37,7 @@ import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.DestinationActivity;
 import com.transcend.otg.Dialog.LocalDeleteDialog;
 import com.transcend.otg.Dialog.LocalRenameDialog;
+import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
@@ -475,7 +476,7 @@ public class PhotoActivity extends AppCompatActivity {
                 }
             } else {
                 if (result_code == ACTION_RESULT_NEED_PERMISSION) {
-                    intentDocumentTreeSD();
+                    preGuideDialog("sd");
                 } else {
                     createDialog(mContext, "Delete Fail");
                 }
@@ -566,7 +567,7 @@ public class PhotoActivity extends AppCompatActivity {
                 }
             } else {
                 if (result_code == ACTION_RESULT_NEED_PERMISSION) {
-                    intentDocumentTreeSD();
+                    preGuideDialog("sd");
                 } else {
                     createDialog(mContext, result_code == ACTION_RESULT_FILE_EXIST ? "File exist" : "Fail");
                 }
@@ -762,7 +763,7 @@ public class PhotoActivity extends AppCompatActivity {
                 createDialog(mContext, "Action finish");
             } else {
                 if (result_code == ACTION_RESULT_NEED_PERMISSION) {
-                    intentDocumentTreeSD();
+                    preGuideDialog("sd");
                 } else {
                     createDialog(mContext, result_code == 1 ? "File exist" : "Fail");
                 }
@@ -893,6 +894,16 @@ public class PhotoActivity extends AppCompatActivity {
         return false;
     }
 
+    private void preGuideDialog(String type) {
+        new PreGuideDialog(this, type){
+            @Override
+            public void onConfirm(String type) {
+                if(type.equals("sd"))
+                    intentDocumentTreeSD();
+            }
+        };
+    }
+
     private void intentDocumentTreeSD() {
         new SDPermissionGuideDialog(this) {
             @Override
@@ -910,7 +921,7 @@ public class PhotoActivity extends AppCompatActivity {
             if (uri != null) {
                 if(uri.getPath().toString().split(":").length > 1){
                     snackBarShow(R.string.snackbar_plz_select_top);
-                    intentDocumentTreeSD();
+                    preGuideDialog("sd");
                 }else{
                     Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uri);//sd root path
                     getContentResolver().takePersistableUriPermission(uri,
@@ -926,7 +937,7 @@ public class PhotoActivity extends AppCompatActivity {
 
         }else {
             snackBarShow(R.string.snackbar_plz_select_sd);
-            intentDocumentTreeSD();
+            preGuideDialog("sd");
         }
         return false;
     }

@@ -24,6 +24,7 @@ import android.widget.Spinner;
 import com.jaredrummler.android.device.DeviceName;
 import com.transcend.otg.Dialog.EmptyNotificationDialog;
 import com.transcend.otg.Dialog.FeedbackOKDialog;
+import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 
@@ -207,7 +208,10 @@ public class FeedbackFragment extends Fragment {
                     new FeedbackOKDialog(mContext, true) {
                         @Override
                         public void onConfirm(Context mContext) {
-
+                            MainActivity activity = (MainActivity) getActivity();
+                            activity.setDrawerCheckItem(R.id.nav_home);
+                            activity.mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
+                            activity.showHomeOrFragment(true);
                         }
                     };
                     break;

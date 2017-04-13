@@ -8,9 +8,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.content.res.Configuration;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
@@ -24,32 +21,22 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.PopupWindow;
-import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Adapter.DestinationAdapter;
-import com.transcend.otg.Adapter.FolderExploreAdapter;
 import com.transcend.otg.Adapter.FolderExploreDropDownAdapter;
 import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Browser.BrowserFragment;
-import com.transcend.otg.Browser.NoOtgFragment;
-import com.transcend.otg.Browser.NoSdFragment;
 import com.transcend.otg.Browser.PagerSwipeRefreshLayout;
 import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
@@ -57,19 +44,15 @@ import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Dialog.LocalNewFolderDialog;
 import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
+import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
-import com.transcend.otg.Loader.LocalListLoader;
 import com.transcend.otg.Loader.LocalListOnlyFolderLoader;
-import com.transcend.otg.Loader.OTGFileLoader;
 import com.transcend.otg.Loader.OTGFileOnlyFolderLoader;
 import com.transcend.otg.Utils.FileFactory;
-import com.transcend.otg.Utils.FileInfoSort;
-import com.transcend.otg.Utils.MediaUtils;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -167,7 +150,7 @@ public class DestinationActivity extends AppCompatActivity
         } else {
             mSdButton.setOnClickListener(listener);
         }
-        if (Constant.rootUri == null) {
+        if (!initOTGButton()) {
             mOtgButton.setTextColor(getResources().getColor(R.color.colorGray));
         } else {
             mOtgButton.setOnClickListener(listener);
@@ -271,7 +254,7 @@ public class DestinationActivity extends AppCompatActivity
 
                 if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 
-                    intentDocumentTree();
+                    preGuideDialog("otg");
                 }
 
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
@@ -308,6 +291,19 @@ public class DestinationActivity extends AppCompatActivity
         }
     }
 
+    private boolean initOTGButton(){
+        UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(this);
+        UsbMassStorageDevice mDevice;
+        if(devices.length > 0){
+            mDevice = devices[0];
+            String otgKey = LocalPreferences.getOTGKey(this, mDevice.getUsbDevice().getSerialNumber());
+            if(otgKey != "")
+                return true;
+        }
+
+        return false;
+    }
+
     private void discoverDevice() {
         UsbManager usbManager = (UsbManager) this.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(this);
@@ -319,7 +315,7 @@ public class DestinationActivity extends AppCompatActivity
         }
         device = devices[0];
         String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
-        if(otgKey != "" || otgKey == null){
+        if(otgKey != ""){
             Uri uriTree = Uri.parse(otgKey);
             if(checkStorage(uriTree, false)) {
                 doLoadOTG(true);
@@ -330,7 +326,7 @@ public class DestinationActivity extends AppCompatActivity
                 doLoad(mPath);
             }
         }else{
-            intentDocumentTree();
+            preGuideDialog("otg");
         }
     }
 
@@ -406,6 +402,18 @@ public class DestinationActivity extends AppCompatActivity
         return false;
     }
 
+    private void preGuideDialog(String type) {
+        new PreGuideDialog(this, type){
+            @Override
+            public void onConfirm(String type) {
+                if(type.equals("otg"))
+                    intentDocumentTree();
+                else if(type.equals("sd"))
+                    intentDocumentTreeSD();
+            }
+        };
+    }
+
     private void intentDocumentTree() {
         new OTGPermissionGuideDialog(this) {
             @Override
@@ -443,7 +451,7 @@ public class DestinationActivity extends AppCompatActivity
             Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
             return true;
         }else{
-            intentDocumentTreeSD();
+            preGuideDialog("sd");
             return false;
         }
     }
