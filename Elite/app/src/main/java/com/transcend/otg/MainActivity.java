@@ -1,5 +1,8 @@
 package com.transcend.otg;
 
+import android.animation.Animator;
+import android.animation.LayoutTransition;
+import android.animation.ObjectAnimator;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
@@ -12,6 +15,7 @@ import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.internal.NavigationMenuView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -35,7 +39,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -93,15 +96,10 @@ import com.transcend.otg.Utils.EncryptUtils;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -159,6 +157,7 @@ public class MainActivity extends AppCompatActivity
     private MenuItem.OnMenuItemClickListener mCustomMenuItemClicked;
     private boolean mShowCustomMenuIcon = false;
 
+    private LayoutTransition mTransitioner;
     public static int mScreenW;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -171,6 +170,7 @@ public class MainActivity extends AppCompatActivity
         initHome();
         initFragment();
         initActionModeView();
+        initAnimation();
         FileFactory.getStoragePath(this);
     }
 
@@ -267,6 +267,10 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        NavigationMenuView navigationMenuView = (NavigationMenuView) navigationView.getChildAt(0);
+        if (navigationMenuView != null) {
+            navigationMenuView.setVerticalScrollBarEnabled(false);
+        }
     }
 
     private void initFragment() {
@@ -293,6 +297,17 @@ public class MainActivity extends AppCompatActivity
     private void initActionModeView() {
         mActionModeView = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.action_mode_custom, null);
         mActionModeTitle = (TextView) mActionModeView.findViewById(R.id.action_mode_custom_title);
+    }
+
+    private void initAnimation() {
+        mTransitioner = new  LayoutTransition();
+        ((ViewGroup)findViewById(R.id.main_relativelayout)).setLayoutTransition(mTransitioner);
+        Animator customAppearingAnim = ObjectAnimator.ofFloat(null, "alpha", 0f, 1f);
+        customAppearingAnim.setDuration(300);
+        mTransitioner.setAnimator(LayoutTransition.APPEARING, customAppearingAnim);
+        mTransitioner.setAnimator(LayoutTransition.DISAPPEARING, null);
+        mTransitioner.setAnimator(LayoutTransition.CHANGE_APPEARING, null);
+        mTransitioner.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, null);
     }
 
     @Override
@@ -901,6 +916,7 @@ public class MainActivity extends AppCompatActivity
         }
         FragmentManager fragmentManager = getSupportFragmentManager();
         android.support.v4.app.FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.anim.appear, 0);
         transaction.replace(R.id.fragment_container, fragment);
         transaction.commit();
     }

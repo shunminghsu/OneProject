@@ -36,7 +36,8 @@ public class ComputeFilsTotalSizeTask extends AsyncTask<String, Void, String> {
         if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
                 mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
             DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
-            return "";
+            long total_size = getDocumentFilsTotalSize(dfile);
+            return Formatter.formatFileSize(mContext, total_size);
         } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
                 mFileInfo.storagemode == Constant.STORAGEMODE_SD) {
             return getFilsTotalSize(mFileInfo.path);
@@ -79,5 +80,17 @@ public class ComputeFilsTotalSizeTask extends AsyncTask<String, Void, String> {
             return Formatter.formatFileSize(mContext, size);
         }
         return Formatter.formatFileSize(mContext, size);
+    }
+
+    private long getDocumentFilsTotalSize(DocumentFile dfile) {
+        long size = 0;
+        for (DocumentFile df : dfile.listFiles()) {
+            if (df.isDirectory()) {
+                size += getDocumentFilsTotalSize(df);
+            } else if (!df.getName().startsWith(".")) {
+                size += df.length();
+            }
+        }
+        return size;
     }
 }

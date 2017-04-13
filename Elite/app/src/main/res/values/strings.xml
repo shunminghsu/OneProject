@@ -53,8 +53,8 @@
     <string name="snackbar_plz_select_top">Please select the root folder.</string>
     <string name="no_otg">OTG is not found.</string>
     <string name="permission_guide_next">Next</string>
-    <string name="preguide_message">Because of Android version........</string>
-    <string name="preguide_knowhow">How to get</string>
+    <string name="preguide_message">"Due to limitations on the Android version, you must provide the device\'s permissions to Elite for access to the file"</string>
+    <string name="preguide_knowhow">How to provide</string>
 
     <!-- Fab -->
     <string name="more">More</string>
@@ -162,6 +162,4 @@
     <string name="menu_delete">Delete</string>
     <string name="menu_copy_to_clipboard">Copy</string>
     <string name="ask_exit">Are you sure you want to quit Transcend Elite?</string>
-
-
 </resources>

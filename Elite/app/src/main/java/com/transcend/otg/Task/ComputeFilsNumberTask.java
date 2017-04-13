@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 
 import java.io.File;
 
@@ -37,8 +38,9 @@ public class ComputeFilsNumberTask extends AsyncTask<String, Void, int[]> {
         int[] file_directory_numbers = {0, 0};
         if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
                 mFileInfo.storagemode == Constant.STORAGEMODE_OTG) {
-            Uri baseRootUri = DocumentsContract.buildChildDocumentsUriUsingTree(Constant.rootUri, DocumentsContract.getTreeDocumentId(Constant.rootUri));
-            getFilsNumber(baseRootUri, mFileInfo.path, file_directory_numbers);
+            //Uri baseRootUri = DocumentsContract.buildChildDocumentsUriUsingTree(Constant.rootUri, DocumentsContract.getTreeDocumentId(Constant.rootUri));
+            //getFilsNumber(baseRootUri, mFileInfo.path, file_directory_numbers);
+            getDocumentFilsNumber(mFileInfo, file_directory_numbers);
         } else if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
                 mFileInfo.storagemode == Constant.STORAGEMODE_SD) {
             getFilsDirNumber(mFileInfo.path, file_directory_numbers);
@@ -70,15 +72,30 @@ public class ComputeFilsNumberTask extends AsyncTask<String, Void, int[]> {
         }
     }
 
-    private void getFilsNumber(DocumentFile dfile, int number) {
-        for (DocumentFile file : dfile.listFiles()) {
-            if (file.isDirectory())
-                getFilsNumber(file, number);
-            else
-                number++;
+    private void getFilsNumber(DocumentFile dfile, int[] _file_directory_numbers) {
+        for (DocumentFile df : dfile.listFiles()) {
+            if (df.isDirectory()) {
+                getFilsNumber(df, _file_directory_numbers);
+                _file_directory_numbers[1]++;
+            } else {
+                _file_directory_numbers[0]++;
+            }
         }
     }
 
+    private void getDocumentFilsNumber(FileInfo fileInfo,  int[] _file_directory_numbers) {
+        DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, fileInfo);
+
+        for (DocumentFile df : dfile.listFiles()) {
+            if (df.isDirectory()) {
+                getFilsNumber(df, _file_directory_numbers);
+                _file_directory_numbers[1]++;
+            } else {
+                _file_directory_numbers[0]++;
+            }
+        }
+    }
+/*
     private void getFilsNumber(Uri _rootUri, String folder_path, int[] _file_directory_numbers) {
         String[] proj = {
                 DocumentsContract.Document.COLUMN_DOCUMENT_ID,
@@ -102,7 +119,7 @@ public class ComputeFilsNumberTask extends AsyncTask<String, Void, int[]> {
         }
         cursor.close();
     }
-
+*/
     private void getFilsDirNumber(String folder_path, int[] _file_directory_numbers) {
         int f_number = 0;
         int d_number = 0;

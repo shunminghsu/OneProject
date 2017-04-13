@@ -64,33 +64,34 @@
             android:visibility="invisible"
             android:src="@mipmap/ic_delete_white"/>
     </LinearLayout>
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/bottom_toolbar"
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+
         <ImageView
-            android:id="@+id/delete"
-            android:layout_width="0dp"
+            android:id="@+id/share"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_alignParentLeft="true"
             android:scaleType="fitCenter"
-            android:src="@mipmap/ic_delete_white"/>
+            android:src="@mipmap/ic_share_white"/>
         <ImageView
             android:id="@+id/information"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_centerInParent="true"
             android:scaleType="fitCenter"
             android:src="@mipmap/ic_info_white"/>
         <ImageView
-            android:id="@+id/share"
-            android:layout_width="0dp"
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_alignParentRight="true"
             android:scaleType="fitCenter"
-            android:src="@mipmap/ic_share_white"/>
+            android:src="@mipmap/ic_delete_white"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 </RelativeLayout>
