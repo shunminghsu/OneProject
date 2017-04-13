@@ -135,8 +135,8 @@ public class LocalActionService extends FileActionService{
     }
 
     @Override
-    protected AsyncTaskLoader copyLocaltoOTGEncrypt(Context context, List<String> list, ArrayList<DocumentFile> dFiles) {
-        return new LocalCopytoOTGEncryptLoader(context, list, dFiles);
+    protected AsyncTaskLoader copyLocaltoOTGEncrypt(Context context, List<String> list, ArrayList<DocumentFile> dFiles, String path) {
+        return new LocalCopytoOTGEncryptLoader(context, list, dFiles, path);
     }
 
     @Override

@@ -7,6 +7,7 @@ import android.content.AsyncTaskLoader;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,6 +15,7 @@ import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.MathUtils;
 
@@ -39,12 +41,20 @@ public class LocalCopytoOTGEncryptLoader extends AsyncTaskLoader<Boolean> {
     private Runnable mWatcher;
     private DocumentFile mDesDocumentFile;
     private List<String> mSrcFile;
+    private boolean b_SDCard = false;
+    private String destinationPath;
 
-    public LocalCopytoOTGEncryptLoader(Context context, List<String> src, ArrayList<DocumentFile> des) {
+    public LocalCopytoOTGEncryptLoader(Context context, List<String> src, ArrayList<DocumentFile> des, String path) {
         super(context);
         mActivity = (Activity) context;
         mSrcFile = src;
         mDesDocumentFile = des.get(0);
+        if (Constant.mSDRootDocumentFile != null) {
+            if (mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())) {
+                b_SDCard = true;
+                destinationPath = path;
+            }
+        }
     }
 
     @Override
@@ -76,6 +86,10 @@ public class LocalCopytoOTGEncryptLoader extends AsyncTaskLoader<Boolean> {
     private void copyDirectoryTask(Context context, File srcFileItem, DocumentFile destFileItem) throws IOException {
         String name = createUniqueFoloderName(srcFileItem, destFileItem);
         DocumentFile destDirectory = destFileItem.createDirectory(name);
+        if(b_SDCard){
+            String sdPath = destinationPath + File.separator + name;
+            MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destDirectory.getType()}, null);
+        }
         File[] files = srcFileItem.listFiles();
         for (File file : files) {
             if (file.isDirectory()) {
@@ -94,6 +108,11 @@ public class LocalCopytoOTGEncryptLoader extends AsyncTaskLoader<Boolean> {
         int total = (int) srcFileItem.length();
         startProgressWatcher(destFile, total);
         copyFile(context, srcFileItem, destFile);
+        if(b_SDCard){
+            String sdPath = destinationPath + File.separator + srcFileItem.getName();
+            MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destFile.getType()}, null);
+            //mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(destinationPath))));
+        }
         closeProgressWatcher();
         updateProgress(destFile.getName(), total, total);
     }

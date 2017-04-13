@@ -1351,15 +1351,8 @@ public class MainActivity extends AppCompatActivity
     public void onLoaderReset(Loader<Boolean> loader) {}
 
     private void doOTGEncryptDialog() {
-        Log.d("henry","doOTGEncryptDialog");
         ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
-        /*final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
-        ArrayList<String> names = new ArrayList<String>();
-        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
-        for (FileInfo file : allFiles) {
-            if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
-                names.add(file.name.toLowerCase());
-        }*/
+        EncryptUtils.clearAllEncryptUtils();
         new OTGEncryptDialog(this, selectedFiles) {
             @Override
             public void onConfirm(String newName, String password, ArrayList<DocumentFile> mSelectedDFiles) {
@@ -1423,7 +1416,7 @@ public class MainActivity extends AppCompatActivity
                 String copyToSDPath = EncryptUtils.getCopyToSDPath() != null ? EncryptUtils.getCopyToSDPath() : sdPath;
                 ArrayList<FileInfo> files = createListFileInfoFromPath(copyToSDPath);
                 ArrayList<DocumentFile> destinationDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
-                mFileActionManager.copyFromLocaltoOTGEncrypt(selectedFiles, destinationDFiles);
+                mFileActionManager.copyFromLocaltoOTGEncrypt(selectedFiles, destinationDFiles, copyToSDPath);
             }
         }else {
             String getLocalEncryptFilePath = EncryptUtils.getAfterEncryptPath();
@@ -1436,18 +1429,12 @@ public class MainActivity extends AppCompatActivity
                 tmpDFile = Constant.mRootDocumentFile;
             ArrayList<DocumentFile> destinationDFiles = new ArrayList<>();
             destinationDFiles.add(tmpDFile);
-            mFileActionManager.copyFromLocaltoOTGEncrypt(selectedFiles, destinationDFiles);
+            mFileActionManager.copyFromLocaltoOTGEncrypt(selectedFiles, destinationDFiles, "");
         }
     }
 
     private void doSDEncryptDialog(){
-        /*final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
-        List<String> names = new ArrayList<String>();
-        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
-        for (FileInfo file : allFiles) {
-            if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
-                names.add(file.name.toLowerCase());
-        }*/
+        EncryptUtils.clearAllEncryptUtils();
         new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
@@ -1497,13 +1484,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void doLocalEncryptDialog() {
-        /*final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
-        List<String> names = new ArrayList<String>();
-        ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
-        for (FileInfo file : allFiles) {
-            if (file.name.endsWith(getResources().getString(R.string.encrypt_subfilename)))
-                names.add(file.name.toLowerCase());
-        }*/
+        EncryptUtils.clearAllEncryptUtils();
         new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
@@ -1558,6 +1539,7 @@ public class MainActivity extends AppCompatActivity
             if (file.type == Constant.TYPE_DIR)
                 folderNames.add(file.name.toLowerCase());
         }
+        DecryptUtils.clearAllDecryptUtils();
         new LocalDecryptDialog(this, folderNames, selectedFile.path) {
             @Override
             public void onConfirm(String newFolderpath, String password, String filePath) {
@@ -1584,6 +1566,7 @@ public class MainActivity extends AppCompatActivity
         }
         ArrayList<FileInfo> selectedFile = new ArrayList<>();
         selectedFile.add(clickFile);
+        DecryptUtils.clearAllDecryptUtils();
         new SDDecryptDialog(this, folderNames, selectedFile){
             @Override
             public void onConfirm(String newFolderName, String password, ArrayList<DocumentFile> selectedDFiles) {
@@ -1634,6 +1617,7 @@ public class MainActivity extends AppCompatActivity
         }
         ArrayList<FileInfo> selectedFile = new ArrayList<>();
         selectedFile.add(clickFile);
+        DecryptUtils.clearAllDecryptUtils();
         new OTGDecryptDialog(this, folderNames, selectedFile){
             @Override
             public void onConfirm(String newFolderName, String password, ArrayList<DocumentFile> selectedDFiles) {

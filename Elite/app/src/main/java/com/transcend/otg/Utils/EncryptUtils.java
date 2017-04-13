@@ -19,6 +19,17 @@ public class EncryptUtils {
     public static ArrayList<FileInfo> selectLocalFile = new ArrayList<FileInfo>();
     public static String copyToSDPath = "";
 
+    public static void clearAllEncryptUtils(){
+        selectedDocumentFile = new ArrayList<DocumentFile>();
+        afterEncryptDFile = null;
+        encryptFileName = "";
+        password = "";
+        afterEncryptPath = "";
+        beforeEncryptPath = "";
+        selectLocalFile = new ArrayList<FileInfo>();
+        copyToSDPath = "";
+    }
+
     public static String getCopyToSDPath() {
         return copyToSDPath;
     }

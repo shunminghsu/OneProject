@@ -360,7 +360,7 @@ public abstract class FileActionService {
             case ENCRYPT_OTG:
                 return encryptOTG(context, paths);
             case COPY_LOCAL_OTG_ENCRYPT:
-                return copyLocaltoOTGEncrypt(context, paths, dFiles);
+                return copyLocaltoOTGEncrypt(context, paths, dFiles, path);
             case NEWFOLDER_DECRYPT_OTG:
                 return newFolderDecryptOTG(context, path);
             case COPY_OTG_LOCAL_DECRYPT:
@@ -452,7 +452,7 @@ public abstract class FileActionService {
 
     protected abstract AsyncTaskLoader encryptOTG(Context context, List<String> list);
 
-    protected abstract AsyncTaskLoader copyLocaltoOTGEncrypt(Context context, List<String> list, ArrayList<DocumentFile> dFiles);
+    protected abstract AsyncTaskLoader copyLocaltoOTGEncrypt(Context context, List<String> list, ArrayList<DocumentFile> dFiles, String path);
 
     protected abstract AsyncTaskLoader newFolderDecryptOTG(Context context, String path);
 

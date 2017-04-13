@@ -165,12 +165,12 @@ public class FileActionManager {
         createLoader(FileActionService.FileAction.COPY_LOCAL_OTG, null, destinationPath, paths, null, destinationDFiles, null);
     }
 
-    public void copyFromLocaltoOTGEncrypt(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles){
+    public void copyFromLocaltoOTGEncrypt(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String path){
         ArrayList<String> paths = new ArrayList<>();
         for (FileInfo info : selectedFiles) {
             paths.add(info.path);
         }
-        createLoader(FileActionService.FileAction.COPY_LOCAL_OTG_ENCRYPT, null, null, paths, null, destinationDFiles, null);
+        createLoader(FileActionService.FileAction.COPY_LOCAL_OTG_ENCRYPT, null, path, paths, null, destinationDFiles, null);
     }
 
     public void copyFromLocaltoOTGDecrypt(ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles){
