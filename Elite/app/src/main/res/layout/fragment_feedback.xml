@@ -7,107 +7,112 @@
     android:background="@color/colorLightLightGray"
     android:orientation="vertical">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/feedback_title_name"
-            android:textColor="@color/colorDarkGray"
-            android:paddingLeft="@dimen/feedback_padding"
-            android:textSize="@dimen/storage_text_size" />
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/input_layout_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorWhite">
-
-            <EditText
-                android:id="@+id/input_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textLongMessage"
-                android:maxLines="1" />
-        </android.support.design.widget.TextInputLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/feedback_title_email"
-            android:paddingLeft="@dimen/feedback_padding"
-            android:textColor="@color/colorDarkGray"
-            android:textSize="@dimen/storage_text_size" />
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/input_layout_email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorWhite">
-
-            <EditText
-                android:id="@+id/input_email"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textEmailAddress" />
-        </android.support.design.widget.TextInputLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/feedback_title_device"
-            android:paddingLeft="@dimen/feedback_padding"
-            android:textColor="@color/colorDarkGray"
-            android:textSize="@dimen/storage_text_size" />
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/input_layout_device"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorWhite">
-
-            <EditText
-                android:id="@+id/input_device"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textLongMessage" />
-        </android.support.design.widget.TextInputLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/feedback_title_region"
-            android:paddingLeft="@dimen/feedback_padding"
-            android:textColor="@color/colorDarkGray"
-            android:textSize="@dimen/storage_text_size" />
-
-        <Spinner
-            android:id="@+id/spinner_region"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/colorWhite"></Spinner>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/feedback_title_description"
-            android:paddingLeft="@dimen/feedback_padding"
-            android:textColor="@color/colorDarkGray"
-            android:textSize="@dimen/storage_text_size" />
-
-        <EditText
-            android:id="@+id/input_message"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/colorWhite"
-            android:gravity="top"
-            android:inputType="textMultiLine" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/feedback_padding"
+                android:text="@string/feedback_title_name"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/storage_text_size" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorWhite">
+
+                <EditText
+                    android:id="@+id/input_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textLongMessage"
+                    android:maxLines="1" />
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/feedback_padding"
+                android:text="@string/feedback_title_email"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/storage_text_size" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorWhite">
+
+                <EditText
+                    android:id="@+id/input_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress" />
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/feedback_padding"
+                android:text="@string/feedback_title_device"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/storage_text_size" />
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_layout_device"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorWhite">
+
+                <EditText
+                    android:id="@+id/input_device"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textLongMessage" />
+            </android.support.design.widget.TextInputLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/feedback_padding"
+                android:text="@string/feedback_title_region"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/storage_text_size" />
+
+            <Spinner
+                android:id="@+id/spinner_region"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorWhite"></Spinner>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="@dimen/feedback_padding"
+                android:text="@string/feedback_title_description"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/storage_text_size" />
+
+            <EditText
+                android:id="@+id/input_message"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/colorWhite"
+                android:gravity="top"
+                android:inputType="textMultiLine" />
 
 
-    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
     <RelativeLayout
         android:layout_width="match_parent"

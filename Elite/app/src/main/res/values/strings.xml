@@ -53,6 +53,8 @@
     <string name="snackbar_plz_select_top">Please select the root folder.</string>
     <string name="no_otg">OTG is not found.</string>
     <string name="permission_guide_next">Next</string>
+    <string name="preguide_message">Because of Android version........</string>
+    <string name="preguide_knowhow">How to get</string>
 
     <!-- Fab -->
     <string name="more">More</string>

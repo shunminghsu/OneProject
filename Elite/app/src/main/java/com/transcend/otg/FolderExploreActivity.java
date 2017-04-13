@@ -1152,7 +1152,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 tmpFile.path = getLocalEncryptFilePath + getResources().getString(R.string.encrypt_subfilename);
                 ArrayList<FileInfo> selectedFiles = new ArrayList<>();
                 selectedFiles.add(tmpFile);
-                String copyToSDPath = EncryptUtils.getCopyToSDPath() != null ? EncryptUtils.getCopyToSDPath() : sdPath;
+                String copyToSDPath = EncryptUtils.getCopyToSDPath() != "" ? EncryptUtils.getCopyToSDPath() : sdPath;
                 ArrayList<FileInfo> files = createListFileInfoFromPath(copyToSDPath);
                 ArrayList<DocumentFile> destinationDFiles = FileFactory.findDocumentFilefromPathSD(files, sdPath, Constant.Activity);
                 mFileActionManager.copyFromLocaltoOTGEncrypt(selectedFiles, destinationDFiles, copyToSDPath);

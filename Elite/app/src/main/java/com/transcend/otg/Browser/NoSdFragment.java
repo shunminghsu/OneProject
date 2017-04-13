@@ -31,7 +31,7 @@ public class NoSdFragment extends Fragment{
 
         final View view = inflater.inflate(R.layout.no_outer_storage_layout, container, false);
         ((ImageView)view.findViewById(R.id.no_outer_storage)).setBackgroundResource(R.drawable.img_notfoundpic_sd);
-        ((TextView)view.findViewById(R.id.no_storage_title)).setText(R.string.no_sd);
+//        ((TextView)view.findViewById(R.id.no_storage_title)).setText(R.string.no_sd);
         (view.findViewById(R.id.check_btn)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
