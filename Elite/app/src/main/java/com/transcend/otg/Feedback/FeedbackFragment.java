@@ -21,7 +21,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 
 
-import com.jaredrummler.android.device.DeviceName;
+
 import com.transcend.otg.Dialog.EmptyNotificationDialog;
 import com.transcend.otg.Dialog.FeedbackOKDialog;
 import com.transcend.otg.MainActivity;
