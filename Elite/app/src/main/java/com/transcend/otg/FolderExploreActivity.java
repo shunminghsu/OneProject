@@ -55,6 +55,7 @@ import com.transcend.otg.Dialog.OTGDeleteDialog;
 import com.transcend.otg.Dialog.OTGEncryptDialog;
 import com.transcend.otg.Dialog.OTGRenameDialog;
 import com.transcend.otg.Dialog.OTGNewFolderDialog;
+import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDDecryptDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Loader.FileActionManager;
@@ -438,9 +439,19 @@ public class FolderExploreActivity extends AppCompatActivity
             Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
             return true;
         }else{
-            intentDocumentTreeSD();
+            preGuideDialog("sd");
             return false;
         }
+    }
+
+    private void preGuideDialog(String type) {
+        new PreGuideDialog(this, type){
+            @Override
+            public void onConfirm(String type) {
+                if(type.equals("sd"))
+                    intentDocumentTreeSD();
+            }
+        };
     }
 
     private void intentDocumentTreeSD() {
@@ -559,7 +570,7 @@ public class FolderExploreActivity extends AppCompatActivity
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                         String uid = FileFactory.getSDCardUniqueId();
                         LocalPreferences.setSDKey(this, uid, uri.toString());
-                        Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
+                        Constant.mCurrentDocumentFileExplore = Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
                         return true;
                     }else{
                         snackBarShow(R.string.snackbar_plz_select_sd);
@@ -576,9 +587,12 @@ public class FolderExploreActivity extends AppCompatActivity
     private void doAction(){
         switch (nowAction){
             case R.id.menu_new_folder:
-                ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
-                tmpDFiles.add(rootDir);
-                ActionParameter.dFiles = tmpDFiles;
+                String sdPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                FileInfo tmpFile = new FileInfo();
+                tmpFile.path = ActionParameter.path;
+                ArrayList<FileInfo> tmpFileList = new ArrayList<>();
+                tmpFileList.add(tmpFile);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(tmpFileList, sdPath, Constant.Activity);
                 mFileActionManager.newFolderOTG(ActionParameter.name, ActionParameter.dFiles);
                 break;
             case R.id.action_delete:
