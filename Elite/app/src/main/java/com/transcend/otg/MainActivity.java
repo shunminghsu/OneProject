@@ -1249,6 +1249,7 @@ public class MainActivity extends AppCompatActivity
                 ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
                 tmpDFiles.add(rootDir);
                 ActionParameter.dFiles = tmpDFiles;
+                ActionParameter.path = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 mFileActionManager.newFolderOTG(ActionParameter.name, ActionParameter.dFiles);
                 break;
             case R.id.action_delete:
