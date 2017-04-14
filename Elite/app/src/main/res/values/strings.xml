@@ -97,6 +97,7 @@
     <string name="decrypting">Decrypting</string>
     <string name="filename">Decrypt Folder Name</string>
     <string name="password_incorrect">Incorrect password</string>
+    <string name="file_exist">This location already has a file with the same name</string>
 
     <!-- File information -->
     <string name="info_title">Information</string>

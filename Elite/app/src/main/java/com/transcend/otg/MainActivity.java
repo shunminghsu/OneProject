@@ -170,7 +170,6 @@ public class MainActivity extends AppCompatActivity
         initHome();
         initFragment();
         initActionModeView();
-        initAnimation();
         FileFactory.getStoragePath(this);
     }
 
@@ -297,17 +296,6 @@ public class MainActivity extends AppCompatActivity
     private void initActionModeView() {
         mActionModeView = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.action_mode_custom, null);
         mActionModeTitle = (TextView) mActionModeView.findViewById(R.id.action_mode_custom_title);
-    }
-
-    private void initAnimation() {
-        mTransitioner = new  LayoutTransition();
-        ((ViewGroup)findViewById(R.id.main_relativelayout)).setLayoutTransition(mTransitioner);
-        Animator customAppearingAnim = ObjectAnimator.ofFloat(null, "alpha", 0f, 1f);
-        customAppearingAnim.setDuration(300);
-        mTransitioner.setAnimator(LayoutTransition.APPEARING, customAppearingAnim);
-        mTransitioner.setAnimator(LayoutTransition.DISAPPEARING, null);
-        mTransitioner.setAnimator(LayoutTransition.CHANGE_APPEARING, null);
-        mTransitioner.setAnimator(LayoutTransition.CHANGE_DISAPPEARING, null);
     }
 
     @Override

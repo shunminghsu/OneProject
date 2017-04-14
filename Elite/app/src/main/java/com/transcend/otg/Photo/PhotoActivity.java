@@ -478,7 +478,7 @@ public class PhotoActivity extends AppCompatActivity {
                 if (result_code == ACTION_RESULT_NEED_PERMISSION) {
                     preGuideDialog("sd");
                 } else {
-                    createDialog(mContext, "Delete Fail");
+                    createDialog(mContext, "Fail");
                 }
             }
         }
@@ -569,7 +569,8 @@ public class PhotoActivity extends AppCompatActivity {
                 if (result_code == ACTION_RESULT_NEED_PERMISSION) {
                     preGuideDialog("sd");
                 } else {
-                    createDialog(mContext, result_code == ACTION_RESULT_FILE_EXIST ? "File exist" : "Fail");
+                    String exist = getResources().getString(R.string.file_exist);
+                    createDialog(mContext, result_code == ACTION_RESULT_FILE_EXIST ? exist : "Fail");
                 }
             }
         }
@@ -600,7 +601,7 @@ public class PhotoActivity extends AppCompatActivity {
                 File parent = new File(mDesDirPath);
                 File f2 = new File(parent, mSource.name);
                 if (f2.exists()) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 mNewFile = f2;
@@ -614,7 +615,7 @@ public class PhotoActivity extends AppCompatActivity {
                 DocumentFile destDDir = findDocumentFilefromPath(mDesDirPath, sdPath, Constant.mSDRootDocumentFile);
 
                 if (destDDir.findFile(mSource.name) != null) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 File parent = new File(mDesDirPath);
@@ -627,7 +628,7 @@ public class PhotoActivity extends AppCompatActivity {
 
                 DocumentFile destDDir = params[0];
                 if (destDDir.findFile(mSource.name) != null) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 return copydFile(new File(mSource.path), destDDir.createFile("image", mSource.name));
@@ -642,7 +643,7 @@ public class PhotoActivity extends AppCompatActivity {
                 File parent = new File(mDesDirPath);
                 File f2 = new File(parent, mSource.name);
                 if (f2.exists()) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 mNewFile = f2;
@@ -656,7 +657,7 @@ public class PhotoActivity extends AppCompatActivity {
                 DocumentFile sourceDfile = FileFactory.findDocumentFilefromName(mContext, mSource);
                 DocumentFile destDDir = findDocumentFilefromPath(mDesDirPath, sdPath, Constant.mSDRootDocumentFile);
                 if (destDDir.findFile(mSource.name) != null) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 File parent = new File(mDesDirPath);
@@ -672,7 +673,7 @@ public class PhotoActivity extends AppCompatActivity {
                 DocumentFile sourceDfile = FileFactory.findDocumentFilefromName(mContext, mSource);
                 DocumentFile destDDir = params[0];
                 if (destDDir.findFile(mSource.name) != null) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 return copydFile(sourceDfile, destDDir.createFile("image", mSource.name));
@@ -684,7 +685,7 @@ public class PhotoActivity extends AppCompatActivity {
                 File parent = new File(mDesDirPath);
                 File f2 = new File(parent, mSource.name);
                 if (f2.exists()) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 mNewFile = f2;
@@ -699,7 +700,7 @@ public class PhotoActivity extends AppCompatActivity {
                 DocumentFile destDDir = findDocumentFilefromPath(mDesDirPath, sdPath, Constant.mSDRootDocumentFile);
 
                 if (destDDir.findFile(mSource.name) != null) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 File parent = new File(mDesDirPath);
@@ -713,7 +714,7 @@ public class PhotoActivity extends AppCompatActivity {
                 DocumentFile destDDir = params[0];
 
                 if (destDDir.findFile(mSource.name) != null) {
-                    result_code = 1;
+                    result_code = ACTION_RESULT_FILE_EXIST;
                     return false;
                 }
                 return copydFile(sourceDfile, destDDir.createFile("image", mSource.name));
@@ -760,12 +761,13 @@ public class PhotoActivity extends AppCompatActivity {
                     FileInfo fileInfo = mPhotoList.get(mPosition);
                     mToolBarTitle.setText(fileInfo.name.substring(0, fileInfo.name.lastIndexOf(".")));
                 }
-                createDialog(mContext, "Action finish");
+                //createDialog(mContext, "Action finish");
             } else {
                 if (result_code == ACTION_RESULT_NEED_PERMISSION) {
                     preGuideDialog("sd");
                 } else {
-                    createDialog(mContext, result_code == 1 ? "File exist" : "Fail");
+                    String exist = getResources().getString(R.string.file_exist);
+                    createDialog(mContext, result_code == ACTION_RESULT_FILE_EXIST ? exist : "Fail");
                 }
             }
         }
@@ -970,8 +972,8 @@ public class PhotoActivity extends AppCompatActivity {
 
     private void createDialog(Context context, final String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setIcon(R.mipmap.ic_info_gray);
-
+        builder.setIcon(R.mipmap.icon_elite_logo);
+        builder.setTitle(context.getResources().getString(R.string.app_name));
         builder.setMessage(message);
         builder.setPositiveButton(android.R.string.ok, null);
         AlertDialog dialog = builder.create();
