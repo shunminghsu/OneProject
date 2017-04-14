@@ -333,9 +333,12 @@ public class DestinationActivity extends AppCompatActivity
     private void doAction(){
         switch (nowAction) {
             case R.id.menu_new_folder:
-                ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
-                tmpDFiles.add(rootDir);
-                ActionParameter.dFiles = tmpDFiles;
+                String sdPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                FileInfo tmpFile = new FileInfo();
+                tmpFile.path = ActionParameter.path;
+                ArrayList<FileInfo> tmpFileList = new ArrayList<>();
+                tmpFileList.add(tmpFile);
+                ActionParameter.dFiles = FileFactory.findDocumentFilefromPathSD(tmpFileList, sdPath, Constant.Activity);
                 mFileActionManager.newFolderOTG(ActionParameter.name, ActionParameter.dFiles);
                 break;
         }
@@ -355,7 +358,7 @@ public class DestinationActivity extends AppCompatActivity
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                         String uid = FileFactory.getSDCardUniqueId();
                         LocalPreferences.setSDKey(this, uid, uri.toString());
-                        Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
+                        Constant.mCurrentDocumentFileDestination = Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = rootDir;
                         return true;
                     }else{
                         snackBarShow(R.string.snackbar_plz_select_sd);
