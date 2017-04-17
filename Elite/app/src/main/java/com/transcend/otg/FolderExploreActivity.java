@@ -1375,7 +1375,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 folderNames.add(file.name.toLowerCase());
         }
         ActionParameter.path = mPath;
-        new OTGNewFolderDialog(this, folderNames, Constant.Activity) {
+        new OTGNewFolderDialog(this, folderNames, Constant.Activity, false) {
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
                 if(bSDCard){

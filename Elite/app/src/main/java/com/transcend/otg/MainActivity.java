@@ -1721,7 +1721,7 @@ public class MainActivity extends AppCompatActivity
             if (file.type == Constant.TYPE_DIR)
                 folderNames.add(file.name.toLowerCase());
         }
-        new OTGNewFolderDialog(this, folderNames, Constant.Activity) {
+        new OTGNewFolderDialog(this, folderNames, Constant.Activity, false) {
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
                 if(bSDCard){
