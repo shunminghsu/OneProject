@@ -7,10 +7,12 @@ import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.support.v4.provider.DocumentFile;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.R;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,6 +32,20 @@ public class OTGRenameLoader extends AsyncTaskLoader<Boolean> {
         mContext = context;
         mNewName = name;
         mSelectFiles = dFile;
+
+        DocumentFile dfile = mSelectFiles.get(0);
+        if (dfile.exists()) {
+            if (dfile.getParentFile().findFile(mNewName) != null) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setIcon(R.mipmap.icon_elite_logo);
+                builder.setTitle(context.getResources().getString(R.string.app_name));
+                String exist = context.getResources().getString(R.string.file_exist);
+                builder.setMessage(exist);
+                builder.setPositiveButton(android.R.string.ok, null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        }
     }
 
     @Override

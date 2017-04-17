@@ -4,6 +4,9 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
+
+import com.transcend.otg.R;
 
 import java.io.File;
 
@@ -23,6 +26,20 @@ public class LocalRenameLoader extends AsyncTaskLoader<Boolean> {
         mContext = context;
         mPath = path;
         mName = name;
+
+        File target = new File(mPath);
+        File parent = target.getParentFile();
+        File rename = new File(parent, mName);
+        if (rename.exists()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+            builder.setIcon(R.mipmap.icon_elite_logo);
+            builder.setTitle(mContext.getResources().getString(R.string.app_name));
+            String exist = mContext.getResources().getString(R.string.file_exist);
+            builder.setMessage(exist);
+            builder.setPositiveButton(android.R.string.ok, null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }
 
     @Override

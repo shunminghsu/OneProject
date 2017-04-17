@@ -27,7 +27,7 @@ import java.io.File;
 
 public class PhotoHelper {
     private final Context mContext;
-
+    private static final String TAG = "PhotoHelper";
 
     public PhotoHelper(Context context) {
         mContext = context;
@@ -121,7 +121,7 @@ public class PhotoHelper {
         try {
             bitmap = BitmapFactory.decodeFile(path, options);
         } catch (OutOfMemoryError e) {
-            Log.d("henry", "oom " + e.getMessage());
+            Log.d(TAG, "oom " + e.getMessage());
         }
         return bitmap;
     }

@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -47,6 +48,19 @@ public class LocalEncryptLoader extends AsyncTaskLoader<Boolean> {
         mDes = encryptList.get(1);
         mPassword = encryptList.get(2);
         mNotificationID = FileFactory.getInstance().getNotificationID();
+
+        String dst = mDes + mActivity.getString(R.string.encrypt_subfilename);
+        File check_file = new File(dst);
+        if (check_file.exists()) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setIcon(R.mipmap.icon_elite_logo);
+            builder.setTitle(context.getResources().getString(R.string.app_name));
+            String exist = context.getResources().getString(R.string.file_exist);
+            builder.setMessage(exist);
+            builder.setPositiveButton(android.R.string.ok, null);
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }
 
     @Override

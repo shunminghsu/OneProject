@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.v4.provider.DocumentFile;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
@@ -48,11 +49,27 @@ public class LocalCopytoOTGEncryptLoader extends AsyncTaskLoader<Boolean> {
         super(context);
         mActivity = (Activity) context;
         mSrcFile = src;
+        Log.d("henry","mSrcFile size: "+mSrcFile.size());
         mDesDocumentFile = des.get(0);
         if (Constant.mSDRootDocumentFile != null) {
             if (mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())) {
                 b_SDCard = true;
                 destinationPath = path;
+            }
+        }
+        if (mSrcFile.size() != 1) {
+            //should not happened
+        } else {
+            File source = new File(mSrcFile.get(0));
+            if (mDesDocumentFile.findFile(source.getName()) != null) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setIcon(R.mipmap.icon_elite_logo);
+                builder.setTitle(context.getResources().getString(R.string.app_name));
+                String exist = context.getResources().getString(R.string.file_exist);
+                builder.setMessage(exist);
+                builder.setPositiveButton(android.R.string.ok, null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
             }
         }
     }
@@ -104,6 +121,10 @@ public class LocalCopytoOTGEncryptLoader extends AsyncTaskLoader<Boolean> {
         FileNameMap fileNameMap = URLConnection.getFileNameMap();
         String type = fileNameMap.getContentTypeFor(srcFileItem.getAbsolutePath());
         if (type == null) type = "";
+        if (destFileItem.findFile(srcFileItem.getName()) != null) {
+            Log.d("henry","file exist");
+            return;
+        }
         DocumentFile destFile = destFileItem.createFile(type, srcFileItem.getName());
         int total = (int) srcFileItem.length();
         startProgressWatcher(destFile, total);
