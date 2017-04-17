@@ -52,7 +52,7 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
     }
 
     private void initNames(){
-        if(Constant.nowMODE == Constant.MODE.SD){
+        if(mFiles.get(0).storagemode == 1){
             String uid = FileFactory.getSDCardUniqueId();
             String sdKey = LocalPreferences.getSDKey(mContext, uid);
             if(sdKey != ""){
@@ -83,7 +83,7 @@ public abstract class OTGRenameDialog implements TextWatcher, View.OnClickListen
                     mName = name;
                 }
             }
-        }else if(Constant.nowMODE == Constant.MODE.OTG){
+        }else if(mFiles.get(0).storagemode == 2){
             if(bFromName)
                 mDFiles = FileFactory.findDocumentFilefromName(mFiles, Constant.Activity);
             else{

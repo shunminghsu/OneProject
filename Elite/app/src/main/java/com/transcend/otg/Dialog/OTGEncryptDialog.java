@@ -46,9 +46,9 @@ public abstract class OTGEncryptDialog implements TextWatcher, View.OnClickListe
     }
 
     private void init(){
-        if(Constant.nowMODE == Constant.MODE.SD){
+        if(mSelectedFiles.get(0).storagemode == 1){
 
-        }else if(Constant.nowMODE == Constant.MODE.OTG){
+        }else if(mSelectedFiles.get(0).storagemode == 2){
             String otgPath = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
             mSelectedDFiles = FileFactory.findDocumentFilefromPathOTG(mSelectedFiles, otgPath, Constant.Activity);
         }
