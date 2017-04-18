@@ -525,11 +525,17 @@ public class MainActivity extends AppCompatActivity
     public void onItemClick(int count) {
         updateActionModeTitle(count);
         toggleActionModeAction(count);
-//        int totalCount = getBrowserFragment().getItemsCount();
-//        if(totalCount == count)
-//            toggleFabSelectAll(true);
-//        else
-//            toggleFabSelectAll(false);
+        if(getBrowserFragment()!=null){
+            int totalCount = getBrowserFragment().getItemsCount();
+            if(totalCount == count)
+                toggleFabSelectAll(true);
+            else
+                toggleFabSelectAll(false);
+        }else if(((SearchResults) getFragment()) != null){
+            boolean b_SelectAll = ((SearchResults) getFragment()).getSelectedAllorNot();
+            toggleFabSelectAll(b_SelectAll);
+        }
+
     }
 
     @Override

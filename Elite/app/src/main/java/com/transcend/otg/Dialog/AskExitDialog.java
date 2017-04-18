@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.R;
@@ -39,6 +40,8 @@ public abstract class AskExitDialog implements View.OnClickListener {
         builder.setPositiveButton(R.string.yes, null);
         builder.setCancelable(true);
         mDialog = builder.show();
+        TextView tv = (TextView) mDialog.findViewById(R.id.message);
+        tv.setText(message);
         mDlgBtnPos = mDialog.getButton(DialogInterface.BUTTON_POSITIVE);
         mDlgBtnPos.setOnClickListener(this);
     }
