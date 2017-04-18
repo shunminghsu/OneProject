@@ -18,7 +18,7 @@ public class FileInfoSort {
     public static Comparator<FileInfo> comparator(Context context) {
         int sort = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
         boolean sortAsc = LocalPreferences.getPref(context,
-                LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS) == Constant.SORT_ORDER_AS;
+                LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_DES) == Constant.SORT_ORDER_AS;
         if (sort == Constant.SORT_BY_DATE)
             return sortAsc ? new FileInfoSort.byDate() : new FileInfoSort.byReverseDate();
         else if (sort == Constant.SORT_BY_NAME)

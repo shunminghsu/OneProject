@@ -114,7 +114,7 @@ public class DestinationActivity extends AppCompatActivity
         initBroadcast();
         initData();
         mOriginalSortValue = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
-        mOriginalSortOrderValue = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS);
+        mOriginalSortOrderValue = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_DES);
         LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_NAME);
         LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS);
     }

@@ -204,9 +204,9 @@ public class PhotoActivity extends AppCompatActivity {
         if(requestCode == SD_PERMISSION_REQUEST_CODE && resultCode == RESULT_OK){
             Uri uriTree = data.getData();
             if(checkSD(uriTree)){
-                createDialog(mContext, "get permission success");
+                //createDialog(mContext, "get permission success");
             } else {
-                createDialog(mContext, "get permission fail");
+                //createDialog(mContext, "get permission fail");
             }
         } else if(requestCode == DestinationActivity.REQUEST_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
@@ -663,7 +663,8 @@ public class PhotoActivity extends AppCompatActivity {
                 File parent = new File(mDesDirPath);
                 File f2 = new File(parent, mSource.name);
                 mNewFile = f2;
-                return copydFile(sourceDfile, destDDir.createFile("image", mSource.name));
+                desDfile = destDDir.createFile("image", mSource.name);
+                return copydFile(sourceDfile, desDfile);
             } else if (mSource.storagemode == Constant.STORAGEMODE_SD &&
                     mDesStorageMode == Constant.STORAGEMODE_OTG) {//sd to otg
                 if (mDeleteSource && !hasSDPermission()) {
@@ -706,7 +707,8 @@ public class PhotoActivity extends AppCompatActivity {
                 File parent = new File(mDesDirPath);
                 File f2 = new File(parent, mSource.name);
                 mNewFile = f2;
-                return copydFile(sourceDfile, destDDir.createFile("image", mSource.name));
+                desDfile = destDDir.createFile("image", mSource.name);
+                return copydFile(sourceDfile, desDfile);
             } else if (mSource.storagemode == Constant.STORAGEMODE_OTG &&
                     mDesStorageMode == Constant.STORAGEMODE_OTG) {//otg to otg
 

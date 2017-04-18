@@ -84,45 +84,34 @@ public class OTGCopyLoader extends AsyncTaskLoader<Boolean> {
     }
 
     private void copyDirectoryTask(Context context, DocumentFile srcFileItem, DocumentFile destFileItem) throws IOException {
-        try {
-            if (srcFileItem.length() > 0 && destFileItem.length() > 0) {
-                DocumentFile destDirectory = destFileItem.createDirectory(srcFileItem.getName());
-                if(b_SDCard){
-                    String sdPath = destinationPath + File.separator + srcFileItem.getName();
-                    MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destDirectory.getType()}, null);
-                }
-                DocumentFile[] files = srcFileItem.listFiles();
-                for (DocumentFile file : files) {
-                    if (file.isDirectory()) {
-                        copyDirectoryTask(mActivity, file, destDirectory);
-                    } else {//is file
-                        copyFileTask(mActivity, file, destDirectory);
-                    }
-                }
+
+        DocumentFile destDirectory = destFileItem.createDirectory(srcFileItem.getName());
+        if(b_SDCard){
+            String sdPath = destinationPath + File.separator + srcFileItem.getName();
+            MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destDirectory.getType()}, null);
+        }
+        DocumentFile[] files = srcFileItem.listFiles();
+        for (DocumentFile file : files) {
+            if (file.isDirectory()) {
+                copyDirectoryTask(mActivity, file, destDirectory);
+            } else {//is file
+                copyFileTask(mActivity, file, destDirectory);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
     private void copyFileTask(Context context, DocumentFile srcFileItem, DocumentFile destFileItem) throws IOException {
 
-        if (srcFileItem.length() > 0 && destFileItem.length() > 0) {
-            try {
-                DocumentFile destfile = destFileItem.createFile(srcFileItem.getType(), srcFileItem.getName());
-                int total = (int) srcFileItem.length();
-                startProgressWatcher(destfile, total);
-                copyFile(context, srcFileItem, destfile);
-                if(b_SDCard){
-                    String sdPath = destinationPath + File.separator + srcFileItem.getName();
-                    MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destfile.getType()}, null);
-                }
-                closeProgressWatcher();
-                updateProgress(destfile.getName(), total, total);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        DocumentFile destfile = destFileItem.createFile(srcFileItem.getType(), srcFileItem.getName());
+        int total = (int) srcFileItem.length();
+        startProgressWatcher(destfile, total);
+        copyFile(context, srcFileItem, destfile);
+        if(b_SDCard){
+            String sdPath = destinationPath + File.separator + srcFileItem.getName();
+            MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destfile.getType()}, null);
         }
+        closeProgressWatcher();
+        updateProgress(destfile.getName(), total, total);
     }
 
     public boolean copyFile(Context context, DocumentFile srcFileItem, DocumentFile destFileItem) throws IOException {

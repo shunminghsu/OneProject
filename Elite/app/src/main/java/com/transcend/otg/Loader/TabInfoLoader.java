@@ -76,7 +76,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     public ArrayList<FileInfo> loadInBackground() {
         mSortBy = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
         mSortOrderAsc = LocalPreferences.getPref(mContext,
-                LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS) == Constant.SORT_ORDER_AS;
+                LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_DES) == Constant.SORT_ORDER_AS;
         mFileList.clear();
         switch (mType) {
             case BrowserFragment.LIST_TYPE_IMAGE:

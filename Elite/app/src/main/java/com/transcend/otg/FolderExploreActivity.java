@@ -1669,7 +1669,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 updateScreen();
             } else {
                 boolean sortOrderAsc = LocalPreferences.getPref(mContext,
-                        LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS) == Constant.SORT_ORDER_AS;
+                        LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_DES) == Constant.SORT_ORDER_AS;
                 LocalPreferences.setPref(mContext, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, sortOrderAsc ? Constant.SORT_ORDER_DES : Constant.SORT_ORDER_AS);
                 Collections.sort(mFileList, FileInfoSort.comparator(mContext));
                 if (!v.getTag().equals("size"))
@@ -1724,7 +1724,7 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private String getSortArrow(Context context) {
-        int order = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_AS);
+        int order = LocalPreferences.getPref(context, LocalPreferences.BROWSER_SORT_ORDER_PREFIX, Constant.SORT_ORDER_DES);
         if (order == Constant.SORT_ORDER_AS) {
             return context.getResources().getString(R.string.top_arrow);
         } else {
