@@ -17,6 +17,7 @@ public class DecryptUtils {
     public static String password = "";
     public static String afterDecryptPath = "";
     public static String beforeDecryptPath = "";
+    public static ArrayList<FileInfo> selectedFileList = new ArrayList<>();
 
     public static void clearAllDecryptUtils(){
         selectedDocumentFile = new ArrayList<DocumentFile>();
@@ -25,6 +26,15 @@ public class DecryptUtils {
         password = "";
         afterDecryptPath = "";
         beforeDecryptPath = "";
+        selectedFileList = new ArrayList<>();
+    }
+
+    public static ArrayList<FileInfo> getSelectedFileList() {
+        return selectedFileList;
+    }
+
+    public static void setSelectedFileList(ArrayList<FileInfo> selectedFileList) {
+        DecryptUtils.selectedFileList = selectedFileList;
     }
 
     public static String getCopyToSDPath() {

@@ -27,37 +27,35 @@ import java.util.ArrayList;
  */
 public abstract class SDDecryptDialog implements View.OnClickListener, TextWatcher {
 
-    public abstract void onConfirm(String newFolderName, String password, ArrayList<DocumentFile> selectedDFiles);
+    public abstract void onConfirm(String newFolderName, String password);
 
     private Context mContext;
     private AlertDialog mDialog;
     private Button mDlgBtnPos;
     private TextInputLayout mFieldFolderName, mFieldPassword;
-    private ArrayList<FileInfo> mFiles;
 
     private ArrayList<String> mFolderNames;
-    private ArrayList<DocumentFile> mSelectedDFiles;
+//    private ArrayList<DocumentFile> mSelectedDFiles;
 
-    public SDDecryptDialog(Context context, ArrayList<String> folderNames, ArrayList<FileInfo> files) {
+    public SDDecryptDialog(Context context, ArrayList<String> folderNames) {
         mContext = context;
         mFolderNames = folderNames;
-        mFiles = files;
-        init();
+//        init();
         initDialog();
         initFieldName();
     }
 
-    private void init(){
-        String uid = FileFactory.getSDCardUniqueId();
-        String sdKey = LocalPreferences.getSDKey(mContext, uid);
-        if(sdKey != ""){
-            Uri uriSDKey = Uri.parse(sdKey);
-            DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
-            Constant.mCurrentDocumentFileExplore = Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
-            String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
-            mSelectedDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, Constant.Activity);
-        }
-    }
+//    private void init(){
+//        String uid = FileFactory.getSDCardUniqueId();
+//        String sdKey = LocalPreferences.getSDKey(mContext, uid);
+//        if(sdKey != ""){
+//            Uri uriSDKey = Uri.parse(sdKey);
+//            DocumentFile tmpDFile = DocumentFile.fromTreeUri(mContext, uriSDKey);
+//            Constant.mCurrentDocumentFileExplore = Constant.mSDRootDocumentFile = Constant.mSDCurrentDocumentFile = tmpDFile;
+//            String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+//            mSelectedDFiles = FileFactory.findDocumentFilefromPathSD(mFiles, sdPath, Constant.Activity);
+//        }
+//    }
 
     private void initDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -92,7 +90,7 @@ public abstract class SDDecryptDialog implements View.OnClickListener, TextWatch
             String name = mFieldFolderName.getEditText().getText().toString();
             String password = mFieldPassword.getEditText().getText().toString();
             password = getPassword(password);
-            onConfirm(name, password, mSelectedDFiles);
+            onConfirm(name, password);
             mDialog.dismiss();
         }else{
             mDialog.dismiss();

@@ -514,6 +514,7 @@ public class MainActivity extends AppCompatActivity
             }else if(Constant.nowMODE == Constant.MODE.OTG){
                 doOTGDecryptDialog(file);
             }else if(Constant.nowMODE == Constant.MODE.SD){
+                nowAction = R.id.dialog_decrypt_name;
                 doSDDecryptDialog(file);
             }
         }
@@ -1290,6 +1291,12 @@ public class MainActivity extends AppCompatActivity
             case R.id.action_encrypt:
                 doSDEncryptNewFolder();
                 break;
+            case R.id.dialog_decrypt_name:
+                String sdPathDecrypt = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                ArrayList<DocumentFile> mSelectedDFiles = FileFactory.findDocumentFilefromPathSD(DecryptUtils.getSelectedFileList(), sdPathDecrypt, Constant.Activity);
+                DecryptUtils.setSelectedDocumentFile(mSelectedDFiles);
+                doSDDecryptNewFolder();
+                break;
             default:
                 break;
         }
@@ -1565,6 +1572,7 @@ public class MainActivity extends AppCompatActivity
 
     private void doSDDecryptDialog(FileInfo clickFile){
         final int tabPostiion = getBrowserFragment().getCurrentTabPosition();
+        DecryptUtils.clearAllDecryptUtils();
         ArrayList<String> folderNames = new ArrayList<String>();
         ArrayList<FileInfo> allFiles = getBrowserFragment().getAllFiles();
         for (FileInfo file : allFiles) {
@@ -1573,18 +1581,27 @@ public class MainActivity extends AppCompatActivity
         }
         ArrayList<FileInfo> selectedFile = new ArrayList<>();
         selectedFile.add(clickFile);
-        DecryptUtils.clearAllDecryptUtils();
-        new SDDecryptDialog(this, folderNames, selectedFile){
+        DecryptUtils.setSelectedFileList(selectedFile);
+
+        new SDDecryptDialog(this, folderNames){
             @Override
-            public void onConfirm(String newFolderName, String password, ArrayList<DocumentFile> selectedDFiles) {
-                if(tabPostiion == 5){
-                    DocumentFile child = selectedDFiles.get(0).getParentFile();
-                    DecryptUtils.setAfterDecryptDFile(child);
+            public void onConfirm(String newFolderName, String password) {
+                if(checkSDWritePermission()){
+                    String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                    ArrayList<DocumentFile> mSelectedDFiles = FileFactory.findDocumentFilefromPathSD(DecryptUtils.getSelectedFileList(), sdPath, Constant.Activity);
+                    if(tabPostiion == 5){
+                        DocumentFile child = mSelectedDFiles.get(0).getParentFile();
+                        DecryptUtils.setAfterDecryptDFile(child);
+                    }
+                    DecryptUtils.setSelectedDocumentFile(mSelectedDFiles);
+                    DecryptUtils.setDecryptFileName(newFolderName);
+                    DecryptUtils.setPassword(password);
+                    doSDDecryptNewFolder();
+                }else {
+                    DecryptUtils.setDecryptFileName(newFolderName);
+                    DecryptUtils.setPassword(password);
                 }
-                DecryptUtils.setSelectedDocumentFile(selectedDFiles);
-                DecryptUtils.setDecryptFileName(newFolderName);
-                DecryptUtils.setPassword(password);
-                doSDDecryptNewFolder();
+
             }
         };
     }
