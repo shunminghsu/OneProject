@@ -59,6 +59,10 @@ public class OTGFileLoader extends AsyncTaskLoader<Boolean> {
             if(Constant.mCurrentDocumentFileExplore == null){
                 dFile = DocumentFile.fromTreeUri(mContext, uri);
                 dFile = dFile.findFile(selectName);
+                if (dFile == null) {
+                    //Log.d("henry", "open otg folder from search page");
+                    dFile = FileFactory.findDocumentFilefromName(mContext, Constant.mCurrentFile);
+                }
             }else
                 dFile = Constant.mCurrentDocumentFileExplore;
         } else if(Constant.Activity == 2)
