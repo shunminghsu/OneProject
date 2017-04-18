@@ -49,7 +49,6 @@ public class LocalCopytoOTGEncryptLoader extends AsyncTaskLoader<Boolean> {
         super(context);
         mActivity = (Activity) context;
         mSrcFile = src;
-        Log.d("henry","mSrcFile size: "+mSrcFile.size());
         mDesDocumentFile = des.get(0);
         if (Constant.mSDRootDocumentFile != null) {
             if (mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())) {
@@ -122,7 +121,6 @@ public class LocalCopytoOTGEncryptLoader extends AsyncTaskLoader<Boolean> {
         String type = fileNameMap.getContentTypeFor(srcFileItem.getAbsolutePath());
         if (type == null) type = "";
         if (destFileItem.findFile(srcFileItem.getName()) != null) {
-            Log.d("henry","file exist");
             return;
         }
         DocumentFile destFile = destFileItem.createFile(type, srcFileItem.getName());

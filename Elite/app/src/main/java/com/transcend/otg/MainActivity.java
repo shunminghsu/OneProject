@@ -870,6 +870,8 @@ public class MainActivity extends AppCompatActivity
         } else if(id == R.id.nav_setting){
             mToolbarTitle.setText(getResources().getString(R.string.drawer_setting));
             showFragment(settingFragment);
+        }else if(id == R.id.nav_security){
+            mToolbarTitle.setText(getResources().getString(R.string.drawer_security));
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;

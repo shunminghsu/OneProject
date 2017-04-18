@@ -74,10 +74,8 @@ public class OTGEncryptLoader extends AsyncTaskLoader<Boolean> {
             fileList.add(file);
         }
         String dst = mDes + mActivity.getString(R.string.encrypt_subfilename);
-        Log.d("henry", "dst "+dst);
         File check_file = new File(dst);
         if (check_file.exists()) {
-            Log.d("henry", "same enc file exist");
             return false;
         }
         try {

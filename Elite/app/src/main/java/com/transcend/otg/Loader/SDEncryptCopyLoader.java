@@ -76,7 +76,6 @@ public class SDEncryptCopyLoader extends AsyncTaskLoader<Boolean> {
 
     private void copyDirectory(File source, String destination) throws IOException {
         String name = createUniqueName(source, destination);
-        Log.d("henry", "copyDirectory "+name);
         File target = new File(destination, name);
         target.mkdirs();
         mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(target)));
@@ -94,7 +93,6 @@ public class SDEncryptCopyLoader extends AsyncTaskLoader<Boolean> {
 
     private void copyFile(File source, String destination) throws IOException {
         String name = createUniqueName(source, destination);
-        Log.d("henry", "copyFile "+name);
         File target = new File(destination, name);
         int total = (int) source.length();
         startProgressWatcher(target, total);

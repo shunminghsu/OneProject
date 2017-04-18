@@ -100,8 +100,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         FileInfo fileInfo = mList.get(position);
         if (fileInfo.type == Constant.TYPE_DIR || fileInfo.type == Constant.TYPE_OTHER_FILE || fileInfo.type == Constant.TYPE_DOC)
             holder.title.setText(fileInfo.name);
-        else if (holder.viewType == Constant.ITEM_LIST || holder.info == null)
-            holder.title.setText(fileInfo.name.substring(0, fileInfo.name.lastIndexOf(".")));
+        else if (holder.viewType == Constant.ITEM_LIST || holder.info == null){
+            if(fileInfo.name != null){
+                holder.title.setText(fileInfo.name.substring(0, fileInfo.name.lastIndexOf(".")));
+            }else {
+                holder.title.setText("");
+            }
+        }
+
         else {//grid view: only show music name, don't show image and video
             if (fileInfo.type == Constant.TYPE_MUSIC)
                 holder.title.setText(fileInfo.name.substring(0, fileInfo.name.lastIndexOf(".")));
