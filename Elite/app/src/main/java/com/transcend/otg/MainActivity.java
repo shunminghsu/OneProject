@@ -171,7 +171,6 @@ public class MainActivity extends AppCompatActivity
         initHome();
         initFragment();
         initActionModeView();
-        FileFactory.getStoragePath(this);
     }
 
     private void init() {
@@ -1900,7 +1899,6 @@ public class MainActivity extends AppCompatActivity
         for (FileInfo fileinfo : selectedFiles) {
             new SDMoveToSDTask(mContext, fileinfo, destinationPath, isCopy).execute();
         }
-        //ArrayList<FileInfo> files = createListFileInfoFromPath(destinationPath);
     }
 
     private void doSDMovetoOTG(int actionId, ArrayList<FileInfo> selectedFiles, ArrayList<DocumentFile> destinationDFiles, String destinationPath, boolean isSrcSDCard){

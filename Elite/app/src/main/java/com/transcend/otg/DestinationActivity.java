@@ -562,7 +562,10 @@ public class DestinationActivity extends AppCompatActivity
     private void popupConfirmDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getHintResId(actionId));
-        builder.setMessage(mPath);
+        if (nowMode == Constant.MODE.OTG) {
+            builder.setMessage(FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path) + File.separator + mPath);
+        } else
+            builder.setMessage(mPath);
         builder.setNegativeButton(R.string.cancel, null);
         builder.setPositiveButton(R.string.confirm, null);
         builder.setCancelable(true);
