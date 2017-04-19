@@ -9,6 +9,7 @@ import android.support.v4.provider.DocumentFile;
 
 import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Utils.FileFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -45,9 +46,10 @@ public class OTGNewFolderLoader extends AsyncTaskLoader<Boolean> {
 
         if (mDocumentFile.findFile(mName) == null) {
             mDocumentFile.createDirectory(mName);
-            if(Constant.nowMODE == Constant.MODE.SD){
-                if(mDocumentFile.findFile(mName).exists()){
-                    String path = ActionParameter.path;
+            String path = ActionParameter.path;
+            String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+            if (sdpath != null && path.startsWith(sdpath)) {
+                if (mDocumentFile.findFile(mName).exists()) {
                     StringBuilder builder = new StringBuilder(path);
                     if (!path.endsWith("/"))
                         builder.append("/");
@@ -56,7 +58,7 @@ public class OTGNewFolderLoader extends AsyncTaskLoader<Boolean> {
 //                    File file = new File(builder.toString());
 //                    mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
                     Thread.sleep(500);
-                }else{
+                } else {
                     return false;
                 }
             }

@@ -171,13 +171,16 @@ public class FolderExploreActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_new_folder:
-                if(Constant.nowMODE == Constant.MODE.LOCAL)
-                    doLocalNewFolder();
-                else if(Constant.nowMODE == Constant.MODE.SD){
-                    nowAction = R.id.menu_new_folder;
-                    doOTGNewFolder(true);
-                }else if(Constant.nowMODE == Constant.MODE.OTG)
-                    doOTGNewFolder(false);
+                if (mFile != null) {
+                    FileInfo fileInfo = mFile;
+                    if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL)
+                        doLocalNewFolder();
+                    else if (fileInfo.storagemode == Constant.STORAGEMODE_SD) {
+                        nowAction = R.id.menu_new_folder;
+                        doOTGNewFolder(true);
+                    } else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG)
+                        doOTGNewFolder(false);
+                }
                 return true;
             case R.id.menu_grid:
                 updateLayout(Constant.ITEM_GRID);
@@ -622,7 +625,7 @@ public class FolderExploreActivity extends AppCompatActivity
                     String sdPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
                     if (ActionParameter.path.startsWith(Constant.ROOT_LOCAL)) {//SD -> Local
                         doOTGCopyorMovetoLocal(nowAction, ActionParameter.files, ActionParameter.path, true);
-                    } else if (ActionParameter.path.startsWith(sdPath)) {//SD -> SD
+                    } else if (sdPath != null && ActionParameter.path.startsWith(sdPath)) {//SD -> SD
                         doSDMoveOrCopytoSD(ActionParameter.files, ActionParameter.path, false);
                     } else {//SD -> OTG
                         doSDMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
@@ -914,31 +917,32 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        FileInfo fileInfo = mFolderExploreAdapter.getSelectedFiles().get(0);
         switch (item.getItemId()) {
             case R.id.action_rename:
-                if (Constant.nowMODE == Constant.MODE.LOCAL) {
+                if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
                     doLocalRename();
-                }else if(Constant.nowMODE == Constant.MODE.SD) {
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD) {
                     nowAction = R.id.action_rename;
                     doOTGRename(true);
-                }else if (Constant.nowMODE == Constant.MODE.OTG) {
+                }else if (fileInfo.storagemode == Constant.STORAGEMODE_OTG) {
                     doOTGRename(false);
                 }
                 break;
             case R.id.action_delete:
-                if (Constant.nowMODE == Constant.MODE.LOCAL) {
+                if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL) {
                     doLocalDelete();
-                }else if(Constant.nowMODE == Constant.MODE.SD){
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD){
                     nowAction = R.id.action_delete;
                     doOTGDelete(true);
-                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_OTG){
                     doOTGDelete(false);
                 }
                 break;
             case R.id.action_share:
-                if(Constant.nowMODE == Constant.MODE.LOCAL || Constant.nowMODE == Constant.MODE.SD){
+                if(fileInfo.storagemode == Constant.STORAGEMODE_LOCAL || fileInfo.storagemode == Constant.STORAGEMODE_SD){
                     doLocalShare();
-                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_OTG){
                     doOTGShare();
                 }
                 break;
@@ -949,11 +953,11 @@ public class FolderExploreActivity extends AppCompatActivity
                 startDestinationActivity(R.id.action_move);
                 break;
             case R.id.action_encrypt:
-                if(Constant.nowMODE == Constant.MODE.LOCAL){
+                if(fileInfo.storagemode == Constant.STORAGEMODE_LOCAL){
                     doLocalEncryptDialog();
-                }else if(Constant.nowMODE == Constant.MODE.OTG){
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_OTG){
                     doOTGEncryptDialog();
-                }else if(Constant.nowMODE == Constant.MODE.SD){
+                }else if(fileInfo.storagemode == Constant.STORAGEMODE_SD){
                     nowAction = R.id.action_encrypt;
                     doSDEncryptDialog();
                 }
@@ -1397,7 +1401,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 folderNames.add(file.name.toLowerCase());
         }
         ActionParameter.path = mPath;
-        new OTGNewFolderDialog(this, folderNames, Constant.Activity, false) {
+        new OTGNewFolderDialog(this, folderNames, Constant.Activity, bSDCard) {
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
                 if(bSDCard){

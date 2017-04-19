@@ -106,7 +106,7 @@ public class SearchLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     File check_file = new File(path);
                     if (check_file.exists() == false)
                         continue;
-                    if (path.startsWith(mOTGPath)) //dont get OTG file in here
+                    if (path.startsWith(mOTGPath)) //dont get OTG file in here, OTGPath won't be null
                         continue;
                     if (!path.contains("/.") && name.toLowerCase().contains(mQueryText.toLowerCase())) {
                         FileInfo fileInfo = new FileInfo();

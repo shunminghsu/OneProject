@@ -67,7 +67,7 @@ public class OTGRenameLoader extends AsyncTaskLoader<Boolean> {
             }
             String oldName = dfile.getName();
             if(dfile.renameTo(mNewName)){
-                if(Constant.nowMODE == Constant.MODE.SD){
+                if(ActionParameter.files.get(0).storagemode == Constant.STORAGEMODE_SD){
                     String newName = mNewName;
                     String path = ActionParameter.files.get(0).path;
                     path = path.replace(oldName, newName);

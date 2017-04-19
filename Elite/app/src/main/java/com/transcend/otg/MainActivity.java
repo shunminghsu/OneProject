@@ -1291,7 +1291,7 @@ public class MainActivity extends AppCompatActivity
                     String sdPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
                     if (ActionParameter.path.startsWith(Constant.ROOT_LOCAL)) {//SD -> Local
                         doOTGCopyorMovetoLocal(nowAction, ActionParameter.files, ActionParameter.path, true);
-                    } else if (ActionParameter.path.startsWith(sdPath)) {//SD -> SD
+                    } else if (sdPath != null && ActionParameter.path.startsWith(sdPath)) {//SD -> SD
                         doSDMoveOrCopytoSD(ActionParameter.files, ActionParameter.path, false);
                     } else {//SD -> OTG
                         doSDMovetoOTG(nowAction, ActionParameter.files, ActionParameter.dFiles, ActionParameter.path, true);
