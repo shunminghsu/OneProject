@@ -64,6 +64,12 @@ public class BrowserFragment extends Fragment {
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("key_mCurrentTabPosition", mCurrentTabPosition);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final Context context = inflater.getContext();
@@ -93,6 +99,10 @@ public class BrowserFragment extends Fragment {
         mViewPager = (ViewPager) root.findViewById(R.id.viewPager);
         mTabLayout = (TabLayout) root.findViewById(R.id.tabLayout);
 
+        if (savedInstanceState != null) {
+            mCurrentTabPosition = savedInstanceState.getInt("key_mCurrentTabPosition");
+            mTabs.get(mCurrentTabPosition).build(mInflater);
+        }
         MyPagerAdapter adapter = new MyPagerAdapter(mTabs, mInflater);
         mViewPager.setAdapter(adapter);
         mViewPager.addOnPageChangeListener(adapter);
