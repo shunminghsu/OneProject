@@ -31,8 +31,8 @@ public class DestinationAdapter extends RecyclerView.Adapter<DestinationAdapter.
     public DestinationAdapter(Context context, IconHelper iconHelper) {
         mContext = context;
         mIconHelper = iconHelper;
-        mShowSize = LocalPreferences.getPref(mContext,
-                LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
+//        mShowSize = LocalPreferences.getPref(mContext,
+//                LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
     }
 
     public interface OnRecyclerItemCallbackListener {
@@ -47,8 +47,8 @@ public class DestinationAdapter extends RecyclerView.Adapter<DestinationAdapter.
 
     public void update(@Nullable ArrayList<FileInfo> items) {
         mList = items;
-        mShowSize = LocalPreferences.getPref(mContext,
-                LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
+//        mShowSize = LocalPreferences.getPref(mContext,
+//                LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE) == Constant.SORT_BY_SIZE;
         notifyDataSetChanged();
     }
 

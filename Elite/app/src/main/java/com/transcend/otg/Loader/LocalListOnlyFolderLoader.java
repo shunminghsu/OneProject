@@ -55,7 +55,7 @@ public class LocalListOnlyFolderLoader extends AsyncTaskLoader<Boolean> {
                 fileInfo.path = file.getPath();
                 fileInfo.name = file.getName();
                 fileInfo.time = FileInfo.getTime(file.lastModified());
-                fileInfo.type = file.isFile() ? FileInfo.getType(file.getPath()) : Constant.TYPE_DIR;
+                fileInfo.type = Constant.TYPE_DIR;
                 fileInfo.size = file.length();
                 fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
                 if (mIsLocal)
@@ -65,9 +65,9 @@ public class LocalListOnlyFolderLoader extends AsyncTaskLoader<Boolean> {
                 mFileList.add(fileInfo);
             }
         }
-        Collections.sort(mFileList, FileInfoSort.comparator(mContext));
+        Collections.sort(mFileList, FileInfoSort.comparator_destination());
         //FileFactory.getInstance().addFolderFilterRule(path, mFileList);
-        FileFactory.getInstance().addFileTypeSortRule(mFileList);
+        //FileFactory.getInstance().addFileTypeSortRule(mFileList);
         return true;
     }
 

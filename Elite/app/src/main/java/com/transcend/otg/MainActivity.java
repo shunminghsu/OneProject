@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        checkGridOrListForFolderPage();
+//        checkGridOrListForFolderPage();
         Constant.Activity = 0;
         initBroadcast();
         if(mActionMode != null)

@@ -29,6 +29,10 @@ public class FileInfoSort {
             return sortAsc ? new FileInfoSort.byDate() : new FileInfoSort.byReverseDate();
     }
 
+    public static Comparator<FileInfo> comparator_destination() {
+        return new FileInfoSort.byName();
+    }
+
     public static class byDate implements Comparator<FileInfo> {
 
         @Override

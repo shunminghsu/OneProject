@@ -11,8 +11,10 @@ import android.text.format.Formatter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.FileInfoSort;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Created by wangbojie on 2017/3/3.
@@ -65,7 +67,11 @@ public class OTGFileOnlyFolderLoader extends AsyncTaskLoader<Boolean> {
     @Override
     public Boolean loadInBackground() {
         Uri baseRootUri = DocumentsContract.buildChildDocumentsUriUsingTree(dFile.getUri(), DocumentsContract.getDocumentId(dFile.getUri()));
-        return getOtgFileList(baseRootUri);
+        if (getOtgFileList(baseRootUri)) {
+            Collections.sort(mFileList, FileInfoSort.comparator_destination());
+            return true;
+        }
+        return false;
     }
 
     private boolean getOtgFileList(Uri _rootUri) {
@@ -90,21 +96,7 @@ public class OTGFileOnlyFolderLoader extends AsyncTaskLoader<Boolean> {
                     item.path = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path) + "/" + split[1];
                     item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, cursor.getString(cursor_index_ID));
                     item.storagemode = Constant.STORAGEMODE_OTG;
-                    if (type.contains(IMAGE) || type.contains(PNG) || type.contains(JPG)) {
-                        item.type = Constant.TYPE_PHOTO;
-                    } else if (type.contains(VIDEO)) {
-                        item.type = Constant.TYPE_VIDEO;
-                    } else if (type.contains(AUDIO)) {
-                        item.type = Constant.TYPE_MUSIC;
-                    } else if (type.contains(TEXT) || type.contains(PDF) || type.contains(WORD) || type.contains(PPT) || type.contains(EXCEL)) {
-                        item.type = Constant.TYPE_DOC;
-                    } else if (type.contains(DIR)) {
-                        item.type = Constant.TYPE_DIR;
-                    } else if (name.contains(ENCRYPT)) {
-                        item.type = Constant.TYPE_ENCRYPT;
-                    } else {
-                        item.type = Constant.TYPE_OTHER_FILE;
-                    }
+                    item.type = Constant.TYPE_DIR;
                     mFileList.add(item);
                 }
             }
