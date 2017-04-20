@@ -794,6 +794,9 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             path = Constant.ROOT_LOCAL;
         else
             path = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+        if (path == null) {//sdcard was removed?
+            return mFileList;
+        }
         File dir = new File(path);
         if (!dir.exists())
             return mFileList;

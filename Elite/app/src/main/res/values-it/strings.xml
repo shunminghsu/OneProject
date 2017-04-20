@@ -20,7 +20,7 @@
     <string name="backup_video">Video</string>
     <string name="conj_deleted">%1$d oggettoi sara\' cancellato</string>
     <string name="snackbar_not_support_share">Questo file non supporta la funzione Share</string>
-    <string name="sort_date">Date</string>
+    <string name="sort_date">Data</string>
     <string name="sort_size">Dimensione</string>
     <string name="sort_name">Nome</string>
     <string name="share">Condividi</string>

@@ -284,22 +284,20 @@ public class IconHelper {
         }
     }
 
-    public void loadMusicThumbnail(String path, long album_id,
+    public void loadMusicThumbnail(FileInfo fileInfo,
                               ImageView iconThumb, ImageView iconMime) {
         boolean cacheHit = false;
-        boolean showThumbnail = true;
-        if (showThumbnail) {
-            final Bitmap cachedResult = mCache.get((path + ":ts" + mThumbSize));
-            if (cachedResult != null) {
-                iconThumb.setImageBitmap(cachedResult);
-                cacheHit = true;
-                iconThumb.setTag(null); //to ignore previous load thumbnail task
-            } else {
-                iconThumb.setImageDrawable(null);
-                final LoaderTaskMusic task = new LoaderTaskMusic(path, album_id, iconMime, iconThumb, mThumbSize, mContext);
-                iconThumb.setTag(task);
-                task.execute();
-            }
+
+        final Bitmap cachedResult = mCache.get((fileInfo.path + ":ts" + mThumbSize));
+        if (cachedResult != null) {
+            iconThumb.setImageBitmap(cachedResult);
+            cacheHit = true;
+            iconThumb.setTag(null); //to ignore previous load thumbnail task
+        } else {
+            iconThumb.setImageDrawable(null);
+            final LoaderTaskMusic task = new LoaderTaskMusic(fileInfo, iconMime, iconThumb, mThumbSize, mContext);
+            iconThumb.setTag(task);
+            task.execute();
         }
 
         final Drawable icon = getIconMime(Constant.TYPE_MUSIC);
@@ -318,19 +316,22 @@ public class IconHelper {
 
     private static class LoaderTaskMusic
             extends AsyncTask<Uri, Void, Bitmap>{
+        private final FileInfo mFileInfo;
         private final String mPath;
         private final ImageView mIconMime;
         private final ImageView mIconThumb;
         private final Point mThumbSize;
-        private final long mAlbumId;
+//        private final long mAlbumId;
         private Context mContext;
-        public LoaderTaskMusic(String filePath, long album_id, ImageView iconMime, ImageView iconThumb,
+        public LoaderTaskMusic(FileInfo fileInfo, ImageView iconMime, ImageView iconThumb,
                              Point thumbSize, Context context) {
-            mPath = filePath;
+
+            mFileInfo = fileInfo;
+            mPath = fileInfo.path;
             mIconMime = iconMime;
             mIconThumb = iconThumb;
             mThumbSize = thumbSize;
-            mAlbumId = album_id;
+//            mAlbumId = album_id;
             mContext = context;
         }
 
@@ -341,10 +342,11 @@ public class IconHelper {
 
             Bitmap result = null;
             try {
-                if (mAlbumId > 0)
-                    result = IconUtils.loadAlbumThumbnail(mContext, mAlbumId);
-                else
-                    result = IconUtils.loadAlbumThumbnail(mPath);
+                result = IconUtils.loadAlbumThumbnail(mContext, mFileInfo);
+//                if (result == null && mAlbumId > 0)
+//                    result = IconUtils.loadAlbumThumbnail(mContext, mAlbumId);
+//                else
+//                    result = IconUtils.loadAlbumThumbnail(mPath);
 
                 if (result != null) {
                     final ThumbnailCache thumbs = MainApplication.getThumbnailsCache(mContext);

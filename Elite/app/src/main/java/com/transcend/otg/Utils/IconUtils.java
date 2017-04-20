@@ -28,6 +28,7 @@ import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.util.Log;
 
+import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.R;
 
 import java.io.FileNotFoundException;
@@ -35,9 +36,16 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class IconUtils {
-    public static Bitmap loadAlbumThumbnail(String path) {
+    public static Bitmap loadAlbumThumbnail(Context context, FileInfo fileInfo) {
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        mmr.setDataSource(path);
+        try {
+            if (fileInfo.uri != null)
+                mmr.setDataSource(context, fileInfo.uri);
+            else
+                mmr.setDataSource(fileInfo.path);
+        } catch (Exception e) {
+            Log.d("IconUtils", e.getMessage());
+        }
         byte[] artBytes =  mmr.getEmbeddedPicture();
         if (artBytes != null) {
             return BitmapFactory.decodeByteArray(artBytes, 0, artBytes.length);

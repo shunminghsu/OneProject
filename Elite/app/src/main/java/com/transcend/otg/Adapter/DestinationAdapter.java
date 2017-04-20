@@ -83,7 +83,7 @@ public class DestinationAdapter extends RecyclerView.Adapter<DestinationAdapter.
         }
 
         if (fileInfo.type == Constant.TYPE_MUSIC) {
-            mIconHelper.loadMusicThumbnail(fileInfo.path, fileInfo.album_id, holder.icon, holder.iconMime);
+            mIconHelper.loadMusicThumbnail(fileInfo, holder.icon, holder.iconMime);
         } else if (fileInfo.type == Constant.TYPE_PHOTO && fileInfo.uri != null) {
             mIconHelper.loadThumbnail(fileInfo.uri, fileInfo.type, holder.icon, holder.iconMime);
         } else
