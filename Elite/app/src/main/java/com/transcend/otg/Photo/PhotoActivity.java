@@ -43,6 +43,7 @@ import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.MediaUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -131,9 +132,8 @@ public class PhotoActivity extends AppCompatActivity {
         final FileInfo fileinfo = mPhotoList.get(mPager.getCurrentItem());
         switch (item.getItemId()) {
             case R.id.share:
-                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
-                        fileinfo.storagemode == Constant.STORAGEMODE_OTG) {
-
+                if (fileinfo.storagemode == Constant.STORAGEMODE_OTG) {
+                    doOTGShare(fileinfo);
                 } else {
                     Intent share_intent = new Intent(Intent.ACTION_SEND);
                     share_intent.putExtra(Intent.EXTRA_STREAM, fileinfo.uri);
@@ -206,7 +206,7 @@ public class PhotoActivity extends AppCompatActivity {
             if(checkSD(uriTree)){
                 //createDialog(mContext, "get permission success");
             } else {
-                //createDialog(mContext, "get permission fail");
+                snackBarShow(R.string.fail);
             }
         } else if(requestCode == DestinationActivity.REQUEST_CODE && resultCode == RESULT_OK) {
             Bundle bundle = data.getExtras();
@@ -478,7 +478,7 @@ public class PhotoActivity extends AppCompatActivity {
                 if (result_code == ACTION_RESULT_NEED_PERMISSION) {
                     preGuideDialog("sd");
                 } else {
-                    createDialog(mContext, "Fail");
+                    snackBarShow(R.string.fail);
                 }
             }
         }
@@ -569,8 +569,11 @@ public class PhotoActivity extends AppCompatActivity {
                 if (result_code == ACTION_RESULT_NEED_PERMISSION) {
                     preGuideDialog("sd");
                 } else {
-                    String exist = getResources().getString(R.string.file_exist);
-                    createDialog(mContext, result_code == ACTION_RESULT_FILE_EXIST ? exist : "Fail");
+                    if (result_code == ACTION_RESULT_FILE_EXIST) {
+                        String exist = getResources().getString(R.string.file_exist);
+                        createDialog(mContext, exist);
+                    } else
+                        snackBarShow(R.string.fail);
                 }
             }
         }
@@ -730,13 +733,11 @@ public class PhotoActivity extends AppCompatActivity {
             super.onPostExecute(result);
             if (result) {
                 if (mDesStorageMode == Constant.STORAGEMODE_OTG) {
-                    //createFailDialog(mContext, "OTG");
+
                 } else if (mDesStorageMode == Constant.STORAGEMODE_SD) {
                     MediaScannerConnection.scanFile(mContext, new String[]{mNewFile.getPath()}, new String[]{desDfile.getType()}, null);
-                    //createFailDialog(mContext, mNewFile.getPath()+" "+desDfile.getType());
                 } else if (mDesStorageMode == Constant.STORAGEMODE_LOCAL) {
                     sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(mNewFile)));
-                    //createFailDialog(mContext,Uri.fromFile(mNewFile).toString());
                 }
                 if (mDeleteSource) {
                     if (mSource.storagemode == Constant.STORAGEMODE_LOCAL) {
@@ -768,8 +769,11 @@ public class PhotoActivity extends AppCompatActivity {
                 if (result_code == ACTION_RESULT_NEED_PERMISSION) {
                     preGuideDialog("sd");
                 } else {
-                    String exist = getResources().getString(R.string.file_exist);
-                    createDialog(mContext, result_code == ACTION_RESULT_FILE_EXIST ? exist : "Fail");
+                    if (result_code == ACTION_RESULT_FILE_EXIST) {
+                        String exist = getResources().getString(R.string.file_exist);
+                        createDialog(mContext, exist);
+                    } else
+                        snackBarShow(R.string.fail);
                 }
             }
         }
@@ -1020,5 +1024,12 @@ public class PhotoActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+
+    private void doOTGShare(FileInfo file){
+        DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, file);
+        boolean shareSuccess = MediaUtils.otgShare(this, dfile);
+        if(!shareSuccess)
+            snackBarShow(R.string.fail);
     }
 }
