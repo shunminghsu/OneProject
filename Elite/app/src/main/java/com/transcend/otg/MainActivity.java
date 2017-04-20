@@ -1,9 +1,8 @@
 package com.transcend.otg;
 
-import android.animation.Animator;
 import android.animation.LayoutTransition;
-import android.animation.ObjectAnimator;
 import android.app.LoaderManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -236,14 +235,17 @@ public class MainActivity extends AppCompatActivity
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
 
-                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 
-                    preGuideDialog("otg");
-                }
+//                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
+//
+//                    preGuideDialog("otg");
+//                }
 
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
 
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                if(device != null)
+                    device = null;
                 if (getBrowserFragment() == null)
                     return;
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
@@ -652,6 +654,7 @@ public class MainActivity extends AppCompatActivity
             Log.w(TAG, "no device found!");
             Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = null;
             Constant.rootUri = null;
+            device = null;
             switchToFragment(NoOtgFragment.class.getName(), false);
             return;
         }
@@ -878,7 +881,7 @@ public class MainActivity extends AppCompatActivity
             mToolbarTitle.setText(getResources().getString(R.string.drawer_setting));
             showFragment(settingFragment);
         }else if(id == R.id.nav_security){
-            mToolbarTitle.setText(getResources().getString(R.string.drawer_security));
+            mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -1056,6 +1059,12 @@ public class MainActivity extends AppCompatActivity
                 else if(type.equals("sd"))
                     intentDocumentTreeSD();
             }
+
+            @Override
+            public void onCancel(String type) {
+                if(type.equals("otg"))
+                    mLocalButton.performClick();
+            }
         };
     }
 
@@ -1090,11 +1099,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int reqCode, int resCode, Intent data) {
         super.onActivityResult(reqCode, resCode, data);
-        if(reqCode == mOTGDocumentTreeID && resCode == RESULT_OK){
-            Uri uriTree = data.getData();
-            if(checkStorage(uriTree, true)){
-                replaceFragment(otgFragment);
+        if(reqCode == mOTGDocumentTreeID){
+            if(resCode == RESULT_OK){
+                Uri uriTree = data.getData();
+                if(checkStorage(uriTree, true)){
+                    replaceFragment(otgFragment);
+                }
+            }else if(resCode == RESULT_CANCELED){
+                mLocalButton.performClick();
             }
+
         }else if(reqCode == mSDDocumentTreeID && resCode == RESULT_OK){
             Uri uriTree = data.getData();
             if(checkSD(uriTree)){
@@ -1227,6 +1241,7 @@ public class MainActivity extends AppCompatActivity
         if (!uri.toString().contains("primary")) {
             if(uri.getPath().toString().split(":").length > 1){
                 snackBarShow(R.string.snackbar_plz_select_top);
+                mLocalButton.performClick();
             }else{
                 rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
                 boolean bSDCard = false;
@@ -1248,10 +1263,12 @@ public class MainActivity extends AppCompatActivity
                     return true;
                 }else{
                     snackBarShow(R.string.snackbar_plz_select_otg);
+                    mLocalButton.performClick();
                 }
             }
         }else {
             snackBarShow(R.string.snackbar_plz_select_otg);
+            mLocalButton.performClick();
         }
         return false;
     }

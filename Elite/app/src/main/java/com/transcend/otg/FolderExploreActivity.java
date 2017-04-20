@@ -350,7 +350,7 @@ public class FolderExploreActivity extends AppCompatActivity
             case Constant.TYPE_DOC:
                 return context.getResources().getString(R.string.info_document);
             case Constant.TYPE_ENCRYPT:
-                return context.getResources().getString(R.string.info_enc);
+                return context.getResources().getString(R.string.encrypt);
             case Constant.TYPE_DIR:
                 return context.getResources().getString(R.string.info_folder);
             default: //Constant.TYPE_OTHER_FILE:
@@ -454,6 +454,11 @@ public class FolderExploreActivity extends AppCompatActivity
             public void onConfirm(String type) {
                 if(type.equals("sd"))
                     intentDocumentTreeSD();
+            }
+
+            @Override
+            public void onCancel(String type) {
+
             }
         };
     }

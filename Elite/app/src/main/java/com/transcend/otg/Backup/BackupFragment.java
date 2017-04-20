@@ -357,6 +357,11 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                 else if(type.equals("sd"))
                     intentDocumentTreeSD();
             }
+
+            @Override
+            public void onCancel(String type) {
+
+            }
         };
     }
 

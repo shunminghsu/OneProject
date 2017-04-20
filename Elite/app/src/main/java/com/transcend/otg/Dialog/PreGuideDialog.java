@@ -18,10 +18,11 @@ import java.util.ArrayList;
 
 public abstract class PreGuideDialog implements View.OnClickListener{
     public abstract void onConfirm(String type);
+    public abstract void onCancel(String type);
 
     private Context mContext;
     private AlertDialog mDialog;
-    private Button mDlgBtnPos;
+    private Button mDlgBtnPos, mDlgBtnNeg;
     private String mType;
 
     public PreGuideDialog(Context context, String type) {
@@ -44,12 +45,17 @@ public abstract class PreGuideDialog implements View.OnClickListener{
         tv.setText(message);
         mDlgBtnPos = mDialog.getButton(DialogInterface.BUTTON_POSITIVE);
         mDlgBtnPos.setOnClickListener(this);
+        mDlgBtnNeg = mDialog.getButton(DialogInterface.BUTTON_NEGATIVE);
+        mDlgBtnNeg.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         if (v.equals(mDlgBtnPos)) {
             onConfirm(mType);
+            mDialog.dismiss();
+        }else if(v.equals(mDlgBtnNeg)){
+            onCancel(mType);
             mDialog.dismiss();
         }
     }

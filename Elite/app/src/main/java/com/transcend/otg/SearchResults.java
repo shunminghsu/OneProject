@@ -676,7 +676,7 @@ public class SearchResults extends Fragment {
             case Constant.TYPE_DOC:
                 return context.getResources().getString(R.string.info_document);
             case Constant.TYPE_ENCRYPT:
-                return context.getResources().getString(R.string.info_enc);
+                return context.getResources().getString(R.string.encrypt);
             case Constant.TYPE_DIR:
                 return context.getResources().getString(R.string.info_folder);
             default: //Constant.TYPE_OTHER_FILE:

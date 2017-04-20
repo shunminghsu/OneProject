@@ -33,7 +33,6 @@
     <string name="drawer_browser">Browser</string>
     <string name="drawer_backup">Backup</string>
     <string name="drawer_setting">Settings</string>
-    <string name="drawer_security">Security</string>
     <string name="drawer_help">Help</string>
     <string name="drawer_feedback">Feedback</string>
 
@@ -54,8 +53,7 @@
     <string name="snackbar_plz_select_top">Please select the root folder.</string>
     <string name="no_otg">OTG is not found.</string>
     <string name="permission_guide_next">Next</string>
-    <string name="preguide_message">"Due to limitations on the Android version, you must provide the device\'s permissions to Elite for access to the file"</string>
-    <string name="preguide_knowhow">How to provide</string>
+    <string name="preguide_knowhow">Learn how</string>
 
     <!-- Fab -->
     <string name="more">More</string>
@@ -70,12 +68,11 @@
     <!-- Photo information -->
     <string name="photo_size">Size</string>
     <string name="photo_time">Last modified time</string>
-    <string name="photo_location_phone">Located in Phone</string>
+    <string name="photo_location_phone">Located in Local</string>
     <string name="photo_location_sd">Located in SD Card</string>
     <string name="photo_location_otg">Located in OTG</string>
     <string name="photo_path">Path</string>
 
-    <string name="set_photo_as">Set as</string>
     <string name="no_item_selected">No item selected</string>
 
     <string name="invalid_name">Invalid name</string>
@@ -108,7 +105,6 @@
     <string name="info_video">Video</string>
     <string name="info_music">Music</string>
     <string name="info_document">Document</string>
-    <string name="info_enc">Elite Encryption</string>
     <string name="info_folder">Directory</string>
     <string name="info_other">Others</string>
     <string name="info_size">Size:</string>
@@ -164,4 +160,24 @@
     <string name="menu_delete">Delete</string>
     <string name="menu_copy_to_clipboard">Copy</string>
     <string name="ask_exit">Are you sure you want to quit Transcend Elite?</string>
+
+    <!-- Security Information -->
+    <string name="Lsecurity">Security</string>
+    <string name="LLogin">Login</string>
+    <string name="LSetPW">Set password</string>
+    <string name="LRemovePW">Remove password</string>
+    <string name="LChangePW">Change password</string>
+    <string name="LNoPW">No password set</string>
+    <string name="LSettedPW">Lock enable</string>
+    <string name="LCurrentPW">Current Password</string>
+    <string name="LNewPW">New Password</string>
+    <string name="LConfirmPW">Confirm Password</string>
+    <string name="MSG_UserUnlockDisk">Input your password to unlock the drive</string>
+    <string name="MSG_UserRemovePWLostSecurity">Once password is remove, the drive is unprotect</string>
+    <string name="MSG_UserUseDiskViaElite">Once password is set, you can only open the drive via Elite</string>
+    <string name="MSG_PWLimition">4~16 Characters with no space</string>
+    <string name="MSG_NewPWNextLogin">Input new password at next login</string>
+    <string name="MSG_SelectChangeOrRemove">You can select to change or remove password</string>
+    <string name="msg_password_incorrect">Incorrect password</string>
+    <string name="preguide_message">Android OS versions have restricted acces to your external storage.Please grant us permission first.</string>
 </resources>

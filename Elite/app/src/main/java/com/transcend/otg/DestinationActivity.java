@@ -408,6 +408,11 @@ public class DestinationActivity extends AppCompatActivity
                 else if(type.equals("sd"))
                     intentDocumentTreeSD();
             }
+
+            @Override
+            public void onCancel(String type) {
+
+            }
         };
     }
 

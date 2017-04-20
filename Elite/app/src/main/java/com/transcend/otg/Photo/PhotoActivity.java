@@ -165,15 +165,15 @@ public class PhotoActivity extends AppCompatActivity {
                 };
                 return true;
             case R.id.set_photo_as:
-                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
-                        fileinfo.storagemode == Constant.STORAGEMODE_OTG) {
-
-                } else {
-                    Intent setas_intent = new Intent(Intent.ACTION_ATTACH_DATA);
-                    setas_intent.setDataAndType(fileinfo.uri, "image/*");
-                    setas_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(setas_intent, getString(R.string.set_photo_as)));
-                }
+//                if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) &&
+//                        fileinfo.storagemode == Constant.STORAGEMODE_OTG) {
+//
+//                } else {
+//                    Intent setas_intent = new Intent(Intent.ACTION_ATTACH_DATA);
+//                    setas_intent.setDataAndType(fileinfo.uri, "image/*");
+//                    setas_intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//                    startActivity(Intent.createChooser(setas_intent, getString(R.string.set_photo_as)));
+//                }
                 return true;
             case R.id.action_rename:
                 new LocalRenameDialog(this,false, fileinfo.name) {
@@ -908,6 +908,11 @@ public class PhotoActivity extends AppCompatActivity {
             public void onConfirm(String type) {
                 if(type.equals("sd"))
                     intentDocumentTreeSD();
+            }
+
+            @Override
+            public void onCancel(String type) {
+
             }
         };
     }

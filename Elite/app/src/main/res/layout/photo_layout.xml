@@ -16,7 +16,8 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/colorBlackTrans"
+        android:background="@color/colorBlack"
+        android:alpha="0.9"
         android:gravity="top|start"
         app:layout_scrollFlags="scroll|enterAlways"
         app:popupTheme="@style/AppTheme.PopupOverlay"
@@ -54,7 +55,7 @@
         android:orientation="horizontal"
         android:layout_alignParentBottom="true"
         android:background="@color/colorBlack"
-        android:alpha="0.5"
+        android:alpha="0.9"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <ImageView
