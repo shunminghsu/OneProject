@@ -19,8 +19,9 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/design_navigation_icon_size"
+                android:layout_height="?attr/actionBarSize"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:paddingBottom="@dimen/padding"
                 android:gravity="bottom"
                 android:text="@string/backup_filetype"
                 android:textColor="@color/colorDarkGray"
@@ -179,6 +180,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_marginLeft="@dimen/activity_horizontal_margin"
+                android:paddingBottom="@dimen/padding"
                 android:gravity="bottom"
                 android:text="@string/backup_destination"
                 android:textColor="@color/colorDarkGray"

@@ -13,8 +13,9 @@
 
         <TextView
             android:layout_width="match_parent"
-            android:layout_height="@dimen/design_navigation_icon_size"
+            android:layout_height="?attr/actionBarSize"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:paddingBottom="@dimen/padding"
             android:gravity="bottom"
             android:text="@string/setting_storage"
             android:textColor="@color/colorDarkGray"
@@ -100,6 +101,7 @@
             android:layout_height="?attr/actionBarSize"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
             android:gravity="bottom"
+            android:paddingBottom="@dimen/padding"
             android:text="@string/setting_information"
             android:textColor="@color/colorDarkGray"
             android:textSize="@dimen/storage_text_size" />
