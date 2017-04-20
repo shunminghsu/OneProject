@@ -136,4 +136,5 @@
     <string name="info_mtime">最后修改时间:</string>
     <string name="info_file_number_text1">文件</string>
     <string name="info_file_number_text2">文件</string>
+    <string name="emptywording">这里没有文件</string>
 </resources>

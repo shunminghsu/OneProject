@@ -20,7 +20,7 @@
     <string name="backup_video">Video</string>
     <string name="conj_deleted">%1$d Datei/en werden gelöscht.</string>
     <string name="snackbar_not_support_share">Datei unterstützt keine Share-Funktion</string>
-    <string name="sort_date">Date</string>
+    <string name="sort_date">Datum</string>
     <string name="sort_size">Größe</string>
     <string name="sort_name">Name</string>
     <string name="share">Teilen</string>
@@ -136,4 +136,5 @@
     <string name="info_mtime">zuletzt bearbeitet:</string>
     <string name="info_file_number_text1">Dateien</string>
     <string name="info_file_number_text2">Dateien</string>
+    <string name="emptywording">Sie haben hier keine Dateien.</string>
 </resources>

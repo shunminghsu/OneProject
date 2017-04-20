@@ -136,4 +136,5 @@
     <string name="info_mtime">最後修改時間:</string>
     <string name="info_file_number_text1">檔案</string>
     <string name="info_file_number_text2">檔案</string>
+    <string name="emptywording">這裡沒有檔案</string>
 </resources>

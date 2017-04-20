@@ -20,7 +20,7 @@
     <string name="backup_video">動画</string>
     <string name="conj_deleted">%1$d 個の項目を削除します。</string>
     <string name="snackbar_not_support_share">このファイルは共有機能に対応していません。</string>
-    <string name="sort_date">Date</string>
+    <string name="sort_date">日付</string>
     <string name="sort_size">サイズ</string>
     <string name="sort_name">名前</string>
     <string name="share">共有</string>
@@ -136,4 +136,5 @@
     <string name="info_mtime">最終編集日:</string>
     <string name="info_file_number_text1">ファイル</string>
     <string name="info_file_number_text2">ファイル</string>
+    <string name="emptywording">ファイルがありません。</string>
 </resources>

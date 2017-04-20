@@ -66,6 +66,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="2dp"
         android:src="@mipmap/ic_info_white"
+        android:visibility="gone"
         android:layout_marginBottom="4dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"/>

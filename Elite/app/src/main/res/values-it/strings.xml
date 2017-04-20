@@ -21,8 +21,8 @@
     <string name="conj_deleted">%1$d oggettoi sara\' cancellato</string>
     <string name="snackbar_not_support_share">Questo file non supporta la funzione Share</string>
     <string name="sort_date">Date</string>
-    <string name="sort_size">Per Dimensione</string>
-    <string name="sort_name">Per Nome</string>
+    <string name="sort_size">Dimensione</string>
+    <string name="sort_name">Nome</string>
     <string name="share">Condividi</string>
     <string name="setting_information">Informazioni</string>
     <string name="menu_delete">Elimina</string>
@@ -136,4 +136,5 @@
     <string name="info_mtime">Ultima modifica:</string>
     <string name="info_file_number_text1">File</string>
     <string name="info_file_number_text2">File</string>
+    <string name="emptywording">Non hai files qui.</string>
 </resources>

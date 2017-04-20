@@ -136,4 +136,5 @@
     <string name="info_mtime">Последнее изменение:</string>
     <string name="info_file_number_text1">файлы</string>
     <string name="info_file_number_text2">файлы</string>
+    <string name="emptywording">Файлы не обнаружены.</string>
 </resources>

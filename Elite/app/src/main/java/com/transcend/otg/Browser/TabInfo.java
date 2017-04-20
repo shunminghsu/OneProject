@@ -38,6 +38,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     public final int mType;
     public int IconId;
     private View mEmpty;
+    private View mEmptyTextview;
     private View mLoadingContainer;
     private View mListContainer;
     private ViewGroup mPinnedHeader;
@@ -89,6 +90,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         mRecyclerAdapter = new RecyclerViewAdapter(this, mIconHelper, mContext);
         mRootView = inflater.inflate(R.layout.pager_layout, null);
         mEmpty = mRootView.findViewById(R.id.empty_view);
+        mEmptyTextview = mRootView.findViewById(R.id.empty_textview);
         setFileTypeEmptyBackground(mType);
         mRecyclerView = (RecyclerView) mRootView.findViewById(R.id.recycler_view);
 
@@ -212,9 +214,11 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
         if (empty) {
             mListContainer.setVisibility(View.GONE);
             mEmpty.setVisibility(View.VISIBLE);
+            mEmptyTextview.setVisibility(View.VISIBLE);
         } else {
             mListContainer.setVisibility(View.VISIBLE);
             mEmpty.setVisibility(View.GONE);
+            mEmptyTextview.setVisibility(View.GONE);
         }
     }
 

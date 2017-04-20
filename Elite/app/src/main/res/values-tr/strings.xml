@@ -136,4 +136,5 @@
     <string name="info_mtime">Son düzenleme:</string>
     <string name="info_file_number_text1">Dosya</string>
     <string name="info_file_number_text2">Dosya</string>
+    <string name="emptywording">Dosyalarınız yok.</string>
 </resources>

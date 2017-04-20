@@ -136,4 +136,5 @@
     <string name="info_mtime">Última modificación:</string>
     <string name="info_file_number_text1">Archivos</string>
     <string name="info_file_number_text2">Archivos</string>
+    <string name="emptywording">No tienes archivos aquí.</string>
 </resources>
