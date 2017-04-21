@@ -305,7 +305,7 @@ public class SearchResults extends Fragment {
         @Override
         public SearchResults.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             final Context context = parent.getContext();
-            View v = LayoutInflater.from(context).inflate(R.layout.listitem_recyclerview, parent, false);
+            View v = LayoutInflater.from(context).inflate(R.layout.search_recyclerview, parent, false);
             SearchResults.ViewHolder vh = new SearchResults.ViewHolder(v,
                     new SearchResults.ViewHolder.OnRecyclerItemListener() {
                 @Override
@@ -425,6 +425,12 @@ public class SearchResults extends Fragment {
             } else
                 mIconHelper.loadThumbnail(fileInfo.path, fileInfo.type, holder.icon, holder.iconMime);
 
+            if (fileInfo.storagemode == Constant.STORAGEMODE_LOCAL)
+                holder.location.setImageDrawable(null);
+            else if (fileInfo.storagemode == Constant.STORAGEMODE_SD)
+                holder.location.setImageResource(R.mipmap.ic_sdcard_gray);
+            else
+                holder.location.setImageResource(R.mipmap.ic_otg_gray);
             holder.itemView.setSelected(fileInfo.checked);
             holder.mark.setVisibility(fileInfo.checked ? View.VISIBLE : View.INVISIBLE);
         }
@@ -447,6 +453,7 @@ public class SearchResults extends Fragment {
         ImageView icon;
         ImageView iconMime;
         ImageView info;
+        ImageView location;
         TextView title;
         TextView subtitle;
 
@@ -459,6 +466,7 @@ public class SearchResults extends Fragment {
             icon = (ImageView) itemView.findViewById(R.id.item_icon);
             iconMime = (ImageView) itemView.findViewById(R.id.item_mime);
             info = (ImageView) itemView.findViewById(R.id.item_info);
+            location = (ImageView) itemView.findViewById(R.id.location);
             title = (TextView) itemView.findViewById(R.id.item_title);
             subtitle = (TextView) itemView.findViewById(R.id.item_subtitle);
 
