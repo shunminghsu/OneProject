@@ -53,4 +53,6 @@ public class Constant {
 
     public static int Activity = 0;//Main = 0, FolderExplore = 1, Destination = 2
     public static ArrayList<DocumentFile> destinationDFile;
+    public static boolean isSecurityLock = false;
+    public static boolean isSecurityEnable = false;
 }

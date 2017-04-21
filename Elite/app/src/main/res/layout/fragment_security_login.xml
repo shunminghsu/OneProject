@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/imageLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/securityTitle">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/login"/>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/securityTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_above="@+id/securityWording"
+        android:text="@string/MSG_UserUnlockDisk"
+        android:textSize="19sp"/>
+
+    <TextView
+        android:id="@+id/securityWording"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:text=""/>
+
+    <RelativeLayout
+        android:id="@+id/RelativeLogin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/securityWording">
+
+        <TextView
+            android:id="@+id/empty1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/empty2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/empty1"/>
+
+        <TextView
+            android:id="@+id/empty3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/empty2"/>
+
+        <EditText
+            android:id="@+id/editPassword"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/empty3"
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="50dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:inputType="textPassword"
+            android:maxLength="16"
+            android:background="@drawable/edittext_border"
+            android:hint="@string/password"
+            android:gravity="center"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btn_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/storage_text_size"
+            android:text="@string/LLogin"/>
+
+
+    </RelativeLayout>
+
+
+</RelativeLayout>

@@ -52,6 +52,7 @@ import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.LocalFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
 import com.transcend.otg.Browser.NoSdFragment;
+import com.transcend.otg.Browser.NoSsdFragment;
 import com.transcend.otg.Browser.OTGFragment;
 import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Browser.TabInfo;
@@ -90,6 +91,9 @@ import com.transcend.otg.Loader.SDDecryptNewFolderLoader;
 import com.transcend.otg.Loader.SDEncryptCopyLoader;
 import com.transcend.otg.Loader.SDEncryptLoader;
 import com.transcend.otg.Loader.SDEncryptNewFolderLoader;
+import com.transcend.otg.Security.SecurityLoginFragment;
+import com.transcend.otg.Security.SecurityPasswordFragment;
+import com.transcend.otg.Security.SecurityScsi;
 import com.transcend.otg.Setting.SettingFragment;
 import com.transcend.otg.Task.SDMoveToSDTask;
 import com.transcend.otg.Utils.DecryptUtils;
@@ -131,6 +135,8 @@ public class MainActivity extends AppCompatActivity
     private HelpFragment helpFragment;
     private SettingFragment settingFragment;
     private BackupFragment backupFragment;
+    private SecurityLoginFragment securityLoginFragment;
+    private SecurityPasswordFragment securityPasswordFragment;
     private int mLoaderID, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private FileActionManager mFileActionManager;
     private String mPath;
@@ -153,10 +159,15 @@ public class MainActivity extends AppCompatActivity
     private DocumentFile rootDir, otgDir;
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
     private UsbMassStorageDevice device;
+    private UsbManager usbManager;
+    private PendingIntent pendingIntent;
 
     //Menu
     private MenuItem.OnMenuItemClickListener mCustomMenuItemClicked;
     private boolean mShowCustomMenuIcon = false;
+    private MenuItem itemSecurity;
+    private Menu menu;
+
 
     private LayoutTransition mTransitioner;
     public static int mScreenW;
@@ -228,6 +239,7 @@ public class MainActivity extends AppCompatActivity
         filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
         filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
         registerReceiver(usbReceiver, filter);
+        pendingIntent = PendingIntent.getBroadcast(this , 0 , new Intent(ACTION_USB_PERMISSION), 0);
     }
 
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
@@ -236,7 +248,23 @@ public class MainActivity extends AppCompatActivity
 
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
+                if(doCheckUSBPermission()){
+                    if(getSSDLockStatus())
+                        switchToFragment(NoSsdFragment.class.getName(), false);
+                    else{
+                        String otgKey = LocalPreferences.getOTGKey(mContext, device.getUsbDevice().getSerialNumber());
+                        if(otgKey != ""){
+                            Uri uriTree = Uri.parse(otgKey);
+                            if(checkStorage(uriTree, false)){
+                                replaceFragment(otgFragment);
+                            }
+                        }else{
+                            preGuideDialog("otg");
+                        }
+                    }
 
+
+                }
 
 //                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
 //
@@ -248,6 +276,7 @@ public class MainActivity extends AppCompatActivity
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 if(device != null)
                     device = null;
+                itemSecurity.setVisible(false);
                 if (getBrowserFragment() == null)
                     return;
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
@@ -270,6 +299,8 @@ public class MainActivity extends AppCompatActivity
         toggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        menu = navigationView.getMenu();
+        itemSecurity = menu.findItem(R.id.nav_security);
         NavigationMenuView navigationMenuView = (NavigationMenuView) navigationView.getChildAt(0);
         if (navigationMenuView != null) {
             navigationMenuView.setVerticalScrollBarEnabled(false);
@@ -286,6 +317,8 @@ public class MainActivity extends AppCompatActivity
         feedbackFragment = new FeedbackFragment();
         settingFragment = new SettingFragment();
         backupFragment = new BackupFragment();
+        securityLoginFragment = new SecurityLoginFragment();
+        securityPasswordFragment = new SecurityPasswordFragment();
         getSupportFragmentManager().addOnBackStackChangedListener(
                 new FragmentManager.OnBackStackChangedListener() {
 
@@ -649,7 +682,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void discoverDevice() {
-        UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
+        usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
 
         if (devices.length == 0) {
@@ -661,15 +694,39 @@ public class MainActivity extends AppCompatActivity
             return;
         }
         device = devices[0];
-        String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
-        if(otgKey != ""){
-            Uri uriTree = Uri.parse(otgKey);
-            if(checkStorage(uriTree, false)){
-                replaceFragment(otgFragment);
+        String productName = device.getUsbDevice().getProductName().toLowerCase();
+        if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
+            itemSecurity.setVisible(true);
+            if(!doCheckUSBPermission()){
+                doUSBRequestPermission();
+            }else{
+                if(getSSDLockStatus())
+                    switchToFragment(NoSsdFragment.class.getName(), false);
+                else {
+                    String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
+                    if (otgKey != "") {
+                        Uri uriTree = Uri.parse(otgKey);
+                        if (checkStorage(uriTree, false)) {
+                            replaceFragment(otgFragment);
+                        } else {
+                            preGuideDialog("otg");
+                        }
+                    }
+                }
             }
-        }else{
-            preGuideDialog("otg");
+
+        }else {
+            String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
+            if(otgKey != ""){
+                Uri uriTree = Uri.parse(otgKey);
+                if(checkStorage(uriTree, false)){
+                    replaceFragment(otgFragment);
+                }
+            }else{
+                preGuideDialog("otg");
+            }
         }
+
     }
 
     private boolean checkSDWritePermission(){
@@ -884,9 +941,41 @@ public class MainActivity extends AppCompatActivity
             showFragment(settingFragment);
         }else if(id == R.id.nav_security){
             mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
+            discoverDevice();
+            if(device !=null){
+                String productName = device.getUsbDevice().getProductName().toLowerCase();
+                if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
+                    if(!doCheckUSBPermission()){
+                        doUSBRequestPermission();
+                    }else{
+                        if(getSSDLockStatus())
+                            showFragment(securityLoginFragment);
+                        else
+                            showFragment(securityPasswordFragment);
+                    }
+                }
+            }
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private boolean getSSDLockStatus(){
+        SecurityScsi mSecurityScsi = new SecurityScsi(device.getUsbDevice(), usbManager);
+        mSecurityScsi.SecurityIDActivity();//get id table
+        if(mSecurityScsi.getSecurityStatus()){//lock
+            return true;
+        } else{//unlock
+            return false;
+        }
+    }
+
+    private boolean doCheckUSBPermission() {
+        return usbManager.hasPermission(device.getUsbDevice());
+    }
+
+    private void doUSBRequestPermission() {
+        usbManager.requestPermission(device.getUsbDevice(), pendingIntent);
     }
 
     public void startDestinationActivity(int actionId){
