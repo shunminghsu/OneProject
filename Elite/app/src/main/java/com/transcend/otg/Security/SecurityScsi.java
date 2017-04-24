@@ -101,23 +101,29 @@ public class SecurityScsi {
         }
     }
 
-    public void SecurityIDActivity()
+    public int getSecurityStatus()
     {
         ScsiIDCommand();
         ByteBuffer byteReceive = ByteBuffer.allocate(512);
         if( ReceiveCommand(byteReceive) ){
-            String scsiIDInfo = parsingScsiIDInformation(byteReceive);
+            closeScsiTransfer();
+            parsingScsiIDInformation(byteReceive);
+
+            try{Thread.sleep(1500);}
+            catch (Exception e){e.printStackTrace();}
+
+            if(isSecurityEnable){
+                if(isSecurityLock)
+                    return Constant.SECURITY_LOCK;
+                else
+                    return Constant.SECURITY_UNLOCK;
+            }
+            else{
+                return Constant.SECURITY_DISABLE;
+            }
         }
         closeScsiTransfer();
-    }
-
-    public boolean getSecurityStatus()
-    {
-        return isSecurityLock;
-    }
-
-    public boolean getSecurityEnable(){
-        return isSecurityEnable;
+        return -1;
     }
 
     private void ScsiLockCommand()
@@ -248,14 +254,19 @@ public class SecurityScsi {
         return true;
     }
 
-    private Boolean ReceiveCommand( ByteBuffer byteReceive)
-    {
+    private Boolean ReceiveCommand( ByteBuffer byteReceive){
         byteReceive.order(ByteOrder.LITTLE_ENDIAN);
-        int ret = usbDeviceConnection.bulkTransfer(usbEndpointIn , byteReceive.array() , byteReceive.capacity() , 500);
-
-        if(ret < 0)
-            return false ;
-
+        boolean get_info = false;
+        while(!get_info) {
+            //int ret = usbDeviceConnection.bulkTransfer(usbEndpointIn, byteReceive.array(), byteReceive.capacity(), 500);
+            if(usbDeviceConnection.bulkTransfer(usbEndpointIn, byteReceive.array(), byteReceive.capacity(), 2000) > 0)
+                return true ;
+            try {
+                Thread.sleep(500);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
         return true;
     }
 
@@ -281,43 +292,9 @@ public class SecurityScsi {
         usbDeviceConnection.close();
     }
 
-    private String parsingScsiIDInformation(ByteBuffer IDTableArray)
+    private void parsingScsiIDInformation(ByteBuffer IDTableArray)
     {
-        String IDinformation = "" ;
-        String SerialNamber = "" ;
-        /* Serial Number */
-        for(int i = 0 ; i < 10 ; ++i)
-        {
-            SerialNamber += Character.toString((char)IDTableArray.get( (10 * 2) + i * 2 + 1 )) + Character.toString((char)IDTableArray.get( (10 * 2) + i * 2));
-        }
-        SerialNamber = SerialNamber.trim();
-        IDinformation = SerialNamber + "@";
-
-        /* Firmware Version */
-        String FWVersion = "" ;
-        for( int i = 0 ; i < 4 ; ++i)
-        {
-            FWVersion += Character.toString((char)IDTableArray.get( (23 * 2) + i * 2 + 1 )) + Character.toString((char)IDTableArray.get( (23 * 2) + i * 2)) ;
-        }
-        FWVersion = FWVersion.trim();
-        IDinformation += FWVersion + "@";
-
-        /* Model Name*/
-        String ModelName = "" ;
-        for( int i = 0 ; i < 20 ; ++i)
-        {
-            ModelName += Character.toString((char)IDTableArray.get( (27 * 2) + i * 2 + 1 )) + Character.toString((char)IDTableArray.get( (27 * 2) + i * 2));
-        }
-        ModelName = ModelName.trim();
-        IDinformation += ModelName + "@";
-
-        /* Security support*/
-        String supSecurity = "" ;
-        if ( (IDTableArray.get(0xA4) & 0x02 ) == 0x02 )
-            supSecurity = "1";
-        else
-            supSecurity = "0";
-        IDinformation += supSecurity + "@";
+        //String IDinformation = "" ;
 
         /* Security enable*/
         String isSecurity = "";
@@ -329,8 +306,7 @@ public class SecurityScsi {
             isSecurity = "0";
             isSecurityEnable = false;
         }
-        Constant.isSecurityEnable = isSecurityEnable;
-        IDinformation += isSecurity + "@";
+        //IDinformation += isSecurity + "@";
 
         String SecurityUnlock = "";
         if ( (IDTableArray.get(0x100) & 0x04 ) == 0x04 ) {
@@ -341,9 +317,6 @@ public class SecurityScsi {
             SecurityUnlock = "0";
             isSecurityLock = false;
         }
-        Constant.isSecurityLock = isSecurityLock;
-        IDinformation += SecurityUnlock ;
-
-        return IDinformation ;
+        //IDinformation += SecurityUnlock ;
     }
 }

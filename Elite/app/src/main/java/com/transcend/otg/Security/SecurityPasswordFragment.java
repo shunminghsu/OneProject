@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.PagerTabStrip;
@@ -18,10 +19,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Dialog.SecurityDisableDialog;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
@@ -42,11 +43,12 @@ public class SecurityPasswordFragment extends Fragment {
     private ArrayList<String> titleList;
     private PagerTabStrip pagerTabStrip;
 
-    private EditText editSettingPassword , editSettingConfirmPassword , editRemovePassword , editChangeCurrentPassword , editChangeNewPassword , editChangeConfirmPassword;
-    private Button btnSettingOK , btnSettingCancel , btnRemoveOK , btnRemoveCancel , btnChangeOK , btnChangeCancel;
-    private ImageView imageSettingCircle , imageChangeCircle;
+    private EditText editRemovePassword , editChangeCurrentPassword , editChangeNewPassword , editChangeConfirmPassword;
+    private Button btnRemoveOK , btnRemoveCancel , btnChangeOK , btnChangeCancel;
+    private ImageView imageChangeCircle;
+    private RelativeLayout mRemoveLoading , mChangeLoading ;
     private SecurityScsi securityScsi;
-    private View settingFragment, removeFragment, changeFragment;
+    private View removeFragment, changeFragment;
 
     public SecurityPasswordFragment() {
     }
@@ -70,37 +72,29 @@ public class SecurityPasswordFragment extends Fragment {
         pagerTabStrip.setTextSize(TypedValue.COMPLEX_UNIT_SP , 18);
         final LayoutInflater mInflater = getActivity().getLayoutInflater().from(mContext);
 
-        settingFragment = mInflater.inflate(R.layout.fragment_settingpassword, null);
         removeFragment = mInflater.inflate(R.layout.fragment_removepassword, null);
         changeFragment = mInflater.inflate(R.layout.fragment_changepassword, null);
 
         viewList = new ArrayList<View>();
+        viewList.add(removeFragment);
+        viewList.add(changeFragment);
         titleList = new ArrayList<String>();// 每个页面的Title数据
-        if(Constant.isSecurityEnable){
-            viewList.add(removeFragment);
-            viewList.add(changeFragment);
-            titleList.add(getResources().getString(R.string.LRemovePW));
-            initRemovePasswordEditText();
-            initRemovePasswordButton();
+        titleList.add(getResources().getString(R.string.LRemovePW));
+        initRemovePasswordEditText();
+        initRemovePasswordButton();
+        titleList.add(getResources().getString(R.string.LChangePW));
+        initChangePasswordEditText();
+        initChangePasswordButton();
+        initChangeCircleImage();
 
-            titleList.add(getResources().getString(R.string.LChangePW));
-            initChangePasswordEditText();
-            initChangePasswordButton();
-            initChangeCircleImage();
-        }
-        else{
-            viewList.add(settingFragment);
-            titleList.add(getResources().getString(R.string.LSetPW));
-            initSettingPasswordEditText();
-            initSettingPasswordButton();
-            initSettingCircleImage();
-        }
 
         mViewPager.setAdapter(new SecurityPasswordAdapter(viewList, titleList));
         mViewPager.setCurrentItem(0);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         initSecurityScsi();
+        mRemoveLoading = (RelativeLayout)removeFragment.findViewById(R.id.remove_progress_view);
+        mChangeLoading = (RelativeLayout)changeFragment.findViewById(R.id.change_progress_view);
 
         return root;
     }
@@ -166,34 +160,34 @@ public class SecurityPasswordFragment extends Fragment {
                 //};
 
                 if(imageChangeCircle.getVisibility() == View.VISIBLE){
+                    mChangeLoading.setVisibility(View.VISIBLE);
+                    btnChangeOK.setEnabled(false);
+                    btnChangeCancel.setEnabled(false);
                     try {
-                        securityScsi.SecurityDisableLockActivity(editChangeCurrentPassword.getText().toString());
-                        securityScsi.SecurityIDActivity();
-                        if(securityScsi.getSecurityStatus()){
-                            Toast.makeText(SecurityPasswordFragment.this.getActivity(),getString(R.string.msg_password_incorrect),Toast.LENGTH_LONG).show();
-                            cleanChangeEdit();
-                            return;
-                        }
-
-                        Thread.sleep(1000);
                         securityScsi.SecurityLockActivity(editChangeNewPassword.getText().toString());
-                        securityScsi.SecurityIDActivity();
-                        if(securityScsi.getSecurityStatus()){
-                            Toast.makeText(SecurityPasswordFragment.this.getActivity(), getString(R.string.done), Toast.LENGTH_LONG).show();
+                        Thread.sleep(1000);
+                        if(securityScsi.getSecurityStatus() == Constant.SECURITY_UNLOCK){
+                            snackBarShow(R.string.done);
                             Back2Home();
                         }
                         else{
-                            Toast.makeText(SecurityPasswordFragment.this.getActivity(), getString(R.string.error), Toast.LENGTH_LONG).show();
+                            snackBarShow(R.string.error);
                             cleanChangeEdit();
                         }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                        btnChangeOK.setEnabled(true);
+                        btnChangeCancel.setEnabled(true);
+                        mChangeLoading.setVisibility(View.INVISIBLE);
                     }
                 }
                 else{
-                    Toast.makeText(SecurityPasswordFragment.this.getActivity(),getString(R.string.msg_password_incorrect),Toast.LENGTH_LONG).show();
+                    snackBarShow(R.string.msg_password_incorrect);
                     cleanChangeEdit();
                 }
+                btnChangeOK.setEnabled(true);
+                btnChangeCancel.setEnabled(true);
+                mChangeLoading.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -201,7 +195,7 @@ public class SecurityPasswordFragment extends Fragment {
         btnChangeCancel.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(SecurityPasswordFragment.this.getActivity(),getString(R.string.msg_password_incorrect),Toast.LENGTH_LONG).show();
+                snackBarShow(R.string.msg_password_incorrect);
                 cleanChangeEdit();
             }
         });
@@ -221,22 +215,38 @@ public class SecurityPasswordFragment extends Fragment {
         btnRemoveOK.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    securityScsi.SecurityDisableLockActivity(editRemovePassword.getText().toString());
-                    Thread.sleep(1000);
-                    securityScsi.SecurityIDActivity();
-                    if(securityScsi.getSecurityStatus()){
-                        Toast.makeText(SecurityPasswordFragment.this.getActivity(), getString(R.string.msg_password_incorrect), Toast.LENGTH_LONG).show();
-                        editRemovePassword.setText("");
-                        editRemovePassword.requestFocus();
+                new SecurityDisableDialog(removeFragment.getContext()){
+
+                    @Override
+                    public void onConfirm(boolean bExit) {
+                        if(bExit){
+                            try {
+                                mRemoveLoading.setVisibility(View.VISIBLE);
+                                btnRemoveOK.setEnabled(false);
+                                btnRemoveCancel.setEnabled(false);
+                                securityScsi.SecurityDisableLockActivity(editRemovePassword.getText().toString());
+                                Thread.sleep(1000);
+                                if(securityScsi.getSecurityStatus() == Constant.SECURITY_DISABLE){
+                                    snackBarShow(R.string.done);
+                                    Back2Home();
+                                }
+                                else{
+                                    snackBarShow(R.string.msg_password_incorrect);
+                                    editRemovePassword.setText("");
+                                    editRemovePassword.requestFocus();
+                                }
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                                btnRemoveOK.setEnabled(true);
+                                btnRemoveCancel.setEnabled(true);
+                                mRemoveLoading.setVisibility(View.INVISIBLE);
+                            }
+                            btnRemoveOK.setEnabled(true);
+                            btnRemoveCancel.setEnabled(true);
+                            mRemoveLoading.setVisibility(View.INVISIBLE);
+                        }
                     }
-                    else{
-                        Toast.makeText(SecurityPasswordFragment.this.getActivity(), getString(R.string.done), Toast.LENGTH_LONG).show();
-                        Back2Home();
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
+                };
             }
         });
 
@@ -250,98 +260,6 @@ public class SecurityPasswordFragment extends Fragment {
         });
     }
 
-    private void initSettingPasswordEditText(){
-        editSettingPassword = (EditText)settingFragment.findViewById(R.id.editSettingPassword);
-        editSettingPassword.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if( CheckPassword( editSettingPassword.getText().toString() , editSettingConfirmPassword.getText().toString() ) ){
-                    imageSettingCircle.setVisibility(View.VISIBLE);
-                }
-                else{
-                    imageSettingCircle.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-
-        editSettingConfirmPassword = (EditText)settingFragment.findViewById(R.id.editSettingConfirmPassword);
-        editSettingConfirmPassword.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if( CheckPassword( editSettingPassword.getText().toString() , editSettingConfirmPassword.getText().toString() ) ){
-                    imageSettingCircle.setVisibility(View.VISIBLE);
-                }
-                else{
-                    imageSettingCircle.setVisibility(View.INVISIBLE);
-                }
-            }
-        });
-    }
-
-    private void initSettingPasswordButton(){
-        btnSettingOK = (Button)settingFragment.findViewById(R.id.btnSettingOK);
-        btnSettingOK.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(imageSettingCircle.getVisibility() == View.VISIBLE){
-                    try{
-                        securityScsi.SecurityLockActivity(editSettingPassword.getText().toString());
-                        Thread.sleep(1000);
-                        securityScsi.SecurityIDActivity();
-                        if(securityScsi.getSecurityStatus()){
-                            Toast.makeText(SecurityPasswordFragment.this.getActivity(), getString(R.string.done), Toast.LENGTH_LONG).show();
-                            Back2Home();
-                        }
-                        else{
-                            Toast.makeText(SecurityPasswordFragment.this.getActivity(), getString(R.string.error), Toast.LENGTH_LONG).show();
-                            cleanSettingEdit();
-                        }
-                    }
-                    catch (Exception e){
-                        e.printStackTrace();
-                    }
-                }
-                else{
-                    cleanSettingEdit();
-                }
-            }
-        });
-
-        btnSettingCancel = (Button)settingFragment.findViewById(R.id.btnSettingCancel);
-        btnSettingCancel.setOnClickListener(new Button.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                cleanSettingEdit();
-            }
-        });
-    }
-
-    private void initSettingCircleImage(){
-        imageSettingCircle = (ImageView) settingFragment.findViewById(R.id.imageSettingCircle);
-        imageSettingCircle.setVisibility(View.INVISIBLE);
-    }
-
-
     private boolean CheckPassword( String settingPassword , String confirmPassword ){
         boolean isFollowPasswordRule = false;
         if(settingPassword.equals(confirmPassword) && !settingPassword.contains(" ")){
@@ -350,12 +268,6 @@ public class SecurityPasswordFragment extends Fragment {
             }
         }
         return isFollowPasswordRule;
-    }
-
-    private void cleanSettingEdit(){
-        editSettingPassword.setText("");
-        editSettingConfirmPassword.setText("");
-        editSettingPassword.requestFocus();
     }
 
     private void cleanChangeEdit(){
@@ -377,6 +289,10 @@ public class SecurityPasswordFragment extends Fragment {
         activity.setDrawerCheckItem(R.id.nav_home);
         activity.mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
         activity.showHomeOrFragment(true);
+    }
+
+    private void snackBarShow(int resId) {
+        Snackbar.make(root, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
 

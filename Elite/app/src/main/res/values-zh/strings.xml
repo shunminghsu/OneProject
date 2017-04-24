@@ -107,7 +107,6 @@
     <string name="info_type">類型:</string>
     <string name="preguide_message">由於Android版本上的限制，若要對檔案執行存取，則必須您提供裝置的權限給Elite，以便進行操作。</string>
     <string name="preguide_knowhow">如何獲取</string>
-    <string name="Lsecurity">安全</string>
     <string name="LLogin">登錄</string>
     <string name="LSetPW">設定密碼</string>
     <string name="LRemovePW">移除密碼</string>
@@ -136,5 +135,6 @@
     <string name="info_mtime">最後修改時間:</string>
     <string name="info_file_number_text1">檔案</string>
     <string name="info_file_number_text2">檔案</string>
-    <string name="emptywording">這裡沒有檔案</string>
+    <string name="emptywording">無檔案</string>
+    <string name="Lsecurity">防護</string>
 </resources>

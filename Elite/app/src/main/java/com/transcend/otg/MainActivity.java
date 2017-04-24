@@ -52,7 +52,7 @@ import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.LocalFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
 import com.transcend.otg.Browser.NoSdFragment;
-import com.transcend.otg.Browser.NoSsdFragment;
+import com.transcend.otg.Security.NoSsdFragment;
 import com.transcend.otg.Browser.OTGFragment;
 import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Browser.TabInfo;
@@ -94,6 +94,7 @@ import com.transcend.otg.Loader.SDEncryptNewFolderLoader;
 import com.transcend.otg.Security.SecurityLoginFragment;
 import com.transcend.otg.Security.SecurityPasswordFragment;
 import com.transcend.otg.Security.SecurityScsi;
+import com.transcend.otg.Security.SecuritySettingFragment;
 import com.transcend.otg.Setting.SettingFragment;
 import com.transcend.otg.Task.SDMoveToSDTask;
 import com.transcend.otg.Utils.DecryptUtils;
@@ -136,6 +137,7 @@ public class MainActivity extends AppCompatActivity
     private SettingFragment settingFragment;
     private BackupFragment backupFragment;
     private SecurityLoginFragment securityLoginFragment;
+    private SecuritySettingFragment securitySettingFragment;
     private SecurityPasswordFragment securityPasswordFragment;
     private int mLoaderID, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private FileActionManager mFileActionManager;
@@ -249,7 +251,8 @@ public class MainActivity extends AppCompatActivity
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
                 if(doCheckUSBPermission()){
-                    if(getSSDLockStatus())
+                    SecurityScsi mSecurityScsi = new SecurityScsi(device.getUsbDevice(), usbManager);
+                    if(mSecurityScsi.getSecurityStatus() == Constant.SECURITY_LOCK)
                         switchToFragment(NoSsdFragment.class.getName(), false);
                     else{
                         String otgKey = LocalPreferences.getOTGKey(mContext, device.getUsbDevice().getSerialNumber());
@@ -314,6 +317,7 @@ public class MainActivity extends AppCompatActivity
         backupFragment = new BackupFragment();
         securityLoginFragment = new SecurityLoginFragment();
         securityPasswordFragment = new SecurityPasswordFragment();
+        securitySettingFragment = new SecuritySettingFragment();
         getSupportFragmentManager().addOnBackStackChangedListener(
                 new FragmentManager.OnBackStackChangedListener() {
 
@@ -695,7 +699,8 @@ public class MainActivity extends AppCompatActivity
             if(!doCheckUSBPermission()){
                 doUSBRequestPermission();
             }else{
-                if(getSSDLockStatus())
+                SecurityScsi mSecurityScsi = new SecurityScsi(device.getUsbDevice(), usbManager);
+                if(mSecurityScsi.getSecurityStatus() == Constant.SECURITY_LOCK)
                     switchToFragment(NoSsdFragment.class.getName(), false);
                 else {
                     String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
@@ -706,7 +711,8 @@ public class MainActivity extends AppCompatActivity
                         } else {
                             preGuideDialog("otg");
                         }
-                    }
+                    }else
+                        preGuideDialog("otg");
                 }
             }
 
@@ -943,26 +949,26 @@ public class MainActivity extends AppCompatActivity
                     if(!doCheckUSBPermission()){
                         doUSBRequestPermission();
                     }else{
-                        if(getSSDLockStatus())
-                            showFragment(securityLoginFragment);
-                        else
-                            showFragment(securityPasswordFragment);
+                        SecurityScsi mSecurityScsi = new SecurityScsi(device.getUsbDevice(), usbManager);
+                        switch(mSecurityScsi.getSecurityStatus()){
+                            case Constant.SECURITY_DISABLE :
+                                showFragment(securitySettingFragment);
+                                break;
+                            case Constant.SECURITY_LOCK:
+                                showFragment(securityLoginFragment);
+                                break;
+                            case Constant.SECURITY_UNLOCK:
+                                showFragment(securityPasswordFragment);
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
         }
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    private boolean getSSDLockStatus(){
-        SecurityScsi mSecurityScsi = new SecurityScsi(device.getUsbDevice(), usbManager);
-        mSecurityScsi.SecurityIDActivity();//get id table
-        if(mSecurityScsi.getSecurityStatus()){//lock
-            return true;
-        } else{//unlock
-            return false;
-        }
     }
 
     private boolean doCheckUSBPermission() {

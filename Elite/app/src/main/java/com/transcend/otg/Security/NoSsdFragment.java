@@ -1,4 +1,4 @@
-package com.transcend.otg.Browser;
+package com.transcend.otg.Security;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,7 +19,7 @@ public class NoSsdFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view = inflater.inflate(R.layout.no_outer_storage_layout, container, false);
+        final View view = inflater.inflate(R.layout.no_ssd_layout, container, false);
         ((ImageView)view.findViewById(R.id.no_outer_storage)).setBackgroundResource(R.drawable.bg_drawer_elite);
 //        ((TextView)view.findViewById(R.id.no_storage_title)).setText(R.string.no_sd);
         return view;

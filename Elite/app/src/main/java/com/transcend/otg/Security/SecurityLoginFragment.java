@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.hardware.usb.UsbManager;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,9 +12,9 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
+import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
@@ -28,6 +29,8 @@ public class SecurityLoginFragment extends Fragment{
     private RelativeLayout root;
     private Button btnLogin;
     private EditText editPassword;
+    RelativeLayout mLogin;
+    //private ProgressBar progressBarLoading;
 
     private SecurityScsi securityScsi;
     //private View loginFragment;
@@ -45,21 +48,26 @@ public class SecurityLoginFragment extends Fragment{
                              Bundle savedInstanceState) {
 
         root = (RelativeLayout) inflater.inflate(R.layout.fragment_security_login, container, false);
+        mLogin = (RelativeLayout) root.findViewById(R.id.login_progress_view);
         btnLogin = (Button) root.findViewById(R.id.btn_login);
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!SecurityLogin(editPassword.getText().toString())){
+                mLogin.setVisibility(View.VISIBLE);
+                btnLogin.setEnabled(false);
+                if(SecurityLogin(editPassword.getText().toString())){
                     MainActivity activity = (MainActivity) getActivity();
                     activity.setDrawerCheckItem(R.id.nav_home);
                     activity.mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
                     activity.showHomeOrFragment(true);
                 }
                 else{
-                    Toast.makeText(SecurityLoginFragment.this.getActivity(), getString(R.string.msg_password_incorrect), Toast.LENGTH_LONG).show();
+                    snackBarShow(R.string.error);
                     editPassword.setText("");
                     editPassword.requestFocus();
                 }
+                mLogin.setVisibility(View.INVISIBLE);
+                btnLogin.setEnabled(true);
             }
         });
 
@@ -81,12 +89,15 @@ public class SecurityLoginFragment extends Fragment{
         try {
             securityScsi.SecurityUnlockActivity(password);
             Thread.sleep(2000);
-            securityScsi.SecurityIDActivity();
+            if(securityScsi.getSecurityStatus() == Constant.SECURITY_UNLOCK)
+                return true;
         } catch (InterruptedException e) {
             e.printStackTrace();
-            return false;
         }
-        return securityScsi.getSecurityStatus();
+        return false;
     }
 
+    private void snackBarShow(int resId) {
+        Snackbar.make(root, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+    }
 }

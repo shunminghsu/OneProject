@@ -94,7 +94,6 @@
     <string name="LRemovePW">移除密码</string>
     <string name="LSetPW">设定密码</string>
     <string name="LSettedPW">加密已启用</string>
-    <string name="Lsecurity">安全</string>
     <string name="MSG_NewPWNextLogin">下次登录时，请用新密码解锁磁盘</string>
     <string name="MSG_PWLimition">4-16个文字（无空白符号）</string>
     <string name="MSG_SelectChangeOrRemove">您可以选择修改或移除密码</string>
@@ -136,5 +135,6 @@
     <string name="info_mtime">最后修改时间:</string>
     <string name="info_file_number_text1">文件</string>
     <string name="info_file_number_text2">文件</string>
-    <string name="emptywording">这里没有文件</string>
+    <string name="emptywording">无文件</string>
+    <string name="Lsecurity">防护</string>
 </resources>

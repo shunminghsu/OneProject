@@ -23,7 +23,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_security"
-            android:icon="@mipmap/ic_drawer_setting"
+            android:icon="@mipmap/ic_drawer_security"
             android:visible="false"
             android:title="@string/Lsecurity" />
         <item
