@@ -49,7 +49,7 @@ import jcifs.util.Base64;
 
 public class FeedbackFragment extends Fragment {
     private Context mContext;
-    private TextInputLayout mInputName, mInputEmail, mInputDevice;
+//    private TextInputLayout mInputName, mInputEmail, mInputDevice;
     private EditText mEditTextName, mEditTextEmail, mEditTextDevice, mEditTextMessage;
     private View mProgressBar;
     private Button mBtnSend;
@@ -77,9 +77,9 @@ public class FeedbackFragment extends Fragment {
         // Inflate the layout for this fragment
         RelativeLayout root = (RelativeLayout) inflater.inflate(R.layout.fragment_feedback, container, false);
         mContext = getContext();
-        mInputName = (TextInputLayout) root.findViewById(R.id.input_layout_name);
-        mInputEmail = (TextInputLayout) root.findViewById(R.id.input_layout_email);
-        mInputDevice = (TextInputLayout) root.findViewById(R.id.input_layout_device);
+//        mInputName = (TextInputLayout) root.findViewById(R.id.input_layout_name);
+//        mInputEmail = (TextInputLayout) root.findViewById(R.id.input_layout_email);
+//        mInputDevice = (TextInputLayout) root.findViewById(R.id.input_layout_device);
         mSpinnerRegion = (Spinner) root.findViewById(R.id.spinner_region);
 
         mEditTextName = (EditText) root.findViewById(R.id.input_name);
@@ -271,7 +271,7 @@ public class FeedbackFragment extends Fragment {
             }
         }
         Collections.sort(countries, String.CASE_INSENSITIVE_ORDER);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, R.layout.support_simple_spinner_dropdown_item, countries);
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(mContext, R.layout.spinner_item, countries);
         mSpinnerRegion.setAdapter(adapter);
         mSpinnerRegion.setSelection(adapter.getPosition(current.getDisplayCountry()));
 
@@ -320,23 +320,21 @@ public class FeedbackFragment extends Fragment {
 
     private boolean isValidName() {
         if (mEditTextName.getText().toString().trim().isEmpty()) {
-            mInputName.setHint(getString(R.string.feedback_edittext_require));
+            mEditTextName.setHint(getString(R.string.feedback_edittext_require));
             return false;
         } else {
-            mInputName.setHintEnabled(false);
             return true;
         }
     }
 
     private boolean isValidEmail() {
         String email = mEditTextEmail.getText().toString().trim();
-        boolean isValid = !TextUtils.isEmpty(email) && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+        boolean isValid = !TextUtils.isEmpty(email);// && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
 
         if (!isValid) {
-            mInputEmail.setHint(getString(R.string.feedback_edittext_require));
+            mEditTextEmail.setHint(getString(R.string.feedback_edittext_require));
             return false;
         } else {
-            mInputEmail.setHintEnabled(false);
             return true;
         }
     }

@@ -262,14 +262,9 @@ public class MainActivity extends AppCompatActivity
                             preGuideDialog("otg");
                         }
                     }
-
-
+                }else {
+                    mLocalButton.performClick();
                 }
-
-//                if (intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false)) {
-//
-//                    preGuideDialog("otg");
-//                }
 
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
 
