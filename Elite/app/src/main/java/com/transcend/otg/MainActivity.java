@@ -52,7 +52,6 @@ import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.LocalFragment;
 import com.transcend.otg.Browser.NoOtgFragment;
 import com.transcend.otg.Browser.NoSdFragment;
-import com.transcend.otg.Security.NoSsdFragment;
 import com.transcend.otg.Browser.OTGFragment;
 import com.transcend.otg.Browser.SdFragment;
 import com.transcend.otg.Browser.TabInfo;
@@ -91,6 +90,7 @@ import com.transcend.otg.Loader.SDDecryptNewFolderLoader;
 import com.transcend.otg.Loader.SDEncryptCopyLoader;
 import com.transcend.otg.Loader.SDEncryptLoader;
 import com.transcend.otg.Loader.SDEncryptNewFolderLoader;
+import com.transcend.otg.Security.RemindUnlockFragment;
 import com.transcend.otg.Security.SecurityLoginFragment;
 import com.transcend.otg.Security.SecurityPasswordFragment;
 import com.transcend.otg.Security.SecurityScsi;
@@ -251,9 +251,9 @@ public class MainActivity extends AppCompatActivity
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
                 if(doCheckUSBPermission()){
-                    SecurityScsi mSecurityScsi = new SecurityScsi(device.getUsbDevice(), usbManager);
+                    SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager);
                     if(mSecurityScsi.getSecurityStatus() == Constant.SECURITY_LOCK)
-                        switchToFragment(NoSsdFragment.class.getName(), false);
+                        switchToFragment(RemindUnlockFragment.class.getName(), false);
                     else{
                         String otgKey = LocalPreferences.getOTGKey(mContext, device.getUsbDevice().getSerialNumber());
                         if(otgKey != ""){
@@ -704,9 +704,9 @@ public class MainActivity extends AppCompatActivity
             if(!doCheckUSBPermission()){
                 doUSBRequestPermission();
             }else{
-                SecurityScsi mSecurityScsi = new SecurityScsi(device.getUsbDevice(), usbManager);
+                SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager);
                 if(mSecurityScsi.getSecurityStatus() == Constant.SECURITY_LOCK)
-                    switchToFragment(NoSsdFragment.class.getName(), false);
+                    switchToFragment(RemindUnlockFragment.class.getName(), false);
                 else {
                     String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
                     if (otgKey != "") {
@@ -952,7 +952,7 @@ public class MainActivity extends AppCompatActivity
                     if(!doCheckUSBPermission()){
                         doUSBRequestPermission();
                     }else{
-                        SecurityScsi mSecurityScsi = new SecurityScsi(device.getUsbDevice(), usbManager);
+                        SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager);
                         switch(mSecurityScsi.getSecurityStatus()){
                             case Constant.SECURITY_DISABLE :
                                 showFragment(securitySettingFragment);

@@ -43,7 +43,17 @@ public class SecurityLoginFragment extends Fragment{
         mContext = getActivity();
     }
 
-  @Override
+    @Override
+    public void onPause() {
+        super.onPause();
+        clearAllValue();
+    }
+
+    private void clearAllValue(){
+        editPassword.setText("");
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
@@ -55,7 +65,8 @@ public class SecurityLoginFragment extends Fragment{
             public void onClick(View v) {
                 mLogin.setVisibility(View.VISIBLE);
                 btnLogin.setEnabled(false);
-                if(SecurityLogin(editPassword.getText().toString())){
+                String password = editPassword.getText().toString();
+                if( password.length() >= 4  && SecurityLogin(password)){
                     MainActivity activity = (MainActivity) getActivity();
                     activity.setDrawerCheckItem(R.id.nav_home);
                     activity.mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
@@ -82,15 +93,16 @@ public class SecurityLoginFragment extends Fragment{
         UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
         UsbMassStorageDevice device = devices[0];
-        securityScsi = new SecurityScsi( device.getUsbDevice() , usbManager);
+        securityScsi = SecurityScsi.getInstance( device.getUsbDevice() , usbManager);
     }
 
     private boolean SecurityLogin(String password){
         try {
             securityScsi.SecurityUnlockActivity(password);
-            Thread.sleep(2000);
-            if(securityScsi.getSecurityStatus() == Constant.SECURITY_UNLOCK)
+            Thread.sleep(1000);
+            if(securityScsi.checkSecurityStatus() == Constant.SECURITY_UNLOCK) {
                 return true;
+            }
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

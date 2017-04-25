@@ -63,6 +63,17 @@ public class SecuritySettingFragment extends Fragment{
         return root;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        clearAllValue();
+    }
+
+    private void clearAllValue(){
+        editSettingPassword.setText("");
+        editSettingConfirmPassword.setText("");
+    }
+
     private void initSettingPasswordEditText(){
         editSettingPassword = (EditText)root.findViewById(R.id.editSettingPassword);
         editSettingPassword.addTextChangedListener(new TextWatcher() {
@@ -123,7 +134,7 @@ public class SecuritySettingFragment extends Fragment{
                     try{
                         securityScsi.SecurityLockActivity(editSettingPassword.getText().toString());
                         Thread.sleep(1000);
-                        if(securityScsi.getSecurityStatus() == Constant.SECURITY_UNLOCK){
+                        if(securityScsi.checkSecurityStatus() == Constant.SECURITY_UNLOCK){
                             snackBarShow(R.string.done);
                             Back2Home();
                         }
@@ -166,7 +177,7 @@ public class SecuritySettingFragment extends Fragment{
         UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
         UsbMassStorageDevice device = devices[0];
-        securityScsi = new SecurityScsi(device.getUsbDevice() , usbManager);
+        securityScsi = SecurityScsi.getInstance(device.getUsbDevice() , usbManager);
     }
 
     private void cleanSettingEdit(){

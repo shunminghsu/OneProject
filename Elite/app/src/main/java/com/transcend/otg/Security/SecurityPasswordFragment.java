@@ -99,6 +99,19 @@ public class SecurityPasswordFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        clearAllValue();
+    }
+
+    private void clearAllValue(){
+        editRemovePassword.setText("");
+        editChangeCurrentPassword.setText("");
+        editChangeNewPassword.setText("");
+        editChangeConfirmPassword.setText("");
+    }
+
     private void initChangePasswordEditText(){
         editChangeCurrentPassword = (EditText)changeFragment.findViewById(R.id.editChangeCurrentPassword);
         editChangeNewPassword = (EditText)changeFragment.findViewById(R.id.editChangeNewPassword);
@@ -166,7 +179,7 @@ public class SecurityPasswordFragment extends Fragment {
                     try {
                         securityScsi.SecurityLockActivity(editChangeNewPassword.getText().toString());
                         Thread.sleep(1000);
-                        if(securityScsi.getSecurityStatus() == Constant.SECURITY_UNLOCK){
+                        if(securityScsi.checkSecurityStatus() == Constant.SECURITY_UNLOCK){
                             snackBarShow(R.string.done);
                             Back2Home();
                         }
@@ -226,7 +239,7 @@ public class SecurityPasswordFragment extends Fragment {
                                 btnRemoveCancel.setEnabled(false);
                                 securityScsi.SecurityDisableLockActivity(editRemovePassword.getText().toString());
                                 Thread.sleep(1000);
-                                if(securityScsi.getSecurityStatus() == Constant.SECURITY_DISABLE){
+                                if(securityScsi.checkSecurityStatus() == Constant.SECURITY_DISABLE){
                                     snackBarShow(R.string.done);
                                     Back2Home();
                                 }
@@ -281,7 +294,7 @@ public class SecurityPasswordFragment extends Fragment {
         UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
         UsbMassStorageDevice device = devices[0];
-        securityScsi = new SecurityScsi(device.getUsbDevice() , usbManager);
+        securityScsi = SecurityScsi.getInstance(device.getUsbDevice() , usbManager);
     }
 
     private void Back2Home(){

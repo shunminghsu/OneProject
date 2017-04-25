@@ -17,11 +17,11 @@ import java.nio.ByteOrder;
  */
 
 public class SecurityScsi {
-    private UsbDevice usbDevice;
+    private static UsbDevice usbDevice;
     private UsbDeviceConnection usbDeviceConnection ;
     private UsbEndpoint usbEndpointIn , usbEndpointOut;
     private UsbInterface usbInterface;
-    private UsbManager usbManager;
+    private static UsbManager usbManager;
 
     private static final boolean FORCE_CLAIM = true;
     private static final int MAX_BUFFER_SIZE = 512;
@@ -35,7 +35,19 @@ public class SecurityScsi {
     private boolean isSecurityLock = false;
     private boolean isSecurityEnable = true;
 
-    public SecurityScsi(UsbDevice Device , UsbManager Manager)
+    private static SecurityScsi instance ;
+    private int SecurityStatus = Constant.SECURITY_DEVICE_EMPTY;
+
+    public static synchronized SecurityScsi getInstance(UsbDevice Device , UsbManager Manager){
+        if( instance == null ){
+            instance = new SecurityScsi(Device , Manager);
+        }else if( usbDevice != Device || usbManager != Manager){
+            instance = new SecurityScsi(Device , Manager);
+        }
+        return instance ;
+    }
+
+    private SecurityScsi(UsbDevice Device , UsbManager Manager)
     {
         usbDevice = Device ;
         usbManager = Manager ;
@@ -103,27 +115,36 @@ public class SecurityScsi {
 
     public int getSecurityStatus()
     {
+        return SecurityStatus ;
+    }
+
+    public void setSecurityStatus( int status ){
+        SecurityStatus = status ;
+    }
+
+    public int checkSecurityStatus(){
         ScsiIDCommand();
         ByteBuffer byteReceive = ByteBuffer.allocate(512);
         if( ReceiveCommand(byteReceive) ){
-            closeScsiTransfer();
             parsingScsiIDInformation(byteReceive);
-
             try{Thread.sleep(1500);}
             catch (Exception e){e.printStackTrace();}
 
             if(isSecurityEnable){
                 if(isSecurityLock)
-                    return Constant.SECURITY_LOCK;
+                    SecurityStatus = Constant.SECURITY_LOCK;
                 else
-                    return Constant.SECURITY_UNLOCK;
+                    SecurityStatus = Constant.SECURITY_UNLOCK;
             }
             else{
-                return Constant.SECURITY_DISABLE;
+                SecurityStatus = Constant.SECURITY_DISABLE;
             }
+        }else{
+            SecurityStatus = Constant.SECURITY_DEVICE_EMPTY;
         }
         closeScsiTransfer();
-        return -1;
+
+        return SecurityStatus;
     }
 
     private void ScsiLockCommand()
