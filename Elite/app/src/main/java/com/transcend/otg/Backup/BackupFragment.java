@@ -171,6 +171,12 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         return root;
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        resetAll();
+    }
+
     private void resetAll(){
         cbPhoto.setChecked(false);
         cbVideo.setChecked(false);

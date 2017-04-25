@@ -15,6 +15,7 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MathUtils;
 
 import java.io.File;
@@ -37,12 +38,14 @@ public class OTGCopytoLocalEncryptLoader extends AsyncTaskLoader<Boolean> {
     private Runnable mWatcher;
     private ArrayList<DocumentFile> mSrcDocumentFileList;
     private String mDesFile;
+    private int mNotificationID = 0;
 
     public OTGCopytoLocalEncryptLoader(Context context, ArrayList<DocumentFile> src, String des) {
         super(context);
         mActivity = (Activity) context;
         mSrcDocumentFileList = src;
         mDesFile = des;
+        mNotificationID = FileFactory.getInstance().getNotificationID();
     }
 
     @Override
@@ -58,7 +61,7 @@ public class OTGCopytoLocalEncryptLoader extends AsyncTaskLoader<Boolean> {
     }
 
     private boolean Copy() throws IOException {
-        updateProgress(getContext().getResources().getString(R.string.loading), 0, 0);
+        updateResult(getContext().getResources().getString(R.string.encrypting));
         for (DocumentFile file : mSrcDocumentFileList) {
             if (file.isDirectory()) {
                 copyDirectoryTask(mActivity, file, mDesFile);
@@ -66,7 +69,6 @@ public class OTGCopytoLocalEncryptLoader extends AsyncTaskLoader<Boolean> {
                 copyFileTask(mActivity, file, mDesFile);
             }
         }
-        updateResult(getContext().getString(R.string.done));
         return true;
     }
 
@@ -166,7 +168,7 @@ public class OTGCopytoLocalEncryptLoader extends AsyncTaskLoader<Boolean> {
         copyFile(context, srcFileItem, destFile);
         mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(destFile)));
         closeProgressWatcher();
-        updateProgress(destFile.getName(), total, total);
+//        updateProgress(destFile.getName(), total, total);
     }
 
     public boolean copyFile(Context context, DocumentFile srcFileItem, File destFileItem) {
@@ -210,7 +212,7 @@ public class OTGCopytoLocalEncryptLoader extends AsyncTaskLoader<Boolean> {
                 int count = (int) target.length();
                 if (mHandler != null) {
                     mHandler.postDelayed(mWatcher, 1000);
-                    updateProgress(target.getName(), count, total);
+//                    updateProgress(target.getName(), count, total);
                 }
             }
         });
@@ -255,7 +257,7 @@ public class OTGCopytoLocalEncryptLoader extends AsyncTaskLoader<Boolean> {
         builder.setProgress(max, progress, indeterminate);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
     }
 
     private void updateResult(String result) {
@@ -277,6 +279,7 @@ public class OTGCopytoLocalEncryptLoader extends AsyncTaskLoader<Boolean> {
         builder.setContentText(text);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
+        FileFactory.getInstance().releaseNotificationID(mNotificationID);
     }
 }

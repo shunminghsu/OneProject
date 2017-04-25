@@ -15,6 +15,7 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MathUtils;
 
 import java.io.File;
@@ -37,12 +38,14 @@ public class OTGMovetoLocalLoader extends AsyncTaskLoader<Boolean> {
     private Runnable mWatcher;
     private ArrayList<DocumentFile> mSrcDocumentFileList;
     private String mDesFile;
+    private int mNotificationID = 0;
 
     public OTGMovetoLocalLoader(Context context, ArrayList<DocumentFile> src, String des) {
         super(context);
         mActivity = (Activity) context;
         mSrcDocumentFileList = src;
         mDesFile = des;
+        mNotificationID = FileFactory.getInstance().getNotificationID();
     }
 
     @Override
@@ -257,7 +260,7 @@ public class OTGMovetoLocalLoader extends AsyncTaskLoader<Boolean> {
         builder.setProgress(max, progress, indeterminate);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
     }
 
     private void updateResult(String result) {
@@ -279,6 +282,7 @@ public class OTGMovetoLocalLoader extends AsyncTaskLoader<Boolean> {
         builder.setContentText(text);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
+        FileFactory.getInstance().releaseNotificationID(mNotificationID);
     }
 }

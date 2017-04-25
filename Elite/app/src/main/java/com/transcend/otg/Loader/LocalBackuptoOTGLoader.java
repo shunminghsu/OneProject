@@ -15,6 +15,7 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MathUtils;
 
 import java.io.File;
@@ -40,6 +41,7 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
     private DocumentFile mDesDocumentFile;
     private List<String> mSrcFile;
     private String mType;
+    private int mNotificationID = 0;
 
     public LocalBackuptoOTGLoader(Context context, List<String> src, ArrayList<DocumentFile> des, String type) {
         super(context);
@@ -47,6 +49,7 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
         mSrcFile = src;
         mDesDocumentFile = des.get(0);
         mType = type;
+        mNotificationID = FileFactory.getInstance().getNotificationID();
         createBackupFolder();
     }
 
@@ -241,7 +244,7 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
         builder.setProgress(max, progress, indeterminate);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
     }
 
     private void updateResult(String result) {
@@ -263,7 +266,8 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
         builder.setContentText(text);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
+        FileFactory.getInstance().releaseNotificationID(mNotificationID);
     }
 
     public String getType() {

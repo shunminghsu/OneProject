@@ -272,8 +272,13 @@ public class MainActivity extends AppCompatActivity
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
 
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+
                 if(device != null)
                     device = null;
+                if(mActionMode != null){
+                    mActionMode.finish();
+                    Constant.mActionMode = mActionMode = null;
+                }
                 itemSecurity.setVisible(false);
                 if (getBrowserFragment() == null)
                     return;
@@ -715,7 +720,6 @@ public class MainActivity extends AppCompatActivity
                         preGuideDialog("otg");
                 }
             }
-
         }else {
             String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
             if(otgKey != ""){
@@ -727,7 +731,6 @@ public class MainActivity extends AppCompatActivity
                 preGuideDialog("otg");
             }
         }
-
     }
 
     private boolean checkSDWritePermission(){
@@ -1873,6 +1876,7 @@ public class MainActivity extends AppCompatActivity
                     }
 
                 }else{
+                    ActionParameter.path = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
                     mFileActionManager.newFolderOTG(newName, mDFiles);
                 }
             }
@@ -1919,6 +1923,7 @@ public class MainActivity extends AppCompatActivity
                         ActionParameter.files = selectedFiles;
                     }
                 }else{
+                    ActionParameter.files = selectedFiles;
                     mFileActionManager.renameOTG(newName, selectedDocumentFile);
                 }
 

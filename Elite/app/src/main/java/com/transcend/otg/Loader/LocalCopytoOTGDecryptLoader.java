@@ -15,6 +15,7 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MathUtils;
 
 import java.io.File;
@@ -39,12 +40,14 @@ public class LocalCopytoOTGDecryptLoader extends AsyncTaskLoader<Boolean> {
     private Runnable mWatcher;
     private DocumentFile mDesDocumentFile;
     private List<String> mSrcFile;
+    private int mNotificationID = 0;
 
     public LocalCopytoOTGDecryptLoader(Context context, List<String> src, ArrayList<DocumentFile> des) {
         super(context);
         mActivity = (Activity) context;
         mSrcFile = src;
         mDesDocumentFile = des.get(0);
+        mNotificationID = FileFactory.getInstance().getNotificationID();
     }
 
     @Override
@@ -194,7 +197,7 @@ public class LocalCopytoOTGDecryptLoader extends AsyncTaskLoader<Boolean> {
         boolean indeterminate = (total == 0);
         int icon = R.mipmap.icon_elite_logo;
 
-        String type = getContext().getResources().getString(R.string.encrypt);
+        String type = getContext().getResources().getString(R.string.decrypt);
         String stat = String.format("%s / %s", MathUtils.getBytes(count), MathUtils.getBytes(total));
         String text = String.format("%s - %s", type, stat);
         String info = String.format("%d%%", progress);
@@ -212,7 +215,7 @@ public class LocalCopytoOTGDecryptLoader extends AsyncTaskLoader<Boolean> {
         builder.setProgress(max, progress, indeterminate);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
     }
 
     private void updateResult(String result) {
@@ -220,7 +223,7 @@ public class LocalCopytoOTGDecryptLoader extends AsyncTaskLoader<Boolean> {
 
         int icon = R.mipmap.icon_elite_logo;
         String name = getContext().getResources().getString(R.string.app_name);
-        String type = getContext().getResources().getString(R.string.encrypt);
+        String type = getContext().getResources().getString(R.string.decrypt);
         String text = String.format("%s - %s", type, result);
 
         NotificationManager ntfMgr = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
@@ -234,6 +237,7 @@ public class LocalCopytoOTGDecryptLoader extends AsyncTaskLoader<Boolean> {
         builder.setContentText(text);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
+        FileFactory.getInstance().releaseNotificationID(mNotificationID);
     }
 }

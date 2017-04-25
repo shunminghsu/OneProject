@@ -122,7 +122,7 @@ public abstract class OTGEncryptDialog implements TextWatcher, View.OnClickListe
 
     private String getUniqueName() {
         int index = 1;
-        String name = mContext.getResources().getString(R.string.untitled_folder);
+        String name = mContext.getResources().getString(R.string.encrypt);
         String unique = name;
         //while (mEncryptFileNames.contains(unique)) {
         //    unique = String.format(name + " (%d)", index++);

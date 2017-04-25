@@ -18,7 +18,7 @@ import com.transcend.otg.R;
 
 public class HelpFragment extends Fragment {
 
-    WebView mWebView;
+    private WebView mWebView;
     public HelpFragment(){}
 
     @Override
@@ -26,21 +26,12 @@ public class HelpFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         LinearLayout root = (LinearLayout) inflater.inflate(R.layout.fragment_help, container, false);
-
         mWebView = (WebView) root.findViewById(R.id.webview);
         mWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        mWebView.setWebViewClient(mWebViewClient);
-        mWebView.loadUrl("https://tw.transcend-info.com/support/cate-3");
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        mWebView.loadUrl("https://tw.transcend-info.com/support/cate-3");
+        mWebView.setWebViewClient(new WebViewClient());
         return root;
     }
 
-
-    WebViewClient mWebViewClient = new WebViewClient() {
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            view.loadUrl(url);
-            return true;
-        }
-    };
 }

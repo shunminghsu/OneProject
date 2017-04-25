@@ -17,6 +17,7 @@ import android.util.Log;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.R;
+import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MathUtils;
 
 import java.io.File;
@@ -43,12 +44,14 @@ public class LocalMovetoOTGLoader extends AsyncTaskLoader<Boolean> {
     private List<String> mSrcFile;
     private boolean b_SDCard = false;
     private String destinationPath;
+    private int mNotificationID = 0;
 
     public LocalMovetoOTGLoader(Context context, List<String> src, ArrayList<DocumentFile> des, String path) {
         super(context);
         mActivity = (Activity) context;
         mSrcFile = src;
         mDesDocumentFile = des.get(0);
+        mNotificationID = FileFactory.getInstance().getNotificationID();
         if(Constant.mSDRootDocumentFile != null){
             if(mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())){
                 b_SDCard = true;
@@ -232,7 +235,7 @@ public class LocalMovetoOTGLoader extends AsyncTaskLoader<Boolean> {
         builder.setProgress(max, progress, indeterminate);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
     }
 
     private void updateResult(String result) {
@@ -254,6 +257,7 @@ public class LocalMovetoOTGLoader extends AsyncTaskLoader<Boolean> {
         builder.setContentText(text);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
+        FileFactory.getInstance().releaseNotificationID(mNotificationID);
     }
 }

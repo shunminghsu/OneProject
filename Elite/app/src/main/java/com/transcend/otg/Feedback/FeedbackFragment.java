@@ -71,6 +71,7 @@ public class FeedbackFragment extends Fragment {
 
     public FeedbackFragment(){}
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -111,6 +112,12 @@ public class FeedbackFragment extends Fragment {
         getRegionName();
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         return root;
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        clearAllValue();
     }
 
     private void clearAllValue(){

@@ -45,12 +45,14 @@ public class LocalCopytoOTGLoader extends AsyncTaskLoader<Boolean> {
     private List<String> mSrcFile;
     private boolean b_SDCard = false;
     private String destinationPath;
+    private int mNotificationID = 0;
 
     public LocalCopytoOTGLoader(Context context, List<String> src, ArrayList<DocumentFile> des, String path) {
         super(context);
         mActivity = (Activity) context;
         mSrcFile = src;
         mDesDocumentFile = des.get(0);
+        mNotificationID = FileFactory.getInstance().getNotificationID();
         if(Constant.mSDRootDocumentFile != null){
             if(mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())){
                 b_SDCard = true;
@@ -236,7 +238,7 @@ public class LocalCopytoOTGLoader extends AsyncTaskLoader<Boolean> {
         builder.setProgress(max, progress, indeterminate);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
     }
 
     private void updateResult(String result) {
@@ -258,6 +260,7 @@ public class LocalCopytoOTGLoader extends AsyncTaskLoader<Boolean> {
         builder.setContentText(text);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
-        ntfMgr.notify(0, builder.build());
+        ntfMgr.notify(mNotificationID, builder.build());
+        FileFactory.getInstance().releaseNotificationID(mNotificationID);
     }
 }
