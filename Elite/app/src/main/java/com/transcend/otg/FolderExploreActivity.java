@@ -1074,7 +1074,8 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doOTGEncryptNewFolder(){
-        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        calendar = Calendar.getInstance();
+        String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         EncryptUtils.setBeforeEncryptPath(folderName);
         mFileActionManager.newFolderEncryptOTG(folderName);
@@ -1121,7 +1122,8 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doOTGDecryptNewFolder(){
-        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        calendar = Calendar.getInstance();
+        String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         DecryptUtils.setBeforeDecryptPath(folderName);
         mFileActionManager.newFolderDecryptOTG(folderName);
@@ -1231,7 +1233,8 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doSDEncryptNewFolder(){
-        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        calendar = Calendar.getInstance();
+        String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         EncryptUtils.setBeforeEncryptPath(folderName);
         mFileActionManager.newFolderEncryptSD(folderName);
@@ -1329,7 +1332,8 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doLocalEncryptNewFolder(){
-        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        calendar = Calendar.getInstance();
+        String currentDateTimeString = sdf.format(calendar.getTime());
         String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
         EncryptUtils.setBeforeEncryptPath(folderName);
         mFileActionManager.newFolderEncrypt(folderName);
@@ -1441,6 +1445,7 @@ public class FolderExploreActivity extends AppCompatActivity
 
     private void doOTGRename(final boolean bSDCard) {
         final ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
+        ActionParameter.files = selectedFiles;
         new OTGRenameDialog(this, selectedFiles, !bSDCard, true) {
             @Override
             public void onConfirm(String newName, String oldName, ArrayList<DocumentFile> selectedDocumentFile) {
@@ -1449,11 +1454,9 @@ public class FolderExploreActivity extends AppCompatActivity
                 if(bSDCard){
                     if(checkSDWritePermission()){
                         ActionParameter.name = newName;
-                        ActionParameter.files = selectedFiles;
                         mFileActionManager.renameOTG(newName, selectedDocumentFile);
                     }else{
                         ActionParameter.name = newName;
-                        ActionParameter.files = selectedFiles;
                     }
                 }else{
                     mFileActionManager.renameOTG(newName, selectedDocumentFile);
