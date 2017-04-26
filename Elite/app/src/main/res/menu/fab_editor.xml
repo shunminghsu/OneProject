@@ -10,6 +10,17 @@
 
         <menu>
             <item
+                android:id="@+id/action_rename"
+                android:icon="@mipmap/ic_rename_gray"
+                android:title="@string/rename"
+                app:showAsAction="never" />
+
+            <item
+                android:id="@+id/action_share"
+                android:icon="@mipmap/ic_share_gray"
+                android:title="@string/share"
+                app:showAsAction="never" />
+            <item
                 android:id="@+id/action_copy"
                 android:icon="@mipmap/ic_copy_gray"
                 android:title="@string/copy"
@@ -22,28 +33,17 @@
                 app:showAsAction="never" />
 
             <item
-                android:id="@+id/action_delete"
-                android:icon="@mipmap/ic_delete_gray"
-                android:title="@string/delete"
-                app:showAsAction="never" />
-
-            <item
-                android:id="@+id/action_rename"
-                android:icon="@mipmap/ic_rename_gray"
-                android:title="@string/rename"
-                app:showAsAction="never" />
-
-            <item
                 android:id="@+id/action_encrypt"
                 android:icon="@mipmap/ic_encrypt_s"
                 android:title="@string/encrypt"
                 app:showAsAction="never" />
 
             <item
-                android:id="@+id/action_share"
-                android:icon="@mipmap/ic_share_gray"
-                android:title="@string/share"
+                android:id="@+id/action_delete"
+                android:icon="@mipmap/ic_delete_gray"
+                android:title="@string/delete"
                 app:showAsAction="never" />
+
 
         </menu>
 

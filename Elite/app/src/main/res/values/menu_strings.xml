@@ -1,7 +1,7 @@
 <resources>
     <string name="menu_grid">View</string>
     <string name="menu_list">View</string>
-    <string name="menu_sort">Sort by</string>
+    <string name="menu_sort">Sort</string>
     <string name="menu_search">Search</string>
 
     <string name="sort_name">Name</string>

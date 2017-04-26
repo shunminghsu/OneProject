@@ -294,7 +294,7 @@ public class SecurityPasswordFragment extends Fragment {
         UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
         UsbMassStorageDevice device = devices[0];
-        securityScsi = SecurityScsi.getInstance(device.getUsbDevice() , usbManager);
+        securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
     }
 
     private void Back2Home(){

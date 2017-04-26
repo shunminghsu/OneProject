@@ -7,7 +7,8 @@
         android:id="@+id/action_mode_custom_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="left"
+        android:gravity="center"
+        android:layout_centerInParent="true"
         android:textSize="18sp"
         android:textColor="@color/colorWhite"/>
 

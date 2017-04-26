@@ -38,10 +38,8 @@ public class SecurityScsi {
     private static SecurityScsi instance ;
     private int SecurityStatus = Constant.SECURITY_DEVICE_EMPTY;
 
-    public static synchronized SecurityScsi getInstance(UsbDevice Device , UsbManager Manager){
-        if( instance == null ){
-            instance = new SecurityScsi(Device , Manager);
-        }else if( usbDevice != Device || usbManager != Manager){
+    public static synchronized SecurityScsi getInstance(UsbDevice Device , UsbManager Manager , boolean reCreate){
+        if( instance == null || reCreate){
             instance = new SecurityScsi(Device , Manager);
         }
         return instance ;

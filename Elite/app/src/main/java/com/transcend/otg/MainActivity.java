@@ -22,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.view.ActionMode;
+import android.text.Html;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.support.v4.view.MenuItemCompat;
@@ -251,8 +252,13 @@ public class MainActivity extends AppCompatActivity
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
                 if(doCheckUSBPermission()){
-                    SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager);
-                    if(mSecurityScsi.getSecurityStatus() == Constant.SECURITY_LOCK)
+                    itemSecurity.setVisible(true);
+                    SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager , true);
+                    int securityStatus = mSecurityScsi.getSecurityStatus();
+                    if( securityStatus == Constant.SECURITY_DEVICE_EMPTY){
+                        securityStatus = mSecurityScsi.checkSecurityStatus();
+                    }
+                    if( securityStatus == Constant.SECURITY_LOCK)
                         switchToFragment(RemindUnlockFragment.class.getName(), false);
                     else{
                         String otgKey = LocalPreferences.getOTGKey(mContext, device.getUsbDevice().getSerialNumber());
@@ -280,6 +286,12 @@ public class MainActivity extends AppCompatActivity
                     Constant.mActionMode = mActionMode = null;
                 }
                 itemSecurity.setVisible(false);
+                if(getFragment() instanceof SecurityLoginFragment|| getFragment() instanceof SecurityPasswordFragment
+                        || getFragment() instanceof SecuritySettingFragment || getFragment() instanceof RemindUnlockFragment){
+                    mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
+                    showHomeOrFragment(true);
+                    return;
+                }
                 if (getBrowserFragment() == null)
                     return;
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
@@ -700,11 +712,10 @@ public class MainActivity extends AppCompatActivity
         device = devices[0];
         String productName = device.getUsbDevice().getProductName().toLowerCase();
         if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
-            itemSecurity.setVisible(true);
             if(!doCheckUSBPermission()){
                 doUSBRequestPermission();
             }else{
-                SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager);
+                SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager , false );
                 if(mSecurityScsi.getSecurityStatus() == Constant.SECURITY_LOCK)
                     switchToFragment(RemindUnlockFragment.class.getName(), false);
                 else {
@@ -945,14 +956,13 @@ public class MainActivity extends AppCompatActivity
             showFragment(settingFragment);
         }else if(id == R.id.nav_security){
             mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
-            discoverDevice();
             if(device !=null){
                 String productName = device.getUsbDevice().getProductName().toLowerCase();
                 if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
                     if(!doCheckUSBPermission()){
                         doUSBRequestPermission();
                     }else{
-                        SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager);
+                        SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
                         switch(mSecurityScsi.getSecurityStatus()){
                             case Constant.SECURITY_DISABLE :
                                 showFragment(securitySettingFragment);
@@ -1075,6 +1085,7 @@ public class MainActivity extends AppCompatActivity
     private void initSearch(SearchView searchview) {
         (searchview.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setBackgroundResource(R.drawable.search_background);
         ((EditText)searchview.findViewById(android.support.v7.appcompat.R.id.search_src_text)).setTextColor(Color.BLACK);
+        searchview.setQueryHint(Html.fromHtml("<font color = #BDBDBD>" + getResources().getString(R.string.menu_search) + "</font>"));
         searchview.setOnQueryTextListener(
                 new SearchView.OnQueryTextListener() {
                     @Override
