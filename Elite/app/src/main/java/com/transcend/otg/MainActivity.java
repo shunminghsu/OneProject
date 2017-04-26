@@ -185,6 +185,7 @@ public class MainActivity extends AppCompatActivity
         initButtons();
         initHome();
         initFragment();
+        initOTGInsertService();
         initActionModeView();
     }
 
@@ -344,6 +345,16 @@ public class MainActivity extends AppCompatActivity
                             mFab.setVisibility(View.VISIBLE);
                     }
                 });
+    }
+
+    private void initOTGInsertService() {
+        Intent intent = new Intent(MainActivity.this, OTGInsertService.class);
+        startService(intent);
+    }
+
+    private void stopOTGInsertService() {
+        Intent intent = new Intent(MainActivity.this, OTGInsertService.class);
+        stopService(intent);
     }
 
     private void initActionModeView() {

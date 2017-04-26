@@ -55,6 +55,7 @@
     <string name="no_otg">OTG is not found.</string>
     <string name="permission_guide_next">Next</string>
     <string name="preguide_knowhow">Learn how</string>
+    <string name="open_app_when_insert_otg">An OTG device is connected, do you want to open Transcend Elite ?</string>
 
     <!-- Fab -->
     <string name="more">More</string>

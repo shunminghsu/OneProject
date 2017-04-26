@@ -137,4 +137,5 @@
     <string name="info_file_number_text1">файлы</string>
     <string name="info_file_number_text2">файлы</string>
     <string name="emptywording">Файлы не обнаружены.</string>
+    <string name="open_app_when_insert_otg">Подключено устройство OTG, Вы хотите запустить Transcend Elite?</string>
 </resources>

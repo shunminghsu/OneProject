@@ -64,4 +64,14 @@
         <item name="colorAccent">@color/colorPrimary</item>
     </style>
 
+    <style name="AppDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColorPrimary">@color/colorBlack</item>
+        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="buttonBarNegativeButtonStyle">@style/AlertDialogButtonNegative</item>
+    </style>
+
+    <style name="AlertDialogButtonNegative" parent="Widget.AppCompat.Button.Borderless">
+        <item name="android:textColor">@color/colorGray</item>
+    </style>
+
 </resources>

@@ -137,4 +137,5 @@
     <string name="info_file_number_text1">파일</string>
     <string name="info_file_number_text2">파일</string>
     <string name="emptywording">이곳에 저장된 파일이 없습니다.</string>
+    <string name="open_app_when_insert_otg">OTG 기기가 연결되었습니다. Transcend Elite 앱을 실행하시겠습니까?</string>
 </resources>
