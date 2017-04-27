@@ -28,7 +28,6 @@
     <string name="menu_delete">Sil</string>
     <string name="ok">OK</string>
     <string name="password">şifre</string>
-    <string name="untitled_folder">Başlıksız Klasör</string>
     <string name="sdcard_name">SD Kartı</string>
     <string name="rename">Yeniden Adlandır</string>
     <string name="drawer_help">Yardım</string>
@@ -116,7 +115,7 @@
     <string name="setting_cleancache">Önbellek Temizleme</string>
     <string name="setting_capacity">Kapasite</string>
     <string name="info_file_number">Dosya/Klasör sayısı:</string>
-    <string name="info_file_number_computing">Hesaplıyor...</string>
+    <string name="info_file_number_computing">Hesaplıyor\u2026</string>
     <string name="used">Kullanılan kapasite</string>
     <string name="free">Serbest kapasite</string>
     <string name="permission_guide_next">Sonra</string>
@@ -138,4 +137,6 @@
     <string name="info_file_number_text2">Dosya</string>
     <string name="emptywording">Dosyalarınız yok.</string>
     <string name="open_app_when_insert_otg">Bir OTG cihazına bağlandı, Transcend Elite uygulamasını açmak istiyor musunuz?</string>
+    <string name="backup_finish">Yedekleme tamamlandı!</string>
+    <string name="backup_start" translatable="false">Yedekleme başlatmak emin misin?</string>
 </resources>

@@ -28,7 +28,6 @@
     <string name="menu_delete">Löschen</string>
     <string name="ok">OK</string>
     <string name="password">Passwort eingeben</string>
-    <string name="untitled_folder">Unbenannter Ordner</string>
     <string name="sdcard_name">SD Karte</string>
     <string name="rename">Umbenennen</string>
     <string name="drawer_help">Hilfe</string>
@@ -99,7 +98,7 @@
     <string name="setting_cleancache">Cache leeren</string>
     <string name="setting_capacity">Kapazität</string>
     <string name="info_file_number">Datei/Ordner zählt:</string>
-    <string name="info_file_number_computing">Berechnen...</string>
+    <string name="info_file_number_computing">Berechnen\u2026</string>
     <string name="used">Verwendete Kapazität</string>
     <string name="free">Verfügbare Kapazität</string>
     <string name="permission_guide_next">Weiter</string>
@@ -138,4 +137,6 @@
     <string name="info_file_number_text2">Dateien</string>
     <string name="emptywording">Sie haben hier keine Dateien.</string>
     <string name="open_app_when_insert_otg">Ein OTG-Gerät ist verbunden, möchten Sie Transcend Elite öffnen?</string>
+    <string name="backup_finish">Sicherung abgeschlossen!</string>
+    <string name="backup_start" translatable="false">Sind Sie sicher, um backup zu starten?</string>
 </resources>

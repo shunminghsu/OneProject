@@ -29,7 +29,6 @@
     <string name="menu_delete">删除</string>
     <string name="ok">確認</string>
     <string name="password">密碼</string>
-    <string name="untitled_folder">新增文件夾</string>
     <string name="sdcard_name">SD卡</string>
     <string name="rename">重新命名</string>
     <string name="drawer_help">幫助</string>
@@ -140,4 +139,6 @@
     <string name="open_app_when_insert_otg">OTG已連接，是否開啟Transcend Elite ?</string>
     <string name="security_attention">注意</string>
     <string name="security_remind">請確認裝置已連接！</string>
+    <string name="backup_finish">備份完成！</string>
+    <string name="backup_start" translatable="false">是否要開始進行備份？</string>
 </resources>

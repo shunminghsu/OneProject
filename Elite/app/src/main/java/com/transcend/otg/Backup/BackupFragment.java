@@ -26,6 +26,8 @@ import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.Dialog.BackupFinishedDialog;
+import com.transcend.otg.Dialog.BackupStartDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
@@ -47,6 +49,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
 
     private static final int RESULT_OK = -1;
     private RadioButton radioButtonOTG, radioButtonSD;
+    private int backupStorage = 0;
     private Button btnBackup;
     private Context mContext;
     protected LoaderManager.LoaderCallbacks<ArrayList<FileInfo>> mCallbacks;
@@ -154,9 +157,9 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                     }
                     if(!bCheckbox[0] && !bCheckbox[1] && !bCheckbox[2] && !bCheckbox[3]){
                         loading_container.setVisibility(View.GONE);
-                        if(radioButtonOTG.isChecked())
+                        if(backupStorage == 1)
                             doLocalBackuptoOTG(destinationDFiles, "", false);
-                        else if(radioButtonSD.isChecked())
+                        else if(backupStorage == 2)
                             doLocalBackuptoOTG(destinationDFiles, sdPath, true);
                     }
                 }
@@ -263,12 +266,25 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
     }
 
     private void doBackup(){
-        loading_container.setVisibility(View.VISIBLE);
-        bCheckbox[0] = cbPhoto.isChecked();
-        bCheckbox[1] = cbVideo.isChecked();
-        bCheckbox[2] = cbMusic.isChecked();
-        bCheckbox[3] = cbDoc.isChecked();
-        getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
+        new BackupStartDialog(mContext){
+            @Override
+            public void onConfirm(boolean bBackup) {
+                if(bBackup){
+                    loading_container.setVisibility(View.VISIBLE);
+                    if(radioButtonOTG.isChecked())
+                        backupStorage = 1;
+                    else if(radioButtonSD.isChecked())
+                        backupStorage = 2;
+                    bCheckbox[0] = cbPhoto.isChecked();
+                    bCheckbox[1] = cbVideo.isChecked();
+                    bCheckbox[2] = cbMusic.isChecked();
+                    bCheckbox[3] = cbDoc.isChecked();
+                    getLoaderManager().restartLoader(TAB_LOADER_ID, getArguments(), mCallbacks);
+                    resetAll();
+                }
+            }
+        };
+
     }
 
 
@@ -455,6 +471,10 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
             }else if(type.equals("Document")){
                 mDocList.clear();
             }
+            if(mPhotoList.size() == 0 && mVideoList.size() == 0 && mMusicList.size() == 0 && mDocList.size() == 0){
+                new BackupFinishedDialog(mContext);
+            }
+
         }
 
 

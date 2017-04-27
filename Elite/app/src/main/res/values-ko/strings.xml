@@ -28,7 +28,6 @@
     <string name="menu_delete">삭제</string>
     <string name="ok">OK</string>
     <string name="password">패스워드</string>
-    <string name="untitled_folder">새 폴더</string>
     <string name="sdcard_name">SD 카드</string>
     <string name="rename">이름 변경</string>
     <string name="drawer_help">도움말</string>
@@ -113,7 +112,7 @@
     <string name="setting_cleancache">캐시 삭제</string>
     <string name="setting_capacity">용량</string>
     <string name="info_file_number">파일/폴더 수:</string>
-    <string name="info_file_number_computing">계산중...</string>
+    <string name="info_file_number_computing">계산중\u2026</string>
     <string name="used">사용 중인 용량</string>
     <string name="free">사용 가능한 용량</string>
     <string name="permission_guide_next">다음</string>
@@ -138,4 +137,6 @@
     <string name="info_file_number_text2">파일</string>
     <string name="emptywording">이곳에 저장된 파일이 없습니다.</string>
     <string name="open_app_when_insert_otg">OTG 기기가 연결되었습니다. Transcend Elite 앱을 실행하시겠습니까?</string>
+    <string name="backup_finish">백업 완료!</string>
+    <string name="backup_start" translatable="false">당신은 백업 시작 해야?</string>
 </resources>

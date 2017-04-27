@@ -28,7 +28,6 @@
     <string name="menu_delete">Удалить</string>
     <string name="ok">OK</string>
     <string name="password">Пароль</string>
-    <string name="untitled_folder">Безымянная папка</string>
     <string name="sdcard_name">SD карта</string>
     <string name="rename">Переименовать</string>
     <string name="drawer_help">Помощь</string>
@@ -116,7 +115,7 @@
     <string name="setting_cleancache">Очистить кэш</string>
     <string name="setting_capacity">Емкость</string>
     <string name="info_file_number">Количество файлов/папок:</string>
-    <string name="info_file_number_computing">Расчет...</string>
+    <string name="info_file_number_computing">Расчет\u2026</string>
     <string name="used">Использованная емкость</string>
     <string name="free">Свободное пространство</string>
     <string name="permission_guide_next">Следующий</string>
@@ -138,4 +137,6 @@
     <string name="info_file_number_text2">файлы</string>
     <string name="emptywording">Файлы не обнаружены.</string>
     <string name="open_app_when_insert_otg">Подключено устройство OTG, Вы хотите запустить Transcend Elite?</string>
+    <string name="backup_finish">Полное резервное копирование!</string>
+    <string name="backup_start" translatable="false">Вы уверены, что для начала резервного копирования?</string>
 </resources>

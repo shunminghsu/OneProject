@@ -28,7 +28,6 @@
     <string name="menu_delete">Elimina</string>
     <string name="ok">OK</string>
     <string name="password">Password</string>
-    <string name="untitled_folder">Senza Titolo</string>
     <string name="sdcard_name">Scheda SD</string>
     <string name="rename">Rinomina</string>
     <string name="drawer_help">Aiuto</string>
@@ -104,7 +103,7 @@
     <string name="ask_exit">Sei sicuro di voler chiudere Transcend Elite?</string>
     <string name="backup_destination">Seleziona la destinazione del backup</string>
     <string name="backup_filetype">Scegli il tipo di file</string>
-    <string name="info_file_number_computing">Calcolo...</string>
+    <string name="info_file_number_computing">Calcolo\u2026</string>
     <string name="setting_capacity">Capacità</string>
     <string name="setting_cleancache">Cache pulita</string>
     <string name="info_dir_number_text1">Directory</string>
@@ -138,4 +137,6 @@
     <string name="info_file_number_text2">File</string>
     <string name="emptywording">Non hai files qui.</string>
     <string name="open_app_when_insert_otg">Un dispositivo OTG e\' connesso, vuoi aprire la Transcend Elite?</string>
+    <string name="backup_finish">Backup completato!</string>
+    <string name="backup_start">Sei sicuro che avviare il backup?</string>
 </resources>

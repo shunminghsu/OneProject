@@ -80,7 +80,7 @@
     <string name="invalid_name">Invalid name</string>
     <string name="duplicate_name">Duplicate name</string>
     <string name="illegal_name">Incorrect characters</string>
-    <string name="untitled_folder">Untitled folder</string>
+    <string name="untitled_folder" translatable="false"></string>
 
     <!-- Action -->
     <string name="title_copy_to" translatable="false">Copy to…</string>
@@ -162,6 +162,8 @@
     <string name="menu_delete">Delete</string>
     <string name="menu_copy_to_clipboard">Copy</string>
     <string name="ask_exit">Are you sure you want to quit Transcend Elite?</string>
+    <string name="backup_start">Are you sure to start backup?</string>
+    <string name="backup_finish">Backup complete！</string>
 
     <!-- Security Information -->
     <string name="Lsecurity">Security</string>

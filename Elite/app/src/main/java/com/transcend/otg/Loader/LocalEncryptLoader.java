@@ -91,7 +91,6 @@ public class LocalEncryptLoader extends AsyncTaskLoader<Boolean> {
 
         File check_file = new File(dst);
         if (check_file.exists()) {
-            Log.d("henry", "same enc file exist");
             return false;
         }
         try {
@@ -115,6 +114,7 @@ public class LocalEncryptLoader extends AsyncTaskLoader<Boolean> {
         }
         File target = new File(dst);
         mActivity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(target)));
+        updateResult(getContext().getString(R.string.done));
         closeProgressWatcher();
         return true;
     }

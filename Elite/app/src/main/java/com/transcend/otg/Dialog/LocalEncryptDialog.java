@@ -100,7 +100,7 @@ public abstract class LocalEncryptDialog implements TextWatcher, View.OnClickLis
 
     private String getUniqueName() {
         int index = 1;
-        String name = mContext.getResources().getString(R.string.encrypt);
+        String name = mContext.getResources().getString(R.string.untitled_folder);
         String unique = name;
         //while (mFolderNames.contains(unique)) {
         //    unique = String.format(name + " (%d)", index++);
