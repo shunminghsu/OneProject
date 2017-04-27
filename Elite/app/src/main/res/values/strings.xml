@@ -174,14 +174,16 @@
     <string name="LCurrentPW">Current Password</string>
     <string name="LNewPW">New Password</string>
     <string name="LConfirmPW">Confirm Password</string>
-    <string name="MSG_UserUnlockDisk">Input your password to unlock the drive</string>
-    <string name="MSG_UserRemovePWLostSecurity">Once password is remove, the drive is unprotect</string>
-    <string name="MSG_UserUseDiskViaElite">Once password is set, you can only open the drive via Elite</string>
+    <string name="MSG_UserUnlockDisk">Input your password to unlock the drive.</string>
+    <string name="MSG_UserRemovePWLostSecurity">Once password is remove, the drive is unprotect.</string>
+    <string name="MSG_UserUseDiskViaElite">Once password is set, you can only open the drive via Elite.</string>
     <string name="MSG_PWLimition">4~16 Characters with no space</string>
-    <string name="MSG_NewPWNextLogin">Input new password at next login</string>
-    <string name="MSG_SelectChangeOrRemove">You can select to change or remove password</string>
+    <string name="MSG_NewPWNextLogin">Input new password at next login.</string>
+    <string name="MSG_SelectChangeOrRemove">You can select to change or remove password.</string>
     <string name="msg_password_incorrect">Incorrect password</string>
     <string name="preguide_message">Android OS versions have restricted acces to your external storage.Please grant us permission first.</string>
     <string name="security_device_name" translatable="false">esd220c</string>
     <string name="transcend_short_name" translatable="false">ts</string>
+    <string name="security_attention">Attention</string>
+    <string name="security_remind">Please makes sure your are\n connected to device!</string>
 </resources>

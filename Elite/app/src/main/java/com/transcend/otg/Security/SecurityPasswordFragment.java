@@ -168,7 +168,7 @@ public class SecurityPasswordFragment extends Fragment {
                 //SecurityWarningDialog securityWarningDialog = new SecurityWarningDialog(SecurityPasswordFragment.this.getActivity() , "security" , "warning") {
                 //    @Override
                 //    public void onConfirm(String type) {
-                        //
+                //
                 //    }
                 //};
 
@@ -177,6 +177,13 @@ public class SecurityPasswordFragment extends Fragment {
                     btnChangeOK.setEnabled(false);
                     btnChangeCancel.setEnabled(false);
                     try {
+                        securityScsi.SecurityDisableLockActivity(editChangeCurrentPassword.getText().toString());
+                        if(securityScsi.checkSecurityStatus() != Constant.SECURITY_DISABLE){
+                            snackBarShow(R.string.error);
+                            cleanChangeEdit();
+                        }
+
+                        Thread.sleep(1000);
                         securityScsi.SecurityLockActivity(editChangeNewPassword.getText().toString());
                         Thread.sleep(1000);
                         if(securityScsi.checkSecurityStatus() == Constant.SECURITY_UNLOCK){

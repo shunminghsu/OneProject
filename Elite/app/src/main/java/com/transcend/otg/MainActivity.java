@@ -615,14 +615,21 @@ public class MainActivity extends AppCompatActivity
 
         if (devices.length > 0) {
             device = devices[0];
-            String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
-            if(otgKey != ""){
-                Uri uriTree = Uri.parse(otgKey);
-                if(checkStorage(uriTree, false)){
-                    replaceFragment(otgFragment);
+            String productName = device.getUsbDevice().getProductName().toLowerCase();
+            if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
+                if(!doCheckUSBPermission()){
+                    doUSBRequestPermission();
                 }
-            }else{
-                preGuideDialog("otg");
+            }else {
+                String otgKey = LocalPreferences.getOTGKey(this, device.getUsbDevice().getSerialNumber());
+                if (otgKey != "") {
+                    Uri uriTree = Uri.parse(otgKey);
+                    if (checkStorage(uriTree, false)) {
+                        replaceFragment(otgFragment);
+                    }
+                } else {
+                    preGuideDialog("otg");
+                }
             }
         }
     }

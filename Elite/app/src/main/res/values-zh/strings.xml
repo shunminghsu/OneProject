@@ -138,4 +138,6 @@
     <string name="emptywording">無檔案</string>
     <string name="Lsecurity">防護</string>
     <string name="open_app_when_insert_otg">OTG已連接，是否開啟Transcend Elite ?</string>
+    <string name="security_attention">注意</string>
+    <string name="security_remind">請確認裝置已連接！</string>
 </resources>
