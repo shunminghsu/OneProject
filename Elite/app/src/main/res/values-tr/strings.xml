@@ -138,6 +138,6 @@
     <string name="emptywording">Dosyalarınız yok.</string>
     <string name="open_app_when_insert_otg">Bir OTG cihazına bağlandı, Transcend Elite uygulamasını açmak istiyor musunuz?</string>
     <string name="backup_finish">Yedekleme tamamlandı!</string>
-    <string name="backup_start" translatable="false">Yedekleme başlatmak emin misin?</string>
+    <string name="backup_start">Yedekleme başlatmak emin misin?</string>
     <string name="security_notify">bildirme</string>
 </resources>

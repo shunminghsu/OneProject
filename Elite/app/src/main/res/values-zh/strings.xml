@@ -138,6 +138,6 @@
     <string name="Lsecurity">防護</string>
     <string name="open_app_when_insert_otg">OTG已連接，是否開啟Transcend Elite ?</string>
     <string name="backup_finish">備份完成！</string>
-    <string name="backup_start" translatable="false">是否要開始進行備份？</string>
+    <string name="backup_start">是否要開始進行備份？</string>
     <string name="security_notify">提醒</string>
 </resources>

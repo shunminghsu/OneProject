@@ -138,6 +138,6 @@
     <string name="emptywording">No tienes archivos aquí.</string>
     <string name="open_app_when_insert_otg">dispositivo OTG está conectado, ¿desea abrir Transcend Elite?</string>
     <string name="backup_finish">Copia de seguridad completa.</string>
-    <string name="backup_start" translatable="false">¿Seguro iniciar copia de seguridad?</string>
+    <string name="backup_start">¿Seguro iniciar copia de seguridad?</string>
     <string name="security_notify">notificar</string>
 </resources>
