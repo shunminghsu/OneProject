@@ -139,4 +139,5 @@
     <string name="open_app_when_insert_otg">Подключено устройство OTG, Вы хотите запустить Transcend Elite?</string>
     <string name="backup_finish">Полное резервное копирование!</string>
     <string name="backup_start" translatable="false">Вы уверены, что для начала резервного копирования?</string>
+    <string name="security_notify">сообщить</string>
 </resources>

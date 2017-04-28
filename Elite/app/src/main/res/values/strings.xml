@@ -186,6 +186,5 @@
     <string name="preguide_message">Android OS versions have restricted acces to your external storage.Please grant us permission first.</string>
     <string name="security_device_name" translatable="false">esd220c</string>
     <string name="transcend_short_name" translatable="false">ts</string>
-    <string name="security_attention">Attention</string>
-    <string name="security_remind">Please makes sure your are\n connected to device!</string>
+    <string name="security_notify">Notify</string>
 </resources>

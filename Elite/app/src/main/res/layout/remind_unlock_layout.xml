@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/remind_unlock_storage"
             android:gravity="center"
-            android:text="@string/security_attention"
+            android:text="@string/security_notify"
             android:textSize="22sp" />
 
         <TextView
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/Attention"
             android:gravity="center"
-            android:text="@string/security_remind"
+            android:text="@string/MSG_UserUnlockDisk"
             android:textSize="12sp"/>
 
     </RelativeLayout>

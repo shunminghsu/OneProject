@@ -139,4 +139,5 @@
     <string name="open_app_when_insert_otg">OTG機器を認識しました。Transcend Eliteを起動しますか?</string>
     <string name="backup_finish">バックアップが完了した!</string>
     <string name="backup_start" translatable="false">バックアップを開始するよろしいですか。</string>
+    <string name="security_notify">通知</string>
 </resources>

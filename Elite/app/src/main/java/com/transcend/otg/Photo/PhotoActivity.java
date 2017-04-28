@@ -1,9 +1,14 @@
 package com.transcend.otg.Photo;
 
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.hardware.usb.UsbDevice;
+import android.hardware.usb.UsbManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -42,6 +47,11 @@ import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
+import com.transcend.otg.Security.RemindUnlockFragment;
+import com.transcend.otg.Security.SecurityLoginFragment;
+import com.transcend.otg.Security.SecurityPasswordFragment;
+import com.transcend.otg.Security.SecurityScsi;
+import com.transcend.otg.Security.SecuritySettingFragment;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
@@ -82,6 +92,8 @@ public class PhotoActivity extends AppCompatActivity {
     private static final int ACTION_RESULT_FILE_EXIST = 1;
     private static final int ACTION_RESULT_NEED_PERMISSION = 2;
 
+    private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -100,6 +112,7 @@ public class PhotoActivity extends AppCompatActivity {
         mPosition = getIntent().getIntExtra("list_index", 0);
         initPager();
         initToolbar();
+        initBroadcast();
         mPhotoClickListener = new PhotoClickListener();
         mRootLayout = (RelativeLayout) findViewById(R.id.main_relativelayout);
     }
@@ -107,6 +120,12 @@ public class PhotoActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterReceiver(usbReceiver);
     }
 
     @Override
@@ -285,6 +304,26 @@ public class PhotoActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void initBroadcast(){
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        registerReceiver(usbReceiver, filter);
+    }
+
+    private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            String action = intent.getAction();
+            if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
+                if(mPhotoList.get(0).storagemode == Constant.STORAGEMODE_OTG){
+                    finish();
+                }
+            }
+
+        }
+    };
 
     private class PhotoClickListener implements TouchImageView.onPhotoClickListener {
 

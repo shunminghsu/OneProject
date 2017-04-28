@@ -3,6 +3,7 @@ package com.transcend.otg.Backup;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -37,6 +38,7 @@ import com.transcend.otg.Loader.LocalCopytoOTGLoader;
 import com.transcend.otg.Loader.TabInfoLoader;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
+import com.transcend.otg.Security.SecurityScsi;
 import com.transcend.otg.Utils.FileFactory;
 
 import java.util.ArrayList;
@@ -222,6 +224,9 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                         case 2:
                             preGuideDialog("otg");
                             break;
+                        case 3:
+                            snackBarShow(R.string.MSG_UserUnlockDisk);
+                            break;
                     }
                 }else if(radioButtonSD.isChecked()){
                     sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
@@ -295,7 +300,16 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         }
         device = devices[0];
         String otgKey = LocalPreferences.getOTGKey(mContext, device.getUsbDevice().getSerialNumber());
-        if(otgKey != "" || otgKey == null){
+
+        String productName = device.getUsbDevice().getProductName().toLowerCase();
+        if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
+            UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
+            SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false) ;
+            if(securityScsi.getSecurityStatus() == Constant.SECURITY_LOCK )
+                return 3;
+            else
+                return 1;
+        }else if(otgKey != ""){
             Uri uriTree = Uri.parse(otgKey);
             if(checkStorage(uriTree, false)){
                 return 1;

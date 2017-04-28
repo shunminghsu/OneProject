@@ -37,6 +37,7 @@ public class SecurityScsi {
 
     private static SecurityScsi instance ;
     private int SecurityStatus = Constant.SECURITY_DEVICE_EMPTY;
+    private int previousPage = 0;
 
     public static synchronized SecurityScsi getInstance(UsbDevice Device , UsbManager Manager , boolean reCreate){
         if( instance == null || reCreate){
@@ -119,6 +120,15 @@ public class SecurityScsi {
     public void setSecurityStatus( int status ){
         SecurityStatus = status ;
     }
+
+    public void setPreviousPage(int page){
+        previousPage = page ;
+    }
+
+    public int getPreviousPage(){
+        return previousPage;
+    }
+
 
     public int checkSecurityStatus(){
         ScsiIDCommand();

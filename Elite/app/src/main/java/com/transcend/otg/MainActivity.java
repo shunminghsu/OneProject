@@ -140,6 +140,7 @@ public class MainActivity extends AppCompatActivity
     private SecurityLoginFragment securityLoginFragment;
     private SecuritySettingFragment securitySettingFragment;
     private SecurityPasswordFragment securityPasswordFragment;
+    private RemindUnlockFragment remindUnlockFragment;
     private int mLoaderID, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private FileActionManager mFileActionManager;
     private String mPath;
@@ -210,12 +211,14 @@ public class MainActivity extends AppCompatActivity
         tv_Browser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
-                setDrawerCheckItem(R.id.nav_browser);
-                showHomeOrFragment(false);
-                markSelectedBtn(mLocalButton);
-                replaceFragment(localFragment);
-                Constant.nowMODE = Constant.MODE.LOCAL;
+                if(!discoverSecurityDevice(R.id.nav_browser)){
+                    mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
+                    setDrawerCheckItem(R.id.nav_browser);
+                    showHomeOrFragment(false);
+                    markSelectedBtn(mLocalButton);
+                    replaceFragment(localFragment);
+                    Constant.nowMODE = Constant.MODE.LOCAL;
+                }
             }
         });
 
@@ -223,9 +226,11 @@ public class MainActivity extends AppCompatActivity
         tv_Backup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
-                setDrawerCheckItem(R.id.nav_backup);
-                showFragment(backupFragment);
+                if(!discoverSecurityDevice(R.id.nav_backup)){
+                    mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
+                    setDrawerCheckItem(R.id.nav_backup);
+                    showFragment(backupFragment);
+                }
             }
         });
     }
@@ -253,33 +258,24 @@ public class MainActivity extends AppCompatActivity
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
                 if(doCheckUSBPermission()){
-                    itemSecurity.setVisible(true);
-                    SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager , true);
+                    SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager , false);
                     int securityStatus = mSecurityScsi.getSecurityStatus();
                     if( securityStatus == Constant.SECURITY_DEVICE_EMPTY){
                         securityStatus = mSecurityScsi.checkSecurityStatus();
                     }
-                    if( securityStatus == Constant.SECURITY_LOCK)
-                        switchToFragment(RemindUnlockFragment.class.getName(), false);
+                    if( securityStatus == Constant.SECURITY_LOCK && mSecurityScsi.getPreviousPage() != R.id.nav_security)
+                        showFragment(remindUnlockFragment);
                     else{
-                        String otgKey = LocalPreferences.getOTGKey(mContext, device.getUsbDevice().getSerialNumber());
-                        if(otgKey != ""){
-                            Uri uriTree = Uri.parse(otgKey);
-                            if(checkStorage(uriTree, false)){
-                                replaceFragment(otgFragment);
-                            }
-                        }else{
-                            preGuideDialog("otg");
-                        }
+                        selectDrawerPage(mSecurityScsi.getPreviousPage() , securityStatus);
                     }
                 }else {
-                    mLocalButton.performClick();
+                    showHomeOrFragment(true);
+                    setDrawerCheckItem(R.id.nav_home);
                 }
 
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-
+                discoverSecurityDevice(0);
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
-
                 if(device != null)
                     device = null;
                 if(mActionMode != null){
@@ -336,6 +332,7 @@ public class MainActivity extends AppCompatActivity
         securityLoginFragment = new SecurityLoginFragment();
         securityPasswordFragment = new SecurityPasswordFragment();
         securitySettingFragment = new SecuritySettingFragment();
+        remindUnlockFragment = new RemindUnlockFragment();
         getSupportFragmentManager().addOnBackStackChangedListener(
                 new FragmentManager.OnBackStackChangedListener() {
 
@@ -370,6 +367,12 @@ public class MainActivity extends AppCompatActivity
         initBroadcast();
         if(mActionMode != null)
             mActionMode.finish();
+        if(mOtgButton.isSelected()){
+            UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
+            if(devices.length == 0)
+                discoverDevice();
+        }
+
     }
 
     @Override
@@ -715,6 +718,68 @@ public class MainActivity extends AppCompatActivity
         toggleFabSelectAll(!b_SelectAll);
     }
 
+    private void selectDrawerPage(int id, int status){
+        switch (id){
+            case R.id.nav_browser :
+                mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
+                showHomeOrFragment(false);
+                markSelectedBtn(mLocalButton);
+                replaceFragment(localFragment);
+                Constant.nowMODE = Constant.MODE.LOCAL;
+                setDrawerCheckItem(R.id.nav_browser);
+                break;
+            case R.id.nav_backup:
+                mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
+                showFragment(backupFragment);
+                setDrawerCheckItem(R.id.nav_backup);
+                break;
+            case R.id.nav_security:
+                mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
+                setDrawerCheckItem(R.id.nav_security);
+                switch(status){
+                    case Constant.SECURITY_DISABLE :
+                        showFragment(securitySettingFragment);
+                        break;
+                    case Constant.SECURITY_LOCK:
+                        showFragment(securityLoginFragment);
+                        break;
+                    case Constant.SECURITY_UNLOCK:
+                        showFragment(securityPasswordFragment);
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private boolean discoverSecurityDevice(int page){
+        usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
+        UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
+
+        if (devices.length > 0) {
+            String productName = devices[0].getUsbDevice().getProductName().toLowerCase();
+            if (productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))) {
+                device = devices[0];
+                itemSecurity.setVisible(true);
+                if (!doCheckUSBPermission()) {
+                    SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, true);
+                    securityScsi.setPreviousPage(page);
+                    doUSBRequestPermission();
+                    return true;
+                } else{
+                    SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
+                    if(securityScsi.getSecurityStatus() != Constant.SECURITY_LOCK){
+                        return false ;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     private void discoverDevice() {
         usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
@@ -955,14 +1020,18 @@ public class MainActivity extends AppCompatActivity
             mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
             showHomeOrFragment(true);
         } else if (id == R.id.nav_browser) {
-            mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
-            showHomeOrFragment(false);
-            markSelectedBtn(mLocalButton);
-            replaceFragment(localFragment);
-            Constant.nowMODE = Constant.MODE.LOCAL;
+            if(!discoverSecurityDevice(R.id.nav_browser)){
+                mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
+                showHomeOrFragment(false);
+                markSelectedBtn(mLocalButton);
+                replaceFragment(localFragment);
+                Constant.nowMODE = Constant.MODE.LOCAL;
+            }
         } else if (id == R.id.nav_backup) {
-            mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
-            showFragment(backupFragment);
+            if(!discoverSecurityDevice(R.id.nav_backup)) {
+                mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
+                showFragment(backupFragment);
+            }
         } else if (id == R.id.nav_help){
             mToolbarTitle.setText(getResources().getString(R.string.drawer_help));
             showFragment(helpFragment);
@@ -973,28 +1042,21 @@ public class MainActivity extends AppCompatActivity
             mToolbarTitle.setText(getResources().getString(R.string.drawer_setting));
             showFragment(settingFragment);
         }else if(id == R.id.nav_security){
-            mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
-            if(device !=null){
-                String productName = device.getUsbDevice().getProductName().toLowerCase();
-                if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
-                    if(!doCheckUSBPermission()){
-                        doUSBRequestPermission();
-                    }else{
-                        SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
-                        switch(mSecurityScsi.getSecurityStatus()){
-                            case Constant.SECURITY_DISABLE :
-                                showFragment(securitySettingFragment);
-                                break;
-                            case Constant.SECURITY_LOCK:
-                                showFragment(securityLoginFragment);
-                                break;
-                            case Constant.SECURITY_UNLOCK:
-                                showFragment(securityPasswordFragment);
-                                break;
-                            default:
-                                break;
-                        }
-                    }
+            if(!discoverSecurityDevice(R.id.nav_security)){
+                mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
+                SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
+                switch(mSecurityScsi.getSecurityStatus()){
+                    case Constant.SECURITY_DISABLE :
+                        showFragment(securitySettingFragment);
+                        break;
+                    case Constant.SECURITY_LOCK:
+                        showFragment(securityLoginFragment);
+                        break;
+                    case Constant.SECURITY_UNLOCK:
+                        showFragment(securityPasswordFragment);
+                        break;
+                    default:
+                        break;
                 }
             }
         }

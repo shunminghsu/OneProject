@@ -88,7 +88,7 @@ public class DestinationActivity extends AppCompatActivity
     private Constant.MODE nowMode;
     private FloatingActionButton mFab, mFabExit;
     private static final String ACTION_USB_PERMISSION = "com.transcend.otg.USB_PERMISSION";
-    private TextView mLocalButton, mSdButton, mOtgButton, mLastSelected;
+    private TextView mLocalButton, mSdButton, mOtgButton, mLastSelected, mCheckOTGButton;
     private Context mContext;
     private RelativeLayout mNoSDLayout, mNoOTGLayout;
     private UsbMassStorageDevice device;
@@ -155,8 +155,8 @@ public class DestinationActivity extends AppCompatActivity
         mFabExit.setOnClickListener(listener);
         //mCheckSDButton = (Button) findViewById(R.id.check_sdbtn);
         //mCheckSDButton.setOnClickListener(listener);
-        //mCheckOTGButton = (Button) findViewById(R.id.check_otgbtn);
-        //mCheckOTGButton.setOnClickListener(listener);
+        mCheckOTGButton = (Button) findViewById(R.id.check_otgbtn);
+        mCheckOTGButton.setOnClickListener(listener);
     }
 
     class ButtonClickListener implements View.OnClickListener {
@@ -191,9 +191,9 @@ public class DestinationActivity extends AppCompatActivity
                 popupConfirmDialog();
             //} else if (view == mCheckSDButton){
 
-            //} else if (view == mCheckOTGButton){
-            //    markSelectedBtn(mOtgButton);
-            //    discoverDevice();
+            } else if (view == mCheckOTGButton){
+                markSelectedBtn(mOtgButton);
+                discoverDevice();
             }
         }
     }
@@ -256,7 +256,7 @@ public class DestinationActivity extends AppCompatActivity
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 UsbDevice device = (UsbDevice) intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
 
-                if (device != null && Constant.nowMODE == Constant.MODE.OTG) {
+                if (device != null && nowMode == Constant.MODE.OTG) {
                     discoverDevice();
                 }
             }
