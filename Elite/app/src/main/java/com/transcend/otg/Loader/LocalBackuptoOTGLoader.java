@@ -7,6 +7,7 @@ import android.content.AsyncTaskLoader;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,6 +15,8 @@ import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
+import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MathUtils;
@@ -41,6 +44,8 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
     private DocumentFile mDesDocumentFile;
     private List<String> mSrcFile;
     private String mType;
+    private boolean b_SDCard = false;
+    private String destinationPath;
     private int mNotificationID = 0;
 
     public LocalBackuptoOTGLoader(Context context, List<String> src, ArrayList<DocumentFile> des, String type) {
@@ -51,6 +56,13 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
         mType = type;
         mNotificationID = FileFactory.getInstance().getNotificationID();
         createBackupFolder();
+        if(hasSDPermission(context)){
+            if(mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())){
+                b_SDCard = true;
+                String folderName = mActivity.getResources().getString(R.string.backup_folder);
+                destinationPath = FileFactory.getOuterStoragePath(context, Constant.sd_key_path) + File.separator + folderName + File.separator + mType;
+            }
+        }
     }
 
     private void createBackupFolder(){
@@ -116,6 +128,10 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
             copyFile(context, srcFileItem, destFile);
             closeProgressWatcher();
             updateProgress(destFile.getName(), total, total);
+            if(b_SDCard){
+                String sdPath = destinationPath + File.separator + srcFileItem.getName();
+                MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destFileItem.getType()}, null);
+            }
         }else {
             DocumentFile compareDFile = destFileItem.findFile(srcFileItem.getName());
             if(compareDFile.lastModified() == srcFileItem.lastModified()){
@@ -125,6 +141,10 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
                 copyFile(context, srcFileItem, destFile);
                 closeProgressWatcher();
                 updateProgress(destFile.getName(), total, total);
+                if(b_SDCard){
+                    String sdPath = destinationPath + File.separator + srcFileItem.getName();
+                    MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destFileItem.getType()}, null);
+                }
             }
         }
 
@@ -272,5 +292,16 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
 
     public String getType() {
         return mType;
+    }
+
+    private boolean hasSDPermission(Context context){
+        String uid = FileFactory.getSDCardUniqueId();
+        String sdKey = LocalPreferences.getSDKey(context, uid);
+        if(sdKey != ""){
+            Uri uriSDKey = Uri.parse(sdKey);
+            Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(context, uriSDKey);
+            return true;
+        }
+        return false;
     }
 }
