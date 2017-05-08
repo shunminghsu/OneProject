@@ -97,7 +97,8 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
             Uri uriTree = data.getData();
             if(checkStorage(uriTree, true)){
                 doBackup();
-            }
+            }else
+                preGuideDialog("otg");
         }else if(reqCode == mSDDocumentTreeID && resCode == RESULT_OK){
             Uri uriTree = data.getData();
             if(checkSD(uriTree)){
@@ -307,11 +308,11 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
             Uri uriTree = Uri.parse(otgKey);
             if(checkStorage(uriTree, false)){
                 return 1;
-            }
+            }else
+                return 2;
         }else{
             return 2;
         }
-        return 0;
     }
 
     private boolean checkStorage(Uri uri, boolean b_needCheckSD){
@@ -320,6 +321,8 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                 snackBarShow(R.string.snackbar_plz_select_top);
             }else{
                 rootDir = DocumentFile.fromTreeUri(mContext, uri);//OTG root path
+                if(!rootDir.isDirectory())
+                    return false;
                 boolean bSDCard = false;
                 if(b_needCheckSD){
                     ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));

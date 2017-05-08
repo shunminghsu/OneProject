@@ -29,7 +29,7 @@ public class HelpFragment extends Fragment {
         mWebView = (WebView) root.findViewById(R.id.webview);
         mWebView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        mWebView.loadUrl("https://tw.transcend-info.com/support/cate-3");
+        mWebView.loadUrl("https://us.transcend-info.com/Support/Software-1/");
         mWebView.setWebViewClient(new WebViewClient());
         return root;
     }

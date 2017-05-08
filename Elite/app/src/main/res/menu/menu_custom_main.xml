@@ -27,14 +27,14 @@
                 android:icon="@mipmap/ic_view_list_gray"
                 app:showAsAction="never" />
             <item
-                android:id="@+id/menu_new_folder"
-                android:title="@string/newfolder"
-                android:icon="@mipmap/ic_newfolder_gray"
-                app:showAsAction="never" />
-            <item
                 android:id="@+id/menu_easy_sort"
                 android:title="@string/menu_sort"
                 android:icon="@mipmap/ic_sort_gray"
+                app:showAsAction="never" />
+            <item
+                android:id="@+id/menu_new_folder"
+                android:title="@string/newfolder"
+                android:icon="@mipmap/ic_newfolder_gray"
                 app:showAsAction="never" />
         </menu>
     </item>

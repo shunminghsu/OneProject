@@ -111,8 +111,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
         Cursor imageCursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
         if (imageCursor == null) {
-            cancelLoad();
-            return null;
+            return mFileList;
         }
         int cursor_index_ID = imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID);
         while (imageCursor.moveToNext()) {
@@ -144,8 +143,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
         Cursor videoCursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
         if (videoCursor == null) {
-            cancelLoad();
-            return null;
+            return mFileList;
         }
         int cursor_index_ID = videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID);
         while (videoCursor.moveToNext()) {
@@ -177,8 +175,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
         Cursor musicCursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
         if (musicCursor == null) {
-            cancelLoad();
-            return null;
+            return mFileList;
         }
         int cursor_index_ID = musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID);
         while (musicCursor.moveToNext()) {
@@ -211,8 +208,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
         Cursor docCursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
         if (docCursor == null) {
-            cancelLoad();
-            return null;
+            return mFileList;
         }
         int cursor_index_ID = docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID);
         while (docCursor.moveToNext()) {
@@ -243,8 +239,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
         Cursor encCursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
         if (encCursor == null) {
-            cancelLoad();
-            return null;
+            return mFileList;
         }
         int cursor_index_ID = encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID);
         while (encCursor.moveToNext()) {
@@ -283,8 +278,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
     private ArrayList<FileInfo> getOtgFileList(Uri _rootUri) {
         Cursor cursor = mContext.getContentResolver().query(_rootUri, proj, null, null, null);
         if (cursor == null) {
-            cancelLoad();
-            return null;
+            return mFileList;
         }
         int cursor_index_ID = cursor.getColumnIndex(DocumentsContract.Document.COLUMN_DOCUMENT_ID);
         while (cursor.moveToNext()) {

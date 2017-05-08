@@ -629,7 +629,8 @@ public class MainActivity extends AppCompatActivity
                     Uri uriTree = Uri.parse(otgKey);
                     if (checkStorage(uriTree, false)) {
                         replaceFragment(otgFragment);
-                    }
+                    }else
+                        preGuideDialog("otg");
                 } else {
                     preGuideDialog("otg");
                 }
@@ -820,7 +821,8 @@ public class MainActivity extends AppCompatActivity
                 Uri uriTree = Uri.parse(otgKey);
                 if(checkStorage(uriTree, false)){
                     replaceFragment(otgFragment);
-                }
+                }else
+                    preGuideDialog("otg");
             }else{
                 preGuideDialog("otg");
             }
@@ -1290,7 +1292,8 @@ public class MainActivity extends AppCompatActivity
                 Uri uriTree = data.getData();
                 if(checkStorage(uriTree, true)){
                     replaceFragment(otgFragment);
-                }
+                }else
+                    preGuideDialog("otg");
             }else if(resCode == RESULT_CANCELED){
                 mLocalButton.performClick();
             }
@@ -1430,6 +1433,8 @@ public class MainActivity extends AppCompatActivity
                 mLocalButton.performClick();
             }else{
                 rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
+                if(!rootDir.isDirectory())
+                    return false;
                 boolean bSDCard = false;
                 if(b_needCheckSD){
                     ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));

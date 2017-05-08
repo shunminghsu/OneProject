@@ -372,6 +372,8 @@ public class DestinationActivity extends AppCompatActivity
                 snackBarShow(R.string.snackbar_plz_select_top);
             }else{
                 rootDir = DocumentFile.fromTreeUri(this, uri);//OTG root path
+                if(!rootDir.isDirectory())
+                    return false;
                 boolean bSDCard = false;
                 if(b_needCheckSD){
                     ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
