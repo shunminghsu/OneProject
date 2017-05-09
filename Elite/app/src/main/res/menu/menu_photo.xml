@@ -35,7 +35,7 @@
                 android:id="@+id/action_encrypt"
                 android:icon="@mipmap/ic_encrypt_s"
                 android:title="@string/encrypt"
-                android:visible="false"
+                android:visible="true"
                 app:showAsAction="never" />
             <item
                 android:id="@+id/delete"

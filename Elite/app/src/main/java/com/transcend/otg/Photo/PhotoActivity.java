@@ -1,13 +1,10 @@
 package com.transcend.otg.Photo;
 
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
-import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbManager;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
@@ -21,7 +18,6 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
@@ -41,17 +37,14 @@ import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.DestinationActivity;
 import com.transcend.otg.Dialog.LocalDeleteDialog;
+import com.transcend.otg.Dialog.LocalEncryptDialog;
 import com.transcend.otg.Dialog.LocalRenameDialog;
 import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
-import com.transcend.otg.Security.RemindUnlockFragment;
-import com.transcend.otg.Security.SecurityLoginFragment;
-import com.transcend.otg.Security.SecurityPasswordFragment;
-import com.transcend.otg.Security.SecurityScsi;
-import com.transcend.otg.Security.SecuritySettingFragment;
+import com.transcend.otg.Task.EncryptTask;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.MediaUtils;
 
@@ -62,8 +55,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
 
 /**
  * Created by henry_hsu on 2017/3/3.
@@ -112,7 +106,6 @@ public class PhotoActivity extends AppCompatActivity {
         mPosition = getIntent().getIntExtra("list_index", 0);
         initPager();
         initToolbar();
-        initBroadcast();
         mPhotoClickListener = new PhotoClickListener();
         mRootLayout = (RelativeLayout) findViewById(R.id.main_relativelayout);
     }
@@ -120,6 +113,9 @@ public class PhotoActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
+        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        registerReceiver(usbReceiver, filter);
     }
 
     @Override
@@ -211,6 +207,7 @@ public class PhotoActivity extends AppCompatActivity {
                 startDestinationActivity(R.id.action_move);
                 return true;
             case R.id.action_encrypt:
+                doEncryptDialog(fileinfo);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -239,12 +236,27 @@ public class PhotoActivity extends AppCompatActivity {
             boolean isMove = actionId == R.id.action_move;
 
             if (actionMode == Constant.MODE.LOCAL) {//destination is local
-                new CopyTask(fileInfo, Constant.STORAGEMODE_LOCAL, destinationPath, isMove).execute();
+                new CopyTask(fileInfo, Constant.STORAGEMODE_LOCAL, destinationPath, isMove) {
+                    @Override
+                    public void onDoneExecute(boolean result) {
+
+                    }
+                }.execute();
             } else if (actionMode == Constant.MODE.SD) {
 
-                new CopyTask(fileInfo, Constant.STORAGEMODE_SD, destinationPath, isMove).execute();
+                new CopyTask(fileInfo, Constant.STORAGEMODE_SD, destinationPath, isMove) {
+                    @Override
+                    public void onDoneExecute(boolean result) {
+
+                    }
+                }.execute();
             } else if (actionMode == Constant.MODE.OTG) {
-                new CopyTask(fileInfo, Constant.STORAGEMODE_OTG, null, isMove).execute(destinationDFiles.get(0));
+                new CopyTask(fileInfo, Constant.STORAGEMODE_OTG, null, isMove) {
+                    @Override
+                    public void onDoneExecute(boolean result) {
+
+                    }
+                }.execute(destinationDFiles.get(0));
             }
 
         }
@@ -303,12 +315,6 @@ public class PhotoActivity extends AppCompatActivity {
             public void onPageScrollStateChanged(int state) {
             }
         });
-    }
-
-    private void initBroadcast(){
-        IntentFilter filter = new IntentFilter(ACTION_USB_PERMISSION);
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        registerReceiver(usbReceiver, filter);
     }
 
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
@@ -618,7 +624,7 @@ public class PhotoActivity extends AppCompatActivity {
         }
     }
 
-    private class CopyTask extends AsyncTask<DocumentFile, String, Boolean> {
+    private abstract class CopyTask extends AsyncTask<DocumentFile, String, Boolean> {
         FileInfo mSource;
         DocumentFile desDfile;//for sendBroadcast Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
         int mDesStorageMode;
@@ -633,6 +639,8 @@ public class PhotoActivity extends AppCompatActivity {
             mDesDirPath = des_dir_path;
             mDeleteSource = deleteSource;
         }
+
+        public abstract void onDoneExecute(boolean done);
 
         @Override
         protected Boolean doInBackground(DocumentFile... params) {
@@ -815,6 +823,7 @@ public class PhotoActivity extends AppCompatActivity {
                         snackBarShow(R.string.fail);
                 }
             }
+            onDoneExecute(result);
         }
 
         private boolean copydFile(DocumentFile source, DocumentFile destination) {
@@ -936,7 +945,10 @@ public class PhotoActivity extends AppCompatActivity {
         if(sdKey != ""){
             Uri uriSDKey = Uri.parse(sdKey);
             Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uriSDKey);
-            return true;
+            if (Constant.mSDRootDocumentFile.exists())
+                return true;
+            else
+                return false;
         }
         return false;
     }
@@ -1075,5 +1087,34 @@ public class PhotoActivity extends AppCompatActivity {
         boolean shareSuccess = MediaUtils.otgShare(this, dfile);
         if(!shareSuccess)
             snackBarShow(R.string.fail);
+    }
+
+    private void doEncryptDialog(final FileInfo fileInfo) {
+        if (fileInfo.storagemode == Constant.STORAGEMODE_SD) {
+            if (!hasSDPermission()) {
+                preGuideDialog("sd");
+                return;
+            }
+        }
+        new LocalEncryptDialog(this) {
+            @Override
+            public void onConfirm(final String newName, final String password) {
+
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH_mm_ss");
+                String currentDateTimeString = sdf.format(Calendar.getInstance().getTime());
+                final String folderName = Constant.ROOT_CACHE + File.separator + currentDateTimeString;
+                File dir = new File(folderName);
+                if (!dir.exists())
+                    dir.mkdirs();
+
+                new CopyTask(fileInfo, Constant.STORAGEMODE_LOCAL, folderName, false) { //copy file to local cache
+                    @Override
+                    public void onDoneExecute(boolean result) {
+
+                        new EncryptTask(mContext, newName, password, fileInfo).execute();
+                    }
+                }.execute();
+            }
+        };
     }
 }
