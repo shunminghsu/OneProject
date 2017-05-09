@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.CancellationSignal;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +20,8 @@ import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
 
 import java.io.File;
+import java.io.FileDescriptor;
+import java.io.IOException;
 
 
 /**
@@ -79,10 +82,15 @@ public class PhotoHelper {
                 return null;
             final ContentResolver resolver = mContext.getContentResolver();
             Bitmap result = null;
-
-            if (mOtgFile && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M))
-                result = DocumentsContract.getDocumentThumbnail(resolver, mUri, mThumbSize, mSignal);
-            else {
+            if (mOtgFile && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
+                try {
+                    result = getBitmapFromUri(mContext, mUri);
+                } catch (IOException e) {
+                    Log.d(TAG, e.getMessage());
+                }
+                if (result == null)
+                    result = DocumentsContract.getDocumentThumbnail(resolver, mUri, mThumbSize, mSignal);
+            } else {
                 File f = new File(mPath);
                 if (f.exists())
                     result = decodeFullScreenBitmapFromPath(mPath, mPhotoWidth, mPhotoHeight);
@@ -102,6 +110,15 @@ public class PhotoHelper {
                 mPhotoView.setVisibility(View.VISIBLE);
             }
         }
+    }
+
+    private static Bitmap getBitmapFromUri(Context context, Uri uri) throws IOException {
+        ParcelFileDescriptor parcelFileDescriptor =
+                context.getContentResolver().openFileDescriptor(uri, "r");
+        FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+        parcelFileDescriptor.close();
+        return image;
     }
 
     public static Bitmap decodeFullScreenBitmapFromPath(String path, int reqWidth, int reqHeight) {
