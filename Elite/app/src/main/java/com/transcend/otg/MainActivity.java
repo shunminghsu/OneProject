@@ -1960,7 +1960,7 @@ public class MainActivity extends AppCompatActivity
             if (file.type == Constant.TYPE_DIR)
                 folderNames.add(file.name.toLowerCase());
         }
-        new OTGNewFolderDialog(this, folderNames, Constant.Activity, false) {
+        new OTGNewFolderDialog(this, folderNames, Constant.Activity, bSDCard) {
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
                 if(bSDCard){
