@@ -158,7 +158,7 @@ public class PhotoHelper {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
-        int inSampleSize = 1;
+        int inSampleSize = 2;
         final int reqArea = reqWidth * reqHeight;
         //final int bmpArea = options.outWidth * options.outHeight;
         if (height > reqHeight || width > reqWidth) {
