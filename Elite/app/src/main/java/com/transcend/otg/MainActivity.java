@@ -189,6 +189,7 @@ public class MainActivity extends AppCompatActivity
         initFragment();
         initOTGInsertService();
         initActionModeView();
+        discoverSSD();
     }
 
     private void checkStoredUri(Context context) {
@@ -368,6 +369,17 @@ public class MainActivity extends AppCompatActivity
     private void initActionModeView() {
         mActionModeView = (RelativeLayout) LayoutInflater.from(this).inflate(R.layout.action_mode_custom, null);
         mActionModeTitle = (TextView) mActionModeView.findViewById(R.id.action_mode_custom_title);
+    }
+
+    private void discoverSSD(){
+        UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
+
+        if (devices.length > 0) {
+            String productName = devices[0].getUsbDevice().getProductName().toLowerCase();
+            if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
+                itemSecurity.setVisible(true);
+            }
+        }
     }
 
     @Override

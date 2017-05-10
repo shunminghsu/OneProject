@@ -1555,7 +1555,10 @@ public class FolderExploreActivity extends AppCompatActivity
 
     private void doSDMoveOrCopytoSD(ArrayList<FileInfo> selectedFiles, String destinationPath, boolean isCopy) {
         for (FileInfo fileinfo : selectedFiles) {
-            new SDMoveToSDTask(mContext, fileinfo, destinationPath, isCopy).execute();
+            if (destinationPath.startsWith(fileinfo.path))
+                snackBarShow(R.string.select_folder_error);
+            else
+                new SDMoveToSDTask(mContext, fileinfo, destinationPath, isCopy).execute();
         }
     }
 

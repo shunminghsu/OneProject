@@ -112,7 +112,7 @@ public class CapacityActivity extends AppCompatActivity {
         pieChart.setDrawCenterText(true);
 
         pieChart.setRotationAngle(0);
-        pieChart.setRotationEnabled(true);
+        pieChart.setRotationEnabled(false);
         pieChart.setHighlightPerTapEnabled(false);
         pieChart.animateY(1400, Easing.EasingOption.EaseInOutQuad);
         setData(pieChart, usedSize, freeSize);
