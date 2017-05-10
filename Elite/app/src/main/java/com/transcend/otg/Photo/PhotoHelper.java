@@ -37,7 +37,7 @@ public class PhotoHelper {
     }
 
     public void loadThumbnail(FileInfo fileInfo, ImageView photoView, ViewGroup loadingView, int width, int height) {
-        boolean isOtg = fileInfo.type == Constant.STORAGEMODE_OTG;
+        boolean isOtg = fileInfo.storagemode == Constant.STORAGEMODE_OTG;
         photoView.setImageDrawable(null);
         final PhotoHelper.LoaderTask task = new PhotoHelper.LoaderTask(fileInfo.path, fileInfo.uri, photoView, loadingView, mContext, width, height, isOtg);
         photoView.setTag(task);
@@ -84,7 +84,7 @@ public class PhotoHelper {
             Bitmap result = null;
             if (mOtgFile && (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
                 try {
-                    result = getBitmapFromUri(mContext, mUri);
+                    result = getBitmapFromUri(mContext, mUri, mPhotoWidth, mPhotoHeight);
                 } catch (IOException e) {
                     Log.d(TAG, e.getMessage());
                 }
@@ -112,11 +112,21 @@ public class PhotoHelper {
         }
     }
 
-    private static Bitmap getBitmapFromUri(Context context, Uri uri) throws IOException {
+    private static Bitmap getBitmapFromUri(Context context, Uri uri, int reqWidth, int reqHeight) throws IOException {
         ParcelFileDescriptor parcelFileDescriptor =
                 context.getContentResolver().openFileDescriptor(uri, "r");
         FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
         parcelFileDescriptor.close();
         return image;
     }

@@ -51,6 +51,11 @@ public class LocalPreferences {
         getPrefs(context).edit().putString(createKey(key), uri).apply();
     }
 
+    public static void removeSDKey(Context context, String uid) {
+        String key = SD_KEY + uid;
+        getPrefs(context).edit().remove(createKey(key)).apply();
+    }
+
     private static SharedPreferences getPrefs(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }

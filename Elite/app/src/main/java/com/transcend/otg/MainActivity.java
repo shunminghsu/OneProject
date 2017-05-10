@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        checkStoredUri(this);
         init();
         initToolbar();
         initDrawer();
@@ -190,6 +191,16 @@ public class MainActivity extends AppCompatActivity
         initActionModeView();
     }
 
+    private void checkStoredUri(Context context) {
+        String uid = FileFactory.getSDCardUniqueId();
+        String sdKey = LocalPreferences.getSDKey(context, uid);
+        if (sdKey != "") {
+            Uri uriSDKey = Uri.parse(sdKey);
+            DocumentFile f = DocumentFile.fromTreeUri(context, uriSDKey);
+            if (!f.exists())
+                LocalPreferences.removeSDKey(context, uid);
+        }
+    }
     private void init() {
         mContext = this;
         main_relativeLayout = (RelativeLayout) findViewById(R.id.main_relativelayout);
