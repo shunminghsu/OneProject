@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
     <group
-        android:id="@+id/grp1"
+        android:id="@+id/grp0"
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
             android:icon="@mipmap/ic_home"
-            android:title="@string/drawer_home"/>
+            android:title="@string/drawer_home" />
+    </group>
+    <group
+        android:id="@+id/grp1"
+        android:checkableBehavior="single">
+
         <item
             android:id="@+id/nav_browser"
             android:icon="@mipmap/ic_drawer_browser"
@@ -16,34 +20,25 @@
             android:id="@+id/nav_backup"
             android:icon="@mipmap/ic_drawer_backup"
             android:title="@string/drawer_backup" />
+        <item
+            android:id="@+id/nav_security"
+            android:icon="@mipmap/ic_drawer_security"
+            android:title="@string/Lsecurity"
+            android:visible="false" />
     </group>
 
     <group
         android:id="@+id/grp2"
         android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_security"
-            android:icon="@mipmap/ic_drawer_security"
-            android:visible="false"
-            android:title="@string/Lsecurity" />
+
         <item
             android:id="@+id/nav_setting"
             android:icon="@mipmap/ic_drawer_setting"
             android:title="@string/drawer_setting" />
-    </group>
-
-    <group
-        android:id="@+id/grp3"
-        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_help"
             android:icon="@mipmap/ic_help"
             android:title="@string/drawer_help" />
-    </group>
-
-    <group
-        android:id="@+id/grp4"
-        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_feedback"
             android:icon="@mipmap/ic_userfeedback"

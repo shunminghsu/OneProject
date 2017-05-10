@@ -1,6 +1,7 @@
 package com.transcend.otg.Loader;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.AsyncTaskLoader;
@@ -47,6 +48,7 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
     private boolean b_SDCard = false;
     private String destinationPath;
     private int mNotificationID = 0;
+    private int backupCount;
 
     public LocalBackuptoOTGLoader(Context context, List<String> src, ArrayList<DocumentFile> des, String type) {
         super(context);
@@ -55,6 +57,7 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
         mDesDocumentFile = des.get(0);
         mType = type;
         mNotificationID = FileFactory.getInstance().getNotificationID();
+        backupCount = 0;
         createBackupFolder();
         if(hasSDPermission(context)){
             if(mDesDocumentFile.getUri().toString().contains(Constant.mSDRootDocumentFile.getUri().toString())){
@@ -91,8 +94,8 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
     }
 
     private boolean Copy() throws IOException {
-        updateProgress(getContext().getResources().getString(R.string.loading), 0, 0);
         for (String path : mSrcFile) {
+            updateProgress(mType, ++backupCount, mSrcFile.size());
             File source = new File(path);
             if (source.isDirectory()) {
                 copyDirectoryTask(mActivity, source, mDesDocumentFile);
@@ -100,7 +103,7 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
                 copyFileTask(mActivity, source, mDesDocumentFile);
             }
         }
-        updateResult(getContext().getString(R.string.done));
+        updateResult(mType + " " + getContext().getString(R.string.done));
         return true;
     }
 
@@ -127,7 +130,7 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
             startProgressWatcher(destFile, total);
             copyFile(context, srcFileItem, destFile);
             closeProgressWatcher();
-            updateProgress(destFile.getName(), total, total);
+//            updateProgress(destFile.getName(), total, total);
             if(b_SDCard){
                 String sdPath = destinationPath + File.separator + srcFileItem.getName();
                 MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destFileItem.getType()}, null);
@@ -140,7 +143,7 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
                 startProgressWatcher(destFile, total);
                 copyFile(context, srcFileItem, destFile);
                 closeProgressWatcher();
-                updateProgress(destFile.getName(), total, total);
+//                updateProgress(destFile.getName(), total, total);
                 if(b_SDCard){
                     String sdPath = destinationPath + File.separator + srcFileItem.getName();
                     MediaScannerConnection.scanFile(mActivity, new String[]{sdPath}, new String[]{destFileItem.getType()}, null);
@@ -219,7 +222,7 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
                 int count = (int) target.length();
                 if (mHandler != null) {
                     mHandler.postDelayed(mWatcher, 1000);
-                    updateProgress(target.getName(), count, total);
+//                    updateProgress(target.getName(), count, total);
                 }
             }
         });
@@ -239,17 +242,14 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
     private void updateProgress(String name, int count, int total) {
         Log.w(TAG, "progress: " + count + "/" + total + ", " + name);
 
-        int max = (count == total) ? 0 : 100;
-        int progress = 0;
-        if (total > 100 && count > 0)
-            progress = (total > 0) ? count / (total / 100) : 0;
+        int max = total;
+        int progress = count;
         boolean indeterminate = (total == 0);
         int icon = R.mipmap.icon_elite_logo;
 
         String type = getContext().getResources().getString(R.string.drawer_backup);
-        String stat = String.format("%s / %s", MathUtils.getBytes(count), MathUtils.getBytes(total));
-        String text = String.format("%s - %s", type, stat);
-        String info = String.format("%d%%", progress);
+        String stat = String.format("%s / %s", count, total);
+        String text = String.format("%s - %s", name, stat);
 
         NotificationManager ntfMgr = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
         Intent intent = mActivity.getIntent();
@@ -258,9 +258,8 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
         PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext());
         builder.setSmallIcon(icon);
-        builder.setContentTitle(name);
+        builder.setContentTitle(type);
         builder.setContentText(text);
-        builder.setContentInfo(info);
         builder.setProgress(max, progress, indeterminate);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
@@ -281,11 +280,14 @@ public class LocalBackuptoOTGLoader extends AsyncTaskLoader<Boolean> {
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(getContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getContext());
+        int defaults = 0;
+        defaults |= Notification.DEFAULT_VIBRATE;
         builder.setSmallIcon(icon);
         builder.setContentTitle(name);
         builder.setContentText(text);
         builder.setContentIntent(pendingIntent);
         builder.setAutoCancel(true);
+        builder.setDefaults(defaults);
         ntfMgr.notify(mNotificationID, builder.build());
         FileFactory.getInstance().releaseNotificationID(mNotificationID);
     }
