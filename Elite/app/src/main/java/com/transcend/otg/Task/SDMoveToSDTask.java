@@ -20,11 +20,10 @@ import java.io.OutputStream;
  */
 
 public class SDMoveToSDTask extends AsyncTask<DocumentFile, String, Boolean> {
-    FileInfo mSource;
-    DocumentFile desDfile;//for sendBroadcast Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
-    String mDesDirPath;
-    boolean mIsCopy;
-
+    private FileInfo mSource;
+    private DocumentFile desDfile;//for sendBroadcast Intent.ACTION_MEDIA_SCANNER_SCAN_FILE
+    private String mDesDirPath;
+    private boolean mIsCopy;
     private Context mContext;
 
     public SDMoveToSDTask(Context context, FileInfo source, String des_dir_path, boolean isCopy) {
@@ -39,24 +38,31 @@ public class SDMoveToSDTask extends AsyncTask<DocumentFile, String, Boolean> {
         String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
 
         DocumentFile sourceDfile = FileFactory.findDocumentFilefromName(mContext, mSource);
-        DocumentFile destDDir = findDocumentFilefromPath(mDesDirPath, sdPath, Constant.mSDRootDocumentFile);
+        DocumentFile destDParent = findDocumentFilefromPath(mDesDirPath, sdPath, Constant.mSDRootDocumentFile);
 
-        File parent = new File(mDesDirPath);
-        File f2 = new File(parent, mSource.name);
-
-        desDfile = destDDir.createFile(sourceDfile.getType(), mSource.name);
-        return copydFile(sourceDfile, desDfile);
+        if (sourceDfile.isDirectory()) {
+            return copydDir(sourceDfile, destDParent);
+        } else {
+            desDfile = destDParent.createFile(sourceDfile.getType(), mSource.name);
+            return copydFile(sourceDfile, desDfile);
+        }
     }
 
     @Override
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
         if (result) {
-            // des file name could not be same as source name when file exist ex: name(1), name(2),...
-            // so we get the name after the copied file created.
-            File parent = new File(mDesDirPath);
-            File newFile = new File(parent, desDfile.getName());
-            MediaScannerConnection.scanFile(mContext, new String[]{newFile.getPath()}, new String[]{desDfile.getType()}, null);
+            if (mSource.type == Constant.TYPE_DIR) {
+                File parent = new File(mDesDirPath);
+                File newFile = new File(parent, mSource.name);
+                scanDir(newFile, mContext);
+            } else {
+                // des file name could not be same as source name when file exist ex: name(1), name(2),...
+                // so we get the name after the copied file created.
+                File parent = new File(mDesDirPath);
+                File newFile = new File(parent, desDfile.getName());
+                MediaScannerConnection.scanFile(mContext, new String[]{newFile.getPath()}, new String[]{desDfile.getType()}, null);
+            }
 
             if (!mIsCopy && Constant.mSDRootDocumentFile != null) {
                 DocumentFile df = FileFactory.findDocumentFilefromName(mContext, mSource);
@@ -87,6 +93,34 @@ public class SDMoveToSDTask extends AsyncTask<DocumentFile, String, Boolean> {
         } catch (IOException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    private boolean copydDir(DocumentFile source, DocumentFile dest_parent) {
+        DocumentFile dest_dir = dest_parent.createDirectory(source.getName());
+        if (dest_dir.exists()) {
+            for (DocumentFile f : source.listFiles()) {
+                if (f.isFile()) {
+                    copydFile(f, dest_dir.createFile(f.getType(), f.getName()));
+                } else if (f.isDirectory()) {
+                    copydDir(f, dest_dir);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private void scanDir(File dir, Context context) {
+        MediaScannerConnection.scanFile(context, new String[]{dir.getPath()}, new String[]{null}, null);
+        for (File f : dir.listFiles()) {
+            if (f.isDirectory())
+                scanDir(f, context);
+            else {
+                String sdPath = FileFactory.getOuterStoragePath(context, Constant.sd_key_path);
+                DocumentFile df = findDocumentFilefromPath(f.getPath(), sdPath, Constant.mSDRootDocumentFile);
+                MediaScannerConnection.scanFile(context, new String[]{f.getPath()}, new String[]{df.getType()}, null);
+            }
         }
     }
 
