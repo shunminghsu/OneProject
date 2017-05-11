@@ -281,6 +281,7 @@ public class MainActivity extends AppCompatActivity
                         selectDrawerPage(mSecurityScsi.getPreviousPage() , securityStatus);
                     }
                 }else {
+                    mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
                     showHomeOrFragment(true);
                     setDrawerCheckItem(R.id.nav_home);
                 }
@@ -298,6 +299,7 @@ public class MainActivity extends AppCompatActivity
                 if(getFragment() instanceof SecurityLoginFragment|| getFragment() instanceof SecurityPasswordFragment
                         || getFragment() instanceof SecuritySettingFragment || getFragment() instanceof RemindUnlockFragment){
                     mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
+                    setDrawerCheckItem(R.id.nav_home);
                     showHomeOrFragment(true);
                     return;
                 }
@@ -788,15 +790,19 @@ public class MainActivity extends AppCompatActivity
             if (productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))) {
                 device = devices[0];
                 itemSecurity.setVisible(true);
-                if (!doCheckUSBPermission()) {
-                    SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, true);
-                    securityScsi.setPreviousPage(page);
-                    doUSBRequestPermission();
-                    return true;
-                } else{
-                    SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
-                    if(securityScsi.getSecurityStatus() != Constant.SECURITY_LOCK){
-                        return false ;
+                if(page != 0) {
+                    if (!doCheckUSBPermission()) {
+                        SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, true);
+                        securityScsi.setPreviousPage(page);
+                        doUSBRequestPermission();
+                        return true;
+                    } else {
+                        SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
+                        if(securityScsi.getSecurityStatus() == Constant.SECURITY_DEVICE_EMPTY)
+                            securityScsi.checkSecurityStatus();
+//                        if (securityScsi.getSecurityStatus() != Constant.SECURITY_LOCK) {
+//                            return false;
+//                        }
                     }
                 }
             }

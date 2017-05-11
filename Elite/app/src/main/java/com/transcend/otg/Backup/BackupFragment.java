@@ -299,7 +299,9 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         String productName = device.getUsbDevice().getProductName().toLowerCase();
         if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
             UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
-            SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false) ;
+            SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
+            if(securityScsi.getSecurityStatus() == Constant.SECURITY_DEVICE_EMPTY)
+                securityScsi.checkSecurityStatus();
             if(securityScsi.getSecurityStatus() == Constant.SECURITY_LOCK )
                 return 3;
             else

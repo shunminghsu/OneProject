@@ -782,6 +782,7 @@ public class FolderExploreActivity extends AppCompatActivity
         if(mActionMode == null){
             switch (type){
                 case Constant.TYPE_DIR:
+                    loadingContainer.setVisibility(View.VISIBLE);
                     if(mMode == Constant.STORAGEMODE_LOCAL || mMode == Constant.STORAGEMODE_SD)
                         doLoad(mFileList.get(position).path);
                     else if (mMode == Constant.STORAGEMODE_OTG){
