@@ -323,15 +323,6 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 //////local & sd card function start//////
 
     private ArrayList<FileInfo> getAllImages() {
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && mOuterStoragePath != null) {
-            Uri uriSDKey = Uri.parse(LocalPreferences.getSDKey(mContext));
-            Uri sdBaseRootUri = null;
-            if (uriSDKey != null && uriSDKey.toString() != "")
-                sdBaseRootUri = DocumentsContract.buildChildDocumentsUriUsingTree(uriSDKey, DocumentsContract.getTreeDocumentId(uriSDKey));
-            if (sdBaseRootUri != null) {
-                return getSortList(getOtgAllImages(sdBaseRootUri, Constant.STORAGEMODE_SD));
-            }
-        }*/
         try {
             String[] proj = {MediaStore.Images.Media.SIZE,
                     MediaStore.Images.Media.DATA,
@@ -339,6 +330,12 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     MediaStore.Images.Media.DISPLAY_NAME,
                     MediaStore.Images.Media.DATE_MODIFIED};
 
+            String select = null;
+            if (mOuterStoragePath == null) {
+                select = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '" + Constant.ROOT_LOCAL + "%')";
+            } else {
+                select = "(" + MediaStore.Files.FileColumns.DATA + " LIKE '" + mOuterStoragePath + "%')";
+            }
             String orderBy = MediaStore.Images.Media.DATE_MODIFIED;
             if (mSortBy == Constant.SORT_BY_NAME)
                 orderBy = MediaStore.Images.Media.DISPLAY_NAME;
@@ -347,7 +344,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             String order = mSortOrderAsc ? " ASC" : " DESC";
             Cursor imagecursor = mContext.getContentResolver().query(
                     MediaStore.Images.Media.EXTERNAL_CONTENT_URI, proj,
-                    null, null, orderBy + order);
+                    select, null, orderBy + order);
             if (imagecursor != null) {
                 while (imagecursor.moveToNext()) {
                     int pathColumnIndex = imagecursor.getColumnIndex(MediaStore.Images.Media.DATA);

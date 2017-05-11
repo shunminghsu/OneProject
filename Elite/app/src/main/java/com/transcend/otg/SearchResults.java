@@ -641,6 +641,25 @@ public class SearchResults extends Fragment {
             if (i == position)
                 mPhotoListPosition = photoList.size() - 1;
         }
+
+        if (photoList.size() > Constant.PHOTO_LIST_SIZE_LIMIT) {
+            int left_len = mPhotoListPosition;
+            int right_len = photoList.size() - left_len - 1;
+            int start, end;
+            if (left_len < Constant.PHOTO_LIST_SIZE_LIMIT/2) {
+                start = 0;
+                end = Constant.PHOTO_LIST_SIZE_LIMIT;
+            } else if (right_len < Constant.PHOTO_LIST_SIZE_LIMIT/2) {
+                start = photoList.size() - Constant.PHOTO_LIST_SIZE_LIMIT;
+                end = photoList.size();
+                mPhotoListPosition = mPhotoListPosition - start;
+            } else {
+                start = mPhotoListPosition - Constant.PHOTO_LIST_SIZE_LIMIT/2;
+                end = mPhotoListPosition + Constant.PHOTO_LIST_SIZE_LIMIT/2;
+                mPhotoListPosition = mPhotoListPosition - start;
+            }
+            photoList = new ArrayList<FileInfo> (photoList.subList(start, end));
+        }
         return photoList;
     }
 

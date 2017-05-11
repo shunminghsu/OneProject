@@ -143,6 +143,8 @@ public class FolderExploreActivity extends AppCompatActivity
     //Menu
     private MenuItem.OnMenuItemClickListener mCustomMenuItemClicked;
 
+    private boolean firstLoadFinished = false;//bug workaround
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -214,8 +216,9 @@ public class FolderExploreActivity extends AppCompatActivity
             @Override
             public void onRefresh() {
                 if(mActionMode != null)
-                    mActionMode.finish();;
-                doRefresh();
+                    mActionMode.finish();
+                if (firstLoadFinished)
+                    doRefresh();
             }
         });
         mEmptyView = findViewById(R.id.empty_view);
@@ -305,6 +308,24 @@ public class FolderExploreActivity extends AppCompatActivity
                 newListPosition = photoList.size() - 1;
         }
 
+        if (photoList.size() > Constant.PHOTO_LIST_SIZE_LIMIT) {
+            int left_len = newListPosition;
+            int right_len = photoList.size() - left_len - 1;
+            int start, end;
+            if (left_len < Constant.PHOTO_LIST_SIZE_LIMIT/2) {
+                start = 0;
+                end = Constant.PHOTO_LIST_SIZE_LIMIT;
+            } else if (right_len < Constant.PHOTO_LIST_SIZE_LIMIT/2) {
+                start = photoList.size() - Constant.PHOTO_LIST_SIZE_LIMIT;
+                end = photoList.size();
+                newListPosition = newListPosition - start;
+            } else {
+                start = newListPosition - Constant.PHOTO_LIST_SIZE_LIMIT/2;
+                end = newListPosition + Constant.PHOTO_LIST_SIZE_LIMIT/2;
+                newListPosition = newListPosition - start;
+            }
+            photoList = new ArrayList<FileInfo> (photoList.subList(start, end));
+        }
         intent.putParcelableArrayListExtra("photo_list", photoList);
         intent.putExtra("list_index", newListPosition);
         startActivity(intent);
@@ -997,6 +1018,7 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     public void onLoadFinished(Loader<Boolean> loader, Boolean success) {
+        firstLoadFinished = true;
         mFileActionManager.onLoadFinished(loader, success);
         if (success) {
             if (loader instanceof LocalListLoader) {

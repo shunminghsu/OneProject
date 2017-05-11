@@ -495,6 +495,8 @@ public class PhotoActivity extends AppCompatActivity {
                     return false;
                 }
                 DocumentFile dfile = FileFactory.findDocumentFilefromName(mContext, mFileInfo);
+                if (dfile == null)// the file could have been deleted
+                    return false;
                 return dfile.delete();
             } else {
                 File f = new File(mFileInfo.path);
