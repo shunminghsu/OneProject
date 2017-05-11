@@ -254,6 +254,24 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
                 newListPosition = photoList.size() - 1;
         }
 
+        if (photoList.size() > Constant.PHOTO_LIST_SIZE_LIMIT) {
+            int left_len = newListPosition;
+            int right_len = photoList.size() - left_len - 1;
+            int start, end;
+            if (left_len < Constant.PHOTO_LIST_SIZE_LIMIT/2) {
+                start = 0;
+                end = Constant.PHOTO_LIST_SIZE_LIMIT;
+            } else if (right_len < Constant.PHOTO_LIST_SIZE_LIMIT/2) {
+                start = photoList.size() - Constant.PHOTO_LIST_SIZE_LIMIT;
+                end = photoList.size();
+                newListPosition = newListPosition - start;
+            } else {
+                start = newListPosition - Constant.PHOTO_LIST_SIZE_LIMIT/2;
+                end = newListPosition + Constant.PHOTO_LIST_SIZE_LIMIT/2;
+                newListPosition = newListPosition - start;
+            }
+            photoList = new ArrayList<FileInfo> (photoList.subList(start, end));
+        }
         intent.putParcelableArrayListExtra("photo_list", photoList);
         intent.putExtra("list_index", newListPosition);
         mContext.startActivity(intent);

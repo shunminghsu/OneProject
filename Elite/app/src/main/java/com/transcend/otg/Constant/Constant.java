@@ -57,4 +57,6 @@ public class Constant {
     public static final int SECURITY_DISABLE = 0;
     public static final int SECURITY_LOCK = 1;
     public static final int SECURITY_UNLOCK = 2;
+
+    public static final int PHOTO_LIST_SIZE_LIMIT = 888;
 }
