@@ -156,6 +156,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     }
 
     public void setAllSelection(){
+        if (mList == null)
+            return;
         for (FileInfo file : mList)
             file.checked = true;
         notifyDataSetChanged();
@@ -163,12 +165,16 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
 
     public void clearAllSelection(){
+        if (mList == null)
+            return;
         for (FileInfo file : mList)
             file.checked = false;
         notifyDataSetChanged();
     }
 
     public boolean getSelectedAllorNot() {
+        if (mList == null)
+            return false;
         for (FileInfo file : mList) {
             if (!file.checked)
                 return false;
@@ -178,6 +184,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     public ArrayList<FileInfo> getSelectedFiles(){
         ArrayList<FileInfo> list = new ArrayList<>();
+        if (mList == null)
+            return list;
         for (FileInfo file : mList) {
             if (file.checked)
                 list.add(file);

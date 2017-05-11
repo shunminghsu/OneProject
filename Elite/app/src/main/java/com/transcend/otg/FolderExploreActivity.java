@@ -943,6 +943,8 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        if (mFolderExploreAdapter.getSelectedFiles().size() == 0)
+            return false;
         FileInfo fileInfo = mFolderExploreAdapter.getSelectedFiles().get(0);
         switch (item.getItemId()) {
             case R.id.action_rename:

@@ -106,6 +106,8 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
 
     public ArrayList<FileInfo> getSelectedFiles(){
         ArrayList<FileInfo> list = new ArrayList<>();
+        if (mList == null)
+            return list;
         for (FileInfo file : mList) {
             if (file.checked)
                 list.add(file);
@@ -114,6 +116,8 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
     }
 
     public boolean getSelectedAllorNot() {
+        if (mList == null)
+            return false;
         for (FileInfo file : mList) {
             if (!file.checked)
                 return false;
@@ -123,6 +127,8 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
 
     public int getItemSelectedCount() {
         int count = 0;
+        if (mList == null)
+            return count;
         for (FileInfo file : mList) {
             if(file.checked)
                 count++;
@@ -131,6 +137,8 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
     }
 
     public void setAllSelection(){
+        if (mList == null)
+            return;
         for (FileInfo file : mList)
             file.checked = true;
         notifyDataSetChanged();
@@ -138,6 +146,8 @@ public class FolderExploreAdapter extends RecyclerView.Adapter<FolderExploreAdap
 
 
     public void clearAllSelection(){
+        if (mList == null)
+            return;
         for (FileInfo file : mList)
             file.checked = false;
         notifyDataSetChanged();
