@@ -123,7 +123,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     FileInfo item = new FileInfo();
                     item.name = imageCursor.getString(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
                     //item.name = item.name.substring(0, item.name.lastIndexOf("."));
-                    item.time = FileInfo.getTime(imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.time = FileFactory.getTime(imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = imageCursor.getLong(imageCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = imageCursor.getString(cursor_index_ID).split(":");
                     item.path = mOuterStoragePath + "/" + split[1];
@@ -155,7 +155,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     FileInfo item = new FileInfo();
                     item.name = videoCursor.getString(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
                     //item.name = item.name.substring(0, item.name.lastIndexOf("."));
-                    item.time = FileInfo.getTime(videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.time = FileFactory.getTime(videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = videoCursor.getLong(videoCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = videoCursor.getString(cursor_index_ID).split(":");
                     item.path = mOuterStoragePath + "/" + split[1];
@@ -187,11 +187,11 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     FileInfo item = new FileInfo();
                     item.name = musicCursor.getString(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
                     //item.name = item.name.substring(0, item.name.lastIndexOf("."));
-                    item.time = FileInfo.getTime(musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.time = FileFactory.getTime(musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = musicCursor.getLong(musicCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = musicCursor.getString(cursor_index_ID).split(":");
                     item.path = mOuterStoragePath + "/" + split[1];
-                    item.album_id = -1;
+//                    item.album_id = -1;
                     item.uri = DocumentsContract.buildDocumentUriUsingTree(_rootUri, musicCursor.getString(cursor_index_ID));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
                     item.type = Constant.TYPE_MUSIC;
@@ -219,7 +219,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 } else if (type.contains(TEXT) || type.contains(PDF) || type.contains(WORD) || type.contains(PPT) || type.contains(EXCEL)) {
                     FileInfo item = new FileInfo();
                     item.name = docCursor.getString(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_DISPLAY_NAME));
-                    item.time = FileInfo.getTime(docCursor.getLong(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.time = FileFactory.getTime(docCursor.getLong(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = docCursor.getLong(docCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = docCursor.getString(cursor_index_ID).split(":");
                     item.path = mOuterStoragePath + "/" + split[1];
@@ -251,7 +251,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                 } else if (name.endsWith(ENCRYPT)) {
                     FileInfo item = new FileInfo();
                     item.name = name;
-                    item.time = FileInfo.getTime(encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.time = FileFactory.getTime(encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = encCursor.getLong(encCursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     String[] split = encCursor.getString(cursor_index_ID).split(":");
                     item.path = mOuterStoragePath + "/" + split[1];
@@ -288,7 +288,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
 
                 FileInfo item = new FileInfo();
                 item.name = name;
-                item.time = FileInfo.getTime(cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                item.time = FileFactory.getTime(cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                 if (!type.contains(DIR)) {
                     item.size = cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
@@ -368,7 +368,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.path = picPath;
                         //picName = picName.substring(0, picName.lastIndexOf("."));
                         fileInfo.name = picName;
-                        fileInfo.time = FileInfo.getTime(picTime);
+                        fileInfo.time = FileFactory.getTime(picTime);
                         fileInfo.type = Constant.TYPE_PHOTO;
                         fileInfo.size = picSize;
                         fileInfo.format_size = Formatter.formatFileSize(mContext, picSize);
@@ -401,7 +401,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             String[] proj = {MediaStore.Audio.Media.SIZE,
                     MediaStore.Audio.Media.DATA,
                     MediaStore.Audio.Media.DISPLAY_NAME,
-                    MediaStore.Audio.Media.ALBUM_ID,
+//                    MediaStore.Audio.Media.ALBUM_ID,
                     MediaStore.Audio.Media.DATE_MODIFIED};
             String select = "(" + MediaStore.Audio.Media.DURATION + " > 10000)";
             String orderBy = MediaStore.Audio.Media.DATE_MODIFIED;
@@ -425,7 +425,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                     Long musicTime = 1000 * musiccursor.getLong(timeColumnIndex);
                     Long musicSize = musiccursor.getLong(sizeColumnIndex);
 
-                    long albumId = musiccursor.getInt(musiccursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
+//                    long albumId = musiccursor.getInt(musiccursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID));
 
                     File musicFile = new File(musicPath);
                     if (musicFile.exists()) {
@@ -433,9 +433,9 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.path = musicPath;
                         //musicName = musicName.substring(0, musicName.lastIndexOf("."));
                         fileInfo.name = musicName;
-                        fileInfo.time = FileInfo.getTime(musicTime);
+                        fileInfo.time = FileFactory.getTime(musicTime);
                         fileInfo.type = Constant.TYPE_MUSIC;
-                        fileInfo.album_id = albumId;
+//                        fileInfo.album_id = albumId;
                         fileInfo.size = musicSize;
                         fileInfo.format_size = Formatter.formatFileSize(mContext, musicSize);
                         if (mOuterStoragePath == null) {
@@ -495,7 +495,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         fileInfo.path = videoPath;
                         //videoName = videoName.substring(0, videoName.lastIndexOf("."));
                         fileInfo.name = videoName;
-                        fileInfo.time = FileInfo.getTime(videoTime);
+                        fileInfo.time = FileFactory.getTime(videoTime);
                         fileInfo.type = Constant.TYPE_VIDEO;
                         fileInfo.format_size = Formatter.formatFileSize(mContext, videoSize);
                         if (mOuterStoragePath == null) {
@@ -561,7 +561,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
                         fileInfo.name = name;
-                        fileInfo.time = FileInfo.getTime(1000 * docscursor.getLong(timeColumnIndex));
+                        fileInfo.time = FileFactory.getTime(1000 * docscursor.getLong(timeColumnIndex));
                         fileInfo.size = docscursor.getLong(sizeColumnIndex);
                         fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
                         fileInfo.type = Constant.TYPE_DOC;
@@ -576,7 +576,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
                         fileInfo.name = name;
-                        fileInfo.time = FileInfo.getTime(1000 * docscursor.getLong(timeColumnIndex));
+                        fileInfo.time = FileFactory.getTime(1000 * docscursor.getLong(timeColumnIndex));
                         fileInfo.size = docscursor.getLong(sizeColumnIndex);
                         fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
                         fileInfo.type = Constant.TYPE_DOC;
@@ -654,7 +654,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
                         fileInfo.name = name;
-                        fileInfo.time = FileInfo.getTime(1000 * encCursor.getLong(timeColumnIndex));
+                        fileInfo.time = FileFactory.getTime(1000 * encCursor.getLong(timeColumnIndex));
                         fileInfo.size = encCursor.getLong(sizeColumnIndex);
                         fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
                         fileInfo.type = Constant.TYPE_ENCRYPT;
@@ -669,7 +669,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         FileInfo fileInfo = new FileInfo();
                         fileInfo.path = path;
                         fileInfo.name = name;
-                        fileInfo.time = FileInfo.getTime(1000 * encCursor.getLong(timeColumnIndex));
+                        fileInfo.time = FileFactory.getTime(1000 * encCursor.getLong(timeColumnIndex));
                         fileInfo.size = encCursor.getLong(sizeColumnIndex);
                         fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);
                         fileInfo.type = Constant.TYPE_ENCRYPT;
@@ -741,7 +741,7 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
                         else
                             fileInfo.storagemode = Constant.STORAGEMODE_SD;
                         fileInfo.name = name;
-                        fileInfo.time = FileInfo.getTime(time);
+                        fileInfo.time = FileFactory.getTime(time);
                         fileInfo.size = size;
                         fileInfo.format_size = Formatter.formatFileSize(mContext, size);
                         switch (cursor.getInt(typeColumnIndex)) {
@@ -801,8 +801,8 @@ public class TabInfoLoader extends AsyncTaskLoader<ArrayList<FileInfo>> {
             FileInfo fileInfo = new FileInfo();
             fileInfo.path = file.getPath();
             fileInfo.name = file.getName();
-            fileInfo.time = FileInfo.getTime(file.lastModified());
-            fileInfo.type = file.isFile() ? FileInfo.getType(file.getPath()) : Constant.TYPE_DIR;
+            fileInfo.time = FileFactory.getTime(file.lastModified());
+            fileInfo.type = file.isFile() ? FileFactory.getType(file.getPath()) : Constant.TYPE_DIR;
             if (fileInfo.type != Constant.TYPE_DIR) {
                 fileInfo.size = file.length();
                 fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);

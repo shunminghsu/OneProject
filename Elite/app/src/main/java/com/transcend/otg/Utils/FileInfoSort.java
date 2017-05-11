@@ -117,6 +117,6 @@ public class FileInfoSort {
     }
 
     private static int compareByDate(FileInfo lhs, FileInfo rhs) {
-        return FileInfo.getDate(lhs.time).compareTo(FileInfo.getDate(rhs.time));
+        return FileFactory.getDate(lhs.time).compareTo(FileFactory.getDate(rhs.time));
     }
 }

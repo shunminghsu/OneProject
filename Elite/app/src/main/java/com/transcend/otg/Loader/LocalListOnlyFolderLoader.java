@@ -54,7 +54,7 @@ public class LocalListOnlyFolderLoader extends AsyncTaskLoader<Boolean> {
                 FileInfo fileInfo = new FileInfo();
                 fileInfo.path = file.getPath();
                 fileInfo.name = file.getName();
-                fileInfo.time = FileInfo.getTime(file.lastModified());
+                fileInfo.time = FileFactory.getTime(file.lastModified());
                 fileInfo.type = Constant.TYPE_DIR;
                 fileInfo.size = file.length();
                 fileInfo.format_size = Formatter.formatFileSize(mContext, fileInfo.size);

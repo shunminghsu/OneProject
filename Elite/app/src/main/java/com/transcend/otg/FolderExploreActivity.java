@@ -572,7 +572,7 @@ public class FolderExploreActivity extends AppCompatActivity
                     snackBarShow(R.string.snackbar_plz_select_top);
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//sd root path
-                    ArrayList<String> sdCardFileName = FileInfo.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                    ArrayList<String> sdCardFileName = FileFactory.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
                     boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
                     if(bSDCard){
                         getContentResolver().takePersistableUriPermission(uri,

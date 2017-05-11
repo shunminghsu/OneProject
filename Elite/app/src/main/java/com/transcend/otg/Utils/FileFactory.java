@@ -22,7 +22,10 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -532,5 +535,50 @@ public class FileFactory {
             e.printStackTrace();
         }
         return sd_cid;
+    }
+
+    public static int getType(String path) {
+        if (MimeUtil.isPhoto(path))
+            return Constant.TYPE_PHOTO;
+        if (MimeUtil.isVideo(path))
+            return Constant.TYPE_VIDEO;
+        if (MimeUtil.isMusic(path))
+            return Constant.TYPE_MUSIC;
+        if (MimeUtil.isDocument(path))
+            return Constant.TYPE_DOC;
+        if (MimeUtil.isEncrypt(path))
+            return Constant.TYPE_ENCRYPT;
+        return Constant.TYPE_OTHER_FILE;
+    }
+
+    public static String getTime(long time) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return format.format(new Date(time));
+    }
+
+    public static Date getDate(String time) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        try {
+            return format.parse(time);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return new Date();
+    }
+
+    public static ArrayList<String> getSDCardFileName(String mPath) {
+        ArrayList<String> sdName = new ArrayList<String>();
+        if(mPath != null){
+            File dir = new File(mPath);
+
+            File files[] = dir.listFiles();
+            for (File file : files) {
+                if (file.isHidden())
+                    continue;
+                String name = file.getName();
+                sdName.add(name);
+            }
+        }
+        return sdName;
     }
 }

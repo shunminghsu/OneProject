@@ -89,7 +89,7 @@ public class OTGFileOnlyFolderLoader extends AsyncTaskLoader<Boolean> {
                 if(type.contains(DIR)){
                     FileInfo item = new FileInfo();
                     item.name = name;
-                    item.time = FileInfo.getTime(cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
+                    item.time = FileFactory.getTime(cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_LAST_MODIFIED)));
                     item.size = cursor.getLong(cursor.getColumnIndex(DocumentsContract.Document.COLUMN_SIZE));
                     item.format_size = Formatter.formatFileSize(mContext, item.size);
                     String[] split = cursor.getString(cursor_index_ID).split(":");

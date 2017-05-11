@@ -295,7 +295,7 @@ public class PhotoActivity extends AppCompatActivity {
         mPager.setPageTransformer(true, new DepthPageTransformer());
         mPager.setAdapter(mAdapter);
         mPager.setCurrentItem(mPosition);
-        mPager.setOffscreenPageLimit(0);
+        mPager.setOffscreenPageLimit(1);
 
         mPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
