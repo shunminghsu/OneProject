@@ -186,7 +186,7 @@ public class AboutActivity extends AppCompatActivity {
                 v = inflater.inflate(R.layout.fragment_opensource, container, false);
                 TextView info = (TextView) v.findViewById(R.id.info);
                 try {
-                    info.setText(Html.fromHtml(readFromAssets(getActivity(), "opensource.txt")));
+                    info.setText(Html.fromHtml(readFromAssets(getActivity(), "statement.txt")));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
