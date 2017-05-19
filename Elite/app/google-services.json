@@ -1,0 +1,38 @@
+{
+  "project_info": {
+    "project_number": "365290211052",
+    "project_id": "optical-mind-712"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:365290211052:android:88c1792fe30c12d5",
+        "android_client_info": {
+          "package_name": "com.transcend.otg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-1Pn_3kmOYExym7pATYR05-N2auXDEGU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-54924476-11"
+          }
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

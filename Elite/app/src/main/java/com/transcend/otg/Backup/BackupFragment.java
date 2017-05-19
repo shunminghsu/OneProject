@@ -32,6 +32,7 @@ import com.transcend.otg.Dialog.BackupStartDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
+import com.transcend.otg.GoogleAnalytics.GoogleAnalyticsFactory;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalBackuptoOTGLoader;
 import com.transcend.otg.Loader.LocalCopytoOTGLoader;
@@ -271,10 +272,14 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
             public void onConfirm(boolean bBackup) {
                 if(bBackup){
                     loading_container.setVisibility(View.VISIBLE);
-                    if(radioButtonOTG.isChecked())
+                    if(radioButtonOTG.isChecked()) {
+                        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BACKUP_OTG, GoogleAnalyticsFactory.EVENT.BACKUP);
                         backupStorage = 1;
-                    else if(radioButtonSD.isChecked())
+                    } else if(radioButtonSD.isChecked()){
+                        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BACKUP_SD, GoogleAnalyticsFactory.EVENT.BACKUP);
                         backupStorage = 2;
+                    }
+
                     bCheckbox[0] = cbPhoto.isChecked();
                     bCheckbox[1] = cbVideo.isChecked();
                     bCheckbox[2] = cbMusic.isChecked();

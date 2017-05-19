@@ -24,6 +24,7 @@ import android.widget.Spinner;
 
 import com.transcend.otg.Dialog.EmptyNotificationDialog;
 import com.transcend.otg.Dialog.FeedbackOKDialog;
+import com.transcend.otg.GoogleAnalytics.GoogleAnalyticsFactory;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
@@ -98,6 +99,7 @@ public class FeedbackFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if(isInputValid()){
+                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FEEDBACK, GoogleAnalyticsFactory.EVENT.FEEDBACK);
                     REGION = mSpinnerRegion.getSelectedItem().toString();
                     REGION_ISO = REGION;
                     mProgressBar.setVisibility(View.VISIBLE);

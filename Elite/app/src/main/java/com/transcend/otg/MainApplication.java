@@ -5,11 +5,14 @@ import android.app.Application;
 import android.content.Context;
 import android.graphics.Point;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
 import com.transcend.otg.Bitmap.ThumbnailCache;
 
 public class MainApplication extends Application {
     private Point mThumbnailsSize;
     private ThumbnailCache mThumbnails;
+    private Tracker mTracker;
 
 
     public static ThumbnailCache getThumbnailsCache(Context context) {
@@ -38,5 +41,14 @@ public class MainApplication extends Application {
         } else if (level >= TRIM_MEMORY_BACKGROUND) {
             mThumbnails.trimToSize(mThumbnails.size() / 2);
         }
+    }
+
+    synchronized public Tracker getDefaultTracker() {
+        if (mTracker == null) {
+            GoogleAnalytics analytics = GoogleAnalytics.getInstance(this);
+            // To enable debug logging use: adb shell setprop log.tag.GAv4 DEBUG
+            mTracker = analytics.newTracker(R.xml.global_tracker);
+        }
+        return mTracker;
     }
 }

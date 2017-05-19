@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
+import com.transcend.otg.GoogleAnalytics.GoogleAnalyticsFactory;
 import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.Photo.PhotoActivity;
@@ -164,6 +165,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
 
     @Override
     public void onRecyclerItemInfoClick(FileInfo fileInfo) {
+        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER, GoogleAnalyticsFactory.EVENT.INFO);
         createInfoDialog(mContext, fileInfo, MainActivity.mScreenW);
     }
 
@@ -243,6 +245,7 @@ public class TabInfo implements RecyclerViewAdapter.OnRecyclerItemCallbackListen
     }
 
     private void startPhotoSingleView(ArrayList<FileInfo> list, int position) {
+        GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY);
         Intent intent = new Intent(mContext, PhotoActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         int newListPosition = 0;
