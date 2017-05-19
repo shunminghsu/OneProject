@@ -140,4 +140,5 @@
     <string name="backup_finish">Sauvegarde terminée !</string>
     <string name="backup_start">Êtes-vous sûr de commencer la sauvegarde ?</string>
     <string name="security_notify">notify</string>
+    <string name="rate_app">Noter cette application</string>
 </resources>

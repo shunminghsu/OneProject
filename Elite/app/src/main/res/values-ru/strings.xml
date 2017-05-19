@@ -140,4 +140,5 @@
     <string name="backup_finish">Полное резервное копирование!</string>
     <string name="backup_start">Вы уверены, что для начала резервного копирования?</string>
     <string name="security_notify">сообщить</string>
+    <string name="rate_app">Оценить это приложение</string>
 </resources>

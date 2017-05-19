@@ -140,4 +140,5 @@
     <string name="backup_finish">Backup completato!</string>
     <string name="backup_start">Sei sicuro che avviare il backup?</string>
     <string name="security_notify">notificare</string>
+    <string name="rate_app">Vota questo app</string>
 </resources>

@@ -140,4 +140,5 @@
     <string name="backup_finish">Copia de seguridad completa.</string>
     <string name="backup_start">¿Seguro iniciar copia de seguridad?</string>
     <string name="security_notify">notificar</string>
+    <string name="rate_app">Calificar este programa</string>
 </resources>

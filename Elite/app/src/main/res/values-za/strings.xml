@@ -140,4 +140,5 @@
     <string name="backup_finish">备份完成 ！</string>
     <string name="backup_start">是否要开始进行备份？</string>
     <string name="security_notify">提醒</string>
+    <string name="rate_app">为此应用评分</string>
 </resources>

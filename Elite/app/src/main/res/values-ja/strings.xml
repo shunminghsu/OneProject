@@ -140,4 +140,5 @@
     <string name="backup_finish">バックアップが完了した!</string>
     <string name="backup_start">バックアップを開始するよろしいですか。</string>
     <string name="security_notify">通知</string>
+    <string name="rate_app">このアプリを評価</string>
 </resources>

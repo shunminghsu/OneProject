@@ -107,6 +107,36 @@
             android:textSize="@dimen/storage_text_size" />
 
         <LinearLayout
+            android:id="@+id/layout_rate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="10">
+
+            <TextView
+                android:id="@+id/rate"
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_weight="9"
+                android:background="@color/colorWhite"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/design_navigation_icon_size"
+                android:text="@string/rate_app"
+                android:textColor="@color/colorDarkGray"
+                android:textSize="@dimen/setting_textsize" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="?attr/actionBarSize"
+                android:layout_weight="1"
+                android:background="@color/colorWhite"
+                android:padding="10dp"
+                android:rotation="180"
+                android:src="@mipmap/ic_navigation_arrow_gray" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/layout_about"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

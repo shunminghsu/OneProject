@@ -3,6 +3,7 @@ package com.transcend.otg.Setting;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.CoordinatorLayout;
@@ -34,7 +35,7 @@ import java.util.Collections;
 
 public class SettingFragment extends Fragment {
 
-    private LinearLayout layoutCapacity, layoutCleanCache, layoutAbout;
+    private LinearLayout layoutCapacity, layoutCleanCache, layoutAbout, layoutRate;
     private CoordinatorLayout root;
     private File fileCache;
     private Context mContext;
@@ -62,9 +63,11 @@ public class SettingFragment extends Fragment {
         layoutCapacity = (LinearLayout) root.findViewById(R.id.layout_capacity);
         layoutCleanCache = (LinearLayout) root.findViewById(R.id.layout_cleancache);
         layoutAbout = (LinearLayout) root.findViewById(R.id.layout_about);
+        layoutRate = (LinearLayout) root.findViewById(R.id.layout_rate);
         layoutCapacity.setOnClickListener(listener);
         layoutCleanCache.setOnClickListener(listener);
         layoutAbout.setOnClickListener(listener);
+        layoutRate.setOnClickListener(listener);
         tvCleancacheaction = (TextView) root.findViewById(R.id.cleancacheaction);
         pbCleancache = (ProgressBar) root.findViewById(R.id.cleancacheprogress);
         fileCache = new File(Constant.ROOT_CACHE);
@@ -153,6 +156,16 @@ public class SettingFragment extends Fragment {
         getActivity().startActivity(intent);
     }
 
+    private void gotoRate(){
+        final String appPackageName = "com.transcend.otg"; // getPackageName() from Context or Activity object
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+        } catch (android.content.ActivityNotFoundException anfe) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+        }
+
+    }
+
     class LayoutClickListener implements View.OnClickListener {
 
         @Override
@@ -163,7 +176,8 @@ public class SettingFragment extends Fragment {
                 clearCache();
             } else if (v == layoutAbout) {
                 gotoAboutActivity();
-            }
+            } else if (v == layoutRate)
+                gotoRate();
         }
     }
 

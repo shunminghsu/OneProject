@@ -140,4 +140,5 @@
     <string name="backup_finish">Yedekleme tamamlandı!</string>
     <string name="backup_start">Yedekleme başlatmak emin misin?</string>
     <string name="security_notify">bildirme</string>
+    <string name="rate_app">Bu uygulamayı değerlendir</string>
 </resources>

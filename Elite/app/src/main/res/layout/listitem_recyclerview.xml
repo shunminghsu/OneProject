@@ -9,7 +9,7 @@
         android:id="@+id/listitem_file_manage_icon_layout"
         android:layout_width="80dp"
         android:layout_height="72dp"
-        android:padding="8dp">
+        android:padding="5dp">
 
         <ImageView
             android:id="@+id/item_icon"

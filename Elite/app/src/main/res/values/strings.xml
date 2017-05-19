@@ -187,4 +187,5 @@
     <string name="security_device_name" translatable="false">esd220c</string>
     <string name="transcend_short_name" translatable="false">ts</string>
     <string name="security_notify">Notify</string>
+    <string name="rate_app">Rate this App</string>
 </resources>

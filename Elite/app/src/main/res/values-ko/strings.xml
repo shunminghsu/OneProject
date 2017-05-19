@@ -140,4 +140,5 @@
     <string name="backup_finish">백업 완료!</string>
     <string name="backup_start">당신은 백업 시작 해야?</string>
     <string name="security_notify">알림</string>
+    <string name="rate_app">이 응용 프로그램을 평가</string>
 </resources>
