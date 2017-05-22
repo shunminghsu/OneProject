@@ -11,6 +11,7 @@ import com.transcend.otg.Constant.Constant;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.Charset;
 
 /**
  * Created by RD13_win10 on 2017/4/18.
@@ -34,6 +35,7 @@ public class SecurityScsi {
 
     private boolean isSecurityLock = false;
     private boolean isSecurityEnable = true;
+    private boolean isPowerStatable = true;
 
     private static SecurityScsi instance ;
     private int SecurityStatus = Constant.SECURITY_DEVICE_EMPTY;
@@ -119,6 +121,10 @@ public class SecurityScsi {
 
     public void setSecurityStatus( int status ){
         SecurityStatus = status ;
+    }
+
+    public boolean getSecurityPowerStatus(){
+        return isPowerStatable;
     }
 
     public void setPreviousPage(int page){
@@ -323,29 +329,39 @@ public class SecurityScsi {
 
     private void parsingScsiIDInformation(ByteBuffer IDTableArray)
     {
-        //String IDinformation = "" ;
-
         /* Security enable*/
-        String isSecurity = "";
         if ( (IDTableArray.get(0xAA) & 0x02 ) == 0x02 ) {
-            isSecurity = "1";
             isSecurityEnable = true;
         }
         else {
-            isSecurity = "0";
             isSecurityEnable = false;
         }
-        //IDinformation += isSecurity + "@";
 
-        String SecurityUnlock = "";
         if ( (IDTableArray.get(0x100) & 0x04 ) == 0x04 ) {
-            SecurityUnlock = "1";
             isSecurityLock = true;
         }
         else {
-            SecurityUnlock = "0";
             isSecurityLock = false;
         }
-        //IDinformation += SecurityUnlock ;
+
+        /*parsing Transcend*/
+        String logo = "";
+        byte[] bytes = new byte[9];
+        bytes[0] = IDTableArray.get(0x103);
+        bytes[1] = IDTableArray.get(0x102);
+        bytes[2] = IDTableArray.get(0x105);
+        bytes[3] = IDTableArray.get(0x104);
+        bytes[4] = IDTableArray.get(0x107);
+        bytes[5] = IDTableArray.get(0x106);
+        bytes[6] = IDTableArray.get(0x109);
+        bytes[7] = IDTableArray.get(0x108);
+        bytes[8] = IDTableArray.get(0x10B);
+
+        logo = new String(bytes , Charset.forName("UTF-8"));
+        if(logo.contains("TRANSCEND") || logo.contains("TRANCSEND")){
+            isPowerStatable = true;
+        }
+        else
+            isPowerStatable = false;
     }
 }

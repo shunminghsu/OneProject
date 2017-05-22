@@ -75,6 +75,7 @@ import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDDecryptDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
+import com.transcend.otg.Dialog.SecurityDisableDialog;
 import com.transcend.otg.Feedback.FeedbackFragment;
 import com.transcend.otg.GoogleAnalytics.GoogleAnalyticsFactory;
 import com.transcend.otg.Help.HelpFragment;
@@ -94,8 +95,8 @@ import com.transcend.otg.Loader.SDEncryptCopyLoader;
 import com.transcend.otg.Loader.SDEncryptLoader;
 import com.transcend.otg.Loader.SDEncryptNewFolderLoader;
 import com.transcend.otg.Security.RemindUnlockFragment;
+import com.transcend.otg.Security.SecurityFragment;
 import com.transcend.otg.Security.SecurityLoginFragment;
-import com.transcend.otg.Security.SecurityPasswordFragment;
 import com.transcend.otg.Security.SecurityScsi;
 import com.transcend.otg.Security.SecuritySettingFragment;
 import com.transcend.otg.Setting.SettingFragment;
@@ -141,7 +142,7 @@ public class MainActivity extends AppCompatActivity
     private BackupFragment backupFragment;
     private SecurityLoginFragment securityLoginFragment;
     private SecuritySettingFragment securitySettingFragment;
-    private SecurityPasswordFragment securityPasswordFragment;
+    private SecurityFragment securityFragment;
     private RemindUnlockFragment remindUnlockFragment;
     private int mLoaderID, mOTGDocumentTreeID = 1000, mSDDocumentTreeID = 1001;
     private FileActionManager mFileActionManager;
@@ -227,10 +228,10 @@ public class MainActivity extends AppCompatActivity
         tv_Browser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!discoverSecurityDevice(R.id.nav_browser)){
+                mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
+                setDrawerCheckItem(R.id.nav_browser);
+                if(!discoverSecurityDevice(R.id.nav_browser, getResources().getString(R.string.drawer_browser))){
                     GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER);
-                    mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
-                    setDrawerCheckItem(R.id.nav_browser);
                     showHomeOrFragment(false);
                     markSelectedBtn(mLocalButton);
                     replaceFragment(localFragment);
@@ -243,10 +244,11 @@ public class MainActivity extends AppCompatActivity
         tv_Backup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!discoverSecurityDevice(R.id.nav_backup)){
+                mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
+                setDrawerCheckItem(R.id.nav_backup);
+                if(!discoverSecurityDevice(R.id.nav_backup, getResources().getString(R.string.drawer_backup))){
                     GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BACKUP);
-                    mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
-                    setDrawerCheckItem(R.id.nav_backup);
+
                     showFragment(backupFragment);
                 }
             }
@@ -276,15 +278,38 @@ public class MainActivity extends AppCompatActivity
             String action = intent.getAction();
             if (ACTION_USB_PERMISSION.equals(action)) {
                 if(doCheckUSBPermission()){
-                    SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager , false);
+                    SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager , true);
                     int securityStatus = mSecurityScsi.getSecurityStatus();
                     if( securityStatus == Constant.SECURITY_DEVICE_EMPTY){
                         securityStatus = mSecurityScsi.checkSecurityStatus();
                     }
-                    if( securityStatus == Constant.SECURITY_LOCK && mSecurityScsi.getPreviousPage() != R.id.nav_security)
-                        showFragment(remindUnlockFragment);
-                    else{
-                        selectDrawerPage(mSecurityScsi.getPreviousPage() , securityStatus);
+                    if(mSecurityScsi.getSecurityPowerStatus()) {
+                        if (securityStatus == Constant.SECURITY_LOCK) {
+                            if (mToolbarTitle.getText().toString() != getResources().getString(R.string.Lsecurity))
+                                showFragment(remindUnlockFragment);
+                            else
+                                showFragment(securityLoginFragment);
+                        }else{
+                            int page = 0 ;
+                            if(mToolbarTitle.getText().toString() == mContext.getResources().getString(R.string.Lsecurity)){
+                                page = R.id.nav_security;
+                            }else if(mToolbarTitle.getText().toString() ==  getResources().getString(R.string.drawer_backup)){
+                                page = R.id.nav_backup;
+                            }else if(mToolbarTitle.getText().toString() ==  getResources().getString(R.string.drawer_browser)){
+                                page = R.id.nav_browser;
+                            }
+                            selectDrawerPage(page, securityStatus);
+                        }
+                    }else{
+                        itemSecurity.setVisible(false);
+                        new SecurityDisableDialog(mContext, getResources().getString(R.string.security_not_support)){
+                            @Override
+                            public void onConfirm(boolean bExit) {
+                                mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
+                                showHomeOrFragment(true);
+                                setDrawerCheckItem(R.id.nav_home);
+                            }
+                        };
                     }
                 }else {
                     mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
@@ -293,7 +318,7 @@ public class MainActivity extends AppCompatActivity
                 }
 
             } else if (UsbManager.ACTION_USB_DEVICE_ATTACHED.equals(action)) {
-                discoverSecurityDevice(0);
+                discoverSecurityDevice(0, "");
             } else if (UsbManager.ACTION_USB_DEVICE_DETACHED.equals(action)) {
                 if(device != null)
                     device = null;
@@ -302,7 +327,7 @@ public class MainActivity extends AppCompatActivity
                     Constant.mActionMode = mActionMode = null;
                 }
                 itemSecurity.setVisible(false);
-                if(getFragment() instanceof SecurityLoginFragment|| getFragment() instanceof SecurityPasswordFragment
+                if(getFragment() instanceof SecurityLoginFragment|| getFragment() instanceof SecurityFragment
                         || getFragment() instanceof SecuritySettingFragment || getFragment() instanceof RemindUnlockFragment){
                     mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
                     setDrawerCheckItem(R.id.nav_home);
@@ -350,9 +375,9 @@ public class MainActivity extends AppCompatActivity
         settingFragment = new SettingFragment();
         backupFragment = new BackupFragment();
         securityLoginFragment = new SecurityLoginFragment();
-        securityPasswordFragment = new SecurityPasswordFragment();
         securitySettingFragment = new SecuritySettingFragment();
         remindUnlockFragment = new RemindUnlockFragment();
+        securityFragment = new SecurityFragment();
         getSupportFragmentManager().addOnBackStackChangedListener(
                 new FragmentManager.OnBackStackChangedListener() {
 
@@ -787,7 +812,7 @@ public class MainActivity extends AppCompatActivity
                         showFragment(securityLoginFragment);
                         break;
                     case Constant.SECURITY_UNLOCK:
-                        showFragment(securityPasswordFragment);
+                        showFragment(securityFragment);
                         break;
                     default:
                         break;
@@ -798,7 +823,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private boolean discoverSecurityDevice(int page){
+    private boolean discoverSecurityDevice(int page, String pageTitle){
         usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
 
@@ -817,9 +842,23 @@ public class MainActivity extends AppCompatActivity
                         SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
                         if(securityScsi.getSecurityStatus() == Constant.SECURITY_DEVICE_EMPTY)
                             securityScsi.checkSecurityStatus();
-//                        if (securityScsi.getSecurityStatus() != Constant.SECURITY_LOCK) {
-//                            return false;
-//                        }
+                        if(!securityScsi.getSecurityPowerStatus()){
+                            itemSecurity.setVisible(false);
+                            new SecurityDisableDialog(mContext,"The mobile phone not support this device."){
+                                @Override
+                                public void onConfirm(boolean bExit) {
+                                    mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
+                                    showHomeOrFragment(true);
+                                    setDrawerCheckItem(R.id.nav_home);
+                                }
+                            };
+                            return true;
+                        }
+                        if(securityScsi.getSecurityStatus() == Constant.SECURITY_LOCK && page != R.id.nav_security) {
+                            mToolbarTitle.setText(pageTitle);
+                            showFragment(remindUnlockFragment);
+                            return true;
+                        }
                     }
                 }
             }
@@ -1074,18 +1113,18 @@ public class MainActivity extends AppCompatActivity
             mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
             showHomeOrFragment(true);
         } else if (id == R.id.nav_browser) {
-            if(!discoverSecurityDevice(R.id.nav_browser)){
+            mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
+            if(!discoverSecurityDevice(R.id.nav_browser, getResources().getString(R.string.drawer_browser))){
                 GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER);
-                mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
                 showHomeOrFragment(false);
                 markSelectedBtn(mLocalButton);
                 replaceFragment(localFragment);
                 Constant.nowMODE = Constant.MODE.LOCAL;
             }
         } else if (id == R.id.nav_backup) {
-            if(!discoverSecurityDevice(R.id.nav_backup)) {
+            mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
+            if(!discoverSecurityDevice(R.id.nav_backup, getResources().getString(R.string.drawer_backup))) {
                 GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BACKUP);
-                mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
                 showFragment(backupFragment);
             }
         } else if (id == R.id.nav_help){
@@ -1101,11 +1140,11 @@ public class MainActivity extends AppCompatActivity
             mToolbarTitle.setText(getResources().getString(R.string.drawer_setting));
             showFragment(settingFragment);
         }else if(id == R.id.nav_security){
-            if(!discoverSecurityDevice(R.id.nav_security)){
+            mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
+            if(!discoverSecurityDevice(R.id.nav_security, getResources().getString(R.string.Lsecurity))){
                 GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.SECURITY);
-                mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
                 SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
-                switch(mSecurityScsi.getSecurityStatus()){
+                switch(mSecurityScsi.checkSecurityStatus()){
                     case Constant.SECURITY_DISABLE :
                         showFragment(securitySettingFragment);
                         break;
@@ -1113,7 +1152,7 @@ public class MainActivity extends AppCompatActivity
                         showFragment(securityLoginFragment);
                         break;
                     case Constant.SECURITY_UNLOCK:
-                        showFragment(securityPasswordFragment);
+                        showFragment(securityFragment);
                         break;
                     default:
                         break;

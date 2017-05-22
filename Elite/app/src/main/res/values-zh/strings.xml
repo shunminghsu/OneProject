@@ -141,4 +141,5 @@
     <string name="backup_start">是否要開始進行備份？</string>
     <string name="security_notify">提醒</string>
     <string name="rate_app">為App評分</string>
+    <string name="security_not_support">手機不支援此裝置。</string>
 </resources>

@@ -74,4 +74,9 @@
         <item name="android:textColor">@color/colorGray</item>
     </style>
 
+    <style name="MyTabLayoutTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
+        <item name="android:textSize">@dimen/storage_text_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
 </resources>

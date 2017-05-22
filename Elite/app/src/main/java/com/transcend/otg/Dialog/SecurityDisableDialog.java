@@ -21,21 +21,24 @@ public abstract class SecurityDisableDialog implements View.OnClickListener {
     private AlertDialog mDialog;
     private Button mDlgBtnPos;
 
-    public SecurityDisableDialog(Context context) {
+    public SecurityDisableDialog(Context context , String message) {
         mContext = context;
-        initDialog();
+        initDialog(message);
     }
 
-    private void initDialog() {
-        String  message = mContext.getResources().getString(R.string.MSG_UserRemovePWLostSecurity);
-
+    private void initDialog(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setTitle(mContext.getResources().getString(R.string.Lsecurity));
         builder.setIcon(R.mipmap.icon_elite_logo);
+        builder.setCancelable(false);
         builder.setView(R.layout.dialog_security_disable);
-        builder.setNegativeButton(R.string.cancel, null);
         builder.setPositiveButton(R.string.yes, null);
         builder.setCancelable(true);
+
+        if( message == mContext.getResources().getString(R.string.MSG_UserRemovePWLostSecurity)){
+            builder.setNegativeButton(R.string.cancel, null);
+        }
+
         mDialog = builder.show();
         TextView tv = (TextView) mDialog.findViewById(R.id.message);
         tv.setText(message);

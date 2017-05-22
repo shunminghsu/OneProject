@@ -155,7 +155,7 @@ public class SecuritySettingFragment extends Fragment{
                 }
                 btnSettingOK.setEnabled(true);
                 btnSettingCancel.setEnabled(true);
-                mSettingLoading.setVisibility(View.INVISIBLE);
+                //mSettingLoading.setVisibility(View.INVISIBLE);
             }
         });
 
@@ -176,8 +176,10 @@ public class SecuritySettingFragment extends Fragment{
     private void initSecurityScsi(){
         UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
-        UsbMassStorageDevice device = devices[0];
-        securityScsi = SecurityScsi.getInstance(device.getUsbDevice() , usbManager, false);
+        if( devices.length > 0) {
+            UsbMassStorageDevice device = devices[0];
+            securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
+        }
     }
 
     private void cleanSettingEdit(){

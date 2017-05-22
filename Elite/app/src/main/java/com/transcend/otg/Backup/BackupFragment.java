@@ -38,6 +38,7 @@ import com.transcend.otg.Loader.LocalBackuptoOTGLoader;
 import com.transcend.otg.Loader.LocalCopytoOTGLoader;
 import com.transcend.otg.Loader.TabInfoLoader;
 import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 import com.transcend.otg.Security.SecurityScsi;
 import com.transcend.otg.Utils.FileFactory;
@@ -304,13 +305,19 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
         String productName = device.getUsbDevice().getProductName().toLowerCase();
         if(productName.contains(getResources().getString(R.string.transcend_short_name)) && productName.contains(getResources().getString(R.string.security_device_name))){
             UsbManager usbManager = (UsbManager) mContext.getSystemService(Context.USB_SERVICE);
-            SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
-            if(securityScsi.getSecurityStatus() == Constant.SECURITY_DEVICE_EMPTY)
-                securityScsi.checkSecurityStatus();
-            if(securityScsi.getSecurityStatus() == Constant.SECURITY_LOCK )
-                return 3;
-            else
-                return 1;
+            if(doCheckUSBPermission(usbManager)){
+                SecurityScsi securityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
+                if (securityScsi.getSecurityStatus() == Constant.SECURITY_DEVICE_EMPTY)
+                    securityScsi.checkSecurityStatus();
+                if (securityScsi.getSecurityStatus() == Constant.SECURITY_LOCK)
+                    return 3;
+                else
+                    return 1;
+            }
+            else {
+                Back2Home();
+                return 0;
+            }
         }else if(otgKey != ""){
             Uri uriTree = Uri.parse(otgKey);
             if(checkStorage(uriTree, false)){
@@ -382,6 +389,17 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
             snackBarShow(R.string.snackbar_plz_select_sd);
         }
         return false;
+    }
+
+    private boolean doCheckUSBPermission( UsbManager usbManager) {
+        return usbManager.hasPermission(device.getUsbDevice());
+    }
+
+    private void Back2Home(){
+        MainActivity activity = (MainActivity) getActivity();
+        activity.setDrawerCheckItem(R.id.nav_home);
+        activity.mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
+        activity.showHomeOrFragment(true);
     }
 
     private void snackBarShow(int resId) {
