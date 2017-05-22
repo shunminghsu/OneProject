@@ -15,8 +15,8 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
-            android:paddingBottom="@dimen/padding"
             android:gravity="bottom"
+            android:paddingBottom="@dimen/padding"
             android:text="@string/setting_storage"
             android:textColor="@color/colorDarkGray"
             android:textSize="@dimen/storage_text_size" />
@@ -147,6 +147,7 @@
                 android:id="@+id/about"
                 android:layout_width="wrap_content"
                 android:layout_height="?attr/actionBarSize"
+                android:layout_marginTop="2dp"
                 android:layout_weight="9"
                 android:background="@color/colorWhite"
                 android:gravity="center_vertical"
@@ -158,6 +159,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="?attr/actionBarSize"
+                android:layout_marginTop="2dp"
                 android:layout_weight="1"
                 android:background="@color/colorWhite"
                 android:padding="10dp"
