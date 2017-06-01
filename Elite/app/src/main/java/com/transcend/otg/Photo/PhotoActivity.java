@@ -996,18 +996,36 @@ public class PhotoActivity extends AppCompatActivity {
                     snackBarShow(R.string.snackbar_plz_select_top);
                     preGuideDialog("sd");
                 }else{
-                    Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uri);//sd root path
-                    getContentResolver().takePersistableUriPermission(uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                    String uid = FileFactory.getSDCardUniqueId();
-                    LocalPreferences.setSDKey(this, uid, uri.toString());
-                    //ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
-                    //tmpDFiles.add(rootDir);
-                    //ActionParameter.dFiles = tmpDFiles;
-                    return true;
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.BRAND.equals(getResources().getString(R.string.samsung))){
+                        boolean bSDCard = false;
+                        DocumentFile rootDir = DocumentFile.fromTreeUri(this, uri);
+                        String smSDPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                        String rootName = rootDir.getName();
+                        if(smSDPath != null){
+                            if(smSDPath.contains(rootName))
+                                bSDCard = true;
+                        }
+                        if(bSDCard){
+                            Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uri);//sd root path
+                            getContentResolver().takePersistableUriPermission(uri,
+                                    Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            String uid = FileFactory.getSDCardUniqueId();
+                            LocalPreferences.setSDKey(this, uid, uri.toString());
+                            return true;
+                        }
+                    }else {
+                        Constant.mSDCurrentDocumentFile = Constant.mSDRootDocumentFile = DocumentFile.fromTreeUri(this, uri);//sd root path
+                        getContentResolver().takePersistableUriPermission(uri,
+                                Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                        String uid = FileFactory.getSDCardUniqueId();
+                        LocalPreferences.setSDKey(this, uid, uri.toString());
+                        //ArrayList<DocumentFile> tmpDFiles = new ArrayList<>();
+                        //tmpDFiles.add(rootDir);
+                        //ActionParameter.dFiles = tmpDFiles;
+                        return true;
+                    }
                 }
             }
-
         }else {
             snackBarShow(R.string.snackbar_plz_select_sd);
             preGuideDialog("sd");

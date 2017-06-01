@@ -51,11 +51,12 @@ public class FileFactory {
             Method getVolumeList = null;
             Method getPath = null;
             Method isRemovable = null;
-            Method getState = null;
+            Method getSubSystem = null;
             try {
                 getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
                 getPath = storageVolumeClazz.getMethod("getPath");
                 isRemovable = storageVolumeClazz.getMethod("isRemovable");
+                getSubSystem = storageVolumeClazz.getMethod("getSubSystem");
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();
             }
@@ -66,9 +67,19 @@ public class FileFactory {
                 Object storageVolumeElement = Array.get(result, i);
                 String path = (String) getPath.invoke(storageVolumeElement);
                 Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
+                String subSystem = null;
+                if (Build.BRAND.equals(mContext.getResources().getString(R.string.samsung)) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    subSystem = (String) getSubSystem.invoke(storageVolumeElement);
                 if (removable && path != null) {
                     if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
-                        return path;
+                        if(Build.BRAND.equals(mContext.getResources().getString(R.string.samsung))){
+                            if(subSystem!=null && subSystem.contains("sd"))
+                                return path;
+                            else
+                                continue;
+                        }else
+                            return path;
+
                     } else if (path.toLowerCase().contains(key_word)) {
                         return path;
                     }
@@ -535,6 +546,53 @@ public class FileFactory {
             e.printStackTrace();
         }
         return sd_cid;
+    }
+
+    public static String getUUID(Context mContext) {
+        StorageManager mStorageManager = (android.os.storage.StorageManager) mContext
+                .getSystemService(Context.STORAGE_SERVICE);
+
+        Class<?> storageVolumeClazz = null;
+        try {
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        Method getVolumeList = null;
+        try {
+            getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        Method getUuid = null;
+        try {
+            getUuid = storageVolumeClazz.getMethod("getUuid");
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        Object result = null;
+        try {
+            result = getVolumeList.invoke(mStorageManager);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
+        final int length = Array.getLength(result);
+        String uuid = "";
+        for (int i = 0; i < length; i++) {
+            Object storageVolumeElement = Array.get(result, i);
+            try {
+                uuid = (String) getUuid.invoke(storageVolumeElement);
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
+        return uuid;
     }
 
     public static int getType(String path) {

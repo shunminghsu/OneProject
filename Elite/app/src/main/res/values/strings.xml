@@ -189,4 +189,5 @@
     <string name="security_notify">Notify</string>
     <string name="rate_app">Rate this App</string>
     <string name="security_not_support">This mobile phone does not support this device.</string>
+    <string name="samsung" translatable="false">samsung</string>
 </resources>

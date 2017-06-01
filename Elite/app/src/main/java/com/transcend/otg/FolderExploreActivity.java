@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.graphics.drawable.BitmapDrawable;
 import android.hardware.usb.UsbManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -597,8 +598,19 @@ public class FolderExploreActivity extends AppCompatActivity
                     snackBarShow(R.string.snackbar_plz_select_top);
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//sd root path
-                    ArrayList<String> sdCardFileName = FileFactory.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
-                    boolean bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    boolean bSDCard = false;
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.BRAND.equals(getResources().getString(R.string.samsung))){
+                        String smSDPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                        String rootName = rootDir.getName();
+                        if(smSDPath != null){
+                            if(smSDPath.contains(rootName))
+                                bSDCard = true;
+                        }
+
+                    }else {
+                        ArrayList<String> sdCardFileName = FileFactory.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                        bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                    }
                     if(bSDCard){
                         getContentResolver().takePersistableUriPermission(uri,
                                 Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
@@ -611,7 +623,6 @@ public class FolderExploreActivity extends AppCompatActivity
                     }
                 }
             }
-
         }else {
             snackBarShow(R.string.snackbar_plz_select_sd);
         }
