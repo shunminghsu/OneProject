@@ -21,7 +21,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.format.Formatter;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,8 +40,8 @@ import com.transcend.otg.Dialog.LocalEncryptDialog;
 import com.transcend.otg.Dialog.LocalRenameDialog;
 import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
-import com.transcend.otg.GoogleAnalytics.GoogleAnalyticsFactory;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.FirebaseAnalytics.FirebaseAnalyticsFactory;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 import com.transcend.otg.Task.EncryptTask;
@@ -148,7 +147,7 @@ public class PhotoActivity extends AppCompatActivity {
         final FileInfo fileinfo = mPhotoList.get(mPager.getCurrentItem());
         switch (item.getItemId()) {
             case R.id.share:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, GoogleAnalyticsFactory.EVENT.SHARE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, FirebaseAnalyticsFactory.EVENT.SHARE);
                 if (fileinfo.storagemode == Constant.STORAGEMODE_OTG) {
                     doOTGShare(fileinfo);
                 } else {
@@ -172,7 +171,7 @@ public class PhotoActivity extends AppCompatActivity {
                 }
                 return true;
             case R.id.delete:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, GoogleAnalyticsFactory.EVENT.DELETE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, FirebaseAnalyticsFactory.EVENT.DELETE);
                 ArrayList<FileInfo> deleteOneFiles = new ArrayList<FileInfo>();
                 deleteOneFiles.add(fileinfo);
                 new LocalDeleteDialog(this, deleteOneFiles) {
@@ -194,7 +193,7 @@ public class PhotoActivity extends AppCompatActivity {
 //                }
                 return true;
             case R.id.action_rename:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, GoogleAnalyticsFactory.EVENT.RENAME);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, FirebaseAnalyticsFactory.EVENT.RENAME);
                 new LocalRenameDialog(this,false, fileinfo.name) {
                     @Override
                     public void onConfirm(String newName) {
@@ -205,15 +204,15 @@ public class PhotoActivity extends AppCompatActivity {
                 };
                 return true;
             case R.id.action_copy:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, GoogleAnalyticsFactory.EVENT.COPY_MOVE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, FirebaseAnalyticsFactory.EVENT.COPY_MOVE);
                 startDestinationActivity(R.id.action_copy);
                 return true;
             case R.id.action_move:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, GoogleAnalyticsFactory.EVENT.COPY_MOVE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, FirebaseAnalyticsFactory.EVENT.COPY_MOVE);
                 startDestinationActivity(R.id.action_move);
                 return true;
             case R.id.action_encrypt:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, GoogleAnalyticsFactory.EVENT.ENCRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, FirebaseAnalyticsFactory.EVENT.ENCRYPT);
                 doEncryptDialog(fileinfo);
                 return true;
             default:
@@ -241,7 +240,7 @@ public class PhotoActivity extends AppCompatActivity {
             FileInfo fileInfo = mPhotoList.get(mPosition);
 
             boolean isMove = actionId == R.id.action_move;
-            GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, GoogleAnalyticsFactory.EVENT.COPY_MOVE);
+            FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, FirebaseAnalyticsFactory.EVENT.COPY_MOVE);
             if (actionMode == Constant.MODE.LOCAL) {//destination is local
                 new CopyTask(fileInfo, Constant.STORAGEMODE_LOCAL, destinationPath, isMove) {
                     @Override
@@ -1084,7 +1083,7 @@ public class PhotoActivity extends AppCompatActivity {
         public void onClick(View view) {
             final FileInfo fileinfo = mPhotoList.get(mPosition);
             if (view == mInfoView) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, GoogleAnalyticsFactory.EVENT.INFO);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, FirebaseAnalyticsFactory.EVENT.INFO);
                 createInfoDialog(mContext, fileinfo, MainActivity.mScreenW);
             } else if (view == mDeleteView) {
                 ArrayList<FileInfo> deleteOneFiles = new ArrayList<FileInfo>();
@@ -1092,7 +1091,7 @@ public class PhotoActivity extends AppCompatActivity {
                 new LocalDeleteDialog(mContext, deleteOneFiles) {
                     @Override
                     public void onConfirm(ArrayList<FileInfo> selectedFiles) {
-                        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, GoogleAnalyticsFactory.EVENT.DELETE);
+                        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY, FirebaseAnalyticsFactory.EVENT.DELETE);
                         new DeleteTask(fileinfo).execute();
                     }
                 };

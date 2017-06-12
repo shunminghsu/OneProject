@@ -12,11 +12,10 @@ import android.widget.TextView;
 import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Created by wangbojie on 2016/5/31.

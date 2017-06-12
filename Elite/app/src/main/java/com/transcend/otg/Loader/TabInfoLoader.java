@@ -4,7 +4,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v4.content.AsyncTaskLoader;
@@ -14,7 +13,7 @@ import android.text.format.Formatter;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.FileInfoSort;
 

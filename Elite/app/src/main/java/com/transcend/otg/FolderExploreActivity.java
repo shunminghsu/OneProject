@@ -59,7 +59,7 @@ import com.transcend.otg.Dialog.OTGNewFolderDialog;
 import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDDecryptDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
-import com.transcend.otg.GoogleAnalytics.GoogleAnalyticsFactory;
+import com.transcend.otg.FirebaseAnalytics.FirebaseAnalyticsFactory;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalEncryptCopyLoader;
 import com.transcend.otg.Loader.LocalEncryptNewFolderLoader;
@@ -85,14 +85,13 @@ import com.transcend.otg.Utils.DecryptUtils;
 import com.transcend.otg.Utils.EncryptUtils;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.FileInfoSort;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.Utils.MediaUtils;
 
 import java.io.File;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -187,11 +186,11 @@ public class FolderExploreActivity extends AppCompatActivity
                 }
                 return true;
             case R.id.menu_grid:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, GoogleAnalyticsFactory.EVENT.CHANGEVIEW_GRID);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, FirebaseAnalyticsFactory.EVENT.CHANGEVIEW_GRID);
                 updateLayout(Constant.ITEM_GRID);
                 return true;
             case R.id.menu_list:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, GoogleAnalyticsFactory.EVENT.CHANGEVIEW_LIST);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, FirebaseAnalyticsFactory.EVENT.CHANGEVIEW_LIST);
                 updateLayout(Constant.ITEM_LIST);
                 return true;
             case R.id.menu_easy_sort:
@@ -301,7 +300,7 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void startPhotoSingleView(ArrayList<FileInfo> list, int position) {
-        GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY);
+        FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY);
         Intent intent = new Intent(this, PhotoActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         int newListPosition = 0;
@@ -692,7 +691,7 @@ public class FolderExploreActivity extends AppCompatActivity
         Constant.Activity = 1;
         ArrayList<FileInfo> mSelectedFiles = mFolderExploreAdapter.getSelectedFiles();
         int source_storage = mSelectedFiles.get(0).storagemode;
-        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, GoogleAnalyticsFactory.EVENT.COPY_MOVE);
+        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, FirebaseAnalyticsFactory.EVENT.COPY_MOVE);
         if(actionMode == Constant.MODE.LOCAL){
             if(source_storage == Constant.STORAGEMODE_LOCAL){//Local -> Local
                 doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
@@ -864,7 +863,7 @@ public class FolderExploreActivity extends AppCompatActivity
 
     @Override
     public void onRecyclerItemInfoClick(int position) {
-        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, GoogleAnalyticsFactory.EVENT.INFO);
+        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, FirebaseAnalyticsFactory.EVENT.INFO);
         createInfoDialog(this, mFileList.get(position), MainActivity.mScreenW);
     }
 
@@ -1103,7 +1102,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new OTGEncryptDialog(this, selectedFiles) {
             @Override
             public void onConfirm(String newName, String password, ArrayList<DocumentFile> mSelectedDFiles) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, GoogleAnalyticsFactory.EVENT.ENCRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, FirebaseAnalyticsFactory.EVENT.ENCRYPT);
                 DocumentFile child = mSelectedDFiles.get(0).getParentFile();
                 EncryptUtils.setAfterEncryptDFile(child);
                 EncryptUtils.setSelectedDocumentFile(mSelectedDFiles);
@@ -1154,7 +1153,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new OTGDecryptDialog(this, folderNames, selectedFile){
             @Override
             public void onConfirm(String newFolderName, String password, ArrayList<DocumentFile> selectedDFiles) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, GoogleAnalyticsFactory.EVENT.DECRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, FirebaseAnalyticsFactory.EVENT.DECRYPT);
                 DocumentFile child = selectedDFiles.get(0).getParentFile();
                 DecryptUtils.setAfterDecryptDFile(child);
                 DecryptUtils.setSelectedDocumentFile(selectedDFiles);
@@ -1260,7 +1259,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, GoogleAnalyticsFactory.EVENT.ENCRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, FirebaseAnalyticsFactory.EVENT.ENCRYPT);
                 ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
                 File child = new File(selectedFiles.get(0).path);
                 EncryptUtils.setCopyToSDPath(child.getParent());
@@ -1316,7 +1315,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new SDDecryptDialog(this, folderNames){
             @Override
             public void onConfirm(String newFolderName, String password) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, GoogleAnalyticsFactory.EVENT.DECRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, FirebaseAnalyticsFactory.EVENT.DECRYPT);
                 if(checkSDWritePermission()){
                     String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                     ArrayList<DocumentFile> mSelectedDFiles = FileFactory.findDocumentFilefromPathSD(DecryptUtils.getSelectedFileList(), sdPath, Constant.Activity);
@@ -1364,7 +1363,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, GoogleAnalyticsFactory.EVENT.ENCRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, FirebaseAnalyticsFactory.EVENT.ENCRYPT);
                 ArrayList<FileInfo> selectedFiles = mFolderExploreAdapter.getSelectedFiles();
                 File child = new File(selectedFiles.get(0).path);
                 EncryptUtils.setAfterEncryptPath(child.getParent() + File.separator + newName);
@@ -1415,7 +1414,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new LocalDecryptDialog(this, folderNames, selectedfile.path) {
             @Override
             public void onConfirm(String newFolderpath, String password, String filePath) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, GoogleAnalyticsFactory.EVENT.DECRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, FirebaseAnalyticsFactory.EVENT.DECRYPT);
                 doLocalDecrypt(newFolderpath, password, filePath);
             }
         };
@@ -1439,7 +1438,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new LocalNewFolderDialog(this, folderNames) {
             @Override
             public void onConfirm(String newName) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, GoogleAnalyticsFactory.EVENT.NEW_FOLDER);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, FirebaseAnalyticsFactory.EVENT.NEW_FOLDER);
                 String path = mPath;
                 StringBuilder builder = new StringBuilder(path);
                 if (!path.endsWith("/"))
@@ -1463,7 +1462,7 @@ public class FolderExploreActivity extends AppCompatActivity
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
                 if(bSDCard){
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, GoogleAnalyticsFactory.EVENT.NEW_FOLDER);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, FirebaseAnalyticsFactory.EVENT.NEW_FOLDER);
                     if(checkSDWritePermission()){
                         ActionParameter.name = newName;
                         mFileActionManager.newFolderOTG(newName, mDFiles);
@@ -1472,7 +1471,7 @@ public class FolderExploreActivity extends AppCompatActivity
                     }
 
                 }else{
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, GoogleAnalyticsFactory.EVENT.NEW_FOLDER);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, FirebaseAnalyticsFactory.EVENT.NEW_FOLDER);
                     mFileActionManager.newFolderOTG(newName, mDFiles);
                 }
             }
@@ -1487,7 +1486,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new LocalRenameDialog(this,ignoreType, name) {
             @Override
             public void onConfirm(String newName) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, GoogleAnalyticsFactory.EVENT.RENAME);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, FirebaseAnalyticsFactory.EVENT.RENAME);
                 if (newName.equals(name))
                     return;
                 mFileActionManager.rename(path, newName);
@@ -1504,7 +1503,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 if (newName.equals(oldName))
                     return;
                 if(bSDCard){
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, GoogleAnalyticsFactory.EVENT.RENAME);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, FirebaseAnalyticsFactory.EVENT.RENAME);
                     if(checkSDWritePermission()){
                         ActionParameter.name = newName;
                         mFileActionManager.renameOTG(newName, selectedDocumentFile);
@@ -1512,7 +1511,7 @@ public class FolderExploreActivity extends AppCompatActivity
                         ActionParameter.name = newName;
                     }
                 }else{
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, GoogleAnalyticsFactory.EVENT.RENAME);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, FirebaseAnalyticsFactory.EVENT.RENAME);
                     mFileActionManager.renameOTG(newName, selectedDocumentFile);
                 }
 
@@ -1525,7 +1524,7 @@ public class FolderExploreActivity extends AppCompatActivity
         new LocalDeleteDialog(this, selectedFiles) {
             @Override
             public void onConfirm(ArrayList<FileInfo> selectedFiles) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, GoogleAnalyticsFactory.EVENT.DELETE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, FirebaseAnalyticsFactory.EVENT.DELETE);
                 loadingContainer.setVisibility(View.VISIBLE);
                 mFileActionManager.delete(selectedFiles);
             }
@@ -1538,7 +1537,7 @@ public class FolderExploreActivity extends AppCompatActivity
             @Override
             public void onConfirm(ArrayList<DocumentFile> selectedDocumentFile) {
                 if(bSDCard){
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, GoogleAnalyticsFactory.EVENT.DELETE);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_SD, FirebaseAnalyticsFactory.EVENT.DELETE);
                     if(checkSDWritePermission()){
                         loadingContainer.setVisibility(View.VISIBLE);
                         mFileActionManager.deleteOTG(selectedDocumentFile);
@@ -1546,7 +1545,7 @@ public class FolderExploreActivity extends AppCompatActivity
                         ActionParameter.files = selectedFiles;
                     }
                 }else{
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, GoogleAnalyticsFactory.EVENT.DELETE);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, FirebaseAnalyticsFactory.EVENT.DELETE);
                     loadingContainer.setVisibility(View.VISIBLE);
                     mFileActionManager.deleteOTG(selectedDocumentFile);
                 }
@@ -1555,7 +1554,7 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doLocalShare() {
-        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, GoogleAnalyticsFactory.EVENT.SHARE);
+        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_LOCAL, FirebaseAnalyticsFactory.EVENT.SHARE);
         String selectPath = mFolderExploreAdapter.getSelectedFiles().get(0).path;
         boolean shareSuccess = MediaUtils.localShare(this, selectPath);
         if(!shareSuccess)
@@ -1564,7 +1563,7 @@ public class FolderExploreActivity extends AppCompatActivity
     }
 
     private void doOTGShare(){
-        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, GoogleAnalyticsFactory.EVENT.SHARE);
+        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE_OTG, FirebaseAnalyticsFactory.EVENT.SHARE);
         ArrayList<FileInfo> selectFiles = mFolderExploreAdapter.getSelectedFiles();
         ArrayList<DocumentFile> selectDFiles = FileFactory.findDocumentFilefromName(selectFiles, Constant.Activity);
         boolean shareSuccess = MediaUtils.otgShare(this, selectDFiles.get(0));
@@ -1730,7 +1729,7 @@ public class FolderExploreActivity extends AppCompatActivity
         public void onClick(View v) {
             int sort_by = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
             if (v.getTag().equals("date") && sort_by != Constant.SORT_BY_DATE) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, GoogleAnalyticsFactory.EVENT.SORT_DATE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, FirebaseAnalyticsFactory.EVENT.SORT_DATE);
                 v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.VISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
@@ -1739,7 +1738,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 FileFactory.getInstance().addFileTypeSortRule(mFileList);
                 updateScreen();
             } else if (v.getTag().equals("name") && sort_by != Constant.SORT_BY_NAME) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, GoogleAnalyticsFactory.EVENT.SORT_NAME);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, FirebaseAnalyticsFactory.EVENT.SORT_NAME);
                 v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.VISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
@@ -1748,7 +1747,7 @@ public class FolderExploreActivity extends AppCompatActivity
                 FileFactory.getInstance().addFileTypeSortRule(mFileList);
                 updateScreen();
             } else if (v.getTag().equals("size") && sort_by != Constant.SORT_BY_SIZE) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, GoogleAnalyticsFactory.EVENT.SORT_SIZE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.FOLDEREXPLORE, FirebaseAnalyticsFactory.EVENT.SORT_SIZE);
                 v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.VISIBLE);

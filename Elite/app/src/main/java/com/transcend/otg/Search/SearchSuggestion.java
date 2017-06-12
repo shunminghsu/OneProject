@@ -1,4 +1,4 @@
-package com.transcend.otg;
+package com.transcend.otg.Search;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -11,7 +11,6 @@ import android.util.Log;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-import static com.transcend.otg.SearchSuggestionDatabaseHelper.Tables;
 /**
  * Created by henry_hsu on 2017/2/6.
  */
@@ -66,7 +65,7 @@ public class SearchSuggestion {
         sb.append("SELECT ");
         sb.append(SearchSuggestionDatabaseHelper.SavedQueriesColums.QUERY);
         sb.append(" FROM ");
-        sb.append(Tables.TABLE_SAVED_QUERIES);
+        sb.append(SearchSuggestionDatabaseHelper.Tables.TABLE_SAVED_QUERIES);
 
         if (TextUtils.isEmpty(query)) {
             sb.append(" ORDER BY rowId DESC");
@@ -109,18 +108,18 @@ public class SearchSuggestion {
             long lastInsertedRowId = -1;
             try {
                 // First, delete all saved queries that are the same
-                database.delete(Tables.TABLE_SAVED_QUERIES,
+                database.delete(SearchSuggestionDatabaseHelper.Tables.TABLE_SAVED_QUERIES,
                         SearchSuggestionDatabaseHelper.SavedQueriesColums.QUERY + " = ?",
                         new String[] { params[0] });
 
                 // Second, insert the saved query
                 lastInsertedRowId =
-                        database.insertOrThrow(Tables.TABLE_SAVED_QUERIES, null, values);
+                        database.insertOrThrow(SearchSuggestionDatabaseHelper.Tables.TABLE_SAVED_QUERIES, null, values);
 
                 // Last, remove "old" saved queries
                 final long delta = lastInsertedRowId - MAX_SAVED_SEARCH_QUERY;
                 if (delta > 0) {
-                    int count = database.delete(Tables.TABLE_SAVED_QUERIES, "rowId <= ?",
+                    int count = database.delete(SearchSuggestionDatabaseHelper.Tables.TABLE_SAVED_QUERIES, "rowId <= ?",
                             new String[] { Long.toString(delta) });
                     Log.d(LOG_TAG, "Deleted '" + count + "' saved Search query(ies)");
                 }

@@ -17,10 +17,9 @@ import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.transcend.otg.Constant.Constant;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
-import com.transcend.otg.Utils.MathUtils;
 
 import java.io.File;
 import java.io.IOException;

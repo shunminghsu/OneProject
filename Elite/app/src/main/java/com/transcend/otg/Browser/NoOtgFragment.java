@@ -1,36 +1,14 @@
 package com.transcend.otg.Browser;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.provider.DocumentFile;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.github.mjdev.libaums.UsbMassStorageDevice;
-import com.transcend.otg.Constant.Constant;
-import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
-import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
-import com.transcend.otg.Utils.FileFactory;
-
-import java.util.ArrayList;
 
 /**
  * Created by henry_hsu on 2017/2/14.

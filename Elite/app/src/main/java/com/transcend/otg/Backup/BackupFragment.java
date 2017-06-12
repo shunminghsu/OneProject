@@ -12,19 +12,18 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.provider.DocumentFile;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
+import com.google.firebase.perf.FirebasePerformance;
+import com.google.firebase.perf.metrics.Trace;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
@@ -33,12 +32,11 @@ import com.transcend.otg.Dialog.BackupStartDialog;
 import com.transcend.otg.Dialog.OTGPermissionGuideDialog;
 import com.transcend.otg.Dialog.PreGuideDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
-import com.transcend.otg.GoogleAnalytics.GoogleAnalyticsFactory;
+import com.transcend.otg.FirebaseAnalytics.FirebaseAnalyticsFactory;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalBackuptoOTGLoader;
-import com.transcend.otg.Loader.LocalCopytoOTGLoader;
 import com.transcend.otg.Loader.TabInfoLoader;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 import com.transcend.otg.Security.SecurityScsi;
@@ -69,6 +67,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
     private DocumentFile rootDir;
     private RelativeLayout root;
     private String sdPath;
+    private Trace myTrace;
 
 
 
@@ -275,10 +274,14 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                 if(bBackup){
                     loading_container.setVisibility(View.VISIBLE);
                     if(radioButtonOTG.isChecked()) {
-                        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BACKUP_OTG, GoogleAnalyticsFactory.EVENT.BACKUP);
+                        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BACKUP_OTG, FirebaseAnalyticsFactory.EVENT.BACKUP);
+                        myTrace = FirebasePerformance.getInstance().newTrace("backup_otg");
+                        myTrace.start();
                         backupStorage = 1;
                     } else if(radioButtonSD.isChecked()){
-                        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BACKUP_SD, GoogleAnalyticsFactory.EVENT.BACKUP);
+                        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BACKUP_SD, FirebaseAnalyticsFactory.EVENT.BACKUP);
+                        myTrace = FirebasePerformance.getInstance().newTrace("backup_sd");
+                        myTrace.start();
                         backupStorage = 2;
                     }
 
@@ -312,8 +315,14 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                     securityScsi.checkSecurityStatus();
                 if (securityScsi.getSecurityStatus() == Constant.SECURITY_LOCK)
                     return 3;
-                else
-                    return 1;
+                else{
+                    Uri uriTree = Uri.parse(otgKey);
+                    if(checkStorage(uriTree, false)){
+                        return 1;
+                    }else
+                        return 2;
+                }
+
             }
             else {
                 Back2Home();
@@ -532,6 +541,7 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                 mDocList.clear();
             }
             if(mPhotoList.size() == 0 && mVideoList.size() == 0 && mMusicList.size() == 0 && mDocList.size() == 0){
+                myTrace.stop();
                 new BackupFinishedDialog(mContext);
             }
 

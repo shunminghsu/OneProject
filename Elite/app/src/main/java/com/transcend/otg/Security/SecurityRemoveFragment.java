@@ -11,6 +11,7 @@ import android.widget.EditText;
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Dialog.SecurityDisableDialog;
+import com.transcend.otg.FirebaseAnalytics.FirebaseAnalyticsFactory;
 import com.transcend.otg.R;
 
 /**
@@ -57,7 +58,8 @@ public class SecurityRemoveFragment extends PageView {
                                 securityScsi.SecurityDisableLockActivity(editRemovePassword.getText().toString());
                                 Thread.sleep(1000);
                                 if(securityScsi.checkSecurityStatus() == Constant.SECURITY_DISABLE){
-                                    snackBarShow(R.string.done);
+                                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.SECURITY, FirebaseAnalyticsFactory.EVENT.SECURITY_REMOVE);
+                                    Snackbar.make(getRootView(), R.string.done, Snackbar.LENGTH_LONG).setAction("Action", null).show();
                                     Back2Home();
                                 }
                                 else{
@@ -90,7 +92,7 @@ public class SecurityRemoveFragment extends PageView {
     }
 
     private void snackBarShow(int resId) {
-        Snackbar.make(root, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(getRootView(), resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
     private void Back2Home(){

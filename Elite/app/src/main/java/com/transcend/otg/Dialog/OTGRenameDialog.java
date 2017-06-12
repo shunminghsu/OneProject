@@ -13,15 +13,13 @@ import android.widget.Button;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by wangbojie on 2017/3/8.

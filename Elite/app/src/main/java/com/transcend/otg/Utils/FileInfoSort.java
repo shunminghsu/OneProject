@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.LocalPreferences;
 
 import org.apache.commons.io.FilenameUtils;
 

@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;

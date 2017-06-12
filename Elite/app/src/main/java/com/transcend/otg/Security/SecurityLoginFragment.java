@@ -15,6 +15,7 @@ import android.widget.RelativeLayout;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.FirebaseAnalytics.FirebaseAnalyticsFactory;
 import com.transcend.otg.MainActivity;
 import com.transcend.otg.R;
 
@@ -67,6 +68,7 @@ public class SecurityLoginFragment extends Fragment{
                 btnLogin.setEnabled(false);
                 String password = editPassword.getText().toString();
                 if( password.length() >= 4  && SecurityLogin(password)){
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.SECURITY, FirebaseAnalyticsFactory.EVENT.SECURITY_LOGIN);
                     MainActivity activity = (MainActivity) getActivity();
                     activity.setDrawerCheckItem(R.id.nav_home);
                     activity.mToolbarTitle.setText(getResources().getString(R.string.drawer_home));

@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
 import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.FirebaseAnalytics.FirebaseAnalyticsFactory;
 import com.transcend.otg.R;
 
 /**
@@ -109,15 +110,21 @@ public class SecurityChangeFragment extends PageView {
                     btnChangeCancel.setEnabled(false);
                     try {
                         securityScsi.SecurityDisableLockActivity(editChangeCurrentPassword.getText().toString());
+                        Thread.sleep(1000);
                         if(securityScsi.checkSecurityStatus() != Constant.SECURITY_DISABLE){
                             snackBarShow(R.string.error);
                             cleanChangeEdit();
+                            btnChangeOK.setEnabled(true);
+                            btnChangeCancel.setEnabled(true);
+                            mChangeLoading.setVisibility(View.INVISIBLE);
+                            return;
                         }
 
                         Thread.sleep(1000);
                         securityScsi.SecurityLockActivity(editChangeNewPassword.getText().toString());
                         Thread.sleep(1000);
                         if(securityScsi.checkSecurityStatus() == Constant.SECURITY_UNLOCK){
+                            FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.SECURITY, FirebaseAnalyticsFactory.EVENT.SECURITY_CHANGE);
                             snackBarShow(R.string.done);
                             Back2Home();
                         }
@@ -169,7 +176,7 @@ public class SecurityChangeFragment extends PageView {
     }
 
     private void snackBarShow(int resId) {
-        Snackbar.make(root, resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
+        Snackbar.make(getRootView(), resId, Snackbar.LENGTH_LONG).setAction("Action", null).show();
     }
 
     private void Back2Home(){

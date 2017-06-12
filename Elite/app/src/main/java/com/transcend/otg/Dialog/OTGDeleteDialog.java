@@ -12,11 +12,10 @@ import android.widget.TextView;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 
-import java.io.File;
 import java.util.ArrayList;
 
 /**

@@ -14,7 +14,7 @@ import android.widget.Button;
 import com.transcend.otg.Constant.ActionParameter;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 

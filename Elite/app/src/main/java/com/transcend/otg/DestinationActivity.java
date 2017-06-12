@@ -51,6 +51,7 @@ import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalListOnlyFolderLoader;
 import com.transcend.otg.Loader.OTGFileOnlyFolderLoader;
 import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.LocalPreferences;
 
 import java.io.File;
 import java.util.ArrayList;

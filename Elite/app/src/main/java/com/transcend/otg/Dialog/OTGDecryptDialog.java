@@ -2,7 +2,6 @@ package com.transcend.otg.Dialog;
 
 import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.provider.DocumentFile;
 import android.support.v7.app.AlertDialog;
@@ -13,7 +12,6 @@ import android.widget.Button;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.LocalPreferences;
 import com.transcend.otg.R;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.Md5;

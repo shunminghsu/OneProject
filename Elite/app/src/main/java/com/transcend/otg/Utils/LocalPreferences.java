@@ -1,4 +1,4 @@
-package com.transcend.otg;
+package com.transcend.otg.Utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

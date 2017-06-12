@@ -1,4 +1,4 @@
-package com.transcend.otg;
+package com.transcend.otg.Service;
 
 import android.app.ActivityManager;
 import android.app.AlertDialog;
@@ -11,6 +11,8 @@ import android.content.IntentFilter;
 import android.hardware.usb.UsbManager;
 import android.os.IBinder;
 import android.view.WindowManager;
+
+import com.transcend.otg.R;
 
 import java.util.List;
 

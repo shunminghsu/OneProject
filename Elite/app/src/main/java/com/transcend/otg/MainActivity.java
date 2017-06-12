@@ -16,9 +16,6 @@ import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.storage.StorageVolume;
-import android.provider.DocumentsContract;
 import android.support.design.internal.NavigationMenuView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -52,8 +49,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.mjdev.libaums.UsbMassStorageDevice;
-import com.google.android.gms.analytics.Tracker;
-import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.transcend.otg.Backup.BackupFragment;
 import com.transcend.otg.Browser.BrowserFragment;
 import com.transcend.otg.Browser.LocalFragment;
@@ -82,7 +77,7 @@ import com.transcend.otg.Dialog.SDDecryptDialog;
 import com.transcend.otg.Dialog.SDPermissionGuideDialog;
 import com.transcend.otg.Dialog.SecurityDisableDialog;
 import com.transcend.otg.Feedback.FeedbackFragment;
-import com.transcend.otg.GoogleAnalytics.GoogleAnalyticsFactory;
+import com.transcend.otg.FirebaseAnalytics.FirebaseAnalyticsFactory;
 import com.transcend.otg.Help.HelpFragment;
 import com.transcend.otg.Loader.FileActionManager;
 import com.transcend.otg.Loader.LocalEncryptCopyLoader;
@@ -99,24 +94,25 @@ import com.transcend.otg.Loader.SDDecryptNewFolderLoader;
 import com.transcend.otg.Loader.SDEncryptCopyLoader;
 import com.transcend.otg.Loader.SDEncryptLoader;
 import com.transcend.otg.Loader.SDEncryptNewFolderLoader;
+import com.transcend.otg.Search.SearchResults;
 import com.transcend.otg.Security.RemindUnlockFragment;
 import com.transcend.otg.Security.SecurityFragment;
 import com.transcend.otg.Security.SecurityLoginFragment;
 import com.transcend.otg.Security.SecurityScsi;
 import com.transcend.otg.Security.SecuritySettingFragment;
+import com.transcend.otg.Service.OTGInsertService;
 import com.transcend.otg.Setting.SettingFragment;
 import com.transcend.otg.Task.SDMoveToSDTask;
 import com.transcend.otg.Utils.DecryptUtils;
 import com.transcend.otg.Utils.EncryptUtils;
 import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.Utils.MediaUtils;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
@@ -185,7 +181,7 @@ public class MainActivity extends AppCompatActivity
 
     private LayoutTransition mTransitioner;
     public static int mScreenW;
-    private Tracker mTracker;
+//    private Tracker mTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,7 +235,7 @@ public class MainActivity extends AppCompatActivity
                 mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
                 setDrawerCheckItem(R.id.nav_browser);
                 if(!discoverSecurityDevice(R.id.nav_browser, getResources().getString(R.string.drawer_browser))){
-                    GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendFragment((MainActivity)mContext, FirebaseAnalyticsFactory.FRAGMENT.BROWSER);
                     showHomeOrFragment(false);
                     markSelectedBtn(mLocalButton);
                     replaceFragment(localFragment);
@@ -255,7 +251,7 @@ public class MainActivity extends AppCompatActivity
                 mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
                 setDrawerCheckItem(R.id.nav_backup);
                 if(!discoverSecurityDevice(R.id.nav_backup, getResources().getString(R.string.drawer_backup))){
-                    GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BACKUP);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendFragment((MainActivity)mContext, FirebaseAnalyticsFactory.FRAGMENT.BACKUP);
 
                     showFragment(backupFragment);
                 }
@@ -278,6 +274,8 @@ public class MainActivity extends AppCompatActivity
         registerReceiver(usbReceiver, filter);
         pendingIntent = PendingIntent.getBroadcast(this , 0 , new Intent(ACTION_USB_PERMISSION), 0);
     }
+
+
 
     private final BroadcastReceiver usbReceiver = new BroadcastReceiver() {
         @Override
@@ -588,10 +586,10 @@ public class MainActivity extends AppCompatActivity
                     break;
                 case R.id.action_share:
                     if(fileInfo.storagemode == Constant.STORAGEMODE_LOCAL || fileInfo.storagemode == Constant.STORAGEMODE_SD){
-                        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, GoogleAnalyticsFactory.EVENT.SHARE);
+                        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, FirebaseAnalyticsFactory.EVENT.SHARE);
                         doLocalShare();
                     }else if(fileInfo.storagemode == Constant.STORAGEMODE_OTG){
-                        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG, GoogleAnalyticsFactory.EVENT.SHARE);
+                        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG, FirebaseAnalyticsFactory.EVENT.SHARE);
                         doOTGShare();
                     }
                     break;
@@ -694,7 +692,7 @@ public class MainActivity extends AppCompatActivity
                 if (otgKey != "") {
                     Uri uriTree = Uri.parse(otgKey);
                     if (checkStorage(uriTree, false)) {
-                        GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG);
+                        FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG);
                         replaceFragment(otgFragment);
                     }else
                         preGuideDialog("otg");
@@ -710,7 +708,7 @@ public class MainActivity extends AppCompatActivity
         String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
         if (sdpath != null) {
             if (FileFactory.getMountedState(mContext, sdpath)) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_SD);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_SD);
                 replaceFragment(sdFragment);
             }
         }
@@ -723,7 +721,7 @@ public class MainActivity extends AppCompatActivity
             if (view == mLocalButton) {
                 if(mActionMode != null)
                     mActionMode.finish();
-                GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_LOCAL);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendFragment((MainActivity)mContext, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_LOCAL);
                 Constant.nowMODE = Constant.MODE.LOCAL;
                 markSelectedBtn(mLocalButton);
                 replaceFragment(localFragment);
@@ -735,16 +733,16 @@ public class MainActivity extends AppCompatActivity
                 String sdpath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                 if (sdpath != null) {
                     if (FileFactory.getMountedState(mContext, sdpath)) {
-                        GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_SD);
+                        FirebaseAnalyticsFactory.getInstance(mContext).sendFragment((MainActivity)mContext, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_SD);
                         replaceFragment(sdFragment);
                     } else {
-                        GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_NO_SD);
+                        FirebaseAnalyticsFactory.getInstance(mContext).sendFragment((MainActivity)mContext, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_NO_SD);
                         switchToFragment(NoSdFragment.class.getName(), false);
                     }
                 } else {
                     if(mActionMode != null)
                         mActionMode.finish();
-                    GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_NO_SD);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendFragment((MainActivity)mContext, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_NO_SD);
                     switchToFragment(NoSdFragment.class.getName(), false);
                 }
             } else if (view == mOtgButton) {
@@ -794,7 +792,7 @@ public class MainActivity extends AppCompatActivity
     private void selectDrawerPage(int id, int status){
         switch (id){
             case R.id.nav_browser :
-                GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BROWSER);
                 mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
                 showHomeOrFragment(false);
                 markSelectedBtn(mLocalButton);
@@ -803,13 +801,13 @@ public class MainActivity extends AppCompatActivity
                 setDrawerCheckItem(R.id.nav_browser);
                 break;
             case R.id.nav_backup:
-                GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BACKUP);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BACKUP);
                 mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
                 showFragment(backupFragment);
                 setDrawerCheckItem(R.id.nav_backup);
                 break;
             case R.id.nav_security:
-                GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.SECURITY);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.SECURITY);
                 mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
                 setDrawerCheckItem(R.id.nav_security);
                 switch(status){
@@ -879,7 +877,7 @@ public class MainActivity extends AppCompatActivity
         UsbMassStorageDevice[] devices = UsbMassStorageDevice.getMassStorageDevices(mContext);
 
         if (devices.length == 0) {
-            GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_NO_OTG);
+            FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_NO_OTG);
             Log.w(TAG, "no device found!");
             Constant.mCurrentDocumentFile = Constant.mRootDocumentFile = null;
             Constant.rootUri = null;
@@ -901,7 +899,7 @@ public class MainActivity extends AppCompatActivity
                     if (otgKey != "") {
                         Uri uriTree = Uri.parse(otgKey);
                         if (checkStorage(uriTree, false)) {
-                            GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG);
+                            FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG);
                             replaceFragment(otgFragment);
                         } else {
                             preGuideDialog("otg");
@@ -915,7 +913,7 @@ public class MainActivity extends AppCompatActivity
             if(otgKey != ""){
                 Uri uriTree = Uri.parse(otgKey);
                 if(checkStorage(uriTree, false)){
-                    GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG);
                     replaceFragment(otgFragment);
                 }else
                     preGuideDialog("otg");
@@ -1101,11 +1099,11 @@ public class MainActivity extends AppCompatActivity
                 createPopupWindow(toolbar, this);
                 return true;
             case R.id.menu_grid:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER, GoogleAnalyticsFactory.EVENT.CHANGEVIEW_GRID);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER, FirebaseAnalyticsFactory.EVENT.CHANGEVIEW_GRID);
                 setViewMode(Constant.ITEM_GRID);
                 return true;
             case R.id.menu_list:
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER, GoogleAnalyticsFactory.EVENT.CHANGEVIEW_LIST);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER, FirebaseAnalyticsFactory.EVENT.CHANGEVIEW_LIST);
                 setViewMode(Constant.ITEM_LIST);
                 return true;
             default:
@@ -1117,13 +1115,13 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_home) {
-            GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.HOME);
+            FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.HOME);
             mToolbarTitle.setText(getResources().getString(R.string.drawer_home));
             showHomeOrFragment(true);
         } else if (id == R.id.nav_browser) {
             mToolbarTitle.setText(getResources().getString(R.string.drawer_browser));
             if(!discoverSecurityDevice(R.id.nav_browser, getResources().getString(R.string.drawer_browser))){
-                GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BROWSER);
                 showHomeOrFragment(false);
                 markSelectedBtn(mLocalButton);
                 replaceFragment(localFragment);
@@ -1132,25 +1130,25 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_backup) {
             mToolbarTitle.setText(getResources().getString(R.string.drawer_backup));
             if(!discoverSecurityDevice(R.id.nav_backup, getResources().getString(R.string.drawer_backup))) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BACKUP);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BACKUP);
                 showFragment(backupFragment);
             }
         } else if (id == R.id.nav_help){
-            GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.HELP);
+            FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.HELP);
             mToolbarTitle.setText(getResources().getString(R.string.drawer_help));
             showFragment(helpFragment);
         } else if(id == R.id.nav_feedback){
-            GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.FEEDBACK);
+            FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.FEEDBACK);
             mToolbarTitle.setText(getResources().getString(R.string.drawer_feedback));
             showFragment(feedbackFragment);
         } else if(id == R.id.nav_setting){
-            GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.SETTINGS);
+            FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.SETTINGS);
             mToolbarTitle.setText(getResources().getString(R.string.drawer_setting));
             showFragment(settingFragment);
         }else if(id == R.id.nav_security){
             mToolbarTitle.setText(getResources().getString(R.string.Lsecurity));
             if(!discoverSecurityDevice(R.id.nav_security, getResources().getString(R.string.Lsecurity))){
-                GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.SECURITY);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.SECURITY);
                 SecurityScsi mSecurityScsi = SecurityScsi.getInstance(device.getUsbDevice(), usbManager, false);
                 switch(mSecurityScsi.checkSecurityStatus()){
                     case Constant.SECURITY_DISABLE :
@@ -1369,7 +1367,7 @@ public class MainActivity extends AppCompatActivity
                     Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
                     startActivityForResult(intent, mOTGDocumentTreeID);
                 }else{
-                    GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_LOCAL);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendFragment((MainActivity) mContext, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_LOCAL);
                     Constant.nowMODE = Constant.MODE.LOCAL;
                     markSelectedBtn(mLocalButton);
                     replaceFragment(localFragment);
@@ -1398,12 +1396,12 @@ public class MainActivity extends AppCompatActivity
                 Uri uriTree = data.getData();
                 if(checkStorage(uriTree, true)){
                     markSelectedBtn(mOtgButton);
-                    GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG);
                     replaceFragment(otgFragment);
                 }else
                     preGuideDialog("otg");
             }else if(resCode == RESULT_CANCELED){
-                GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.BROWSER_LOCAL);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendFragment(this, FirebaseAnalyticsFactory.FRAGMENT.BROWSER_LOCAL);
                 mLocalButton.performClick();
             }
 
@@ -1434,7 +1432,7 @@ public class MainActivity extends AppCompatActivity
         Constant.Activity = 0;
         ArrayList<FileInfo> mSelectedFiles = getActionSeletedFiles();
         int source_storage = mSelectedFiles.get(0).storagemode;
-        GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER, GoogleAnalyticsFactory.EVENT.COPY_MOVE);
+        FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER, FirebaseAnalyticsFactory.EVENT.COPY_MOVE);
         if(actionMode == Constant.MODE.LOCAL){
             if(source_storage == Constant.STORAGEMODE_LOCAL){//Local -> Local
                 doLocalCopyorMove(actionId, mSelectedFiles, destinationPath);
@@ -1721,7 +1719,7 @@ public class MainActivity extends AppCompatActivity
         new OTGEncryptDialog(this, selectedFiles) {
             @Override
             public void onConfirm(String newName, String password, ArrayList<DocumentFile> mSelectedDFiles) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG, GoogleAnalyticsFactory.EVENT.ENCRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG, FirebaseAnalyticsFactory.EVENT.ENCRYPT);
                 if (getBrowserFragment() != null) {
                     int tabPostiion = getBrowserFragment().getCurrentTabPosition();
                     if (tabPostiion == BrowserFragment.LIST_TYPE_FOLDER) {
@@ -1804,7 +1802,7 @@ public class MainActivity extends AppCompatActivity
         new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_SD, GoogleAnalyticsFactory.EVENT.ENCRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_SD, FirebaseAnalyticsFactory.EVENT.ENCRYPT);
                 ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
                 if (getBrowserFragment() != null) {
                     int tabPostiion = getBrowserFragment().getCurrentTabPosition();
@@ -1855,7 +1853,7 @@ public class MainActivity extends AppCompatActivity
         new LocalEncryptDialog(this) {
             @Override
             public void onConfirm(String newName, String password) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, GoogleAnalyticsFactory.EVENT.ENCRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, FirebaseAnalyticsFactory.EVENT.ENCRYPT);
                 ArrayList<FileInfo> selectedFiles = getActionSeletedFiles();
                 if (getBrowserFragment() != null) {
                     int tabPostiion = getBrowserFragment().getCurrentTabPosition();
@@ -1911,7 +1909,7 @@ public class MainActivity extends AppCompatActivity
         new LocalDecryptDialog(this, folderNames, selectedFile.path) {
             @Override
             public void onConfirm(String newFolderpath, String password, String filePath) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, GoogleAnalyticsFactory.EVENT.DECRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, FirebaseAnalyticsFactory.EVENT.DECRYPT);
                 doLocalDecrypt(newFolderpath, password, filePath);
             }
         };
@@ -1941,7 +1939,7 @@ public class MainActivity extends AppCompatActivity
         new SDDecryptDialog(this, folderNames){
             @Override
             public void onConfirm(String newFolderName, String password) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_SD, GoogleAnalyticsFactory.EVENT.DECRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_SD, FirebaseAnalyticsFactory.EVENT.DECRYPT);
                 if(checkSDWritePermission()){
                     String sdPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                     ArrayList<DocumentFile> mSelectedDFiles = FileFactory.findDocumentFilefromPathSD(DecryptUtils.getSelectedFileList(), sdPath, Constant.Activity);
@@ -2001,7 +1999,7 @@ public class MainActivity extends AppCompatActivity
         new OTGDecryptDialog(this, folderNames, selectedFile){
             @Override
             public void onConfirm(String newFolderName, String password, ArrayList<DocumentFile> selectedDFiles) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG, GoogleAnalyticsFactory.EVENT.DECRYPT);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG, FirebaseAnalyticsFactory.EVENT.DECRYPT);
                 if(tabPostiion == 5){
                     DocumentFile child = selectedDFiles.get(0).getParentFile();
                     DecryptUtils.setAfterDecryptDFile(child);
@@ -2079,7 +2077,7 @@ public class MainActivity extends AppCompatActivity
         new LocalNewFolderDialog(this, folderNames) {
             @Override
             public void onConfirm(String newName) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, GoogleAnalyticsFactory.EVENT.NEW_FOLDER);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, FirebaseAnalyticsFactory.EVENT.NEW_FOLDER);
                 String path = Constant.ROOT_LOCAL;
                 StringBuilder builder = new StringBuilder(path);
                 if (!path.endsWith("/"))
@@ -2102,7 +2100,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onConfirm(String newName, ArrayList<DocumentFile> mDFiles) {
                 if(bSDCard){
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_SD, GoogleAnalyticsFactory.EVENT.NEW_FOLDER);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_SD, FirebaseAnalyticsFactory.EVENT.NEW_FOLDER);
                     if(checkSDWritePermission()){
                         ActionParameter.path = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
                         mFileActionManager.newFolderOTG(newName, mDFiles);
@@ -2111,7 +2109,7 @@ public class MainActivity extends AppCompatActivity
                     }
 
                 }else{
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG, GoogleAnalyticsFactory.EVENT.NEW_FOLDER);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG, FirebaseAnalyticsFactory.EVENT.NEW_FOLDER);
                     ActionParameter.path = FileFactory.getOTGStoragePath(mContext, Constant.otg_key_path);
                     mFileActionManager.newFolderOTG(newName, mDFiles);
                 }
@@ -2127,7 +2125,7 @@ public class MainActivity extends AppCompatActivity
         new LocalRenameDialog(this,ignoreType, name) {
             @Override
             public void onConfirm(String newName) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, GoogleAnalyticsFactory.EVENT.RENAME);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, FirebaseAnalyticsFactory.EVENT.RENAME);
                 if (newName.equals(name))
                     return;
                 mFileActionManager.rename(path, newName);
@@ -2151,7 +2149,7 @@ public class MainActivity extends AppCompatActivity
                 if (newName.equals(oldName))
                     return;
                 if(bSDCard){
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_SD, GoogleAnalyticsFactory.EVENT.RENAME);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_SD, FirebaseAnalyticsFactory.EVENT.RENAME);
                     if(checkSDWritePermission()){
                         ActionParameter.name = newName;
                         ActionParameter.files = selectedFiles;
@@ -2161,7 +2159,7 @@ public class MainActivity extends AppCompatActivity
                         ActionParameter.files = selectedFiles;
                     }
                 }else{
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG, GoogleAnalyticsFactory.EVENT.RENAME);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG, FirebaseAnalyticsFactory.EVENT.RENAME);
                     ActionParameter.files = selectedFiles;
                     mFileActionManager.renameOTG(newName, selectedDocumentFile);
                 }
@@ -2175,7 +2173,7 @@ public class MainActivity extends AppCompatActivity
         new LocalDeleteDialog(this, selectedFiles) {
             @Override
             public void onConfirm(ArrayList<FileInfo> selectedFiles) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, GoogleAnalyticsFactory.EVENT.DELETE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_LOCAL, FirebaseAnalyticsFactory.EVENT.DELETE);
                 loading_container.setVisibility(View.VISIBLE);
                 mFileActionManager.delete(selectedFiles);
             }
@@ -2196,7 +2194,7 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onConfirm(ArrayList<DocumentFile> selectedDocumentFile) {
                 if(bSDCard){
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_SD, GoogleAnalyticsFactory.EVENT.DELETE);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_SD, FirebaseAnalyticsFactory.EVENT.DELETE);
                     if(checkSDWritePermission()){
                         loading_container.setVisibility(View.VISIBLE);
                         mFileActionManager.deleteOTG(selectedDocumentFile);
@@ -2204,7 +2202,7 @@ public class MainActivity extends AppCompatActivity
                         ActionParameter.files = selectedFiles;
                     }
                 }else{
-                    GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER_OTG, GoogleAnalyticsFactory.EVENT.DELETE);
+                    FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER_OTG, FirebaseAnalyticsFactory.EVENT.DELETE);
                     loading_container.setVisibility(View.VISIBLE);
                     mFileActionManager.deleteOTG(selectedDocumentFile);
                 }
@@ -2381,19 +2379,19 @@ public class MainActivity extends AppCompatActivity
         public void onClick(View v) {
             int sort_by = LocalPreferences.getPref(mContext, LocalPreferences.BROWSER_SORT_PREFIX, Constant.SORT_BY_DATE);
             if (v.getTag().equals("date") && sort_by != Constant.SORT_BY_DATE) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER, GoogleAnalyticsFactory.EVENT.SORT_DATE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER, FirebaseAnalyticsFactory.EVENT.SORT_DATE);
                 v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.VISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
                 setSortBy(Constant.SORT_BY_DATE);
             } else if (v.getTag().equals("name") && sort_by != Constant.SORT_BY_NAME) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER, GoogleAnalyticsFactory.EVENT.SORT_NAME);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER, FirebaseAnalyticsFactory.EVENT.SORT_NAME);
                 v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.VISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.INVISIBLE);
                 setSortBy(Constant.SORT_BY_NAME);
             } else if (v.getTag().equals("size") && sort_by != Constant.SORT_BY_SIZE) {
-                GoogleAnalyticsFactory.getInstance(mContext).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER, GoogleAnalyticsFactory.EVENT.SORT_SIZE);
+                FirebaseAnalyticsFactory.getInstance(mContext).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER, FirebaseAnalyticsFactory.EVENT.SORT_SIZE);
                 v.getRootView().findViewById(R.id.arrow_sort_date).setVisibility(View.INVISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_name).setVisibility(View.INVISIBLE);
                 v.getRootView().findViewById(R.id.arrow_sort_size).setVisibility(View.VISIBLE);

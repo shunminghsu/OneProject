@@ -1,4 +1,4 @@
-package com.transcend.otg;
+package com.transcend.otg.Search;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,9 +30,12 @@ import com.transcend.otg.Bitmap.IconHelper;
 import com.transcend.otg.Browser.TabInfo;
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.GoogleAnalytics.GoogleAnalyticsFactory;
+import com.transcend.otg.FirebaseAnalytics.FirebaseAnalyticsFactory;
+import com.transcend.otg.FolderExploreActivity;
 import com.transcend.otg.Loader.SearchLoader;
+import com.transcend.otg.MainActivity;
 import com.transcend.otg.Photo.PhotoActivity;
+import com.transcend.otg.R;
 import com.transcend.otg.Task.ComputeFilsNumberTask;
 import com.transcend.otg.Task.ComputeFilsTotalSizeTask;
 import com.transcend.otg.Utils.MediaUtils;
@@ -319,7 +322,7 @@ public class SearchResults extends Fragment {
                     FileInfo fileInfo = mList.get(position);
                     switch (fileInfo.type) {
                         case Constant.TYPE_PHOTO:
-                            GoogleAnalyticsFactory.getInstance(mContext).sendFragment(GoogleAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY);
+                            FirebaseAnalyticsFactory.getInstance(mContext).sendFragment((MainActivity)mContext, FirebaseAnalyticsFactory.FRAGMENT.PHOTOACTIIVTY);
                             Intent intent = new Intent(mContext, PhotoActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             intent.putParcelableArrayListExtra("photo_list", getPhotoList(mList, position));
@@ -567,7 +570,7 @@ public class SearchResults extends Fragment {
     }
 
     private void updateSearchResults() {
-        GoogleAnalyticsFactory.getInstance(getContext()).sendEvent(GoogleAnalyticsFactory.FRAGMENT.BROWSER, GoogleAnalyticsFactory.EVENT.SEARCH);
+        FirebaseAnalyticsFactory.getInstance(getContext()).sendEvent(FirebaseAnalyticsFactory.FRAGMENT.BROWSER, FirebaseAnalyticsFactory.EVENT.SEARCH);
         mLoading.setVisibility(View.VISIBLE);
         getLoaderManager().restartLoader(477, getArguments(), mCallbacks);
     }

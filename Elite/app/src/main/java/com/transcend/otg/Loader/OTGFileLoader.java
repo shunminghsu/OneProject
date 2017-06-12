@@ -10,7 +10,7 @@ import android.text.format.Formatter;
 
 import com.transcend.otg.Constant.Constant;
 import com.transcend.otg.Constant.FileInfo;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.FileInfoSort;
 

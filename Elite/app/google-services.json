@@ -1,35 +1,52 @@
 {
   "project_info": {
-    "project_number": "365290211052",
-    "project_id": "optical-mind-712"
+    "project_number": "783692633072",
+    "firebase_url": "https://transcend-elite-for-android.firebaseio.com",
+    "project_id": "transcend-elite-for-android",
+    "storage_bucket": "transcend-elite-for-android.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:365290211052:android:88c1792fe30c12d5",
+        "mobilesdk_app_id": "1:783692633072:android:88c1792fe30c12d5",
         "android_client_info": {
           "package_name": "com.transcend.otg"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "783692633072-j2nv2oh8jos09manf3mnko3dvh9d4guc.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "783692633072-q6etnj3njtim027sho11tpu2p35s4s14.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.transcend.otg",
+            "certificate_hash": "14282e5df0661e6c8a38203f9187b4e5d891b587"
+          }
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyA-1Pn_3kmOYExym7pATYR05-N2auXDEGU"
+          "current_key": "AIzaSyBS2GePujS8teF0-_t9r3tCwRynXmhsvqY"
         }
       ],
       "services": {
         "analytics_service": {
-          "status": 2,
-          "analytics_property": {
-            "tracking_id": "UA-54924476-11"
-          }
+          "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "783692633072-j2nv2oh8jos09manf3mnko3dvh9d4guc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
-          "status": 1
+          "status": 2
         }
       }
     }

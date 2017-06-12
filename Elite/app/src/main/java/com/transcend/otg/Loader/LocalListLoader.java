@@ -1,15 +1,11 @@
 package com.transcend.otg.Loader;
 
 import android.content.AsyncTaskLoader;
-import android.content.ContentUris;
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
-import android.provider.MediaStore;
 import android.text.format.Formatter;
 
 import com.transcend.otg.Constant.Constant;
-import com.transcend.otg.LocalPreferences;
+import com.transcend.otg.Utils.LocalPreferences;
 import com.transcend.otg.Constant.FileInfo;
 import com.transcend.otg.Utils.FileFactory;
 import com.transcend.otg.Utils.FileInfoSort;

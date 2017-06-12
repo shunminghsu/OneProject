@@ -1,8 +1,10 @@
-package com.transcend.otg;
+package com.transcend.otg.Service;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import com.transcend.otg.Service.OTGInsertService;
 
 /**
  * Created by wangbojie on 2017/4/26.
