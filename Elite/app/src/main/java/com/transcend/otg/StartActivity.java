@@ -10,6 +10,10 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.ImageView;
 
+import com.transcend.otg.Constant.Constant;
+import com.transcend.otg.Utils.FileFactory;
+import com.transcend.otg.Utils.LocalPreferences;
+
 /**
  * Created by wangbojie on 2017/4/17.
  */
@@ -22,7 +26,17 @@ public class StartActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+        checkSDExist();
         init();
+    }
+
+    private void checkSDExist(){
+        String sdpath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+        if(sdpath != null){
+            LocalPreferences.setHasSD(this, true);
+        }else {
+            LocalPreferences.setHasSD(this, false);
+        }
     }
 
     private void init(){

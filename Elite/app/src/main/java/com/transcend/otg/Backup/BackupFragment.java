@@ -348,9 +348,9 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                 if(!rootDir.isDirectory())
                     return false;
                 boolean bSDCard = false;
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.BRAND.equals(getResources().getString(R.string.samsung))){
+                if (FileFactory.isSamsungStyle(mContext, Constant.sd_key_path)){
                     if(b_needCheckSD){
-                        String smSDPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                        String smSDPath = FileFactory.getSamsungStyleOuterStoragePath(mContext, Constant.sd_key_path);
                         String rootName = rootDir.getName();
                         if(smSDPath != null){
                             if(smSDPath.contains(rootName))
@@ -359,11 +359,14 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                     }
                 }else {
                     if(b_needCheckSD){
-                        ArrayList<String> sdCardFileName = FileFactory.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
-                        if(sdCardFileName.size() != 0){
-                            bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
-                        }else {
-                            bSDCard = false;
+                        boolean hasSD = LocalPreferences.getHasSD(mContext);
+                        if(hasSD){
+                            ArrayList<String> sdCardFileName = FileFactory.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                            if(sdCardFileName.size() != 0){
+                                bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                            }else {
+                                bSDCard = false;
+                            }
                         }
                     }
                 }
@@ -393,8 +396,8 @@ public class BackupFragment extends Fragment implements android.app.LoaderManage
                 }else{
                     rootDir = DocumentFile.fromTreeUri(mContext, uri);//sd root path
                     boolean bSDCard = false;
-                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.BRAND.equals(getResources().getString(R.string.samsung))){
-                        String smSDPath = FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path);
+                    if (FileFactory.isSamsungStyle(mContext, Constant.sd_key_path)){
+                        String smSDPath = FileFactory.getSamsungStyleOuterStoragePath(mContext, Constant.sd_key_path);
                         String rootName = rootDir.getName();
                         if(smSDPath != null){
                             if(smSDPath.contains(rootName))

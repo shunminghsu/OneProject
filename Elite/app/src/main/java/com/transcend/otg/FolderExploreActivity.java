@@ -598,8 +598,8 @@ public class FolderExploreActivity extends AppCompatActivity
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//sd root path
                     boolean bSDCard = false;
-                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.BRAND.equals(getResources().getString(R.string.samsung))){
-                        String smSDPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                    if (FileFactory.isSamsungStyle(this, Constant.sd_key_path)){
+                        String smSDPath = FileFactory.getSamsungStyleOuterStoragePath(this, Constant.sd_key_path);
                         String rootName = rootDir.getName();
                         if(smSDPath != null){
                             if(smSDPath.contains(rootName))

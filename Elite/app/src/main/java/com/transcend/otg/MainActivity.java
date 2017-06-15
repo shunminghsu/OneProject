@@ -198,7 +198,6 @@ public class MainActivity extends AppCompatActivity
         initOTGInsertService();
         initActionModeView();
         discoverSSD();
-
     }
 
     private void checkStoredUri(Context context) {
@@ -1514,8 +1513,8 @@ public class MainActivity extends AppCompatActivity
                 }else{
                     rootDir = DocumentFile.fromTreeUri(this, uri);//sd root path
                     boolean bSDCard = false;
-                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.BRAND.equals(getResources().getString(R.string.samsung))){
-                        String smSDPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                    if (FileFactory.isSamsungStyle(this, Constant.sd_key_path)){
+                        String smSDPath = FileFactory.getSamsungStyleOuterStoragePath(this, Constant.sd_key_path);
                         String rootName = rootDir.getName();
                         if(smSDPath != null){
                             if(smSDPath.contains(rootName))
@@ -1554,9 +1553,9 @@ public class MainActivity extends AppCompatActivity
                 if(!rootDir.isDirectory())
                     return false;
                 boolean bSDCard = false;
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.BRAND.equals(getResources().getString(R.string.samsung))){
+                if (FileFactory.isSamsungStyle(this, Constant.sd_key_path)){
                     if(b_needCheckSD){
-                        String smSDPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                        String smSDPath = FileFactory.getSamsungStyleOuterStoragePath(this, Constant.sd_key_path);
                         String rootName = rootDir.getName();
                         if(smSDPath != null){
                             if(smSDPath.contains(rootName))
@@ -1565,11 +1564,14 @@ public class MainActivity extends AppCompatActivity
                     }
                 } else{
                     if(b_needCheckSD){
-                        ArrayList<String> sdCardFileName = FileFactory.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
-                        if(sdCardFileName.size() != 0){
-                            bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
-                        }else {
-                            bSDCard = false;
+                        boolean hasSD = LocalPreferences.getHasSD(this);
+                        if(hasSD){
+                            ArrayList<String> sdCardFileName = FileFactory.getSDCardFileName(FileFactory.getOuterStoragePath(mContext, Constant.sd_key_path));
+                            if(sdCardFileName.size() != 0){
+                                bSDCard = FileFactory.getInstance().doFileNameCompare(rootDir.listFiles(), sdCardFileName);
+                            }else {
+                                bSDCard = false;
+                            }
                         }
                     }
                 }

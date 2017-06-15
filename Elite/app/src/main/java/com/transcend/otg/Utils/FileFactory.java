@@ -43,7 +43,102 @@ public class FileFactory {
     private int RealPathMapLifeCycle = 10;
 
     //try to return sdcard path, if sdcard not found, return null
+    public static int getOuterStorageCount(Context mContext) {
+        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
+        Class<?> storageVolumeClazz = null;
+        int count = 0;
+        try {
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = null;
+            Method getPath = null;
+            Method getState = null;
+            try {
+                getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+                getPath = storageVolumeClazz.getMethod("getPath");
+                getState = storageVolumeClazz.getMethod("getState");
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+
+            Object result = getVolumeList.invoke(mStorageManager);
+            int length = Array.getLength(result);
+            Log.d("jerry", "length = " + length);
+            for (int i = 0; i < length ; i++){
+                Object storageVolumeElement = Array.get(result, i);
+                String path = (String) getPath.invoke(storageVolumeElement);
+                String mState = (String) getState.invoke(storageVolumeElement);
+                Log.d("jerry", "mState = " + path + "  " + mState);
+                if (mState.equals("mounted") && !path.equals(Constant.ROOT_LOCAL))
+                    count++;
+
+            }
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return count;
+    }
+
     public static String getOuterStoragePath(Context mContext, String key_word) {
+        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
+        Class<?> storageVolumeClazz = null;
+        try {
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = null;
+            Method getPath = null;
+            Method isRemovable = null;
+            Method getState = null;
+            Method getSubSystem = null;
+            try {
+                getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+                getPath = storageVolumeClazz.getMethod("getPath");
+                isRemovable = storageVolumeClazz.getMethod("isRemovable");
+                getState = storageVolumeClazz.getMethod("getState");
+                getSubSystem = storageVolumeClazz.getMethod("getSubSystem");
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            }
+
+            Object result = getVolumeList.invoke(mStorageManager);
+            final int length = Array.getLength(result);
+            for (int i = 0; i < length; i++) {
+                Object storageVolumeElement = Array.get(result, i);
+                String path = (String) getPath.invoke(storageVolumeElement);
+                Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
+                String mState = (String) getState.invoke(storageVolumeElement);
+                String subSystem = null;
+                if (Build.BRAND.equals(mContext.getResources().getString(R.string.samsung)) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                    subSystem = (String) getSubSystem.invoke(storageVolumeElement);
+                if (removable && path != null && mState.equals("mounted")) {
+                    if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
+                        if(Build.BRAND.equals(mContext.getResources().getString(R.string.samsung))){
+                            if(subSystem!=null && subSystem.contains("sd"))
+                                return path;
+                            else
+                                continue;
+                        }else{
+
+                            return path;
+                        }
+                    } else if (path.toLowerCase().contains(key_word)) {
+                        return path;
+                    }
+                }
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String getSamsungStyleOuterStoragePath(Context mContext, String key_word) {
         StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
         Class<?> storageVolumeClazz = null;
         try {
@@ -67,22 +162,13 @@ public class FileFactory {
                 Object storageVolumeElement = Array.get(result, i);
                 String path = (String) getPath.invoke(storageVolumeElement);
                 Boolean removable = (Boolean) isRemovable.invoke(storageVolumeElement);
-                String subSystem = null;
-                if (Build.BRAND.equals(mContext.getResources().getString(R.string.samsung)) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                    subSystem = (String) getSubSystem.invoke(storageVolumeElement);
-                if (removable && path != null) {
-                    if ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)) {
-                        if(Build.BRAND.equals(mContext.getResources().getString(R.string.samsung))){
-                            if(subSystem!=null && subSystem.contains("sd"))
-                                return path;
-                            else
-                                continue;
-                        }else
-                            return path;
+                String subSystem = (String) getSubSystem.invoke(storageVolumeElement);
 
-                    } else if (path.toLowerCase().contains(key_word)) {
+                if (removable && path != null) {
+                    if(subSystem!=null && subSystem.contains("sd"))
                         return path;
-                    }
+                    else
+                        continue;
                 }
             }
         } catch (ClassNotFoundException e) {
@@ -93,6 +179,41 @@ public class FileFactory {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static boolean isSamsungStyle(Context mContext, String key_word) {
+        StorageManager mStorageManager = (StorageManager) mContext.getSystemService(Context.STORAGE_SERVICE);
+        Class<?> storageVolumeClazz = null;
+        try {
+            storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+            Method getVolumeList = null;
+            Method getSubSystem = null;
+            try {
+                getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+                getSubSystem = storageVolumeClazz.getMethod("getSubSystem");
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            Object result = getVolumeList.invoke(mStorageManager);
+            final int length = Array.getLength(result);
+            for (int i = 0; i < length; i++) {
+                Object storageVolumeElement = Array.get(result, i);
+                String subSystem = (String) getSubSystem.invoke(storageVolumeElement);
+                return true;
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            return false;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return false;
     }
 
     public static String getOTGStoragePath(Context mContext, String key_word){
@@ -628,13 +749,14 @@ public class FileFactory {
         ArrayList<String> sdName = new ArrayList<String>();
         if(mPath != null){
             File dir = new File(mPath);
-
             File files[] = dir.listFiles();
-            for (File file : files) {
-                if (file.isHidden())
-                    continue;
-                String name = file.getName();
-                sdName.add(name);
+            if(files != null){
+                for (File file : files) {
+                    if (file.isHidden())
+                        continue;
+                    String name = file.getName();
+                    sdName.add(name);
+                }
             }
         }
         return sdName;

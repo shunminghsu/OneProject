@@ -12,6 +12,7 @@ public class LocalPreferences {
     public static final String BROWSER_SORT_ORDER_PREFIX = "browserSortOrder-";
     private static final String OTG_KEY = "otgKey-";
     private static final String SD_KEY = "sdKey-";
+    private static final String HAS_SD = "hasSD-";
 
     public static int getBrowserViewMode(Context context, int type, int default_value) {
         String key = BROWSER_MODE_PREFIX + type;
@@ -54,6 +55,16 @@ public class LocalPreferences {
     public static void removeSDKey(Context context, String uid) {
         String key = SD_KEY + uid;
         getPrefs(context).edit().remove(createKey(key)).apply();
+    }
+
+    public static void setHasSD(Context context, boolean hasSD) {
+        String key = HAS_SD;
+        getPrefs(context).edit().putBoolean(createKey(key), hasSD).apply();
+    }
+
+    public static boolean getHasSD(Context context) {
+        String key = HAS_SD;
+        return getPrefs(context).getBoolean(createKey(key), false);
     }
 
     private static SharedPreferences getPrefs(Context context) {

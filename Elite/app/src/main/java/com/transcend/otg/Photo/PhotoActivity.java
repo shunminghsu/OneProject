@@ -995,10 +995,10 @@ public class PhotoActivity extends AppCompatActivity {
                     snackBarShow(R.string.snackbar_plz_select_top);
                     preGuideDialog("sd");
                 }else{
-                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && Build.BRAND.equals(getResources().getString(R.string.samsung))){
+                    if (FileFactory.isSamsungStyle(this, Constant.sd_key_path)){
                         boolean bSDCard = false;
                         DocumentFile rootDir = DocumentFile.fromTreeUri(this, uri);
-                        String smSDPath = FileFactory.getOuterStoragePath(this, Constant.sd_key_path);
+                        String smSDPath = FileFactory.getSamsungStyleOuterStoragePath(this, Constant.sd_key_path);
                         String rootName = rootDir.getName();
                         if(smSDPath != null){
                             if(smSDPath.contains(rootName))
