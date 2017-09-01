@@ -6,12 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.nostra13.universalimageloader.core.ImageLoader;
 import com.transcend.otg.R;
 
 import java.util.ArrayList;
-
-import uk.co.senab.photoview.PhotoView;
 
 /**
  * Created by wangbojie on 2017/2/15.
@@ -44,7 +41,7 @@ public class OTGGuideAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         int id = mList.get(position);
-        PhotoView pv = new PhotoView(mContext);
+        ImageView pv = new ImageView(mContext);
         pv.setDrawingCacheEnabled(false);
         pv.setImageResource(id);
         container.addView(pv);
